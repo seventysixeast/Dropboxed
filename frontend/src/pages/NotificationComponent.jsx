@@ -13,7 +13,7 @@ export const NotificationComponent = () => {
     return (
         <>
             {/* <!-- BEGIN: Main Menu--> */}
-            <div
+            {/* <div
                 className="main-menu menu-fixed menu-dark menu-accordion menu-shadow"
                 data-scroll-to-active="true"
             >
@@ -38,9 +38,7 @@ export const NotificationComponent = () => {
                                 <span className="menu-title" data-i18n="Dashboard">
                                     Dashboard
                                 </span>
-                                {/* <span className="badge badge badge-primary badge-pill float-right mr-2">
-                  3
-                </span> */}
+                               
                             </Link>
                         </li>
                         <li className=" nav-item">
@@ -100,7 +98,7 @@ export const NotificationComponent = () => {
                         </li>
                     </ul>
                 </div>
-            </div>
+            </div> */}
             {/* <!-- END: Main Menu--> */}
 
             {/* <!-- BEGIN: Content--> */}

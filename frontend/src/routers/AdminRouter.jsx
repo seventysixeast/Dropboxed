@@ -12,11 +12,12 @@ import ToDo from "../pages/ToDo";
 
 const AdminRouter = ({ logoutUser = null }) => {
   const route = useRoutes([
-    { path: "/dashBoard", element: <Dashboard /> },
+    { path: "/dashboard", element: <Dashboard /> },
     { path: "/services", element: <Services /> },
-    { path: "/todo", element: <ToDo /> },
+    // { path: "/todo", element: <ToDo /> },
     { path: "/notifications", element: <NotificationComponent /> },
-    { path: "/booking-list", element: <BookingListComponent /> },
+    // { path: "/booking-list", element: <BookingListComponent /> },
+    // { path: "/login", element: <Login /> },
     { path: "/*", element: <Navigate to="/dashboard" /> },
   ]);
   return (
