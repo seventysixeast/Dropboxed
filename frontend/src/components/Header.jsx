@@ -1,5 +1,5 @@
 import React from "react";
-import logoLight from "../app-assets/images/logo/stack-logo-light.png";
+import logoLight from "../assets/images/dropboxed-logo-wt.png";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import avatar2 from "../app-assets/images/portrait/small/avatar-s-2.png";
 import avatar3 from "../app-assets/images/portrait/small/avatar-s-3.png";
@@ -25,11 +25,11 @@ const Header = () => {
                 href="../../../html/ltr/vertical-modern-menu-template/index.html"
               >
                 <img
-                  className="brand-logo"
+                  className="brand-logo dropLogo"
                   alt="stack admin logo"
                   src={logoLight}
                 />
-                <h2 className="brand-text">Stack</h2>
+                {/* <h2 className="brand-text">Dropboxed</h2> */}
               </a>
             </li>
 
