@@ -5,3 +5,27 @@
 .assigned_gallery {
   font-size: x-large;
 }
+
+.package_box {
+  border: 2px solid blue;
+  border-radius: 0.45rem;
+}
+
+.service_box {
+  border: 2px solid green;
+  border-radius: 0.45rem;
+}
+
+/* .black-logo{
+  height: 40px;
+} */
+
+
+.logo img{
+	width:10rem;
+	height: auto;
+}
+.brand-logo{
+	width:10rem;
+	height: auto;
+}
