@@ -1,6 +1,8 @@
 import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import { Dashboard } from "../pages/Dashboard";
+import { NotificationComponent } from "../pages/NotificationComponent";
+import { BookingListComponent } from "../pages/BookingListComponent";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Services from "../pages/Services";
@@ -13,6 +15,8 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/dashBoard", element: <Dashboard /> },
     { path: "/services", element: <Services /> },
     { path: "/todo", element: <ToDo /> },
+    { path: "/notifications", element: <NotificationComponent /> },
+    { path: "/booking-list", element: <BookingListComponent /> },
     { path: "/*", element: <Navigate to="/dashboard" /> },
   ]);
   return (
