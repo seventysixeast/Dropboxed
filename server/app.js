@@ -22,17 +22,40 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'build')));
+let clientbuildpath = path.join(__dirname, "build");
 
-app.use('/', indexRouter);
+app.get("/*", (req, res, next) => {
+  // console.log("call website ....");
+  if (
+
+    req.url.startsWith("/api") ||
+    req.url.startsWith("/auth") ||
+    req.url.startsWith("/guest") ||
+    req.url.includes("/static/") ||
+    req.url.includes("/assets/")
+  )
+    return next();
+  if (req.url.startsWith("/public/")) {
+    let reqfilename = req.url.replace("/public/", "");
+    //reqfilename = reqfilename.replace("%20"," ");
+    reqfilename = decodeURI(reqfilename);
+    // console.log("req filename...", reqfilename);
+    res.sendFile(path.join(__dirname, "public", reqfilename));
+  } else {
+    res.sendFile(clientbuildpath + "/index.html");
+  }
+});
+
+// app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -44,8 +67,8 @@ app.use(function(err, req, res, next) {
 
 // module.exports = app;
 
-var port = normalizePort(process.env.PORT || '3000');
-console.log('port',port)
+var port = normalizePort(process.env.PORT || '6977');
+console.log('port', port)
 // app.set('port', port);
 
 /**
