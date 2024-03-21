@@ -23,6 +23,7 @@ const AdminRouter = ({ logoutUser = null }) => {
     <>
       <Header />
       <SideNav />
+      <div id="script-warning"></div>
       {route}
       <Footer />
     </>

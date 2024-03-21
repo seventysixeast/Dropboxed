@@ -2,7 +2,7 @@ import React from "react";
 
 const ToDo = () => {
   return (
-    <div className="app-content content">
+    <div className="todo-application app-content content">
       <div className="sidebar-left">
         <div className="sidebar">
           <div className="todo-sidebar d-flex">
