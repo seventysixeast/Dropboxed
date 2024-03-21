@@ -59,7 +59,7 @@ const Header = () => {
         <div className="navbar-container content">
           <div className="collapse navbar-collapse" id="navbar-mobile">
             <ul className="nav navbar-nav mr-auto float-left">
-              <li className="dropdown nav-item mega-dropdown d-none d-lg-block">
+              {/* <li className="dropdown nav-item mega-dropdown d-none d-lg-block">
                 <a
                   className="dropdown-toggle nav-link"
                   href="#"
@@ -235,13 +235,14 @@ const Header = () => {
                     </ul>
                   </li>
                 </ul>
-              </li>
+              </li> */}
               <li className="nav-item d-none d-md-block">
                 <a className="nav-link nav-link-expand" href="#">
                   <i className="ficon feather icon-maximize"></i>
                 </a>
-              </li>
-              <li className="nav-item nav-search">
+              </li> 
+              {/* 
+             <li className="nav-item nav-search">
                 <a className="nav-link nav-link-search" href="#">
                   <i className="ficon feather icon-search"></i>
                 </a>
@@ -258,10 +259,10 @@ const Header = () => {
                   </div>
                   <ul className="search-list"></ul>
                 </div>
-              </li>
+              </li> */}
             </ul>
             <ul className="nav navbar-nav float-right">
-              <li className="dropdown dropdown-language nav-item">
+              {/* <li className="dropdown dropdown-language nav-item">
                 <a
                   className="dropdown-toggle nav-link"
                   id="dropdown-flag"
@@ -552,7 +553,7 @@ const Header = () => {
                     </a>
                   </li>
                 </ul>
-              </li>
+              </li> */}
               <li className="dropdown dropdown-user nav-item">
                 <a
                   className="dropdown-toggle nav-link dropdown-user-link"
@@ -569,7 +570,7 @@ const Header = () => {
                   <a className="dropdown-item" href="user-profile.html">
                     <i className="feather icon-user"></i> Edit Profile
                   </a>
-                  <a className="dropdown-item" href="app-email.html">
+                  {/* <a className="dropdown-item" href="app-email.html">
                     <i className="feather icon-mail"></i> My Inbox
                   </a>
                   <a className="dropdown-item" href="user-cards.html">
@@ -577,7 +578,7 @@ const Header = () => {
                   </a>
                   <a className="dropdown-item" href="app-chat.html">
                     <i className="feather icon-message-square"></i> Chats
-                  </a>
+                  </a> */}
                   <div className="dropdown-divider"></div>
                   <a className="dropdown-item" href="login-with-bg-image.html">
                     <i className="feather icon-power"></i> Logout
