@@ -18,9 +18,9 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/services", element: <Services /> },
     { path: "/download", element: <Download /> },
     { path: "/invoice", element: <Invoice /> },
-    // { path: "/todo", element: <ToDo /> },
+    { path: "/todo", element: <ToDo /> },
     { path: "/notifications", element: <NotificationComponent /> },
-    // { path: "/booking-list", element: <BookingListComponent /> },
+    { path: "/booking-list", element: <BookingListComponent /> },
     // { path: "/login", element: <Login /> },
     { path: "/*", element: <Navigate to="/dashboard" /> },
   ]);
