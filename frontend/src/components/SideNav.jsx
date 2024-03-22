@@ -28,20 +28,17 @@ const SideNav = () => {
               <span className="menu-title" data-i18n="Dashboard">
                 Dashboard
               </span>
-              {/* <span className="badge badge badge-primary badge-pill float-right mr-2">
-              3
-            </span> */}
             </Link>
           </li>
 
-          <li className=" nav-item">
+          {/* <li className=" nav-item">
             <Link to="/collections">
               <i className="feather icon-layout"></i>
               <span className="menu-title" data-i18n="Layouts">
                 Collections
               </span>
             </Link>
-          </li>
+          </li> */}
 
           <li className=" nav-item">
             <Link to="/orders">
@@ -100,14 +97,14 @@ const SideNav = () => {
             </Link>
           </li>
 
-          <li className=" nav-item">
+          {/* <li className=" nav-item">
             <Link to="/users">
               <i className="feather icon-user"></i>
               <span className="menu-title" data-i18n="Layouts">
                 Users
               </span>
             </Link>
-          </li>
+          </li> */}
 
           <li className=" nav-item">
             <Link to="/notifications">

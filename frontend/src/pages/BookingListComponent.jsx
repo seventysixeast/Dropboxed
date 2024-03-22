@@ -65,7 +65,7 @@ export const BookingListComponent = () => {
                           <th>Code</th>
                           <th>Address</th>
                           <th>Comment</th>
-                          <th>Assign Photographer</th>
+                          {/* <th>Assign Photographer</th> */}
                           <th>Status</th>
                           <th className="d-none"></th>
                           <th className="d-none"></th>
@@ -88,7 +88,7 @@ export const BookingListComponent = () => {
                             Bangladesh
                           </td>
                           <td>Test Comment</td>
-                          <td>PhotoGrapher Dropdown</td>
+                          {/* <td>PhotoGrapher Dropdown</td> */}
                           <td>
                             <a href="#" className="table-button bg-red">
                               Pending
@@ -126,7 +126,7 @@ export const BookingListComponent = () => {
                           </td>
                           <td>First Canadian Place, Toronto, ON, Canada</td>
                           <td> </td>
-                          <td>PhotoGrapher Dropdown</td>
+                          {/* <td>PhotoGrapher Dropdown</td> */}
                           <td>
                             <a href="#" className="table-button bg-red">
                               Pending

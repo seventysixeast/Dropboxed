@@ -43,7 +43,7 @@ export const Dashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="col-xl-3 col-lg-6 col-12">
+                      {/* <div className="col-xl-3 col-lg-6 col-12">
                         <div className="card">
                           <div className="card-content">
                             <div className="media align-items-stretch">
@@ -68,7 +68,7 @@ export const Dashboard = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="col-xl-3 col-lg-6 col-12">
                         <div className="card">
                           <div className="card-content">
@@ -125,38 +125,10 @@ export const Dashboard = () => {
                 </div>
               </div>
             </div>
-            {/* <!-- active users and my task timeline cards starts here --> */}
+
             <section id="image-gallery" className="card">
-              {/* <div className="card-header">
-                <h4 className="card-title">Image gallery</h4>
-                <a className="heading-elements-toggle">
-                  <i className="fa fa-ellipsis-v font-medium-3"></i>
-                </a>
-                <div className="heading-elements">
-                  <ul className="list-inline mb-0">
-                    <li>
-                      <a data-action="collapse">
-                        <i className="feather icon-minus"></i>
-                      </a>
-                    </li>
-                    <li>
-                      <a data-action="reload">
-                        <i className="feather icon-rotate-cw"></i>
-                      </a>
-                    </li>
-                    <li>
-                      <a data-action="expand">
-                        <i className="feather icon-maximize"></i>
-                      </a>
-                    </li>
-                    <li>
-                      <a data-action="close">
-                        <i className="feather icon-x"></i>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div> */}
+            <h4 className="card-title assigned_gallery p-2 ">Gallery</h4>
+
               <div className="card-content collapse show">
                 <div
                   className="card-body my-gallery"
