@@ -88,6 +88,24 @@ const SideNav = () => {
               </span>
             </Link>
           </li>
+
+          <li className=" nav-item">
+            <Link to="/add-collection">
+              <i className="feather icon-mail"></i>
+              <span className="menu-title" data-i18n="Collection Form">
+                Add Collection
+              </span>
+            </Link>
+          </li>
+
+          <li className=" nav-item">
+            <Link to="/add-booking">
+              <i className="feather icon-mail"></i>
+              <span className="menu-title" data-i18n="Booking Form">
+                Add Booking
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
     </div>

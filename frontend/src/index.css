@@ -11,3 +11,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 } */
+.zoom {
+  transition: transform 0.3s ease;
+}
+.zoom:hover {
+  transform: scale(1.1);
+}
+
+.table-button {
+  border: 1px;
+  border-radius: 4px;
+  padding: 5px;
+  display: block;
+  background-color: #666ee8;
+  text-align: center;
+  color: white;
+  margin-right: 5px;
+  margin-left: 5px;
+  margin-bottom: 5px
+
+}
+.table-button:hover {
+  color: white;
+  opacity: 80%;
+}

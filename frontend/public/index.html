@@ -11,6 +11,8 @@
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
     <link
       rel="apple-touch-icon"
       href="/app-assets/images/ico/apple-icon-120.png"
@@ -48,6 +50,22 @@
       type="text/css"
       href="/app-assets/vendors/css/calendars/timegrid.min.css"
     />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/app-assets/vendors/css/pickers/daterange/daterangepicker.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./app-assets/vendors/css/pickers/datetime/bootstrap-datetimepicker.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/app-assets/vendors/css/pickers/pickadate/pickadate.css"
+    />
+
     <!-- END: Vendor CSS-->
 
     <!-- BEGIN: Theme CSS-->
@@ -149,6 +167,11 @@
       type="text/css"
       href="/app-assets/css/plugins/calendars/fullcalendar.css"
     />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/app-assets/css/plugins/pickers/daterange/daterange.css"
+    />
 
     <!-- BEGIN: Custom CSS-->
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
@@ -164,8 +187,8 @@
   >
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <div style='display:none' id="fc-event-colors"></div>
-    <div style='display:none' id="fc-bg-events"></div>
+    <div style="display: none" id="fc-event-colors"></div>
+    <div style="display: none" id="fc-bg-events"></div>
 
     <script src="/app-assets/vendors/js/vendors.min.js"></script>
     <script src="/app-assets/vendors/js/charts/apexcharts/apexcharts.js"></script>
@@ -178,11 +201,19 @@
     <!-- END: Page Vendor JS-->
 
     <!-- BEGIN: Page Vendor JS-->
+
     <script src="/app-assets/vendors/js/extensions/moment.min.js"></script>
     <script src="/app-assets/vendors/js/extensions/fullcalendar.min.js"></script>
     <script src="/app-assets/vendors/js/extensions/daygrid.min.js"></script>
     <script src="/app-assets/vendors/js/extensions/timegrid.min.js"></script>
     <script src="/app-assets/vendors/js/extensions/interactions.min.js"></script>
+    <script src="/app-assets/vendors/js/pickers/dateTime/moment-with-locales.min.js"></script>
+    <script src="/app-assets/vendors/js/pickers/dateTime/bootstrap-datetimepicker.min.js"></script>
+    <script src="/app-assets/vendors/js/pickers/pickadate/picker.js"></script>
+    <script src="/app-assets/vendors/js/pickers/pickadate/picker.date.js"></script>
+    <script src="/app-assets/vendors/js/pickers/pickadate/picker.time.js"></script>
+    <script src="/app-assets/vendors/js/pickers/pickadate/legacy.js"></script>
+    <script src="/app-assets/vendors/js/pickers/daterange/daterangepicker.js"></script>
     <!-- END: Page Vendor JS-->
     <script src="/app-assets/js/core/app-menu.js"></script>
     <script src="/app-assets/js/core/app.js"></script>
@@ -203,6 +234,8 @@
     <script src="/app-assets/js/scripts/pages/page-users.js"></script>
     <script src="/app-assets/js/scripts/pages/app-chat.js"></script>
     <script src="/app-assets/js/scripts/extensions/fullcalendar-events.js"></script>
+    <script src="/app-assets/js/scripts/pickers/dateTime/bootstrap-datetime.js"></script>
+    <script src="/app-assets/js/scripts/pickers/dateTime/pick-a-datetime.js"></script>
     <!-- END: Page JS-->
   </body>
 </html>

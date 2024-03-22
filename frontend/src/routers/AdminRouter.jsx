@@ -11,6 +11,8 @@ import Invoice from "../pages/Invoice";
 import SideNav from "../components/SideNav";
 import Login from "../pages/Login";
 import ToDo from "../pages/ToDo";
+import { AddCollection } from "../pages/AddCollection";
+import { AddBooking } from "../pages/AddBooking";
 
 const AdminRouter = ({ logoutUser = null }) => {
   const route = useRoutes([
@@ -23,6 +25,9 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/booking-list", element: <BookingListComponent /> },
     // { path: "/login", element: <Login /> },
     { path: "/*", element: <Navigate to="/dashboard" /> },
+    { path: "/add-collection", element: <AddCollection /> },
+    { path: "/add-booking", element: <AddBooking /> },
+
   ]);
   return (
     <>

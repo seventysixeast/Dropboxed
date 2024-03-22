@@ -1,5 +1,4 @@
 import React from "react";
-// import "../app-assets/css/core/menu/menu-types/vertical-menu-modern.css";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import avatar5 from "../app-assets/images/portrait/small/avatar-s-14.png";
 import avatar6 from "../app-assets/images/portrait/small/avatar-s-15.png";
@@ -54,18 +53,19 @@ export const BookingListComponent = () => {
           <div className="users-list-table">
             <div className="card">
               <h5 className="breadcrumb-item active p-1">Bookings</h5>
-
               <div className="card-content">
                 <div className="card-body">
-                  {/* datatable start */}
                   <div className="table-responsive">
                     <table id="users-list-datatable" className="table">
                       <thead>
                         <tr>
                           <th>Booking Date</th>
                           <th>Booking Time</th>
+                          <th>Customer</th>
+                          <th>Code</th>
                           <th>Address</th>
                           <th>Comment</th>
+                          <th>Assign Photographer</th>
                           <th>Status</th>
                           <th className="d-none"></th>
                           <th className="d-none"></th>
@@ -76,91 +76,78 @@ export const BookingListComponent = () => {
                         <tr>
                           <td>22-03-2024</td>
                           <td>10:30 am - 01:00 pm</td>
+                          <td>Client Name</td>
+                          <td>
+                            <span
+                              className="bullet bullet-sm tooltip_color"
+                              style={{ backgroundColor: "#000000" }}
+                            ></span>
+                          </td>
                           <td>
                             Essential Clothing Limited, Mouchak - Fulbaria Road,
                             Bangladesh
                           </td>
                           <td>Test Comment</td>
+                          <td>PhotoGrapher Dropdown</td>
                           <td>
-                            <button className="btn btn-red text-white mb-1">
+                            <a href="#" className="table-button bg-red">
                               Pending
-                            </button>
-                            <button className="btn btn-primary">
+                            </a>
+                            <a href="#" className="table-button bg-red">
+                              Notify
+                            </a>
+                            <a href="#" className="table-button bg-success">
+                              Booked
+                            </a>
+                            <a href="#" className="table-button ">
+                              Edit
+                            </a>
+                            <a href="#" className="table-button ">
+                              Delete
+                            </a>
+
+                            <a href="#" className="table-button">
                               Turn into Gallery
-                            </button>
+                            </a>
                           </td>
                           <td></td>
                           <td></td>
                           <td></td>
-                        
                         </tr>
                         <tr>
                           <td>26-03-2024</td>
                           <td>03:00 pm - 06:00 am</td>
+                          <td>Client Name</td>
+                          <td>
+                            <span
+                              className="bullet bullet-sm tooltip_color"
+                              style={{ backgroundColor: "#000000" }}
+                            ></span>
+                          </td>
                           <td>First Canadian Place, Toronto, ON, Canada</td>
                           <td> </td>
+                          <td>PhotoGrapher Dropdown</td>
                           <td>
-                            <button className="btn btn-red text-white mb-1">
+                            <a href="#" className="table-button bg-red">
                               Pending
-                            </button>
-                            <button className="btn btn-primary">
-                              Turn into Gallery
-                            </button>
-                          </td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td>30-11--0001</td>
-                          <td>12:00 am - 12:00 am</td>
-                          <td> </td>
-                          <td> </td>
-                          <td>
-                            <button className="btn btn-red text-white mb-1">
-                              Pending
-                            </button>
-                            <button className="btn btn-primary">
-                              Turn into Gallery
-                            </button>
-                          </td>
+                            </a>
+                            <a href="#" className="table-button bg-red">
+                              Notify
+                            </a>
+                            <a href="#" className="table-button bg-success">
+                              Booked
+                            </a>
+                            <a href="#" className="table-button ">
+                              Edit
+                            </a>
+                            <a href="#" className="table-button ">
+                              Delete
+                            </a>
 
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td>30-11--0001</td>
-                          <td>12:00 am - 12:00 am</td>
-                          <td> </td>
-                          <td> </td>
-                          <td>
-                            <button className="btn btn-red text-white mb-1">
-                              Pending
-                            </button>
-                            <button className="btn btn-primary">
+                            <a href="#" className="table-button">
                               Turn into Gallery
-                            </button>
+                            </a>
                           </td>
-
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td>26-01-2023</td>
-                          <td>09:00 am - 04:30 pm</td>
-                          <td>Closed Australia Day</td>
-                          <td> </td>
-                          <td>
-                            <button className="btn btn-success text-white mb-1">
-                              Confirmed
-                            </button>
-                            <button className="btn btn-primary">
-                              Turn into Gallery
-                            </button>
-                          </td>
-
                           <td></td>
                           <td></td>
                           <td></td>
@@ -174,7 +161,6 @@ export const BookingListComponent = () => {
           </div>
         </div>
       </div>
-
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
     </>

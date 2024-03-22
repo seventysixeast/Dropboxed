@@ -1,4 +1,6 @@
 import React from "react";
+import { FaEdit, FaUpload } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 
 const Invoice = () => {
   return (
@@ -36,6 +38,7 @@ const Invoice = () => {
                         <th>Amount</th>
                         <th>Status</th>
                         <th>Invoice Link</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -47,7 +50,23 @@ const Invoice = () => {
                         <td>123 Main St, Cityville</td>
                         <td>$150</td>
                         <td>Shipped</td>
-                        <td><a href="invoice_link_12345">View Invoice</a></td>
+                        <td>
+                          <a href="invoice_link_12345">View Invoice</a>
+                        </td>
+                        <td className="d-flex justify-content-between">
+                          <div className="row">
+                              <a href="#">
+                                <FaEdit title="Edit" className="fa-lg" />
+                              </a>
+                              <a href="#">
+                                <MdDelete title="Delete" className="fa-lg" />
+                              </a>
+                              <a href="#">
+                                <FaUpload title="Upload" className="fa-lg" />
+                              </a>
+                              <a href="#">Paid</a>
+                          </div>
+                        </td>
                       </tr>
                       <tr>
                         <td>2024-03-21</td>
@@ -57,7 +76,23 @@ const Invoice = () => {
                         <td>456 Elm St, Townsville</td>
                         <td>$200</td>
                         <td>Processing</td>
-                        <td><a href="invoice_link_67890">View Invoice</a></td>
+                        <td>
+                          <a href="invoice_link_67890">View Invoice</a>
+                        </td>
+                        <td className="d-flex justify-content-between">
+                          <div className="row">
+                              <a href="#">
+                                <FaEdit title="Edit" className="fa-lg" />
+                              </a>
+                              <a href="#">
+                                <MdDelete title="Delete" className="fa-lg" />
+                              </a>
+                              <a href="#">
+                                <FaUpload title="Upload" className="fa-lg" />
+                              </a>
+                              <a href="#">Paid</a>
+                          </div>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
