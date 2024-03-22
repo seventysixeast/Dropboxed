@@ -33,6 +33,25 @@ const SideNav = () => {
             </span> */}
             </Link>
           </li>
+
+          <li className=" nav-item">
+            <Link to="/collections">
+              <i className="feather icon-layout"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Collections
+              </span>
+            </Link>
+          </li>
+
+          <li className=" nav-item">
+            <Link to="/orders">
+              <i className="feather icon-layout"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Orders
+              </span>
+            </Link>
+          </li>
+
           <li className=" nav-item">
             <Link to="/services">
               <i className="feather icon-monitor"></i>
@@ -41,6 +60,7 @@ const SideNav = () => {
               </span>
             </Link>
           </li>
+
           <li className=" nav-item">
             <Link to="/download">
               <i className="feather icon-layout"></i>
@@ -76,6 +96,15 @@ const SideNav = () => {
               <i className="feather icon-check-square"></i>
               <span className="menu-title" data-i18n="Todo Application">
                 To Do
+              </span>
+            </Link>
+          </li>
+
+          <li className=" nav-item">
+            <Link to="/users">
+              <i className="feather icon-user"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Users
               </span>
             </Link>
           </li>
