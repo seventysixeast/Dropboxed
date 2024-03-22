@@ -6,6 +6,7 @@ import { BookingListComponent } from "../pages/BookingListComponent";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Services from "../pages/Services";
+import Orders from "../pages/Orders";
 import Download from "../pages/Download";
 import Invoice from "../pages/Invoice";
 import SideNav from "../components/SideNav";
@@ -16,6 +17,7 @@ const AdminRouter = ({ logoutUser = null }) => {
   const route = useRoutes([
     { path: "/dashboard", element: <Dashboard /> },
     { path: "/services", element: <Services /> },
+    { path: "/orders", element: <Orders /> },
     { path: "/download", element: <Download /> },
     { path: "/invoice", element: <Invoice /> },
     { path: "/todo", element: <ToDo /> },

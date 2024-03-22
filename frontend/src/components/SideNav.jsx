@@ -42,6 +42,15 @@ const SideNav = () => {
             </Link>
           </li>
           <li className=" nav-item">
+            <Link to="/orders">
+              <i className="feather icon-layout"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Orders
+              </span>
+            </Link>
+          </li>
+
+          <li className=" nav-item">
             <Link to="/download">
               <i className="feather icon-layout"></i>
               <span className="menu-title" data-i18n="Layouts">
