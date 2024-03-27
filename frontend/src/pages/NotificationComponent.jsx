@@ -37,7 +37,7 @@ export const NotificationComponent = () => {
                 <div className="card-body">
                   {/* datatable start */}
                   <div className="table-responsive">
-                    <table id="notifications-list-datatable" className="table">
+                    <table class="table table-striped table-bordered zero-configuration">
                       <thead>
                         <tr>
                           <th>Date</th>

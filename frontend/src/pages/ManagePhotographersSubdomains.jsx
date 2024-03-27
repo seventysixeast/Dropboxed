@@ -27,7 +27,7 @@ const ManagePhotographersSubdomains = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="photographers-list-datatable" className="table">
+                  <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
                         <th>S.No.</th>
@@ -48,7 +48,7 @@ const ManagePhotographersSubdomains = () => {
                         <td>John Doe</td>
                         <td>johndoe123@gmail.com</td>
                         <td>2222234321</td>
-                        <td>76east.com</td>
+                        <td>76east.dropboxed.com</td>
                         <td className="d-flex justify-content-between">
                           <div className="row">
                             <a href="#">
@@ -71,7 +71,7 @@ const ManagePhotographersSubdomains = () => {
                         <td>Jane Smith</td>
                         <td>janesmith456@gmail.com</td>
                         <td>2343444545</td>
-                        <td>dropboxed.com</td>
+                        <td>abc.dropboxed.com</td>
                         <td className="d-flex justify-content-between">
                           <div className="row">
                             <a href="#">

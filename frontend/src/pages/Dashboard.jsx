@@ -687,7 +687,7 @@ export const Dashboard = () => {
                   <div className="card-body">
                     {/* datatable start */}
                     <div className="table-responsive">
-                      <table id="orders-list-datatable" className="table">
+                      <table class="table table-striped table-bordered zero-configuration">
                         <thead>
                           <tr>
                             <th>Order.No.</th>
@@ -715,9 +715,6 @@ export const Dashboard = () => {
                             <td>$5</td>
                             <td>$5</td>
                             <td>$25</td>
-                            {/* <td>
-                                                        <span className="badge badge-success">Active</span>
-                                                    </td> */}
                             <td>
                               <a href="../../../html/ltr/vertical-menu-template/page-users-edit.html">
                                 <i className="feather icon-edit-1" />

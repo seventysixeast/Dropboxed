@@ -1,14 +1,9 @@
-import React from "react";
-import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
-import avatar5 from "../app-assets/images/portrait/small/avatar-s-14.png";
-import avatar6 from "../app-assets/images/portrait/small/avatar-s-15.png";
-import avatar7 from "../app-assets/images/portrait/small/avatar-s-4.png";
-import avatar8 from "../app-assets/images/portrait/small/avatar-s-11.png";
-import avatar9 from "../app-assets/images/portrait/small/avatar-s-19.png";
-import avatar10 from "../app-assets/images/portrait/small/avatar-s-20.png";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export const BookingListComponent = () => {
+  const [startdate, setStartdate] = useState(new Date());
   return (
     <>
       <div className="app-content content">
@@ -27,6 +22,127 @@ export const BookingListComponent = () => {
                   </ol>
                 </div>
               </div>
+            </div>
+            <div className="heading-elements content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
+              <ul className="list-inline mb-0">
+                <li>
+                  <div className="form-group">
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-block"
+                      data-toggle="modal"
+                      data-target="#bootstrap"
+                    >
+                      New Booking
+                    </button>
+
+                    <div
+                      className="modal fade text-left"
+                      id="bootstrap"
+                      tabIndex="-1"
+                      role="dialog"
+                      aria-labelledby="myModalLabel35"
+                      aria-hidden="true"
+                      style={{ display: "none" }}
+                    >
+                      <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <button
+                              type="button"
+                              className="close"
+                              data-dismiss="modal"
+                              aria-label="Close"
+                            >
+                              <span aria-hidden="true">×</span>
+                            </button>
+                          </div>
+                          <form>
+                            <div className="modal-body">
+                              <label htmlFor="title">Title</label>
+                              <input
+                                type="text"
+                                id="title"
+                                className="form-control border-primary"
+                                placeholder="Title"
+                                name="title"
+                                required
+                              />
+                            </div>
+                            <div className="modal-body">
+                              <label htmlFor="package">
+                                Package (Optional)
+                              </label>
+                              <select
+                                className="select2 form-control"
+                                required
+                              >
+                                <option value="Studio">Studio Package</option>
+                                <option value="Essential">
+                                  Essential Package
+                                </option>
+                                <option value="Premium">
+                                  Premium Package
+                                </option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label htmlFor="services">
+                                Services (Optional)
+                              </label>
+                              <select
+                                className="select2 form-control"
+                                required
+                              >
+                                <option value="Studio">
+                                  Studio Photography
+                                </option>
+                                <option value="Essential">
+                                  Essential Photography
+                                </option>
+                                <option value="Premium">
+                                  Premium Photography
+                                </option>
+                                <option value="Studio">
+                                  Studio Floor Plan
+                                </option>
+                                <option value="Essential">
+                                  Essential Floor Plan
+                                </option>
+                                <option value="Premium">
+                                  Premium Floor Plan
+                                </option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label className="d-block">Preffered Date</label>
+                              <DatePicker
+                                className="form-control w-100 d-block"
+                                id="datetimepicker4"
+                                selected={startdate}
+                                onChange={(date) => setStartdate(date)}
+                              />
+                            </div>
+                            <div className="modal-footer">
+                              <input
+                                type="submit"
+                                className="btn btn-outline-primary btn"
+                                value="Save"
+                              />
+                              <input
+                                type="reset"
+                                className="btn btn-outline-secondary btn"
+                                data-dismiss="modal"
+                                value="Close"
+                              />
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
           <div className="content-body">

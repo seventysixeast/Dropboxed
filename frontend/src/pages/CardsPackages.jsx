@@ -56,7 +56,7 @@ const CardsPackages = () => {
                         <form>
                           <div className="modal-body">
                             <fieldset className="form-group floating-label-form-group">
-                              <label>Package Type</label>
+                              <label>Package Type *</label>
                               <select
                                 className="select2 form-control"
                                 required
@@ -66,7 +66,7 @@ const CardsPackages = () => {
                               </select>
                             </fieldset>
                             <fieldset className="form-group floating-label-form-group">
-                              <label>Package Name</label>
+                              <label>Package Name *</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -76,7 +76,7 @@ const CardsPackages = () => {
                               />
                             </fieldset>
                             <fieldset className="form-group floating-label-form-group">
-                              <label>Package Price</label>
+                              <label>Package Price *</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -86,7 +86,7 @@ const CardsPackages = () => {
                               />
                             </fieldset>
                             <fieldset className="form-group floating-label-form-group">
-                              <label>Image Type Details</label>
+                              <label>Image Type Details *</label>
                               <select
                                 className="select2 form-control"
                                 required
@@ -96,7 +96,7 @@ const CardsPackages = () => {
                               </select>
                             </fieldset>
                             <fieldset className="form-group floating-label-form-group">
-                              <label>Status</label>
+                              <label>Status *</label>
                               <select
                                 className="select2 form-control"
                                 required
@@ -142,8 +142,8 @@ const CardsPackages = () => {
                   </ul>
                 </div>
                 <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-info white">Edit Package</button>
-                  <button class="btn btn-info white">Delete Package</button>
+                  <button class="btn btn-info white">Edit</button>
+                  <button class="btn btn-info white">Delete</button>
                 </div>
               </div>
             </div>
@@ -152,17 +152,18 @@ const CardsPackages = () => {
             <div class="card">
               <div class="card-content">
                 <div class="card-body text-center">
-                  <h4 class="card-title">Studio Package</h4>
-                  <h1 class="card-title">$385.00</h1>
+                  <h4 class="card-title">Premium Package</h4>
+                  <h1 class="card-title">$900.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
-                    <li>12 High resolution images</li>
-                    <li>3 Aerial photos</li>
-                    <li>1 Studio Floor plan</li>
+                    <li>20 High resolution images</li>
+                    <li>1 Standard Floor and Site Plan</li>
+                    <li>8 High Resolution Aerial Photos</li>
+                    <li>1 Property Video</li>
                   </ul>
                 </div>
                 <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-info white">Edit Package</button>
-                  <button class="btn btn-info white">Delete Package</button>
+                  <button class="btn btn-info white">Edit</button>
+                  <button class="btn btn-info white">Delete</button>
                 </div>
               </div>
             </div>
@@ -171,17 +172,17 @@ const CardsPackages = () => {
             <div class="card">
               <div class="card-content">
                 <div class="card-body text-center">
-                  <h4 class="card-title">Studio Package</h4>
-                  <h1 class="card-title">$385.00</h1>
+                  <h4 class="card-title">Essential Package</h4>
+                  <h1 class="card-title">$485.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
-                    <li>12 High resolution images</li>
-                    <li>3 Aerial photos</li>
-                    <li>1 Studio Floor plan</li>
+                    <li>20 High resolution images</li>
+                    <li>5 Aerials</li>
+                    <li>1 Floor plan and site plan</li>
                   </ul>
                 </div>
                 <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-info white">Edit Package</button>
-                  <button class="btn btn-info white">Delete Package</button>
+                  <button class="btn btn-info white">Edit</button>
+                  <button class="btn btn-info white">Delete</button>
                 </div>
               </div>
             </div>
@@ -190,17 +191,16 @@ const CardsPackages = () => {
             <div class="card">
               <div class="card-content">
                 <div class="card-body text-center">
-                  <h4 class="card-title">Studio Package</h4>
-                  <h1 class="card-title">$385.00</h1>
+                  <h4 class="card-title">Builders architectural  shoot</h4>
+                  <h1 class="card-title">$350.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
-                    <li>12 High resolution images</li>
-                    <li>3 Aerial photos</li>
-                    <li>1 Studio Floor plan</li>
+                    <li>30 30 architectural images</li>
+                    <li>10 Aerial Images</li>
                   </ul>
                 </div>
                 <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-info white">Edit Package</button>
-                  <button class="btn btn-info white">Delete Package</button>
+                  <button class="btn btn-success white">Edit</button>
+                  <button class="btn btn-success white">Delete</button>
                 </div>
               </div>
             </div>
@@ -209,55 +209,17 @@ const CardsPackages = () => {
             <div class="card">
               <div class="card-content">
                 <div class="card-body text-center">
-                  <h4 class="card-title">Studio Package</h4>
-                  <h1 class="card-title">$385.00</h1>
+                  <h4 class="card-title">Rental Package</h4>
+                  <h1 class="card-title">$350.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
                     <li>12 High resolution images</li>
                     <li>3 Aerial photos</li>
-                    <li>1 Studio Floor plan</li>
+                    <li>1 60 Sec (3 CLIPS) Continuous Video</li>
                   </ul>
                 </div>
                 <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-info white">Edit Package</button>
-                  <button class="btn btn-info white">Delete Package</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card">
-              <div class="card-content">
-                <div class="card-body text-center">
-                  <h4 class="card-title">Studio Package</h4>
-                  <h1 class="card-title">$385.00</h1>
-                  <ul class="list-unstyled mt-2 mb-2">
-                    <li>12 High resolution images</li>
-                    <li>3 Aerial photos</li>
-                    <li>1 Studio Floor plan</li>
-                  </ul>
-                </div>
-                <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-success white">Edit Package</button>
-                  <button class="btn btn-success white">Delete Package</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card">
-              <div class="card-content">
-                <div class="card-body text-center">
-                  <h4 class="card-title">Studio Package</h4>
-                  <h1 class="card-title">$385.00</h1>
-                  <ul class="list-unstyled mt-2 mb-2">
-                    <li>12 High resolution images</li>
-                    <li>3 Aerial photos</li>
-                    <li>1 Studio Floor plan</li>
-                  </ul>
-                </div>
-                <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-success white">Edit Package</button>
-                  <button class="btn btn-success white">Delete Package</button>
+                  <button class="btn btn-success white">Edit</button>
+                  <button class="btn btn-success white">Delete</button>
                 </div>
               </div>
             </div>

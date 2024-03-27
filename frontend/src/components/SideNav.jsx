@@ -123,14 +123,14 @@ const SideNav = () => {
               </span>
             </Link>
           </li>
-          <li className=" nav-item">
+          {/* <li className=" nav-item">
             <Link to="/booking-for-photography">
               <i className="feather icon-mail"></i>
               <span className="menu-title" data-i18n="Booking for Photography">
                 Booking for Photography
               </span>
             </Link>
-          </li>
+          </li> */}
           <li className=" nav-item">
             <Link to="/todo">
               <i className="feather icon-check-square"></i>
