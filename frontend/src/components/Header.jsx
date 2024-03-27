@@ -6,6 +6,8 @@ import avatar3 from "../app-assets/images/portrait/small/avatar-s-3.png";
 import avatar4 from "../app-assets/images/portrait/small/avatar-s-6.png";
 
 const Header = () => {
+
+
   return (
     <nav className="header-navbar navbar-expand-lg navbar navbar-with-menu fixed-top navbar-semi-dark navbar-shadow">
       <div className="navbar-wrapper">

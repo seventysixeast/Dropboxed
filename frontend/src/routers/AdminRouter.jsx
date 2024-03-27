@@ -42,14 +42,14 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/notifications-of-booking", element: <NotificationComponent /> },
     { path: "/manage-photographers-subdomains", element: <ManagePhotographersSubdomains /> },
     { path: "/edit-profile", element: <EditProfile /> },
-    { path: "/login", element: <Login /> },
-    { path: "/signup", element: <SignUp /> },
+    // { path: "/login", element: <Login /> },
+    // { path: "/signup", element: <SignUp /> },
     // { path: "/add-collection", element: <AddCollection /> },
-    // { path: "/collections", element: <Collections /> },
+    { path: "/collections", element: <Collections /> },
     // { path: "/download", element: <Download /> },
     // { path: "/users", element: <Users /> },
     // { path: "/login", element: <Login /> },
-    { path: "/*", element: <Navigate to="/dashboard" /> },
+    // { path: "/*", element: <Navigate to="/dashboard" /> },
 
   ]);
   return (

@@ -20,7 +20,7 @@ export const Dashboard = () => {
             </div>
           </div>
           <div className="content-body">
-            <div className="row grouped-multiple-statistics-card">
+            <div className="row grouped-multiple-statistics-card pb-2">
               <div className="col-12">
                 <div className="card">
                   <div className="card-body">

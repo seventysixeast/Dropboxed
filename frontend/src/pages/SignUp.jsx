@@ -5,12 +5,15 @@ const SignUp = () => {
   return (
     <div>
       <div className="content-overlay"></div>
-      <div className="content-wrapper">
+      <div
+        className="content-wrapper bg-full-screen-image"
+        style={{ height: "100vh" }}
+      >
         <div className="content-header row"></div>
         <div className="content-body">
           <section className="row flexbox-container">
             <div className="col-12 d-flex align-items-center justify-content-center">
-              <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0">
+              <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-4">
                 <div className="card border-grey border-lighten-3 m-0">
                   <div className="card-header border-0">
                     <div className="card-title text-center">
@@ -24,7 +27,7 @@ const SignUp = () => {
                   </div>
 
                   <div className="card-content">
-                    <div className="text-center">
+                    {/* <div className="text-center">
                       <a
                         href="#"
                         className="btn btn-social-icon mr-1 mb-1 btn-outline-facebook"
@@ -52,7 +55,7 @@ const SignUp = () => {
                     </div>
                     <p className="card-subtitle line-on-side text-muted text-center font-small-3 mx-2 my-1">
                       <span>OR Using Email</span>
-                    </p>
+                    </p> */}
                     <div className="card-body">
                       <form
                         className="form-horizontal"
@@ -135,17 +138,17 @@ const SignUp = () => {
                           <i className="feather icon-user" /> Register
                         </button>
                       </form>
-                      {/* <a
-                        href="login-with-bg-image.html"
+                      <a
+                        href="/login"
                         className="btn btn-outline-danger btn-block mt-2"
                       >
                         <i className="feather icon-unlock" /> Login
-                      </a> */}
+                      </a>
                     </div>
                   </div>
                 </div>
               </div>
-              </div>
+            </div>
           </section>
         </div>
       </div>

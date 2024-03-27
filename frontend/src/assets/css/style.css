@@ -56,3 +56,8 @@ button.btn.btn-primary {
   height: 100%;
 }
 
+
+.bg-full-screen-image {
+  background: url(../../app-assets/images/backgrounds/bg-2.jpg) no-repeat center center fixed;
+  background-size: cover;
+}
