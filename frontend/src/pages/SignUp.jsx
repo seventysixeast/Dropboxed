@@ -3,15 +3,16 @@ import logoLight from "../assets/images/dropboxed-logo.png";
 
 const SignUp = () => {
   return (
-    <>
+    <div>
+      <div className="content-overlay"></div>
       <div className="content-wrapper">
         <div className="content-header row"></div>
         <div className="content-body">
           <section className="row flexbox-container">
             <div className="col-12 d-flex align-items-center justify-content-center">
               <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0">
-                <div className="card border-grey border-lighten-3 px-1 py-1 m-0">
-                <div className="card-header border-0">
+                <div className="card border-grey border-lighten-3 m-0">
+                  <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
                         <img src={logoLight} alt="branding logo" />
@@ -95,6 +96,7 @@ const SignUp = () => {
                         </fieldset>
                         <fieldset className="form-group position-relative">
                           <select
+                            name="country"
                             className="select2 form-control"
                             required
                             aria-placeholder="Country"
@@ -125,48 +127,7 @@ const SignUp = () => {
                             </label>
                           </div>
                         </fieldset>
-                        {/* <div className="form-group row">
-                          <div className="col-sm-6 col-12 text-center text-sm-left pr-0">
-                            <fieldset>
-                              <div
-                                className="icheckbox_square-blue"
-                                style={{ position: "relative" }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  id="remember-me"
-                                  className="chk-remember"
-                                  style={{ position: "absolute", opacity: 0 }}
-                                />
-                                <ins
-                                  className="iCheck-helper"
-                                  style={{
-                                    position: "absolute",
-                                    top: "0%",
-                                    left: "0%",
-                                    display: "block",
-                                    width: "100%",
-                                    height: "100%",
-                                    margin: 0,
-                                    padding: 0,
-                                    background: "rgb(255, 255, 255)",
-                                    border: 0,
-                                    opacity: 0,
-                                  }}
-                                />
-                              </div>
-                              <label htmlFor="remember-me"> Remember Me</label>
-                            </fieldset>
-                          </div>
-                          <div className="col-sm-6 col-12 float-sm-left text-center text-sm-right">
-                            <a
-                              href="recover-password.html"
-                              className="card-link"
-                            >
-                              Forgot Password?
-                            </a>
-                          </div>
-                        </div> */}
+
                         <button
                           type="submit"
                           className="btn btn-outline-primary btn-block"
@@ -184,11 +145,11 @@ const SignUp = () => {
                   </div>
                 </div>
               </div>
-            </div>
+              </div>
           </section>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

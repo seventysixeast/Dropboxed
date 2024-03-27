@@ -25,6 +25,7 @@ import Users from "../pages/Users";
 import Login from "../pages/Login";
 import ManagePhotographersSubdomains from "../pages/ManagePhotographersSubdomains";
 import EditProfile from "../pages/EditProfile";
+import SignUp from "../pages/SignUp";
 
 const AdminRouter = ({ logoutUser = null }) => {
   const route = useRoutes([
@@ -45,7 +46,8 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/notifications-of-booking", element: <NotificationComponent /> },
     { path: "/manage-photographers-subdomains", element: <ManagePhotographersSubdomains /> },
     { path: "/edit-profile", element: <EditProfile /> },
-
+    { path: "/login", element: <Login /> },
+    { path: "/signup", element: <SignUp /> },
     // { path: "/add-collection", element: <AddCollection /> },
     // { path: "/collections", element: <Collections /> },
     // { path: "/download", element: <Download /> },

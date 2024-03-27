@@ -75,9 +75,9 @@ const Login = () => {
                         </div>
                         <button
                           type="submit"
-                          className="btn btn-primary btn-lg btn-block"
+                          className="btn btn-outline-primary btn-block"
                         >
-                          <i className="feather icon-unlock"></i> Login
+                          <i className="feather icon-user" /> Login
                         </button>
                       </form>
                     </div>
