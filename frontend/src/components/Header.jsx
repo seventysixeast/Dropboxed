@@ -64,7 +64,7 @@ const Header = () => {
                   <i className="ficon feather icon-maximize"></i>
                 </a>
               </li>
-              <li className="nav-item d-none d-md-block">
+              {/* <li className="nav-item d-none d-md-block">
                 <a className="nav-link nav-link-expand py-0" href="#">
                   <button className="btn btn-blue text-white glow ">+ New Gallery</button>
                 </a>
@@ -83,7 +83,7 @@ const Header = () => {
                 <a className="nav-link nav-link-expand py-0" href="#">
                   <button className="btn btn-blue text-white glow">+ New Client</button>
                 </a>
-              </li>
+              </li> */}
             </ul>
             <ul className="nav navbar-nav float-right">
               <li className="dropdown dropdown-user nav-item">

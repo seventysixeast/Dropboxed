@@ -14,12 +14,12 @@ const SideNav = () => {
           data-menu="menu-navigation"
         >
           <li className=" navigation-header">
-            <span>Photographer</span>
+            <span>Photographers</span>
             <i
               className=" feather icon-minus"
               data-toggle="tooltip"
               data-placement="right"
-              data-original-title="General"
+              data-original-title="Photographers"
             ></i>
           </li>
           <li className=" nav-item">
@@ -30,64 +30,17 @@ const SideNav = () => {
               </span>
             </Link>
           </li>
-
-          {/* <li className=" nav-item">
-            <Link to="/collections">
-              <i className="feather icon-layout"></i>
-              <span className="menu-title" data-i18n="Layouts">
-                Collections
-              </span>
-            </Link>
-          </li> */}
-
           <li className=" nav-item">
-            <Link to="/orders">
-              <i className="feather icon-layout"></i>
-              <span className="menu-title" data-i18n="Layouts">
-                Orders
-              </span>
-            </Link>
-          </li>
-
-          <li className=" nav-item">
-            <Link to="/services">
-              <i className="feather icon-monitor"></i>
-              <span className="menu-title" data-i18n="Templates">
-                Service
-              </span>
-            </Link>
-          </li>
-
-          <li className=" nav-item">
-            <Link to="/download">
-              <i className="feather icon-layout"></i>
-              <span className="menu-title" data-i18n="Layouts">
-                Download
-              </span>
-            </Link>
-          </li>
-
-          <li className=" nav-item">
-            <Link to="/invoice">
-              <i className="feather icon-file-text"></i>
-              <span className="menu-title" data-i18n="Invoice">
-                Invoice List
-              </span>
-            </Link>
-          </li>
-
-          <li className=" nav-item">
-            <Link to="/booking-list">
+            <Link to="/booking-list-calendar">
               <i className="feather icon-zap"></i>
               <span className="menu-title" data-i18n="Starter kit">
-                Booking List
+                Booking List/Calendar
               </span>
-              <span className="badge badge badge-primary badge-pill float-right mr-2">
+              {/* <span className="badge badge badge-primary badge-pill float-right mr-2">
                 2
-              </span>
+              </span> */}
             </Link>
           </li>
-
           <li className=" nav-item">
             <Link to="/todo">
               <i className="feather icon-check-square"></i>
@@ -96,21 +49,51 @@ const SideNav = () => {
               </span>
             </Link>
           </li>
-
+          <li className=" nav-item">
+            <Link to="/clients">
+              <i className="feather icon-users"></i>
+              <span className="menu-title" data-i18n="Clients">
+                Clients
+              </span>
+            </Link>
+          </li>
           {/* <li className=" nav-item">
-            <Link to="/users">
-              <i className="feather icon-user"></i>
+            <Link to="/orders">
+              <i className="feather icon-layout"></i>
               <span className="menu-title" data-i18n="Layouts">
-                Users
+                Orders
               </span>
             </Link>
           </li> */}
-
           <li className=" nav-item">
-            <Link to="/notifications">
-              <i className="feather icon-mail"></i>
-              <span className="menu-title" data-i18n="Email Application">
-                Notifications
+            <Link to="/invoice">
+              <i className="feather icon-file-text"></i>
+              <span className="menu-title" data-i18n="Invoice">
+                Invoice List
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/cards-packages">
+              <i className="feather icon-file-text"></i>
+              <span className="menu-title" data-i18n="Cards/ Packages">
+                Cards/ Packages
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/image-types">
+              <i className="feather icon-file-text"></i>
+              <span className="menu-title" data-i18n="Image Types">
+                Image Types
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/add-gallery">
+              <i className="feather icon-file-text"></i>
+              <span className="menu-title" data-i18n="Add Gallery">
+                Add Gallery
               </span>
             </Link>
           </li>
@@ -121,8 +104,56 @@ const SideNav = () => {
               className=" feather icon-minus"
               data-toggle="tooltip"
               data-placement="right"
-              data-original-title="General"
+              data-original-title="Clients"
             ></i>
+          </li>
+          <li className=" nav-item">
+            <Link to="/dashboard">
+              <i className="feather icon-home"></i>
+              <span className="menu-title" data-i18n="Dashboard">
+                Dashboard
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/booking-for-photography">
+              <i className="feather icon-mail"></i>
+              <span className="menu-title" data-i18n="Booking for Photography">
+                Booking for Photography
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/todo">
+              <i className="feather icon-check-square"></i>
+              <span className="menu-title" data-i18n="Todo Application">
+                To Do
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/services">
+              <i className="feather icon-monitor"></i>
+              <span className="menu-title" data-i18n="Templates">
+                Services
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/invoice">
+              <i className="feather icon-file-text"></i>
+              <span className="menu-title" data-i18n="Invoice">
+                Invoice List
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/notifications-of-booking">
+              <i className="feather icon-mail"></i>
+              <span className="menu-title" data-i18n="Email Application">
+                Notifications of booking
+              </span>
+            </Link>
           </li>
 
           <li className=" navigation-header">
@@ -131,27 +162,63 @@ const SideNav = () => {
               className=" feather icon-minus"
               data-toggle="tooltip"
               data-placement="right"
-              data-original-title="General"
+              data-original-title="Master Admin"
             ></i>
           </li>
-
           <li className=" nav-item">
+            <Link to="/manage-photographers-subdomains">
+              <i className="feather icon-layout"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Manage Photographers & Subdomains
+              </span>
+            </Link>
+          </li>
+          <li className=" nav-item">
+            <Link to="/update-subscription-services-charges">
+              <i className="feather icon-layout"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Update Subscription Services Charges
+              </span>
+            </Link>
+          </li>
+
+
+          {/* <li className=" nav-item">
+            <Link to="/collections">
+              <i className="feather icon-layout"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Collections
+              </span>
+            </Link>
+          </li> */}
+
+          {/* <li className=" nav-item">
+            <Link to="/download">
+              <i className="feather icon-layout"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Download
+              </span>
+            </Link>
+          </li> */}
+
+          {/* <li className=" nav-item">
+            <Link to="/users">
+              <i className="feather icon-user"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Users
+              </span>
+            </Link>
+          </li> */}
+
+          {/* <li className=" nav-item">
             <Link to="/add-collection">
               <i className="feather icon-mail"></i>
               <span className="menu-title" data-i18n="Collection Form">
                 Add Collection
               </span>
             </Link>
-          </li>
+          </li> */}
 
-          <li className=" nav-item">
-            <Link to="/add-booking">
-              <i className="feather icon-mail"></i>
-              <span className="menu-title" data-i18n="Booking Form">
-                Add Booking
-              </span>
-            </Link>
-          </li>
         </ul>
       </div>
     </div>
