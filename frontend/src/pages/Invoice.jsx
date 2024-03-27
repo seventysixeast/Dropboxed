@@ -30,7 +30,7 @@ const Invoice = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="invoice-list-datatable" className="table">
+                  <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
                         <th>Date</th>

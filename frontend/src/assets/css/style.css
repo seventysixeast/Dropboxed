@@ -56,3 +56,14 @@ button.btn.btn-primary {
   height: 100%;
 }
 
+.card-body {
+  flex: 1;
+}
+
+.col-xl-4.col-md-4.col-12 {
+  margin-bottom: 25px;
+}
+
+.col-xl-3.col-md-6.col-sm-12 {
+  margin-bottom: 25px;
+}

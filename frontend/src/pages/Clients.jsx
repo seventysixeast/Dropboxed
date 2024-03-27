@@ -57,7 +57,7 @@ const Clients = () => {
                         </div>
                         <form>
                           <div className="modal-body">
-                            <label>Name</label>
+                            <label>Name *</label>
                             <input
                               type="text"
                               className="form-control"
@@ -67,7 +67,7 @@ const Clients = () => {
                             />
                           </div>
                           <div className="modal-body">
-                            <label>Email</label>
+                            <label>Email *</label>
                             <input
                               type="email"
                               className="form-control"
@@ -77,7 +77,7 @@ const Clients = () => {
                             />
                           </div>
                           <div className="modal-body">
-                            <label>Phone</label>
+                            <label>Phone *</label>
                             <input
                               type="phone"
                               className="form-control"
@@ -113,7 +113,7 @@ const Clients = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="clients-list-datatable" className="table">
+                  <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
                         <th>S.No.</th>

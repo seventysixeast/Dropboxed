@@ -57,8 +57,8 @@ const ImageTypes = () => {
                         </div>
                         <form>
                           <div className="modal-body">
-                          <fieldset className="form-group floating-label-form-group">
-                              <label>type</label>
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Type *</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -68,7 +68,7 @@ const ImageTypes = () => {
                               />
                             </fieldset>
                             <fieldset className="form-group floating-label-form-group">
-                              <label>Price</label>
+                              <label>Price *</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -78,7 +78,7 @@ const ImageTypes = () => {
                               />
                             </fieldset>
                             <fieldset className="form-group floating-label-form-group">
-                              <label>Status</label>
+                              <label>Status *</label>
                               <select
                                 className="select2 form-control"
                                 required
@@ -88,7 +88,7 @@ const ImageTypes = () => {
                               </select>
                             </fieldset>
                             <fieldset className="form-group floating-label-form-group">
-                              <label>Gallery Status</label>
+                              <label>Gallery Status *</label>
                               <select
                                 className="select2 form-control"
                                 required
@@ -125,7 +125,7 @@ const ImageTypes = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="image-type-list-datatable" className="table">
+                  <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
                         <th>S.No.</th>
