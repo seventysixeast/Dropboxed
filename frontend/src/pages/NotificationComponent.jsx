@@ -1,4 +1,5 @@
 import React from "react";
+import { MdDelete } from "react-icons/md";
 // import "../app-assets/css/core/menu/menu-types/vertical-menu-modern.css";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import avatar5 from "../app-assets/images/portrait/small/avatar-s-14.png";
@@ -53,16 +54,14 @@ export const NotificationComponent = () => {
                         <tr>
                           <td>21/01/2023</td>
                           <td>Notification Message</td>
-                          <td>
-                            {" "}
-                            <button
-                              type="button"
-                              class="btn btn-danger btn-min-width mr-1 mb-1 text-white"
-                            >
-                              Delete
-                            </button>
+                          <td className="d-flex justify-content-between">
+                            <div className="row">
+                              <a href="#">
+                                <MdDelete title="Delete" className="fa-lg" />
+                              </a>
+                            </div>
                           </td>
-                          <td  className="d-none">amrit@mail.com</td>
+                          <td className="d-none">amrit@mail.com</td>
                           <td className="d-none">No</td>
                           <td className="d-none">Staff</td>
                           <td className="d-none">
@@ -77,16 +76,14 @@ export const NotificationComponent = () => {
                         <tr>
                           <td>21/01/2023</td>
                           <td>Notification Message</td>
-                          <td>
-                            {" "}
-                            <button
-                              type="button"
-                              class="btn btn-danger btn-min-width mr-1 mb-1 text-white"
-                            >
-                              Delete
-                            </button>
+                          <td className="d-flex justify-content-between">
+                            <div className="row">
+                              <a href="#">
+                                <MdDelete title="Delete" className="fa-lg" />
+                              </a>
+                            </div>
                           </td>
-                          <td  className="d-none">amrit@mail.com</td>
+                          <td className="d-none">amrit@mail.com</td>
                           <td className="d-none">No</td>
                           <td className="d-none">Staff</td>
                           <td className="d-none">

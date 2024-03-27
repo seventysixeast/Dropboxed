@@ -17,11 +17,14 @@ import AddGallery from "../pages/AddGallery";
 import { AddBooking } from "../pages/AddBooking";
 import Services from "../pages/Services";
 import { NotificationComponent } from "../pages/NotificationComponent";
+
 import Collections from "../pages/Collections";
 import Download from "../pages/Download";
 import { AddCollection } from "../pages/AddCollection";
 import Users from "../pages/Users";
 import Login from "../pages/Login";
+import ManagePhotographersSubdomains from "../pages/ManagePhotographersSubdomains";
+import EditProfile from "../pages/EditProfile";
 
 const AdminRouter = ({ logoutUser = null }) => {
   const route = useRoutes([
@@ -40,6 +43,8 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/booking-for-photography", element: <AddBooking /> },
     { path: "/services", element: <Services /> },
     { path: "/notifications-of-booking", element: <NotificationComponent /> },
+    { path: "/manage-photographers-subdomains", element: <ManagePhotographersSubdomains /> },
+    { path: "/edit-profile", element: <EditProfile /> },
 
     // { path: "/add-collection", element: <AddCollection /> },
     // { path: "/collections", element: <Collections /> },

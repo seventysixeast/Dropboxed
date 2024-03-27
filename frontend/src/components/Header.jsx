@@ -99,7 +99,7 @@ const Header = () => {
                   <span className="user-name">John Doe</span>
                 </a>
                 <div className="dropdown-menu dropdown-menu-right">
-                  <a className="dropdown-item" href="user-profile.html">
+                  <a className="dropdown-item" href="/edit-profile">
                     <i className="feather icon-user"></i> Edit Profile
                   </a>
                   <div className="dropdown-divider"></div>
