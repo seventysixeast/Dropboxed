@@ -49,7 +49,7 @@ const AdminRouter = ({ logoutUser = null }) => {
     // { path: "/download", element: <Download /> },
     // { path: "/users", element: <Users /> },
     // { path: "/login", element: <Login /> },
-    // { path: "/*", element: <Navigate to="/dashboard" /> },
+    { path: "/*", element: <Navigate to="/dashboard" /> },
 
   ]);
   return (
