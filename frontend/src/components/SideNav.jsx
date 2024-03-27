@@ -14,7 +14,7 @@ const SideNav = () => {
           data-menu="menu-navigation"
         >
           <li className=" navigation-header">
-            <span>General</span>
+            <span>Photographer</span>
             <i
               className=" feather icon-minus"
               data-toggle="tooltip"
@@ -113,6 +113,26 @@ const SideNav = () => {
                 Notifications
               </span>
             </Link>
+          </li>
+
+          <li className=" navigation-header">
+            <span>Clients</span>
+            <i
+              className=" feather icon-minus"
+              data-toggle="tooltip"
+              data-placement="right"
+              data-original-title="General"
+            ></i>
+          </li>
+
+          <li className=" navigation-header">
+            <span>Master Admin</span>
+            <i
+              className=" feather icon-minus"
+              data-toggle="tooltip"
+              data-placement="right"
+              data-original-title="General"
+            ></i>
           </li>
 
           <li className=" nav-item">
