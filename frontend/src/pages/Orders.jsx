@@ -26,7 +26,7 @@ const Order = () => {
               <div className="card-body">
                 <h5 className="content-header-title mb-0 p-1">Orders List</h5>
                 <div className="table-responsive">
-                  <table id="users-list-datatable" className="table">
+                  <table id="orders-list-datatable" className="table">
                     <thead>
                       <tr>
                         <th>O.No.</th>

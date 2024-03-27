@@ -21,8 +21,103 @@ const ImageTypes = () => {
               </div>
             </div>
           </div>
-          <div className="content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
-            <a href="/add-image-type" className="btn btn-info">Add New</a>
+          <div className="heading-elements content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
+            <ul className="list-inline mb-0">
+              <li>
+                <div className="form-group">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-block"
+                    data-toggle="modal"
+                    data-target="#bootstrap"
+                  >
+                    Add New
+                  </button>
+
+                  <div
+                    className="modal fade text-left"
+                    id="bootstrap"
+                    tabIndex="-1"
+                    role="dialog"
+                    aria-labelledby="myModalLabel35"
+                    aria-hidden="true"
+                    style={{ display: "none" }}
+                  >
+                    <div className="modal-dialog" role="document">
+                      <div className="modal-content">
+                        <div className="modal-header">
+                          <button
+                            type="button"
+                            className="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                          >
+                            <span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <form>
+                          <div className="modal-body">
+                          <fieldset className="form-group floating-label-form-group">
+                              <label>type</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Enter Type"
+                                required=""
+                                data-validation-required-message="This field is required"
+                              />
+                            </fieldset>
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Price</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Enter Image Price"
+                                required=""
+                                data-validation-required-message="This field is required"
+                              />
+                            </fieldset>
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Status</label>
+                              <select
+                                className="select2 form-control"
+                                required
+                              >
+                                <option value="user1">Active</option>
+                                <option value="user2">Inactive</option>
+                              </select>
+                            </fieldset>
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Gallery Status</label>
+                              <select
+                                className="select2 form-control"
+                                required
+                              >
+                                <option value="user1">Image</option>
+                                <option value="user2">Video Link</option>
+                              </select>
+                            </fieldset>
+                          </div>
+                          <div className="modal-footer">
+                            <input
+                              type="submit"
+                              className="btn btn-outline-primary btn"
+                              value="Add"
+                            />
+                            <input
+                              type="reset"
+                              className="btn btn-outline-secondary btn"
+                              data-dismiss="modal"
+                              value="Close"
+                            />
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
         <div className="users-list-table">
@@ -30,7 +125,7 @@ const ImageTypes = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="users-list-datatable" className="table">
+                  <table id="image-type-list-datatable" className="table">
                     <thead>
                       <tr>
                         <th>S.No.</th>

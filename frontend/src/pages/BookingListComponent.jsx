@@ -56,7 +56,7 @@ export const BookingListComponent = () => {
               <div className="card-content">
                 <div className="card-body">
                   <div className="table-responsive">
-                    <table id="users-list-datatable" className="table">
+                    <table id="booking-list-datatable" className="table">
                       <thead>
                         <tr>
                           <th>Booking Date</th>

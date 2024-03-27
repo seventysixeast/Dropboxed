@@ -687,7 +687,7 @@ export const Dashboard = () => {
                   <div className="card-body">
                     {/* datatable start */}
                     <div className="table-responsive">
-                      <table id="users-list-datatable" className="table">
+                      <table id="orders-list-datatable" className="table">
                         <thead>
                           <tr>
                             <th>Order.No.</th>

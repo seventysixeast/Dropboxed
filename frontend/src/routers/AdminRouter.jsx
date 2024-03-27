@@ -10,9 +10,7 @@ import Orders from "../pages/Orders";
 import Clients from "../pages/Clients";
 import Invoice from "../pages/Invoice";
 import CardsPackages from "../pages/CardsPackages";
-import AddEditPackage from "../pages/AddEditPackage";
 import ImageTypes from "../pages/ImageTypes";
-import AddImageType from "../pages/AddImageType";
 import AddGallery from "../pages/AddGallery";
 import { AddBooking } from "../pages/AddBooking";
 import Services from "../pages/Services";
@@ -36,9 +34,7 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/clients", element: <Clients /> },
     { path: "/invoice", element: <Invoice /> },
     { path: "/cards-packages", element: <CardsPackages /> },
-    { path: "/add-edit-package", element: <AddEditPackage /> },
     { path: "/image-types", element: <ImageTypes /> },
-    { path: "/add-image-type", element: <AddImageType /> },
     { path: "/add-gallery", element: <AddGallery /> },
 
     { path: "/booking-for-photography", element: <AddBooking /> },

@@ -46,4 +46,13 @@ button.btn.btn-success {
   background-color: green !important;
 }
 
+button.btn.btn-primary {
+  background-color: #666ee8 !important;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
