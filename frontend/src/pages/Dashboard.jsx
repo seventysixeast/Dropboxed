@@ -143,7 +143,7 @@ export const Dashboard = () => {
                       itemType="http://schema.org/ImageObject"
                     >
                       <a
-                        href="../../../app-assets/images/gallery/1.jpg"
+                        href="#"
                         itemProp="contentUrl"
                         data-size="480x360"
                       >

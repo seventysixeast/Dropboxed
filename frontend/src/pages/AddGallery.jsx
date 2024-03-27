@@ -1,6 +1,6 @@
 import React from "react";
 
-export const AddCollection = () => {
+export const AddGallery = () => {
   return (
     <>
       <div className="app-content content">
@@ -8,14 +8,14 @@ export const AddCollection = () => {
         <div className="content-wrapper">
         <div className="content-header row">
             <div className="content-header-left col-md-6 col-12 mb-2">
-              <h3 className="content-header-title mb-0">New Collection</h3>
+              <h3 className="content-header-title mb-0">Add Gallery</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
                       <a href="index.html">Home</a>
                     </li>
-                    <li className="breadcrumb-item active">New Collection</li>
+                    <li className="breadcrumb-item active">Add Gallery</li>
                   </ol>
                 </div>
               </div>
@@ -122,25 +122,6 @@ export const AddCollection = () => {
 
                             <div className="row">
                               <div className="form-group col-md-12 col-12 mb-2">
-                                <label htmlFor="photographers">Photographers</label>
-                                <select
-                                  className="select2 form-control"
-                                  required
-                                >
-                                  <option value="photographer1">
-                                    Photographer 1 Name
-                                  </option>
-                                  <option value="photographer2">
-                                    Photographer 2 Name
-                                  </option>
-                                  <option value="photographer3">
-                                    Photographer 3 Name
-                                  </option>
-                                </select>
-                              </div>
-                            </div>
-                            <div className="row">
-                              <div className="form-group col-md-12 col-12 mb-2">
                                 <label htmlFor="bannerInput">
                                   Banner
                                 </label>
@@ -188,4 +169,4 @@ export const AddCollection = () => {
   );
 };
 
-export default AddCollection;
+export default AddGallery;
