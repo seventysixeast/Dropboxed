@@ -21,13 +21,99 @@ const Clients = () => {
               </div>
             </div>
           </div>
+          <div className="heading-elements content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
+            <ul className="list-inline mb-0">
+              <li>
+                <div className="form-group">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-block"
+                    data-toggle="modal"
+                    data-target="#bootstrap"
+                  >
+                    Add Client
+                  </button>
+
+                  <div
+                    className="modal fade text-left"
+                    id="bootstrap"
+                    tabIndex="-1"
+                    role="dialog"
+                    aria-labelledby="myModalLabel35"
+                    aria-hidden="true"
+                    style={{ display: "none" }}
+                  >
+                    <div className="modal-dialog" role="document">
+                      <div className="modal-content">
+                        <div className="modal-header">
+                          <button
+                            type="button"
+                            className="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                          >
+                            <span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <form>
+                          <div className="modal-body">
+                            <label>Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter Name"
+                              required=""
+                              data-validation-required-message="This name field is required"
+                            />
+                          </div>
+                          <div className="modal-body">
+                            <label>Email</label>
+                            <input
+                              type="email"
+                              className="form-control"
+                              placeholder="Enter Email"
+                              required=""
+                              data-validation-required-message="This name field is required"
+                            />
+                          </div>
+                          <div className="modal-body">
+                            <label>Phone</label>
+                            <input
+                              type="phone"
+                              className="form-control"
+                              placeholder="Enter Phone"
+                              required=""
+                              data-validation-required-message="This name field is required"
+                            />
+                          </div>
+                          <div className="modal-footer">
+                            <input
+                              type="submit"
+                              className="btn btn-outline-primary btn"
+                              value="Add"
+                            />
+                            <input
+                              type="reset"
+                              className="btn btn-outline-secondary btn"
+                              data-dismiss="modal"
+                              value="Close"
+                            />
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
         <div className="users-list-table">
           <div className="card">
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="users-list-datatable" className="table">
+                  <table id="clients-list-datatable" className="table">
                     <thead>
                       <tr>
                         <th>S.No.</th>

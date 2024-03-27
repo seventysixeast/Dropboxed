@@ -27,7 +27,7 @@ const Collections = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="users-list-datatable" className="table">
+                  <table id="collection-list-datatable" className="table">
                     <thead>
                       <tr>
                         <th>S.No.</th>

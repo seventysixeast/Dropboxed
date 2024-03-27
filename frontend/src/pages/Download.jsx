@@ -25,7 +25,7 @@ const Download = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="users-list-datatable" className="table">
+                  <table id="orders-list-datatable" className="table">
                     <thead>
                       <tr>
                         <th>O.No.</th>

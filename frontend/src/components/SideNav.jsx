@@ -89,14 +89,14 @@ const SideNav = () => {
               </span>
             </Link>
           </li>
-          <li className=" nav-item">
+          {/* <li className=" nav-item">
             <Link to="/add-gallery">
               <i className="feather icon-file-text"></i>
               <span className="menu-title" data-i18n="Add Gallery">
                 Add Gallery
               </span>
             </Link>
-          </li>
+          </li> */}
 
           <li className=" navigation-header">
             <span>Clients</span>

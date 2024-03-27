@@ -21,13 +21,16 @@ const Invoice = () => {
               </div>
             </div>
           </div>
+          <div className="content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
+            <a href="#" className="btn btn-info">Create Invoice</a>
+          </div>
         </div>
         <div className="users-list-table">
           <div className="card">
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="users-list-datatable" className="table">
+                  <table id="invoice-list-datatable" className="table">
                     <thead>
                       <tr>
                         <th>Date</th>

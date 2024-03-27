@@ -19,8 +19,113 @@ const CardsPackages = () => {
               </div>
             </div>
           </div>
-          <div className="content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
-            <a href="/add-edit-package" className="btn btn-info">Add New</a>
+          <div className="heading-elements content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
+            <ul className="list-inline mb-0">
+              <li>
+                <div className="form-group">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-block"
+                    data-toggle="modal"
+                    data-target="#bootstrap"
+                  >
+                    Add Package
+                  </button>
+
+                  <div
+                    className="modal fade text-left"
+                    id="bootstrap"
+                    tabIndex="-1"
+                    role="dialog"
+                    aria-labelledby="myModalLabel35"
+                    aria-hidden="true"
+                    style={{ display: "none" }}
+                  >
+                    <div className="modal-dialog" role="document">
+                      <div className="modal-content">
+                        <div className="modal-header">
+                          <button
+                            type="button"
+                            className="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                          >
+                            <span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <form>
+                          <div className="modal-body">
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Package Type</label>
+                              <select
+                                className="select2 form-control"
+                                required
+                              >
+                                <option value="user1">PACKAGE</option>
+                                <option value="user2">SERVICE</option>
+                              </select>
+                            </fieldset>
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Package Name</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Enter Package Name"
+                                required=""
+                                data-validation-required-message="This field is required"
+                              />
+                            </fieldset>
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Package Price</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Enter Package Price"
+                                required=""
+                                data-validation-required-message="This field is required"
+                              />
+                            </fieldset>
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Image Type Details</label>
+                              <select
+                                className="select2 form-control"
+                                required
+                              >
+                                <option value="user1">Images</option>
+                                <option value="user2">Floor Plan</option>
+                              </select>
+                            </fieldset>
+                            <fieldset className="form-group floating-label-form-group">
+                              <label>Status</label>
+                              <select
+                                className="select2 form-control"
+                                required
+                              >
+                                <option value="user1">Active</option>
+                                <option value="user2">Inactive</option>
+                              </select>
+                            </fieldset>
+                          </div>
+                          <div className="modal-footer">
+                            <input
+                              type="submit"
+                              className="btn btn-outline-primary btn"
+                              value="Add"
+                            />
+                            <input
+                              type="reset"
+                              className="btn btn-outline-secondary btn"
+                              data-dismiss="modal"
+                              value="Close"
+                            />
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
         <div class="row">
