@@ -3,7 +3,7 @@ import React from "react";
 const ToDo = () => {
   return (
     <div className="todo-application app-content content">
-      <div className="sidebar-left">
+      {/* <div className="sidebar-left">
         <div className="sidebar">
           <div className="todo-sidebar d-flex">
             <span className="sidebar-close-icon">
@@ -20,75 +20,6 @@ const ToDo = () => {
                 </button>
               </div>
 
-              <div className="sidebar-menu-list">
-                <div className="list-group">
-                  <a href="#" className="list-group-item border-0 active">
-                    <span className="fonticon-wrap mr-50">
-                      <i className="feather icon-align-justify"></i>
-                    </span>
-                    <span> All</span>
-                  </a>
-                </div>
-                <label className="filter-label mt-2 mb-1 pt-25">Filters</label>
-                <div className="list-group">
-                  <a href="#" className="list-group-item border-0">
-                    <span className="fonticon-wrap mr-50">
-                      <i className="feather icon-star"></i>
-                    </span>
-                    <span>Favourites</span>
-                  </a>
-                  <a href="#" className="list-group-item border-0">
-                    <span className="fonticon-wrap mr-50">
-                      <i className="feather icon-check"></i>
-                    </span>
-                    <span>Done</span>
-                  </a>
-                  <a href="#" className="list-group-item border-0">
-                    <span className="fonticon-wrap mr-50">
-                      <i className="feather icon-trash-2"></i>
-                    </span>
-                    <span>Deleted</span>
-                  </a>
-                </div>
-                <label className="filter-label mt-2 mb-1 pt-25">Labels</label>
-                <div className="list-group">
-                  <a
-                    href="#"
-                    className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                  >
-                    <span>Frontend</span>
-                    <span className="bullet bullet-sm bullet-primary"></span>
-                  </a>
-                  <a
-                    href="#"
-                    className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                  >
-                    <span>Backend</span>
-                    <span className="bullet bullet-sm bullet-success"></span>
-                  </a>
-                  <a
-                    href="#"
-                    className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                  >
-                    <span>Issue</span>
-                    <span className="bullet bullet-sm bullet-danger"></span>
-                  </a>
-                  <a
-                    href="#"
-                    className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                  >
-                    <span>Design</span>
-                    <span className="bullet bullet-sm bullet-warning"></span>
-                  </a>
-                  <a
-                    href="#"
-                    className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                  >
-                    <span>Wireframe</span>
-                    <span className="bullet bullet-sm bullet-info"></span>
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
           <div className="todo-new-task-sidebar">
@@ -286,8 +217,8 @@ const ToDo = () => {
             </div>
           </div>
         </div>
-      </div>
-      <div className="content-right">
+      </div> */}
+      <div className="">
         <div className="content-overlay"></div>
         <div className="content-wrapper">
           <div className="content-header row"></div>
