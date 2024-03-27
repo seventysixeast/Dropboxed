@@ -173,15 +173,15 @@ const SideNav = () => {
               </span>
             </Link>
           </li>
-          <li className=" nav-item">
+
+          {/* <li className=" nav-item">
             <Link to="/update-subscription-services-charges">
               <i className="feather icon-layout"></i>
               <span className="menu-title" data-i18n="Layouts">
                 Update Subscription Services Charges
               </span>
             </Link>
-          </li>
-
+          </li> */}
 
           {/* <li className=" nav-item">
             <Link to="/collections">

@@ -48,4 +48,18 @@ button.btn.btn-success {
 
 /* button.btn.btn-primary {
   background-color: #666ee8 !important;
-} */
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-body {
+  flex: 1;
+}
+
+.col-xl-4.col-md-4.col-12 {
+  margin-bottom: 25px;
+}
