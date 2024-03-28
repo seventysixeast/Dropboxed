@@ -51,15 +51,14 @@ const AdminRouter = ({ logoutUser = null }) => {
     // { path: "/*", element: <Navigate to="/dashboard" /> },
 
   ]);
-return (
-  <div className="">
-    {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <Header />}
-    {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <SideNav />}
-    <div id="script-warning"></div>
-    <div className="flex-grow-1">{route}</div>
-    <Footer />
-  </div>
-);
-}
-
+  return (
+    <div className="wrapper-foot">
+      {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <Header />}
+      {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <SideNav />}
+      <div id="script-warning"></div>
+      <div className="content-foot">{route}</div>
+      <Footer />
+    </div>
+  );
+  }
 export default AdminRouter;

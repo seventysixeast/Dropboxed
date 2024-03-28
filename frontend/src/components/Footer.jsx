@@ -9,14 +9,11 @@ const Footer = () => {
           Copyright &copy; 2024{" "}
           <a
             className="text-bold-800 grey darken-2"
-            href="https://1.envato.market/pixinvent_portfolio"
+            href="/dashboard"
             target="_blank"
           >
             DROPBOXED{" "}
           </a>
-        </span>
-        <span className="float-md-right d-none d-lg-block">
-          Hand-crafted & Made with <i className="feather icon-heart pink"></i>
         </span>
       </p>
     </footer>

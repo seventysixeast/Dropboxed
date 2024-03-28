@@ -22,3 +22,17 @@
   color: white;
   opacity: 80%;
 }
+
+.wrapper-foot {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensure the wrapper takes up at least the full height of the viewport */
+}
+
+.content-foot {
+  flex-grow: 1; /* Allow the content to grow to fill the remaining space */
+}
+
+.Footer {
+  margin-top: auto; /* Push the footer to the bottom of the wrapper */
+}
