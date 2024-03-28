@@ -297,7 +297,7 @@ const ToDo = () => {
                           </button>
                         </div>
                       </div>
-                      <div className="mt-1 d-flex justify-content-end">
+                      <div className="mt-1 d-flex justify-content-between">
                         <button type="button" className="btn btn-danger add-todo">
                           Add Task
                         </button>

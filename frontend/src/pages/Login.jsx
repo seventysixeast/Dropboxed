@@ -1,9 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
+import * as Yup from "yup";
 import logoLight from "../assets/images/dropboxed-logo.png";
+import { login } from "../api/authApis";
 
 const Login = () => {
+  const [userData, setUserData] = useState({
+    userName: "",
+    password: "",
+  });
+
+  const [validationErrors, setValidationErrors] = useState({});
+
+  const validationSchema = Yup.object().shape({
+    userName: Yup.string().required("Username is required"),
+    password: Yup.string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters"),
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await validationSchema.validate(userData, { abortEarly: false });
+      await login(userData);
+      // Operation on success, send to dashboard page
+      window.location.href = "/dashboard";
+    } catch (error) {
+      if (error.name === "ValidationError") {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        setValidationErrors(validationErrors);
+      } else {
+        console.error("Login failed:", error.message);
+      }
+    }
+  };
+
   return (
-    <div className="bg-full-screen-image" style={{height: '100vh'}}>
+    <div className="bg-full-screen-image" style={{ height: "100vh" }}>
       <div className="content-overlay" />
       <div className="content-wrapper">
         <div className="content-header row"></div>
@@ -23,96 +67,58 @@ const Login = () => {
                     </h6>
                   </div>
                   <div className="card-content">
-                    {/* <div className="text-center">
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1 btn-outline-facebook"
-                      >
-                        <span className="fa fa-facebook" />
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1 btn-outline-twitter"
-                      >
-                        <span className="fa fa-twitter" />
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1 btn-outline-linkedin"
-                      >
-                        <span className="fa fa-linkedin font-medium-4" />
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1 btn-outline-github"
-                      >
-                        <span className="fa fa-github font-medium-4" />
-                      </a>
-                    </div>
-                    <p className="card-subtitle line-on-side text-muted text-center font-small-3 mx-2 my-1">
-                      <span>OR Using Account Details</span>
-                    </p> */}
                     <div className="card-body">
                       <form
                         className="form-horizontal"
-                        action="index.html"
-                        noValidate=""
+                        onSubmit={handleSubmit}
                       >
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
                             type="text"
                             className="form-control"
                             id="user-name"
+                            name="userName"
+                            value={userData.userName}
+                            onChange={handleChange}
                             placeholder="Your Username"
-                            required=""
                           />
                           <div className="form-control-position">
                             <i className="feather icon-user" />
                           </div>
+                          <small className="text-danger">{validationErrors.userName}</small>
                         </fieldset>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
                             type="password"
                             className="form-control"
                             id="user-password"
+                            name="password"
+                            value={userData.password}
+                            onChange={handleChange}
                             placeholder="Enter Password"
-                            required=""
                           />
                           <div className="form-control-position">
                             <i className="fa fa-key" />
                           </div>
+                          <small className="text-danger">{validationErrors.password}</small>
                         </fieldset>
                         <div className="form-group row">
                           <div className="col-sm-6 col-12 text-center text-sm-left pr-0">
-                            <fieldset>
-                              <div
-                                className="icheckbox_square-blue"
-                                style={{ position: "relative" }}
-                              >
+                            <fieldset className="form-group position-relative">
+                              <div className="custom-control custom-checkbox">
                                 <input
                                   type="checkbox"
-                                  id="remember-me"
-                                  className="chk-remember"
-                                  style={{ position: "absolute", opacity: 0 }}
+                                  className="custom-control-input"
+                                  name="rememberMe"
+                                  id="rememberMe"
                                 />
-                                <ins
-                                  className="iCheck-helper"
-                                  style={{
-                                    position: "absolute",
-                                    top: "0%",
-                                    left: "0%",
-                                    display: "block",
-                                    width: "100%",
-                                    height: "100%",
-                                    margin: 0,
-                                    padding: 0,
-                                    background: "rgb(255, 255, 255)",
-                                    border: 0,
-                                    opacity: 0,
-                                  }}
-                                />
+                                <label
+                                  className="custom-control-label"
+                                  htmlFor="rememberMe"
+                                >
+                                  Remember Me
+                                </label>
                               </div>
-                              <label htmlFor="remember-me"> Remember Me</label>
                             </fieldset>
                           </div>
                           <div className="col-sm-6 col-12 float-sm-left text-center text-sm-right">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import * as Yup from "yup";
 import logoLight from "../assets/images/dropboxed-logo.png";
-import signup from "../api/authApis";
+import { signup } from "../api/authApis";
 
 const SignUp = () => {
   const [userData, setUserData] = useState({
@@ -9,6 +10,21 @@ const SignUp = () => {
     password: "",
     country: "USA",
     agreedToTerms: true,
+  });
+
+  const [validationErrors, setValidationErrors] = useState({});
+
+  const validationSchema = Yup.object().shape({
+    studioName: Yup.string().required("Studio Name is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    password: Yup.string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters"),
+    country: Yup.string().required("Country is required"),
+    agreedToTerms: Yup.boolean().oneOf(
+      [true],
+      "You must agree to the terms"
+    ),
   });
 
   const handleChange = (e) => {
@@ -22,31 +38,37 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      await validationSchema.validate(userData, { abortEarly: false });
       await signup(userData);
-      // Optionally, you can redirect the user to another page after successful signup
-      // window.location.href = '/dashboard';
+      // Operation on success, send to login page
+      window.location.href = "/login";
     } catch (error) {
-      console.error("Signup failed:", error.message);
-      // Handle signup failure, e.g., show error message to the user
+      if (error.name === "ValidationError") {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        setValidationErrors(validationErrors);
+      } else {
+        console.error("Signup failed:", error.message);
+      }
     }
   };
 
   return (
-    <div className="bg-full-screen-image" style={{height: '100vh' }}>
+    <div className="bg-full-screen-image" style={{ height: "110vh" }}>
       <div className="content-overlay"></div>
-      <div
-        className="content-wrapper"
-      >
+      <div className="content-wrapper">
         <div className="content-header row"></div>
         <div className="content-body">
           <section className=" flexbox-container">
             <div className="col-12 d-flex align-items-center justify-content-center">
-              <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-2 mb-2">
+              <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-1 mb-1">
                 <div className="card border-grey border-lighten-3 m-0">
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <img src={logoLight} alt="branding logo"></img>
+                        <img src={logoLight} alt="branding logo" />
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
@@ -69,11 +91,12 @@ const SignUp = () => {
                             value={userData.studioName}
                             onChange={handleChange}
                             placeholder="Studio Name"
-                            required
                           />
                           <div className="form-control-position">
                             <i className="feather icon-user" />
                           </div>
+                          <small className="text-danger text-center">{validationErrors.studioName}</small>
+
                         </fieldset>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
@@ -84,11 +107,12 @@ const SignUp = () => {
                             value={userData.email}
                             onChange={handleChange}
                             placeholder="Your Email Address"
-                            required=""
                           />
                           <div className="form-control-position">
                             <i className="feather icon-mail" />
                           </div>
+                          <small className="text-danger">{validationErrors.email}</small>
+
                         </fieldset>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
@@ -99,11 +123,12 @@ const SignUp = () => {
                             value={userData.password}
                             onChange={handleChange}
                             placeholder="Enter Password"
-                            required=""
                           />
                           <div className="form-control-position">
                             <i className="fa fa-key" />
                           </div>
+                          <small className="text-danger">{validationErrors.password}</small>
+
                         </fieldset>
                         <fieldset className="form-group position-relative">
                           <select
@@ -111,7 +136,6 @@ const SignUp = () => {
                             className="select2 form-control"
                             value={userData.country}
                             onChange={handleChange}
-                            required
                             aria-placeholder="Country"
                           >
                             <option value="USA">USA</option>
@@ -121,6 +145,8 @@ const SignUp = () => {
                             <option value="Taiwan">Taiwan</option>
                             <option value="Singapore">Singapore</option>
                           </select>
+                          <small className="text-danger">{validationErrors.country}</small>
+
                         </fieldset>
                         <fieldset className="form-group position-relative">
                           <div className="custom-control custom-checkbox">
@@ -145,6 +171,8 @@ const SignUp = () => {
                               for this site.
                             </label>
                           </div>
+                          <small className="text-danger">{validationErrors.agreedToTerms}</small>
+
                         </fieldset>
 
                         <button
