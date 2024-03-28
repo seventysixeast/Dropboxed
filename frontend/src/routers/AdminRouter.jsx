@@ -52,7 +52,7 @@ const AdminRouter = ({ logoutUser = null }) => {
 
   ]);
 return (
-  <div className="d-flex flex-column min-vh-100 ">
+  <div className="">
     {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <Header />}
     {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <SideNav />}
     <div id="script-warning"></div>

@@ -115,24 +115,22 @@ const ToDo = () => {
               </div>
             </div>
             <div
-              className={`todo-application todo-new-task-sidebar border ${
-                isNewTaskModalOpen ? "show" : ""
-              }`}
+              className={`todo-new-task-sidebar ${isNewTaskModalOpen ? "show" : ""}`}
+              style={{ maxHeight: 'inherit', overflowY: 'auto' }}
               ref={modalRef}
-
             >
+
+
               <div className="card shadow-none p-0 m-0">
                 <div className="card-header border-bottom py-75">
                   <div className="task-header d-flex justify-content-between align-items-center">
-                    <h5 className="new-task-title mb-0 text-white">New Task</h5>
+                    <h5 className="new-task-title mb-0">New Task</h5>
                     <button className="mark-complete-btn btn btn-primary btn-sm">
-                      <i className="feather icon-check align-middle"></i>
-                      <span className="mark-complete align-middle">
-                        Mark Complete
-                      </span>
+                      <i className="feather icon-check align-middle" />
+                      <span className="mark-complete align-middle">Mark Complete</span>
                     </button>
                     <span className="dropdown mr-1">
-                      <i className="feather icon-paperclip cursor-pointer mr-50 "></i>
+                      <i className="feather icon-paperclip cursor-pointer mr-50" />
                       <a
                         href="#"
                         className="dropdown-toggle"
@@ -141,14 +139,14 @@ const ToDo = () => {
                         aria-haspopup="true"
                         aria-expanded="true"
                       >
-                        <i className="feather icon-more-vertical"></i>
+                        <i className="feather icon-more-vertical" />
                       </a>
                       <span
                         className="dropdown-menu dropdown-menu-right"
                         aria-labelledby="todo-sidebar-dropdown"
                       >
                         <a href="#" className="dropdown-item">
-                          Add to another project{" "}
+                          Add to another project
                         </a>
                         <a href="#" className="dropdown-item">
                           Create follow up task
@@ -160,36 +158,41 @@ const ToDo = () => {
                     </span>
                   </div>
                   <button type="button" onClick={toggleNewTaskModal} className="close close-icon">
-                    <i className="feather icon-x align-middle"></i>
+                    <i className="feather icon-x align-middle" />
                   </button>
                 </div>
+                {/* form start */}
                 <form id="compose-form" className="mt-1">
                   <div className="card-content">
                     <div className="card-body py-0 border-bottom">
                       <div className="form-group">
+                        {/* text area for task title */}
                         <textarea
                           name="title"
                           className="form-control task-title"
-                          cols="1"
-                          rows="2"
+                          cols={1}
+                          rows={2}
                           placeholder="Write a Task Name"
-                          required
-                        ></textarea>
+                          required=""
+                          defaultValue={"                      "}
+                        />
                       </div>
                       <div className="assigned d-flex justify-content-between">
                         <div className="form-group d-flex align-items-center mr-1">
+                          {/* users avatar */}
                           <div className="avatar">
                             <img
                               src="#"
                               className="avatar-user-image d-none"
                               alt="#"
-                              width="38"
-                              height="38"
+                              width={38}
+                              height={38}
                             />
                             <div className="avatar-content">
-                              <i className="feather icon-user font-medium-4"></i>
+                              <i className="feather icon-user font-medium-4" />
                             </div>
                           </div>
+                          {/* select2  for user name  */}
                           <div className="select-box mr-1">
                             <select
                               className="select2-users-name form-control"
@@ -199,14 +202,10 @@ const ToDo = () => {
                                 <option value="David Smith">David Smith</option>
                                 <option value="John Doe">John Doe</option>
                                 <option value="James Smith">James Smith</option>
-                                <option value="Maria Garcia">
-                                  Maria Garcia
-                                </option>
+                                <option value="Maria Garcia">Maria Garcia</option>
                               </optgroup>
                               <optgroup label="Frontend">
-                                <option value="Maria Rodrigu">
-                                  Maria Rodrigu
-                                </option>
+                                <option value="Maria Rodrigu">Maria Rodrigu</option>
                                 <option value="Marry Smith">Marry Smith</option>
                                 <option value="Maria Hern">Maria Hern</option>
                                 <option value="Jamesh J">Jamesh Jackson</option>
@@ -215,8 +214,9 @@ const ToDo = () => {
                           </div>
                         </div>
                         <div className="form-group d-flex align-items-center position-relative">
+                          {/* date picker */}
                           <div className="date-icon mr-50 font-medium-3">
-                            <i className="feather icon-calendar"></i>
+                            <i className="feather icon-calendar" />
                           </div>
                           <div className="date-picker">
                             <input
@@ -229,26 +229,27 @@ const ToDo = () => {
                       </div>
                     </div>
                     <div className="card-body border-bottom task-description">
+                      {/*  Quill editor for task description */}
                       <div className="snow-container border rounded p-50">
-                        <div className="compose-editor mx-75"></div>
+                        <div className="compose-editor mx-75" />
                         <div className="d-flex justify-content-end">
                           <div className="compose-quill-toolbar pb-0">
                             <span className="ql-formats mr-0">
-                              <button className="ql-bold"></button>
-                              <button className="ql-link"></button>
-                              <button className="ql-image"></button>
+                              <button className="ql-bold" />
+                              <button className="ql-link" />
+                              <button className="ql-image" />
                             </span>
                           </div>
                         </div>
                       </div>
                       <div className="tag d-flex justify-content-between align-items-center pt-1">
                         <div className="flex-grow-1 d-flex align-items-center">
-                          <i className="feather icon-tag align-middle mr-25"></i>
+                          <i className="feather icon-tag align-middle mr-25" />
                           <select
                             className="select2-assign-label form-control"
                             multiple="multiple"
                             id="select2-assign-label"
-                            disabled
+                            disabled=""
                           >
                             <optgroup label="Tags">
                               <option value="Frontend">Frontend</option>
@@ -260,7 +261,7 @@ const ToDo = () => {
                           </select>
                         </div>
                         <div className="ml-25">
-                          <i className="feather icon-plus-circle cursor-pointer add-tags"></i>
+                          <i className="feather icon-plus-circle cursor-pointer add-tags" />
                         </div>
                       </div>
                     </div>
@@ -270,23 +271,22 @@ const ToDo = () => {
                           <img
                             src="../../../app-assets/images/portrait/small/avatar-s-3.png"
                             alt="charlie"
-                            width="38"
-                            height="38"
+                            width={38}
+                            height={38}
                           />
                         </div>
-                        <div className="avatar-content">
-                          Charlie created this task
-                        </div>
+                        <div className="avatar-content">Charlie created this task</div>
                         <small className="ml-75 text-muted">13 days ago</small>
                       </div>
-                      <div className="snow-container border rounded p-50 ">
-                        <div className="comment-editor mx-75"></div>
+                      {/* quill editor for comment */}
+                      <div className="snow-container border rounded p-50">
+                        <div className="comment-editor mx-75" />
                         <div className="d-flex justify-content-end">
                           <div className="comment-quill-toolbar pb-0">
                             <span className="ql-formats mr-0">
-                              <button className="ql-bold"></button>
-                              <button className="ql-link"></button>
-                              <button className="ql-image"></button>
+                              <button className="ql-bold" />
+                              <button className="ql-link" />
+                              <button className="ql-image" />
                             </span>
                           </div>
                           <button
@@ -298,23 +298,20 @@ const ToDo = () => {
                         </div>
                       </div>
                       <div className="mt-1 d-flex justify-content-end">
-                        <button
-                          type="button"
-                          className="btn btn-danger add-todo"
-                        >
+                        <button type="button" className="btn btn-danger add-todo">
                           Add Task
                         </button>
-                        <button
-                          type="button"
-                          className="btn btn-danger update-todo"
-                        >
+                        <button type="button" className="btn btn-danger update-todo">
                           Save Changes
                         </button>
                       </div>
                     </div>
                   </div>
                 </form>
+                {/* form start end*/}
               </div>
+
+
             </div>
           </div>
         </div>
@@ -324,9 +321,8 @@ const ToDo = () => {
             <div className="content-header row"></div>
             <div className="content-body">
               <div
-                className={`app-content-overlay ${
-                  isNewTaskModalOpen ? "show" : ""
-                }`}
+                className={`app-content-overlay ${isNewTaskModalOpen ? "show" : ""
+                  }`}
               ></div>
               <div className="todo-app-area">
                 <div className="todo-app-list-wrapper">
