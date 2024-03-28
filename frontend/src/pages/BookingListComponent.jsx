@@ -29,7 +29,7 @@ export const BookingListComponent = () => {
                   <div className="form-group">
                     <button
                       type="button"
-                      className="btn btn-primary btn-block"
+                      className="btn btn-outline-primary btn-block"
                       data-toggle="modal"
                       data-target="#bootstrap"
                     >
@@ -45,9 +45,10 @@ export const BookingListComponent = () => {
                       aria-hidden="true"
                       style={{ display: "none" }}
                     >
-                      <div className="modal-dialog" role="document">
+                      <div className="modal-dialog modal-lg" role="document">
                         <div className="modal-content">
                           <div className="modal-header">
+                            <h3 className="card-title">Add Booking</h3>
                             <button
                               type="button"
                               className="close"
@@ -59,12 +60,12 @@ export const BookingListComponent = () => {
                           </div>
                           <form>
                             <div className="modal-body">
-                              <label htmlFor="title">Title</label>
+                              <label htmlFor="title">Booking Title *</label>
                               <input
                                 type="text"
                                 id="title"
                                 className="form-control border-primary"
-                                placeholder="Title"
+                                placeholder="Enter Client Address"
                                 name="title"
                                 required
                               />
@@ -107,7 +108,7 @@ export const BookingListComponent = () => {
                               </select>
                             </div>
                             <div className="modal-body">
-                              <label className="d-block">Preffered Date</label>
+                              <label className="d-block">Preffered Date *</label>
                               <DatePicker
                                 className="form-control w-100 d-block"
                                 id="datetimepicker4"
@@ -115,15 +116,66 @@ export const BookingListComponent = () => {
                                 onChange={(date) => setStartdate(date)}
                               />
                             </div>
+                            <div className="modal-body">
+                              <label>From Time *</label>
+                              <select className="select2 form-control" required>
+                                <option value="1">7:00</option>
+                                <option value="2">7:30</option>
+                                <option value="3">8:00</option>
+                                <option value="3">8:30</option>
+                                <option value="3">9:00</option>
+                                <option value="3">9:30</option>
+                                <option value="3">10:00</option>
+                                <option value="3">10:30</option>
+                                <option value="3">11:00</option>
+                                <option value="3">11:30</option>
+                                <option value="3">12:00</option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label>To Time *</label>
+                              <select className="select2 form-control" required>
+                                <option value="1">7:00</option>
+                                <option value="2">7:30</option>
+                                <option value="3">8:00</option>
+                                <option value="3">8:30</option>
+                                <option value="3">9:00</option>
+                                <option value="3">9:30</option>
+                                <option value="3">10:00</option>
+                                <option value="3">10:30</option>
+                                <option value="3">11:00</option>
+                                <option value="3">11:30</option>
+                                <option value="3">12:00</option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label >Select Client</label>
+                              <select className="select2 form-control" required>
+                                <option value="1">Peter</option>
+                                <option value="2">Admin</option>
+                                <option value="3">Belle</option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label htmlFor="comment">Comment (optional)</label>
+                              <input
+                                type="text"
+                                id="comment"
+                                className="form-control border-primary"
+                                placeholder="Write Comment"
+                                name="comment"
+                                required
+                              />
+                            </div>
                             <div className="modal-footer">
                               <input
                                 type="submit"
-                                className="btn btn-outline-primary btn"
+                                className="btn btn-primary btn"
                                 value="Save"
                               />
                               <input
                                 type="reset"
-                                className="btn btn-outline-secondary btn"
+                                className="btn btn-secondary btn"
                                 data-dismiss="modal"
                                 value="Close"
                               />
@@ -154,118 +206,6 @@ export const BookingListComponent = () => {
           </div>
         </div>
       </div>
-
-      {/* <div className="app-content content">
-        <div className="content-overlay" />
-        <div className="content-wrapper">
-          <div className="users-list-table">
-            <div className="card">
-              <h5 className="breadcrumb-item active p-1">Bookings</h5>
-              <div className="card-content">
-                <div className="card-body">
-                  <div className="table-responsive">
-                    <table id="booking-list-datatable" className="table">
-                      <thead>
-                        <tr>
-                          <th>Booking Date</th>
-                          <th>Booking Time</th>
-                          <th>Customer</th>
-                          <th>Code</th>
-                          <th>Address</th>
-                          <th>Comment</th>
-                          <th>Status</th>
-                          <th className="d-none"></th>
-                          <th className="d-none"></th>
-                          <th className="d-none"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>22-03-2024</td>
-                          <td>10:30 am - 01:00 pm</td>
-                          <td>Client Name</td>
-                          <td>
-                            <span
-                              className="bullet bullet-sm tooltip_color"
-                              style={{ backgroundColor: "#000000" }}
-                            ></span>
-                          </td>
-                          <td>
-                            Essential Clothing Limited, Mouchak - Fulbaria Road,
-                            Bangladesh
-                          </td>
-                          <td>Test Comment</td>
-                          <td>
-                            <a href="#" className="table-button bg-red">
-                              Pending
-                            </a>
-                            <a href="#" className="table-button bg-red">
-                              Notify
-                            </a>
-                            <a href="#" className="table-button bg-success">
-                              Booked
-                            </a>
-                            <a href="#" className="table-button ">
-                              Edit
-                            </a>
-                            <a href="#" className="table-button ">
-                              Delete
-                            </a>
-
-                            <a href="#" className="table-button">
-                              Turn into Gallery
-                            </a>
-                          </td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
-                        </tr>
-                        <tr>
-                          <td>26-03-2024</td>
-                          <td>03:00 pm - 06:00 am</td>
-                          <td>Client Name</td>
-                          <td>
-                            <span
-                              className="bullet bullet-sm tooltip_color"
-                              style={{ backgroundColor: "#000000" }}
-                            ></span>
-                          </td>
-                          <td>First Canadian Place, Toronto, ON, Canada</td>
-                          <td> </td>
-                          <td>
-                            <a href="#" className="table-button bg-red">
-                              Pending
-                            </a>
-                            <a href="#" className="table-button bg-red">
-                              Notify
-                            </a>
-                            <a href="#" className="table-button bg-success">
-                              Booked
-                            </a>
-                            <a href="#" className="table-button ">
-                              Edit
-                            </a>
-                            <a href="#" className="table-button ">
-                              Delete
-                            </a>
-
-                            <a href="#" className="table-button">
-                              Turn into Gallery
-                            </a>
-                          </td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
       <div className="app-content content">
         <div className="content-overlay"></div>
         <div className="content-wrapper">
@@ -279,11 +219,12 @@ export const BookingListComponent = () => {
                         <tr>
                           <th>Booking Date</th>
                           <th>Booking Time</th>
-                          <th>Customer</th>
+                          <th>Client</th>
                           <th>Code</th>
                           <th>Address</th>
                           <th>Comment</th>
                           <th>Status</th>
+                          <th>Action</th>
                           <th className="d-none"></th>
                           <th className="d-none"></th>
                           <th className="d-none"></th>
@@ -306,25 +247,18 @@ export const BookingListComponent = () => {
                           </td>
                           <td>Test Comment</td>
                           <td>
-                            <a href="#" className="table-button bg-red">
-                              Pending
-                            </a>
-                            <a href="#" className="table-button bg-red">
-                              Notify
-                            </a>
-                            <a href="#" className="table-button bg-success">
-                              Booked
-                            </a>
-                            <a href="#" className="table-button ">
-                              Edit
-                            </a>
-                            <a href="#" className="table-button ">
-                              Delete
-                            </a>
-
-                            <a href="#" className="table-button">
-                              Turn into Gallery
-                            </a>
+                            <span class="badge badge-warning">Pending</span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <i className="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <i className="fa fa-remove"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                              <i class="fa fa-solid fa-image"></i>
+                            </button>
                           </td>
                           <td className="d-none" ></td>
                           <td className="d-none" ></td>
@@ -343,25 +277,48 @@ export const BookingListComponent = () => {
                           <td>First Canadian Place, Toronto, ON, Canada</td>
                           <td> </td>
                           <td>
-                            <a href="#" className="table-button bg-red">
-                              Pending
-                            </a>
-                            <a href="#" className="table-button bg-red">
-                              Notify
-                            </a>
-                            <a href="#" className="table-button bg-success">
-                              Booked
-                            </a>
-                            <a href="#" className="table-button ">
-                              Edit
-                            </a>
-                            <a href="#" className="table-button ">
-                              Delete
-                            </a>
-
-                            <a href="#" className="table-button">
-                              Turn into Gallery
-                            </a>
+                            <span class="badge badge-danger">Notify</span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <i className="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <i className="fa fa-remove"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                              <i class="fa fa-solid fa-image"></i>
+                            </button>
+                          </td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
+                        </tr>
+                        <tr>
+                          <td>26-03-2024</td>
+                          <td>03:00 pm - 06:00 am</td>
+                          <td>Client Name</td>
+                          <td>
+                            <span
+                              className="bullet bullet-sm tooltip_color"
+                              style={{ backgroundColor: "#000000" }}
+                            ></span>
+                          </td>
+                          <td>First Canadian Place, Toronto, ON, Canada</td>
+                          <td> </td>
+                          <td>
+                            <span class="badge badge-success">Booked</span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <i className="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <i className="fa fa-remove"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                              <i class="fa fa-solid fa-image"></i>
+                            </button>
                           </td>
                           <td className="d-none" ></td>
                           <td className="d-none" ></td>

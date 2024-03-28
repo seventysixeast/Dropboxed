@@ -27,7 +27,7 @@ const Clients = () => {
                 <div className="form-group">
                   <button
                     type="button"
-                    className="btn btn-primary btn-block"
+                    className="btn btn-outline-primary btn-block"
                     data-toggle="modal"
                     data-target="#bootstrap"
                   >
@@ -46,6 +46,7 @@ const Clients = () => {
                     <div className="modal-dialog" role="document">
                       <div className="modal-content">
                         <div className="modal-header">
+                          <h3 className="card-title">Add Client</h3>
                           <button
                             type="button"
                             className="close"
@@ -89,12 +90,12 @@ const Clients = () => {
                           <div className="modal-footer">
                             <input
                               type="submit"
-                              className="btn btn-outline-primary btn"
+                              className="btn btn-primary btn"
                               value="Add"
                             />
                             <input
                               type="reset"
-                              className="btn btn-outline-secondary btn"
+                              className="btn btn-secondary btn"
                               data-dismiss="modal"
                               value="Close"
                             />
@@ -120,6 +121,7 @@ const Clients = () => {
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Collections</th>
                         <th>Action</th>
 
                         <th className="d-none">Amount</th>
@@ -133,15 +135,16 @@ const Clients = () => {
                         <td>John Doe</td>
                         <td>johndoe123@gmail.com</td>
                         <td>2222234321</td>
-                        <td className="d-flex justify-content-between">
-                          <div className="btnsrow">
-                            <a href="#">
-                              <FaEdit title="Edit" className="fa-lg" />
-                            </a>
-                            <a href="#">
-                              <MdDelete title="Delete" className="fa-lg" />
-                            </a>
-                          </div>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary mr-1 mb-1">View Gallery</button>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <i className="fa fa-pencil"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <i className="fa fa-remove"></i>
+                          </button>
                         </td>
 
                         <td className="d-none">$150</td>
@@ -155,15 +158,16 @@ const Clients = () => {
                         <td>Jane Smith</td>
                         <td>janesmith456@gmail.com</td>
                         <td>2343444545</td>
-                        <td className="d-flex justify-content-between">
-                          <div className="btnsrow">
-                            <a href="#">
-                              <FaEdit title="Edit" className="fa-lg" />
-                            </a>
-                            <a href="#">
-                              <MdDelete title="Delete" className="fa-lg" />
-                            </a>
-                          </div>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary mr-1 mb-1">View Gallery</button>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <i className="fa fa-pencil"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <i className="fa fa-remove"></i>
+                          </button>
                         </td>
 
                         <td className="d-none">$200</td>

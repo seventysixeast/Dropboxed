@@ -22,7 +22,7 @@ const Invoice = () => {
             </div>
           </div>
           <div className="content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
-            <a href="#" className="btn btn-info">Create Invoice</a>
+            <a href="#" className="btn btn-outline-primary">Create Invoice</a>
           </div>
         </div>
         <div className="users-list-table">
@@ -35,7 +35,7 @@ const Invoice = () => {
                       <tr>
                         <th>Date</th>
                         <th>Order #</th>
-                        <th>Customer</th>
+                        <th>Client</th>
                         <th>Username</th>
                         <th>Address</th>
                         <th>Amount</th>
@@ -53,7 +53,7 @@ const Invoice = () => {
                         <td>$150</td>
                         <td>Shipped</td>
                         <td>
-                          <a href="invoice_link_12345">View Invoice</a>
+                          <a href="#">View Invoice</a>
                         </td>
 
                       </tr>
@@ -66,7 +66,7 @@ const Invoice = () => {
                         <td>$200</td>
                         <td>Processing</td>
                         <td>
-                          <a href="invoice_link_67890">View Invoice</a>
+                          <a href="#">View Invoice</a>
                         </td>
 
                       </tr>
