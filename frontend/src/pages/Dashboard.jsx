@@ -42,32 +42,6 @@ export const Dashboard = () => {
                           </div>
                         </div>
                       </div>
-                      {/* <div className="col-xl-3 col-lg-6 col-12">
-                        <div className="card">
-                          <div className="card-content">
-                            <div className="media align-items-stretch">
-                              <div className="p-2 text-center bg-red bg-darken-2">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="40"
-                                  height="40"
-                                  fill="currentColor"
-                                  className="bi bi-pie-chart white"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793zm1 0V7.5h6.482A7 7 0 0 0 8.5 1.018M14.982 8.5H8.207l-4.79 4.79A7 7 0 0 0 14.982 8.5M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8" />
-                                </svg>
-                              </div>
-                              <div className="p-2 bg-gradient-x-red white media-body">
-                                <h5>$0</h5>
-                                <p className="text-bold-400 mb-0">
-                                  Gross Profit
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div> */}
                       <div className="col-xl-3 col-lg-6 col-12">
                         <div className="card">
                           <div className="card-content">
@@ -137,7 +111,7 @@ export const Dashboard = () => {
                       <div className="form-group">
                         <button
                           type="button"
-                          className="btn btn-primary btn-block"
+                          className="btn btn-outline-primary btn-block"
                           data-toggle="modal"
                           data-target="#bootstrap"
                         >
@@ -156,7 +130,7 @@ export const Dashboard = () => {
                           <div className="modal-dialog modal-lg" role="document">
                             <div className="modal-content">
                               <div className="modal-header">
-                                <h4 className="card-title">Download from Dropbox & Add in Gallery</h4>
+                                <h3 className="card-title">Download from Dropbox & Add in Gallery</h3>
                                 <button
                                   type="button"
                                   className="close"
@@ -289,12 +263,12 @@ export const Dashboard = () => {
                                 <div className="modal-footer">
                                   <input
                                     type="submit"
-                                    className="btn btn-outline-primary btn"
+                                    className="btn btn-primary btn"
                                     value="Download"
                                   />
                                   <input
                                     type="reset"
-                                    className="btn btn-outline-secondary btn"
+                                    className="btn btn-secondary btn"
                                     data-dismiss="modal"
                                     value="Close"
                                   />

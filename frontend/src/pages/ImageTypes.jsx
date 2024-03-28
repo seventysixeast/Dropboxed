@@ -27,7 +27,7 @@ const ImageTypes = () => {
                 <div className="form-group">
                   <button
                     type="button"
-                    className="btn btn-primary btn-block"
+                    className="btn btn-outline-primary btn-block"
                     data-toggle="modal"
                     data-target="#bootstrap"
                   >
@@ -46,6 +46,7 @@ const ImageTypes = () => {
                     <div className="modal-dialog" role="document">
                       <div className="modal-content">
                         <div className="modal-header">
+                          <h3 className="card-title">Add Image Type</h3>
                           <button
                             type="button"
                             className="close"
@@ -101,12 +102,12 @@ const ImageTypes = () => {
                           <div className="modal-footer">
                             <input
                               type="submit"
-                              className="btn btn-outline-primary btn"
+                              className="btn btn-primary btn"
                               value="Add"
                             />
                             <input
                               type="reset"
-                              className="btn btn-outline-secondary btn"
+                              className="btn btn-secondary btn"
                               data-dismiss="modal"
                               value="Close"
                             />

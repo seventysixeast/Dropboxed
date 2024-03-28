@@ -159,7 +159,7 @@ const SideNav = () => {
             <Link to="/notifications-of-booking">
               <i className="feather icon-mail"></i>
               <span className="menu-title" data-i18n="Email Application">
-                Notifications of booking
+                Notifications
               </span>
             </Link>
           </li>

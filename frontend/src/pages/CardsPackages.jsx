@@ -25,7 +25,7 @@ const CardsPackages = () => {
                 <div className="form-group">
                   <button
                     type="button"
-                    className="btn btn-primary btn-block"
+                    className="btn btn-outline-primary btn-block"
                     data-toggle="modal"
                     data-target="#bootstrap"
                   >
@@ -44,6 +44,7 @@ const CardsPackages = () => {
                     <div className="modal-dialog" role="document">
                       <div className="modal-content">
                         <div className="modal-header">
+                          <h3 className="card-title">Add Package</h3>
                           <button
                             type="button"
                             className="close"
@@ -109,12 +110,12 @@ const CardsPackages = () => {
                           <div className="modal-footer">
                             <input
                               type="submit"
-                              className="btn btn-outline-primary btn"
+                              className="btn btn-primary btn"
                               value="Add"
                             />
                             <input
                               type="reset"
-                              className="btn btn-outline-secondary btn"
+                              className="btn btn-secondary btn"
                               data-dismiss="modal"
                               value="Close"
                             />
@@ -129,10 +130,10 @@ const CardsPackages = () => {
           </div>
         </div>
         <div class="row">
-          <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card d-flex flex-column">
+          <div class="col-xl-3 col-md-6 col-sm-12 ">
+            <div class="card d-flex flex-column ">
               <div class="card-content flex-grow-1">
-                <div class="card-body text-center">
+                <div class="card-body text-center package-card">
                   <h4 class="card-title">Studio Package</h4>
                   <h1 class="card-title">$385.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
@@ -143,15 +144,15 @@ const CardsPackages = () => {
                 </div>
               </div>
               <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-info white">Edit</button>
-                <button class="btn btn-info white">Delete</button>
+                <button class="btn btn-primary">Edit</button>
+                <button class="btn btn-primary">Delete</button>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card d-flex flex-column">
+          <div class="col-xl-3 col-md-6 col-sm-12 ">
+            <div class="card d-flex flex-column ">
               <div class="card-content flex-grow-1">
-                <div class="card-body text-center">
+                <div class="card-body text-center package-card">
                   <h4 class="card-title">Premium Package</h4>
                   <h1 class="card-title">$900.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
@@ -163,15 +164,15 @@ const CardsPackages = () => {
                 </div>
               </div>
               <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-info white">Edit</button>
-                <button class="btn btn-info white">Delete</button>
+                <button class="btn btn-primary">Edit</button>
+                <button class="btn btn-primary">Delete</button>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card d-flex flex-column h-100">
+          <div class="col-xl-3 col-md-6 col-sm-12 ">
+            <div class="card d-flex flex-column ">
               <div class="card-content flex-grow-1">
-                <div class="card-body text-center">
+                <div class="card-body text-center package-card">
                   <h4 class="card-title">Essential Package</h4>
                   <h1 class="card-title">$485.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
@@ -182,15 +183,15 @@ const CardsPackages = () => {
                 </div>
               </div>
               <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-info white">Edit</button>
-                <button class="btn btn-info white">Delete</button>
+                <button class="btn btn-primary">Edit</button>
+                <button class="btn btn-primary">Delete</button>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card d-flex flex-column h-100">
+          <div class="col-xl-3 col-md-6 col-sm-12 ">
+            <div class="card d-flex flex-column ">
               <div class="card-content flex-grow-1">
-                <div class="card-body text-center">
+                <div class="card-body text-center package-card">
                   <h4 class="card-title">Builders architectural shoot</h4>
                   <h1 class="card-title">$350.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
@@ -200,15 +201,15 @@ const CardsPackages = () => {
                 </div>
               </div>
               <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-success white">Edit</button>
-                <button class="btn btn-success white">Delete</button>
+                <button class="btn btn-primary">Edit</button>
+                <button class="btn btn-primary">Delete</button>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card d-flex flex-column h-100">
+          <div class="col-xl-3 col-md-6 col-sm-12 ">
+            <div class="card d-flex flex-column ">
               <div class="card-content flex-grow-1">
-                <div class="card-body text-center">
+                <div class="card-body text-center package-card">
                   <h4 class="card-title">Rental Package</h4>
                   <h1 class="card-title">$350.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
@@ -219,8 +220,8 @@ const CardsPackages = () => {
                 </div>
               </div>
               <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-success white">Edit</button>
-                <button class="btn btn-success white">Delete</button>
+                <button class="btn btn-primary">Edit</button>
+                <button class="btn btn-primary">Delete</button>
               </div>
             </div>
           </div>
