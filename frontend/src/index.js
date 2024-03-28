@@ -15,6 +15,7 @@ import "./app-assets/css/core/menu/menu-types/vertical-menu-modern.css";
 // import "./app-assets/css/pages/card-statistics.css";
 // import "./app-assets/css/pages/vertical-timeline.css";
 import "./assets/css/style.css";
+import { AuthProvider } from "./context/authContext";
 // import "./app-assets/vendors/js/vendors.min.js";
 // import "./app-assets/vendors/js/charts/apexcharts/apexcharts.min.js";
 // import "./app-assets/js/core/app-menu.js";
@@ -24,9 +25,11 @@ import "./assets/css/style.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <App />
+      </Router>
+    </AuthProvider>
   </React.StrictMode>
 );
 

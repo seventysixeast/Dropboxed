@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import AdminRouter from "./AdminRouter";
 import AuthRouter from "./AuthRouter";
+import { useAuth } from "../context/authContext";
 
 const IndexRouter = () => {
-  const [isAuth, setIsAuth] = useState(false);
+  const { isAuth } = useAuth();
 
   return isAuth ? <AdminRouter /> : <AuthRouter />;
 };

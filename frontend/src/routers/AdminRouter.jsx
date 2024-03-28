@@ -53,7 +53,7 @@ const AdminRouter = ({ logoutUser = null }) => {
 
   ]);
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column min-vh-100 fixed-navbar">
       <Header />
       <SideNav />
       <div id="script-warning"></div>

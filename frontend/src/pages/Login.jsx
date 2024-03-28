@@ -19,7 +19,7 @@ const Login = () => {
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
-                      <span>Sign Up with Dropboxed</span>
+                      <span>Login with Dropboxed</span>
                     </h6>
                   </div>
                   <div className="card-content">

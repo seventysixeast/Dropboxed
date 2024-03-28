@@ -1,7 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import logoLight from "../assets/images/dropboxed-logo.png";
+import signup from "../api/authApis";
 
 const SignUp = () => {
+  const [userData, setUserData] = useState({
+    studioName: "",
+    email: "",
+    password: "",
+    country: "USA",
+    agreedToTerms: true,
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await signup(userData);
+      // Optionally, you can redirect the user to another page after successful signup
+      // window.location.href = '/dashboard';
+    } catch (error) {
+      console.error("Signup failed:", error.message);
+      // Handle signup failure, e.g., show error message to the user
+    }
+  };
+
   return (
     <div>
       <div className="content-overlay"></div>
@@ -27,47 +56,21 @@ const SignUp = () => {
                   </div>
 
                   <div className="card-content">
-                    {/* <div className="text-center">
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1 btn-outline-facebook"
-                      >
-                        <span className="fa fa-facebook" />
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1 btn-outline-twitter"
-                      >
-                        <span className="fa fa-twitter" />
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1 btn-outline-linkedin"
-                      >
-                        <span className="fa fa-linkedin font-medium-4" />
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1 btn-outline-github"
-                      >
-                        <span className="fa fa-github font-medium-4" />
-                      </a>
-                    </div>
-                    <p className="card-subtitle line-on-side text-muted text-center font-small-3 mx-2 my-1">
-                      <span>OR Using Email</span>
-                    </p> */}
                     <div className="card-body">
                       <form
                         className="form-horizontal"
-                        action="/dashboard"
-                        noValidate=""
+                        onSubmit={handleSubmit}
                       >
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
                             type="text"
                             className="form-control"
                             id="user-name"
+                            name="studioName"
+                            value={userData.studioName}
+                            onChange={handleChange}
                             placeholder="Studio Name"
+                            required
                           />
                           <div className="form-control-position">
                             <i className="feather icon-user" />
@@ -78,6 +81,9 @@ const SignUp = () => {
                             type="email"
                             className="form-control"
                             id="user-email"
+                            name="email"
+                            value={userData.email}
+                            onChange={handleChange}
                             placeholder="Your Email Address"
                             required=""
                           />
@@ -90,6 +96,9 @@ const SignUp = () => {
                             type="password"
                             className="form-control"
                             id="user-password"
+                            name="password"
+                            value={userData.password}
+                            onChange={handleChange}
                             placeholder="Enter Password"
                             required=""
                           />
@@ -101,28 +110,36 @@ const SignUp = () => {
                           <select
                             name="country"
                             className="select2 form-control"
+                            value={userData.country}
+                            onChange={handleChange}
                             required
                             aria-placeholder="Country"
                           >
-                            <option value="Studio">USA</option>
-                            <option value="Essential">UK</option>
-                            <option value="Premium">Brazil</option>
-                            <option value="Studio">Japan</option>
-                            <option value="Essential">Taiwan</option>
-                            <option value="Premium">Singapore</option>
+                            <option value="USA">USA</option>
+                            <option value="UK">UK</option>
+                            <option value="Brazil">Brazil</option>
+                            <option value="Japan">Japan</option>
+                            <option value="Taiwan">Taiwan</option>
+                            <option value="Singapore">Singapore</option>
                           </select>
                         </fieldset>
                         <fieldset className="form-group position-relative">
-                          <div class="custom-control custom-checkbox">
+                          <div className="custom-control custom-checkbox">
                             <input
                               type="checkbox"
-                              class="custom-control-input"
+                              className="custom-control-input"
                               defaultChecked
-                              name="customCheck"
+                              name="agreedToTerms"
                               id="customCheck2"
+                              onChange={(e) =>
+                                setUserData((prevData) => ({
+                                  ...prevData,
+                                  agreedToTerms: e.target.checked,
+                                }))
+                              }
                             />
                             <label
-                              class="custom-control-label"
+                              className="custom-control-label"
                               htmlFor="customCheck2"
                             >
                               I agree to the Terms of Service and Privacy Policy
