@@ -34,7 +34,7 @@ const ToDo = () => {
                 <div className="form-group text-center add-task">
                   <button
                     type="button"
-                    className="btn btn-danger btn-glow add-task-btn btn-block my-1"
+                    className="btn btn-outline-danger btn-glow add-task-btn btn-block my-1"
                     onClick={toggleNewTaskModal}
                   >
                     <i className="feather icon-plus"></i>
@@ -298,10 +298,10 @@ const ToDo = () => {
                         </div>
                       </div>
                       <div className="mt-1 d-flex justify-content-between">
-                        <button type="button" className="btn btn-danger add-todo">
+                        <button type="button" className="btn btn-outline-danger add-todo">
                           Add Task
                         </button>
-                        <button type="button" className="btn btn-danger update-todo">
+                        <button type="button" className="btn btn-outline-danger update-todo">
                           Save Changes
                         </button>
                       </div>
