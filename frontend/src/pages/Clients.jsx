@@ -134,7 +134,7 @@ const Clients = () => {
                         <td>johndoe123@gmail.com</td>
                         <td>2222234321</td>
                         <td className="d-flex justify-content-between">
-                          <div className="row">
+                          <div className="btnsrow">
                             <a href="#">
                               <FaEdit title="Edit" className="fa-lg" />
                             </a>
@@ -156,7 +156,7 @@ const Clients = () => {
                         <td>janesmith456@gmail.com</td>
                         <td>2343444545</td>
                         <td className="d-flex justify-content-between">
-                          <div className="row">
+                          <div className="btnsrow">
                             <a href="#">
                               <FaEdit title="Edit" className="fa-lg" />
                             </a>

@@ -78,7 +78,7 @@ export const Dashboard = () => {
                               <div className="p-1 bg-gradient-x-danger white media-body">
                                 <h5>0</h5>
                                 <p className="text-bold-400 mb-0">
-                                  Completed Ordered
+                                  Completed Orders
                                 </p>
                               </div>
                             </div>
@@ -153,9 +153,10 @@ export const Dashboard = () => {
                           aria-hidden="true"
                           style={{ display: "none" }}
                         >
-                          <div className="modal-dialog" role="document">
+                          <div className="modal-dialog modal-lg" role="document">
                             <div className="modal-content">
                               <div className="modal-header">
+                                <h4 className="card-title">Download from Dropbox & Add in Gallery</h4>
                                 <button
                                   type="button"
                                   className="close"
@@ -168,38 +169,36 @@ export const Dashboard = () => {
                               <form>
                                 <div className="modal-body">
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="users">Users</label>
-                                    <select
-                                      className="select2 form-control"
-                                      required
-                                    >
-                                      <option value="user1">User 1</option>
-                                      <option value="user2">User 2</option>
-                                      <option value="user3">User 3</option>
-                                    </select>
-                                  </fieldset>
-
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="uploadmethod">Select</label>
-                                    <select
-                                      className="select2 form-control"
-                                      required
-                                    >
-                                      <option value="dropbox">Dropbox</option>
-                                      <option value="googledrive">
-                                        Google Drive
-                                      </option>
-                                    </select>
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="link">
-                                      Image Folder Link
+                                    <label htmlFor="title">
+                                      Title *
                                     </label>
                                     <textarea
                                       className="form-control"
-                                      id="link"
+                                      id="title"
                                       rows="1"
-                                      placeholder="Link"
+                                      placeholder="Title"
+                                    ></textarea>
+                                  </fieldset>
+                                  <fieldset className="form-group floating-label-form-group">
+                                    <label>Clients</label>
+                                    <select
+                                      className="select2 form-control"
+                                      required
+                                    >
+                                      <option value="client1">Client 1</option>
+                                      <option value="client2">Client 2</option>
+                                      <option value="client3">Client 3</option>
+                                    </select>
+                                  </fieldset>
+                                  <fieldset className="form-group floating-label-form-group">
+                                    <label htmlFor="address">
+                                      Address
+                                    </label>
+                                    <textarea
+                                      className="form-control"
+                                      id="address"
+                                      rows="1"
+                                      placeholder="Address"
                                     ></textarea>
                                   </fieldset>
                                   <fieldset className="form-group floating-label-form-group">
@@ -245,12 +244,53 @@ export const Dashboard = () => {
                                       </option>
                                     </select>
                                   </fieldset>
+                                  <fieldset className="form-group floating-label-form-group">
+                                    <label htmlFor="link">
+                                      Dropbox Link
+                                    </label>
+                                    <textarea
+                                      className="form-control"
+                                      id="link"
+                                      rows="1"
+                                      placeholder="Link"
+                                    ></textarea>
+                                  </fieldset>
+                                  <fieldset className="form-group floating-label-form-group">
+                                    <label htmlFor="link">
+                                      Vimeo Video Link
+                                    </label>
+                                    <textarea
+                                      className="form-control"
+                                      id="link"
+                                      rows="1"
+                                      placeholder="Link"
+                                    ></textarea>
+                                  </fieldset>
+                                  <div className="row">
+                                    <div className="col-md-6">
+                                      <div className="form-group">
+                                        <label htmlFor="projectinput2">Banner</label><br />
+                                        <input type="file" name="banner" id="banner" />
+                                        <input type="hidden" name="bannerimage" value="" />
+                                      </div>
+                                    </div>
+                                    <fieldset className="form-group floating-label-form-group">
+                                      <label>Status *</label>
+                                      <select
+                                        className="select2 form-control"
+                                        required
+                                      >
+                                        <option value="on">On</option>
+                                        <option value="off">Off</option>
+                                      </select>
+                                    </fieldset>
+                                  </div>
                                 </div>
                                 <div className="modal-footer">
                                   <input
                                     type="submit"
                                     className="btn btn-outline-primary btn"
-                                    value="Add"
+                                    value="Download"
                                   />
                                   <input
                                     type="reset"
@@ -265,25 +305,6 @@ export const Dashboard = () => {
                         </div>
                       </div>
                     </li>
-                    {/* <li>
-                        <i className="feather icon-minus"></i>
-                      </a>
-                    </li>
-                    <li>
-                      <a data-action="reload">
-                        <i className="feather icon-rotate-cw"></i>
-                      </a>
-                    </li>
-                    <li>
-                      <a data-action="expand">
-                        <i className="feather icon-maximize"></i>
-                      </a>
-                    </li>
-                    <li>
-                      <a data-action="close">
-                        <i className="feather icon-x"></i>
-                      </a>
-                    </li> */}
                   </ul>
                 </div>
               </div>

@@ -32,9 +32,9 @@ const Collections = () => {
                       <tr>
                         <th>S.No.</th>
                         <th>Banner</th>
+                        <th>Title</th>
                         <th>Address</th>
                         <th>Packages With Images</th>
-                        <th>Photographer</th>
                         <th>Assign Client	</th>
                         <th>Action</th>
                         <th className="d-none">verified</th>
@@ -44,6 +44,7 @@ const Collections = () => {
                       <tr>
                         <td>925</td>
                         <td><img src={banner1} style={{ width: "150px" }} /></td>
+                        <td>title1</td>
                         <td>6 Tara Downs, Lennox Head NSW, Australia</td>
                         <td>
                           <b>Essential Package - $485.00</b><br />
@@ -52,7 +53,6 @@ const Collections = () => {
                           (1) Floor plan and site plan <br />
                           <button className="btn btn-danger white">Create Invoice</button>
                         </td>
-                        <td>Josh Griffiths </td>
                         <td>
                           Lois Bucket Real Estate <br />
                           <b>Username: </b>dylan@loisbuckett.com.au <br />
@@ -74,6 +74,7 @@ const Collections = () => {
                       <tr>
                         <td>924</td>
                         <td><img src={banner2} style={{ width: "150px" }} /></td>
+                        <td>title2</td>
                         <td>60 Kingsley Street, Byron Bay NSW, Australia</td>
                         <td>
                           <b>Virtual 360 Tour - $275.00</b><br />
@@ -85,7 +86,6 @@ const Collections = () => {
                           (1) Property Video <br />
                           <button className="btn btn-danger white">Create Invoice</button>
                         </td>
-                        <td>Peter Hogan </td>
                         <td>
                           Mcgrath Real Estate <br />
                           <b>Username: </b>Mcgrath Real Estate <br />

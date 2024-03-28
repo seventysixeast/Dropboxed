@@ -130,8 +130,8 @@ const CardsPackages = () => {
         </div>
         <div class="row">
           <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card">
-              <div class="card-content">
+            <div class="card d-flex flex-column">
+              <div class="card-content flex-grow-1">
                 <div class="card-body text-center">
                   <h4 class="card-title">Studio Package</h4>
                   <h1 class="card-title">$385.00</h1>
@@ -141,16 +141,16 @@ const CardsPackages = () => {
                     <li>1 Studio Floor plan</li>
                   </ul>
                 </div>
-                <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-info white">Edit</button>
-                  <button class="btn btn-info white">Delete</button>
-                </div>
+              </div>
+              <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-info white">Edit</button>
+                <button class="btn btn-info white">Delete</button>
               </div>
             </div>
           </div>
           <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card">
-              <div class="card-content">
+            <div class="card d-flex flex-column">
+              <div class="card-content flex-grow-1">
                 <div class="card-body text-center">
                   <h4 class="card-title">Premium Package</h4>
                   <h1 class="card-title">$900.00</h1>
@@ -161,16 +161,16 @@ const CardsPackages = () => {
                     <li>1 Property Video</li>
                   </ul>
                 </div>
-                <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-info white">Edit</button>
-                  <button class="btn btn-info white">Delete</button>
-                </div>
+              </div>
+              <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-info white">Edit</button>
+                <button class="btn btn-info white">Delete</button>
               </div>
             </div>
           </div>
           <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card">
-              <div class="card-content">
+            <div class="card d-flex flex-column h-100">
+              <div class="card-content flex-grow-1">
                 <div class="card-body text-center">
                   <h4 class="card-title">Essential Package</h4>
                   <h1 class="card-title">$485.00</h1>
@@ -180,34 +180,34 @@ const CardsPackages = () => {
                     <li>1 Floor plan and site plan</li>
                   </ul>
                 </div>
-                <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-info white">Edit</button>
-                  <button class="btn btn-info white">Delete</button>
-                </div>
+              </div>
+              <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-info white">Edit</button>
+                <button class="btn btn-info white">Delete</button>
               </div>
             </div>
           </div>
           <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card">
-              <div class="card-content">
+            <div class="card d-flex flex-column h-100">
+              <div class="card-content flex-grow-1">
                 <div class="card-body text-center">
-                  <h4 class="card-title">Builders architectural  shoot</h4>
+                  <h4 class="card-title">Builders architectural shoot</h4>
                   <h1 class="card-title">$350.00</h1>
                   <ul class="list-unstyled mt-2 mb-2">
-                    <li>30 30 architectural images</li>
+                    <li>30 architectural images</li>
                     <li>10 Aerial Images</li>
                   </ul>
                 </div>
-                <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-success white">Edit</button>
-                  <button class="btn btn-success white">Delete</button>
-                </div>
+              </div>
+              <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-success white">Edit</button>
+                <button class="btn btn-success white">Delete</button>
               </div>
             </div>
           </div>
           <div class="col-xl-3 col-md-6 col-sm-12">
-            <div class="card">
-              <div class="card-content">
+            <div class="card d-flex flex-column h-100">
+              <div class="card-content flex-grow-1">
                 <div class="card-body text-center">
                   <h4 class="card-title">Rental Package</h4>
                   <h1 class="card-title">$350.00</h1>
@@ -217,10 +217,10 @@ const CardsPackages = () => {
                     <li>1 60 Sec (3 CLIPS) Continuous Video</li>
                   </ul>
                 </div>
-                <div class="card-body d-flex justify-content-between">
-                  <button class="btn btn-success white">Edit</button>
-                  <button class="btn btn-success white">Delete</button>
-                </div>
+              </div>
+              <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-success white">Edit</button>
+                <button class="btn btn-success white">Delete</button>
               </div>
             </div>
           </div>

@@ -50,7 +50,7 @@ const ManagePhotographersSubdomains = () => {
                         <td>2222234321</td>
                         <td>76east.dropboxed.com</td>
                         <td className="d-flex justify-content-between">
-                          <div className="row">
+                          <div className="btnsrow">
                             <a href="#">
                               <FaEdit title="Edit" className="fa-lg" />
                             </a>
@@ -73,7 +73,7 @@ const ManagePhotographersSubdomains = () => {
                         <td>2343444545</td>
                         <td>abc.dropboxed.com</td>
                         <td className="d-flex justify-content-between">
-                          <div className="row">
+                          <div className="btnsrow">
                             <a href="#">
                               <FaEdit title="Edit" className="fa-lg" />
                             </a>

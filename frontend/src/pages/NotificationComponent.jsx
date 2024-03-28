@@ -55,7 +55,7 @@ export const NotificationComponent = () => {
                           <td>21/01/2023</td>
                           <td>Notification Message</td>
                           <td className="d-flex justify-content-between">
-                            <div className="row">
+                            <div className="btnsrow">
                               <a href="#">
                                 <MdDelete title="Delete" className="fa-lg" />
                               </a>
@@ -77,7 +77,7 @@ export const NotificationComponent = () => {
                           <td>21/01/2023</td>
                           <td>Notification Message</td>
                           <td className="d-flex justify-content-between">
-                            <div className="row">
+                            <div className="btnsrow">
                               <a href="#">
                                 <MdDelete title="Delete" className="fa-lg" />
                               </a>

@@ -182,7 +182,7 @@ const SideNav = () => {
             </Link>
           </li>
 
-          <li className=" navigation-header">
+          {/* <li className=" navigation-header">
             <span>Master Admin</span>
             <i
               className=" feather icon-minus"
@@ -190,25 +190,25 @@ const SideNav = () => {
               data-placement="right"
               data-original-title="Master Admin"
             ></i>
-          </li>
+          </li> */}
 
-          <li className=" nav-item">
+          {/* <li className=" nav-item">
             <Link to="/Login">
               <i className="feather icon-layout"></i>
               <span className="menu-title" data-i18n="Layouts">
                 Login
               </span>
             </Link>
-          </li>
+          </li> */}
 
-          <li className=" nav-item">
+          {/* <li className=" nav-item">
             <Link to="/signup">
               <i className="feather icon-layout"></i>
               <span className="menu-title" data-i18n="Layouts">
                 Sign Up
               </span>
             </Link>
-          </li>
+          </li> */}
 
           {/* <li className=" nav-item">
             <Link to="/update-subscription-services-charges">

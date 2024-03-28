@@ -147,7 +147,7 @@ const ImageTypes = () => {
                         <td>Active</td>
                         <td>Image</td>
                         <td className="d-flex justify-content-between">
-                          <div className="row">
+                          <div className="btnsrow">
                             <a href="#">
                               <FaEdit title="Edit" className="fa-lg" />
                             </a>
@@ -167,7 +167,7 @@ const ImageTypes = () => {
                         <td>Active</td>
                         <td>Image</td>
                         <td className="d-flex justify-content-between">
-                          <div className="row">
+                          <div className="btnsrow">
                             <a href="#">
                               <FaEdit title="Edit" className="fa-lg" />
                             </a>
