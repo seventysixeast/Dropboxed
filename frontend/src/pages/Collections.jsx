@@ -203,7 +203,7 @@ const Collections = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table id="collection-list-datatable" className="table">
+                  <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
                         <th>S.No.</th>
