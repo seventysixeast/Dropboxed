@@ -30,26 +30,6 @@
 	height: auto;
 }
 
-/* button.btn.btn-secondary {
-  background-color: #5a5d6d !important;
-}
-
-button.btn.btn-danger {
-  background-color: red !important;
-}
-
-button.btn.btn-warning {
-  background-color: #ff9149 !important;
-}
-
-button.btn.btn-success {
-  background-color: green !important;
-}
-
-button.btn.btn-primary {
-  background-color: #666ee8 !important;
-} */
-
 .card {
   display: flex;
   flex-direction: column;

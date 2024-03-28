@@ -3,8 +3,9 @@ import AdminRouter from "./AdminRouter";
 import AuthRouter from "./AuthRouter";
 
 const IndexRouter = () => {
-  return <>{<AdminRouter />}
-  </>;
+  const [isAuth, setIsAuth] = useState(false);
+
+  return isAuth ? <AdminRouter /> : <AuthRouter />;
 };
 
 export default IndexRouter;

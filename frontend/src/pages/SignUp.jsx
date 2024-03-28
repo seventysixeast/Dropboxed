@@ -59,7 +59,7 @@ const SignUp = () => {
                     <div className="card-body">
                       <form
                         className="form-horizontal"
-                        action="index.html"
+                        action="/dashboard"
                         noValidate=""
                       >
                         <fieldset className="form-group position-relative has-icon-left">
