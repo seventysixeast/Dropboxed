@@ -8,8 +8,8 @@ const SignUp = () => {
     studioName: "",
     email: "",
     password: "",
-    country: "USA",
-    agreedToTerms: true,
+    country: "",
+    agreedToTerms: false,
   });
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -136,7 +136,6 @@ const SignUp = () => {
                             className="select2 form-control"
                             value={userData.country}
                             onChange={handleChange}
-                            aria-placeholder="Country"
                           >
                             <option value="USA">USA</option>
                             <option value="UK">UK</option>
@@ -145,6 +144,9 @@ const SignUp = () => {
                             <option value="Taiwan">Taiwan</option>
                             <option value="Singapore">Singapore</option>
                           </select>
+                          <div className="form-control-position">
+                            <i class="fa fa-chevron-down"></i>
+                          </div>
                           <small className="text-danger">{validationErrors.country}</small>
 
                         </fieldset>
@@ -153,7 +155,6 @@ const SignUp = () => {
                             <input
                               type="checkbox"
                               className="custom-control-input"
-                              defaultChecked
                               name="agreedToTerms"
                               id="customCheck2"
                               onChange={(e) =>
