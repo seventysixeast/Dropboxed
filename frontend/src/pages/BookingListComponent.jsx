@@ -73,27 +73,19 @@ export const BookingListComponent = () => {
                               <label htmlFor="package">
                                 Package (Optional)
                               </label>
-                              <select
-                                className="select2 form-control"
-                                required
-                              >
+                              <select className="select2 form-control" required>
                                 <option value="Studio">Studio Package</option>
                                 <option value="Essential">
                                   Essential Package
                                 </option>
-                                <option value="Premium">
-                                  Premium Package
-                                </option>
+                                <option value="Premium">Premium Package</option>
                               </select>
                             </div>
                             <div className="modal-body">
                               <label htmlFor="services">
                                 Services (Optional)
                               </label>
-                              <select
-                                className="select2 form-control"
-                                required
-                              >
+                              <select className="select2 form-control" required>
                                 <option value="Studio">
                                   Studio Photography
                                 </option>
@@ -163,7 +155,7 @@ export const BookingListComponent = () => {
         </div>
       </div>
 
-      <div className="app-content content">
+      {/* <div className="app-content content">
         <div className="content-overlay" />
         <div className="content-wrapper">
           <div className="users-list-table">
@@ -181,7 +173,6 @@ export const BookingListComponent = () => {
                           <th>Code</th>
                           <th>Address</th>
                           <th>Comment</th>
-                          {/* <th>Assign Photographer</th> */}
                           <th>Status</th>
                           <th className="d-none"></th>
                           <th className="d-none"></th>
@@ -204,7 +195,6 @@ export const BookingListComponent = () => {
                             Bangladesh
                           </td>
                           <td>Test Comment</td>
-                          {/* <td>PhotoGrapher Dropdown</td> */}
                           <td>
                             <a href="#" className="table-button bg-red">
                               Pending
@@ -226,9 +216,9 @@ export const BookingListComponent = () => {
                               Turn into Gallery
                             </a>
                           </td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
                         </tr>
                         <tr>
                           <td>26-03-2024</td>
@@ -242,7 +232,6 @@ export const BookingListComponent = () => {
                           </td>
                           <td>First Canadian Place, Toronto, ON, Canada</td>
                           <td> </td>
-                          {/* <td>PhotoGrapher Dropdown</td> */}
                           <td>
                             <a href="#" className="table-button bg-red">
                               Pending
@@ -264,9 +253,119 @@ export const BookingListComponent = () => {
                               Turn into Gallery
                             </a>
                           </td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
+      <div className="app-content content">
+        <div className="content-overlay"></div>
+        <div className="content-wrapper">
+          <div className="users-list-table">
+            <div className="card">
+              <div className="card-content">
+                <div className="card-body">
+                  <div className="table-responsive">
+                    <table class="table table-striped table-bordered zero-configuration">
+                      <thead>
+                        <tr>
+                          <th>Booking Date</th>
+                          <th>Booking Time</th>
+                          <th>Customer</th>
+                          <th>Code</th>
+                          <th>Address</th>
+                          <th>Comment</th>
+                          <th>Status</th>
+                          <th className="d-none"></th>
+                          <th className="d-none"></th>
+                          <th className="d-none"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>22-03-2024</td>
+                          <td>10:30 am - 01:00 pm</td>
+                          <td>Client Name</td>
+                          <td>
+                            <span
+                              className="bullet bullet-sm tooltip_color"
+                              style={{ backgroundColor: "#000000" }}
+                            ></span>
+                          </td>
+                          <td>
+                            Essential Clothing Limited, Mouchak - Fulbaria Road,
+                            Bangladesh
+                          </td>
+                          <td>Test Comment</td>
+                          <td>
+                            <a href="#" className="table-button bg-red">
+                              Pending
+                            </a>
+                            <a href="#" className="table-button bg-red">
+                              Notify
+                            </a>
+                            <a href="#" className="table-button bg-success">
+                              Booked
+                            </a>
+                            <a href="#" className="table-button ">
+                              Edit
+                            </a>
+                            <a href="#" className="table-button ">
+                              Delete
+                            </a>
+
+                            <a href="#" className="table-button">
+                              Turn into Gallery
+                            </a>
+                          </td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
+                        </tr>
+                        <tr>
+                          <td>26-03-2024</td>
+                          <td>03:00 pm - 06:00 am</td>
+                          <td>Client Name</td>
+                          <td>
+                            <span
+                              className="bullet bullet-sm tooltip_color"
+                              style={{ backgroundColor: "#000000" }}
+                            ></span>
+                          </td>
+                          <td>First Canadian Place, Toronto, ON, Canada</td>
+                          <td> </td>
+                          <td>
+                            <a href="#" className="table-button bg-red">
+                              Pending
+                            </a>
+                            <a href="#" className="table-button bg-red">
+                              Notify
+                            </a>
+                            <a href="#" className="table-button bg-success">
+                              Booked
+                            </a>
+                            <a href="#" className="table-button ">
+                              Edit
+                            </a>
+                            <a href="#" className="table-button ">
+                              Delete
+                            </a>
+
+                            <a href="#" className="table-button">
+                              Turn into Gallery
+                            </a>
+                          </td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
+                          <td className="d-none" ></td>
                         </tr>
                       </tbody>
                     </table>
@@ -277,6 +376,7 @@ export const BookingListComponent = () => {
           </div>
         </div>
       </div>
+
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
     </>

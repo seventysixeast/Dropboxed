@@ -30,7 +30,7 @@
 	height: auto;
 }
 
-button.btn.btn-secondary {
+/* button.btn.btn-secondary {
   background-color: #5a5d6d !important;
 }
 
@@ -48,7 +48,7 @@ button.btn.btn-success {
 
 button.btn.btn-primary {
   background-color: #666ee8 !important;
-}
+} */
 
 .card {
   display: flex;
