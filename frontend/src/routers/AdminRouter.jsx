@@ -42,25 +42,24 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/notifications-of-booking", element: <NotificationComponent /> },
     { path: "/manage-photographers-subdomains", element: <ManagePhotographersSubdomains /> },
     { path: "/edit-profile", element: <EditProfile /> },
-    // { path: "/login", element: <Login /> },
-    // { path: "/signup", element: <SignUp /> },
+    { path: "/login", element: <Login /> },
+    { path: "/signup", element: <SignUp /> },
     // { path: "/add-collection", element: <AddCollection /> },
     { path: "/collections", element: <Collections /> },
     // { path: "/download", element: <Download /> },
     // { path: "/users", element: <Users /> },
-    // { path: "/login", element: <Login /> },
     // { path: "/*", element: <Navigate to="/dashboard" /> },
 
   ]);
-  return (
-    <div className="d-flex flex-column min-vh-100 fixed-navbar">
-      <Header />
-      <SideNav />
-      <div id="script-warning"></div>
-      <div className="flex-grow-1">{route}</div>
-      <Footer />
-    </div>
-  );
-};
+return (
+  <div className="d-flex flex-column min-vh-100 ">
+    {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <Header />}
+    {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <SideNav />}
+    <div id="script-warning"></div>
+    <div className="flex-grow-1">{route}</div>
+    <Footer />
+  </div>
+);
+}
 
 export default AdminRouter;

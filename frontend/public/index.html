@@ -61,6 +61,12 @@
       type="text/css"
       href="/app-assets/vendors/css/calendars/timegrid.min.css"
     />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./app-assets/vendors/css/pickers/datetime/bootstrap-datetimepicker.css"
+    />
     <link
       rel="stylesheet"
       type="text/css"
@@ -69,7 +75,7 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="./app-assets/vendors/css/pickers/datetime/bootstrap-datetimepicker.css"
+      href="/app-assets/vendors/css/pickers/daterange/daterangepicker.css"
     />
     <link
       rel="stylesheet"
@@ -146,11 +152,7 @@
       type="text/css"
       href="/app-assets/vendors/css/extensions/dragula.min.css"
     />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/app-assets/css/pages/app-todo.css"
-    />
+    <link rel="stylesheet" type="text/css" href="/app-assets/css/pages/app-todo.css">
 
     <link
       rel="stylesheet"
@@ -181,16 +183,6 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="/app-assets/css/core/menu/menu-types/vertical-menu-modern.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/app-assets/css/core/colors/palette-gradient.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
       href="/app-assets/css/plugins/calendars/fullcalendar.css"
     />
     <link
@@ -210,7 +202,11 @@
       type="text/css"
       href="/app-assets/css/plugins/forms/switch.css"
     />
-    <link rel="stylesheet" type="text/css" href="/app-assets/vendors/css/tables/datatable/datatables.min.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/app-assets/vendors/css/tables/datatable/datatables.min.css"
+    />
 
     <link
       rel="stylesheet"
@@ -261,7 +257,11 @@
     <script src="/app-assets/vendors/js/pickers/pickadate/picker.js"></script>
     <script src="/app-assets/vendors/js/forms/validation/jqBootstrapValidation.js"></script>
     <script src="/app-assets/vendors/js/tables/datatable/datatables.min.js"></script>
-
+    <script src="/app-assets/vendors/js/pickers/daterange/moment.min.js"></script>
+    <script src="/app-assets/vendors/js/pickers/daterange/daterangepicker.js"></script>
+    <script src="/app-assets/vendors/js/forms/select/select2.full.min.js"></script>
+    <script src="/app-assets/vendors/js/forms/quill/quill.js"></script>
+    <script src="/app-assets/vendors/js/extensions/dragula.min.js"></script>
     <!-- END: Page Vendor JS-->
     <script src="/app-assets/js/core/app-menu.js"></script>
     <script src="/app-assets/js/core/app.js"></script>
@@ -270,13 +270,10 @@
     <script src="/app-assets/vendors/js/gallery/photo-swipe/photoswipe.min.js"></script>
     <script src="/app-assets/vendors/js/gallery/photo-swipe/photoswipe-ui-default.min.js"></script>
 
-    <script src="/app-assets/vendors/js/pickers/daterange/moment.min.js"></script>
-    <script src="/app-assets/vendors/js/pickers/daterange/daterangepicker.js"></script>
-    <script src="/app-assets/vendors/js/forms/select/select2.full.min.js"></script>
-    <script src="/app-assets/vendors/js/forms/quill/quill.js"></script>
-    <script src="/app-assets/vendors/js/extensions/dragula.min.js"></script>
+
     <script src="/app-assets/vendors/js/forms/toggle/bootstrap-checkbox.min.js"></script>
     <script src="/app-assets/vendors/js/forms/toggle/switchery.min.js"></script>
+
     <!-- BEGIN: Page JS-->
     <!-- <script src="/app-assets/js/scripts/pages/app-invoice.js"></script> -->
     <script src="/app-assets/js/scripts/pages/page-users.js"></script>
@@ -293,7 +290,49 @@
     <script src="/app-assets/js/scripts/tables/datatables/datatable-basic.js"></script>
 
     <!-- END: Page JS-->
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        // Function to remove classes
+        function removeClasses() {
+          const body = document.body;
+          body.classList.remove(
+            "vertical-layout",
+            "vertical-menu-modern",
+            "2-columns",
+            "fixed-navbar"
+          );
+        }
 
+        // Function to add classes
+        function addClasses() {
+          const body = document.body;
+          body.classList.add(
+            "vertical-layout",
+            "vertical-menu-modern",
+            "2-columns",
+            "fixed-navbar"
+          );
+        }
 
+        // Check route and add/remove classes accordingly
+        function checkRoute() {
+          const currentPath = window.location.pathname;
+          if (currentPath === "/login" || currentPath === "/signup") {
+            removeClasses();
+          } else {
+            addClasses();
+          }
+          // Scroll the page after adding or removing classes
+          window.scrollTo(0, 10); // Scroll down 10 pixels
+          window.scrollTo(0, 0); // Scroll back up
+        }
+
+        // Call checkRoute initially
+        checkRoute();
+
+        // Listen for changes in the URL
+        window.addEventListener("popstate", checkRoute);
+      });
+    </script>
   </body>
 </html>

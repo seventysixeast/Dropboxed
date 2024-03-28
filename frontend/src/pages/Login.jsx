@@ -3,14 +3,14 @@ import logoLight from "../assets/images/dropboxed-logo.png";
 
 const Login = () => {
   return (
-    <div className="bg-full-screen-image" style={{ height: "100vh" }}>
+    <div className="bg-full-screen-image" style={{height: '100vh'}}>
       <div className="content-overlay" />
       <div className="content-wrapper">
         <div className="content-header row"></div>
         <div className="content-body">
-          <section className="row flexbox-container">
+          <section className="flexbox-container">
             <div className="col-12 d-flex align-items-center justify-content-center">
-              <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-4">
+              <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-4 mb-4">
                 <div className="card border-grey border-lighten-3 px-1 py-1 m-0 ">
                   <div className="card-header border-0">
                     <div className="card-title text-center">

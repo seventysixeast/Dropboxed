@@ -32,22 +32,21 @@ const SignUp = () => {
   };
 
   return (
-    <div>
+    <div className="bg-full-screen-image" style={{height: '100vh' }}>
       <div className="content-overlay"></div>
       <div
-        className="content-wrapper bg-full-screen-image"
-        style={{ height: "100vh" }}
+        className="content-wrapper"
       >
         <div className="content-header row"></div>
         <div className="content-body">
-          <section className="row flexbox-container">
+          <section className=" flexbox-container">
             <div className="col-12 d-flex align-items-center justify-content-center">
-              <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-4">
+              <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-2 mb-2">
                 <div className="card border-grey border-lighten-3 m-0">
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <img src={logoLight} alt="branding logo" />
+                        <img src={logoLight} alt="branding logo"></img>
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">

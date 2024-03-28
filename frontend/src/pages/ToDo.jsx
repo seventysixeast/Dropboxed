@@ -159,7 +159,7 @@ const ToDo = () => {
                       </span>
                     </span>
                   </div>
-                  <button type="button" className="close close-icon">
+                  <button type="button" onClick={toggleNewTaskModal} className="close close-icon">
                     <i className="feather icon-x align-middle"></i>
                   </button>
                 </div>

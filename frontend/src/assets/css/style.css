@@ -39,8 +39,15 @@
 
 .bg-full-screen-image {
   background: url(../../app-assets/images/backgrounds/bg-2.jpg) no-repeat center center fixed;
-  background-size: cover;
+/* Full height */
+height: 100%;
+
+/* Center and scale the image nicely */
+background-position: center;
+background-repeat: no-repeat;
+background-size: cover;
 }
+
 .card-body {
   flex: 1;
 }
