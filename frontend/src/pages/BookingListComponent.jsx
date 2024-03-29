@@ -6,11 +6,8 @@ import FullCalendar from '@fullcalendar/react'
 import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import listPlugin from "@fullcalendar/list";
 
 export const BookingListComponent = () => {
-  const [showRescheduleForm, setShowRescheduleForm] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const bookings = [
     {
@@ -83,37 +80,12 @@ export const BookingListComponent = () => {
     }));
   };
 
-  const handleEventClick = (info) => {
-    setSelectedEvent(info.event);
-    setShowRescheduleForm(true);
-  };
 
-  const handleRescheduleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Implement reschedule logic using the selectedEvent data
-      console.log("Reschedule data:", selectedEvent);
-      // Reset state and close the form
-      setShowRescheduleForm(false);
-      setSelectedEvent(null);
-    } catch (error) {
-      console.error("Failed to reschedule:", error.message);
-      // Handle error
-    }
-  };
 
-  const handleRescheduleChange = (e) => {
-    const { name, value } = e.target;
-    // Update selected event data
-    setSelectedEvent((prevEvent) => ({
-      ...prevEvent,
-      [name]: value,
-    }));
-  };
   return (
     <>
       <div className="app-content content">
-        <div className="content-overlay"></div>
+        <div className={`content-overlay`}></div>
         <div className="content-wrapper">
           <div className="content-header row">
             <div className="content-header-left col-md-6 col-6 mb-2">
@@ -300,6 +272,165 @@ export const BookingListComponent = () => {
                         </div>
                       </div>
                     </div>
+
+                    <div
+                      className={`modal fade text-left d-none`}
+                      id="reschedule"
+                      tabIndex="-1"
+                      role="dialog"
+
+                      aria-labelledby="myModalLabel35"
+                      aria-hidden="true"
+                    >
+                      <div className="modal-dialog modal-lg" role="document">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <h3 className="card-title">Reschedule</h3>
+                            <button
+                              type="button"
+                              className="close"
+                              data-dismiss="modal"
+                              aria-label="Close"
+                            >
+                              <span aria-hidden="true">×</span>
+                            </button>
+                          </div>
+                          <form onSubmit={handleSubmit}>
+                            <div className="modal-body">
+                              <label htmlFor="title">Booking Title *</label>
+                              <input
+                                type="text"
+                                id="title"
+                                className="form-control border-primary"
+                                placeholder="Enter Client Address"
+                                name="title"
+                                value={bookingData.title}
+                                onChange={handleChange}
+                              />
+                            </div>
+                            <div className="modal-body">
+                              <label htmlFor="package">
+                                Package (Optional)
+                              </label>
+                              <select className="select2 form-control" name="package" value={bookingData.package}
+                                onChange={handleChange}>
+                                <option value="Studio">Studio Package</option>
+                                <option value="Essential">
+                                  Essential Package
+                                </option>
+                                <option value="Premium">Premium Package</option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label htmlFor="services">
+                                Services (Optional)
+                              </label>
+                              <select className="select2 form-control" name="services" value={bookingData.services}
+                                onChange={handleChange} required>
+                                <option value="Studio">
+                                  Studio Photography
+                                </option>
+                                <option value="Essential">
+                                  Essential Photography
+                                </option>
+                                <option value="Premium">
+                                  Premium Photography
+                                </option>
+                                <option value="Studio">
+                                  Studio Floor Plan
+                                </option>
+                                <option value="Essential">
+                                  Essential Floor Plan
+                                </option>
+                                <option value="Premium">
+                                  Premium Floor Plan
+                                </option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label className="d-block">Preffered Date *</label>
+                              <DatePicker
+                                className="form-control w-100 d-block"
+                                id="datetimepicker4"
+                                name="prefferedDate"
+                                selected={bookingData.prefferedDate}
+                                onChange={(date) => setBookingData((prevData) => ({ ...prevData, prefferedDate: date }))}
+
+                              />
+                            </div>
+                            <div className="modal-body">
+                              <label>From Time *</label>
+                              <select className="select2 form-control" name="fromTime" value={bookingData.fromTime}
+                                onChange={handleChange} required>
+                                <option value="1">7:00</option>
+                                <option value="2">7:30</option>
+                                <option value="3">8:00</option>
+                                <option value="3">8:30</option>
+                                <option value="3">9:00</option>
+                                <option value="3">9:30</option>
+                                <option value="3">10:00</option>
+                                <option value="3">10:30</option>
+                                <option value="3">11:00</option>
+                                <option value="3">11:30</option>
+                                <option value="3">12:00</option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label>To Time *</label>
+                              <select className="select2 form-control" name="toTime" value={bookingData.toTime}
+                                onChange={handleChange} required>
+                                <option value="1">7:00</option>
+                                <option value="2">7:30</option>
+                                <option value="3">8:00</option>
+                                <option value="3">8:30</option>
+                                <option value="3">9:00</option>
+                                <option value="3">9:30</option>
+                                <option value="3">10:00</option>
+                                <option value="3">10:30</option>
+                                <option value="3">11:00</option>
+                                <option value="3">11:30</option>
+                                <option value="3">12:00</option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label >Select Client</label>
+                              <select className="select2 form-control" name="client" value={bookingData.client}
+                                onChange={handleChange} required>
+                                <option value="1">Peter</option>
+                                <option value="2">Admin</option>
+                                <option value="3">Belle</option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label htmlFor="comment">Comment (optional)</label>
+                              <input
+                                type="text"
+                                id="comment"
+                                className="form-control border-primary"
+                                placeholder="Write Comment"
+                                name="comment"
+                                value={bookingData.comment}
+                                onChange={handleChange}
+                                required
+                              />
+                            </div>
+                            <div className="modal-footer">
+                              <input
+                                type="submit"
+                                className="btn btn-primary btn"
+                                value="Save"
+                              />
+                              <input
+                                type="reset"
+                                className="btn btn-secondary btn"
+                                data-dismiss="modal"
+                                value="Close"
+                              />
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </li>
               </ul>
@@ -323,7 +454,6 @@ export const BookingListComponent = () => {
                           editable={true}
                           selectable={true}
                           events={events}
-                          eventClick={handleEventClick} // Handle event click
                         />
                       </div>
                     </div>
