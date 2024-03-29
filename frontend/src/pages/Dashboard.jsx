@@ -711,9 +711,12 @@ export const Dashboard = () => {
                             <td>$5</td>
                             <td>$25</td>
                             <td>
-                              <a href="../../../html/ltr/vertical-menu-template/page-users-edit.html">
-                                <i className="feather icon-edit-1" />
-                              </a>
+                              <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                                <i className="fa fa-pencil"></i>
+                              </button>
+                              <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                                <i className="fa fa-remove"></i>
+                              </button>
                             </td>
                           </tr>
                           <tr>
@@ -730,9 +733,12 @@ export const Dashboard = () => {
                             <td>$5 </td>
                             <td>$25</td>
                             <td>
-                              <a href="../../../html/ltr/vertical-menu-template/page-users-edit.html">
-                                <i className="feather icon-edit-1" />
-                              </a>
+                              <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                                <i className="fa fa-pencil"></i>
+                              </button>
+                              <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                                <i className="fa fa-remove"></i>
+                              </button>
                             </td>
                           </tr>
                         </tbody>

@@ -42,7 +42,7 @@ export const NotificationComponent = () => {
                         <tr>
                           <th>Date</th>
                           <th>Notification</th>
-                          <th>Action</th>
+                          <th style={{width:'110px'}}>Action</th>
                           <th className="d-none">last activity</th>
                           <th className="d-none">verified</th>
                           <th className="d-none">role</th>
@@ -56,9 +56,12 @@ export const NotificationComponent = () => {
                           <td>Notification Message</td>
                           <td className="d-flex justify-content-between">
                             <div className="btnsrow">
-                              <a href="#">
-                                <MdDelete title="Delete" className="fa-lg" />
-                              </a>
+                              <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                                <i className="fa fa-pencil"></i>
+                              </button>
+                              <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                                <i className="fa fa-remove"></i>
+                              </button>
                             </div>
                           </td>
                           <td className="d-none">amrit@mail.com</td>
@@ -78,9 +81,12 @@ export const NotificationComponent = () => {
                           <td>Notification Message</td>
                           <td className="d-flex justify-content-between">
                             <div className="btnsrow">
-                              <a href="#">
-                                <MdDelete title="Delete" className="fa-lg" />
-                              </a>
+                              <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                                <i className="fa fa-pencil"></i>
+                              </button>
+                              <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                                <i className="fa fa-remove"></i>
+                              </button>
                             </div>
                           </td>
                           <td className="d-none">amrit@mail.com</td>

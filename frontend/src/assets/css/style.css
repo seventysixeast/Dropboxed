@@ -21,13 +21,14 @@
 } */
 
 
-.logo img{
-	width:10rem;
-	height: auto;
+.logo img {
+  width: 10rem;
+  height: auto;
 }
-.brand-logo{
-	width:10rem;
-	height: auto;
+
+.brand-logo {
+  width: 10rem;
+  height: auto;
 }
 
 .package-card {
@@ -39,13 +40,13 @@
 
 .bg-full-screen-image {
   background: url(../../app-assets/images/backgrounds/bg-2.jpg) no-repeat center center fixed;
-/* Full height */
-height: 100%;
+  /* Full height */
+  height: 100%;
 
-/* Center and scale the image nicely */
-background-position: center;
-background-repeat: no-repeat;
-background-size: cover;
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .card-body {
@@ -58,4 +59,30 @@ background-size: cover;
 
 .col-xl-3.col-md-6.col-sm-12 {
   margin-bottom: 25px;
+}
+
+/* For mobile view only  */
+@media only screen and (max-width: 600px) {
+  h3.content-header-title.mb-0 {
+    font-size: 12px;
+  }
+
+  ol.breadcrumb {
+    font-size: 8px;
+  }
+
+  a.btn.btn-outline-primary,
+  button.btn.btn-outline-primary.btn-block,
+  button.btn.btn-outline-primary {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .fc-toolbar.fc-header-toolbar {
+    margin-bottom: unset;
+  }
+
+  .fc-toolbar {
+    display: unset;
+  }
 }
