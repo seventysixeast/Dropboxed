@@ -1,9 +1,82 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { newBooking } from "../api/bookingApis";
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import listPlugin from "@fullcalendar/list";
 
 export const BookingListComponent = () => {
-  const [startdate, setStartdate] = useState(new Date());
+  const bookings = [
+    {
+      title: "Booking 1",
+      package: "Studio",
+      services: "Studio Photography",
+      prefferedDate: new Date("2024-04-01T10:00:00"),
+      fromTime: "10:00",
+      toTime: "12:00",
+      client: "Peter",
+      comment: "First booking comment",
+    },
+    {
+      title: "Booking 2",
+      package: "Essential",
+      services: "Essential Floor Plan",
+      prefferedDate: new Date("2024-04-05T13:00:00"),
+      fromTime: "13:00",
+      toTime: "15:00",
+      client: "Admin",
+      comment: "Second booking comment",
+    },
+    {
+      title: "Booking 3",
+      package: "Premium",
+      services: "Premium Photography",
+      prefferedDate: new Date("2024-04-10T16:00:00"),
+      fromTime: "16:00",
+      toTime: "18:00",
+      client: "Belle",
+      comment: "Third booking comment",
+    },
+  ];
+  const events = bookings.map((booking, index) => ({
+    id: index,
+    title: booking.title,
+    start: booking.prefferedDate,
+    end: booking.prefferedDate,
+  }));
+  console.log(events);
+  const [bookingData, setBookingData] = useState({
+    title: "",
+    package: "",
+    services: "",
+    prefferedDate: new Date(),
+    fromTime: "",
+    toTime: "",
+    client: "",
+    comment: "",
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      console.log(bookingData);
+      await newBooking(bookingData);
+      // Handle success
+    } catch (error) {
+      console.error("Failed to add booking:", error.message);
+      // Handle error
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setBookingData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
   return (
     <>
       <div className="app-content content">
@@ -58,7 +131,7 @@ export const BookingListComponent = () => {
                               <span aria-hidden="true">×</span>
                             </button>
                           </div>
-                          <form>
+                          <form onSubmit={handleSubmit}>
                             <div className="modal-body">
                               <label htmlFor="title">Booking Title *</label>
                               <input
@@ -67,14 +140,16 @@ export const BookingListComponent = () => {
                                 className="form-control border-primary"
                                 placeholder="Enter Client Address"
                                 name="title"
-                                required
+                                value={bookingData.title}
+                                onChange={handleChange}
                               />
                             </div>
                             <div className="modal-body">
                               <label htmlFor="package">
                                 Package (Optional)
                               </label>
-                              <select className="select2 form-control" required>
+                              <select className="select2 form-control" name="package" value={bookingData.package}
+                                onChange={handleChange}>
                                 <option value="Studio">Studio Package</option>
                                 <option value="Essential">
                                   Essential Package
@@ -86,7 +161,8 @@ export const BookingListComponent = () => {
                               <label htmlFor="services">
                                 Services (Optional)
                               </label>
-                              <select className="select2 form-control" required>
+                              <select className="select2 form-control" name="services" value={bookingData.services}
+                                onChange={handleChange} required>
                                 <option value="Studio">
                                   Studio Photography
                                 </option>
@@ -112,13 +188,16 @@ export const BookingListComponent = () => {
                               <DatePicker
                                 className="form-control w-100 d-block"
                                 id="datetimepicker4"
-                                selected={startdate}
-                                onChange={(date) => setStartdate(date)}
+                                name="prefferedDate"
+                                selected={bookingData.prefferedDate}
+                                onChange={(date) => setBookingData((prevData) => ({ ...prevData, prefferedDate: date }))}
+
                               />
                             </div>
                             <div className="modal-body">
                               <label>From Time *</label>
-                              <select className="select2 form-control" required>
+                              <select className="select2 form-control" name="fromTime" value={bookingData.fromTime}
+                                onChange={handleChange} required>
                                 <option value="1">7:00</option>
                                 <option value="2">7:30</option>
                                 <option value="3">8:00</option>
@@ -134,7 +213,8 @@ export const BookingListComponent = () => {
                             </div>
                             <div className="modal-body">
                               <label>To Time *</label>
-                              <select className="select2 form-control" required>
+                              <select className="select2 form-control" name="toTime" value={bookingData.toTime}
+                                onChange={handleChange} required>
                                 <option value="1">7:00</option>
                                 <option value="2">7:30</option>
                                 <option value="3">8:00</option>
@@ -150,7 +230,8 @@ export const BookingListComponent = () => {
                             </div>
                             <div className="modal-body">
                               <label >Select Client</label>
-                              <select className="select2 form-control" required>
+                              <select className="select2 form-control" name="client" value={bookingData.client}
+                                onChange={handleChange} required>
                                 <option value="1">Peter</option>
                                 <option value="2">Admin</option>
                                 <option value="3">Belle</option>
@@ -164,6 +245,8 @@ export const BookingListComponent = () => {
                                 className="form-control border-primary"
                                 placeholder="Write Comment"
                                 name="comment"
+                                value={bookingData.comment}
+                                onChange={handleChange}
                                 required
                               />
                             </div>
@@ -195,8 +278,17 @@ export const BookingListComponent = () => {
                 <div className="col-12">
                   <div className="card">
                     <div className="card-content collapse show">
-                      <div className="card-body">
-                        <div id="fc-event-colors"></div>
+                      <div className="card-body fc-theme-bootstrap">
+                        <FullCalendar
+                          plugins={[dayGridPlugin, timeGridPlugin]}
+                          initialView="dayGridMonth"
+                          headerToolbar={{
+                            left: "prev,next today",
+                            center: "title",
+                            right: "dayGridMonth,timeGridWeek,timeGridDay",
+                          }}
+                          events={events}
+                        />
                       </div>
                     </div>
                   </div>
@@ -214,7 +306,7 @@ export const BookingListComponent = () => {
               <div className="card-content">
                 <div className="card-body">
                   <div className="table-responsive">
-                    <table class="table table-striped table-bordered zero-configuration">
+                    <table className="table table-striped table-bordered zero-configuration">
                       <thead>
                         <tr>
                           <th>Booking Date</th>
@@ -247,17 +339,17 @@ export const BookingListComponent = () => {
                           </td>
                           <td>Test Comment</td>
                           <td>
-                            <span class="badge badge-warning">Pending</span>
+                            <span className="badge badge-warning">Pending</span>
                           </td>
                           <td>
-                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                               <i className="fa fa-remove"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
-                              <i class="fa fa-solid fa-image"></i>
+                            <button className="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                              <i className="fa fa-solid fa-image"></i>
                             </button>
                           </td>
                           <td className="d-none" ></td>
@@ -277,17 +369,17 @@ export const BookingListComponent = () => {
                           <td>First Canadian Place, Toronto, ON, Canada</td>
                           <td> </td>
                           <td>
-                            <span class="badge badge-danger">Notify</span>
+                            <span className="badge badge-danger">Notify</span>
                           </td>
                           <td>
-                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                               <i className="fa fa-remove"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
-                              <i class="fa fa-solid fa-image"></i>
+                            <button className="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                              <i className="fa fa-solid fa-image"></i>
                             </button>
                           </td>
                           <td className="d-none" ></td>
@@ -307,17 +399,17 @@ export const BookingListComponent = () => {
                           <td>First Canadian Place, Toronto, ON, Canada</td>
                           <td> </td>
                           <td>
-                            <span class="badge badge-success">Booked</span>
+                            <span className="badge badge-success">Booked</span>
                           </td>
                           <td>
-                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                               <i className="fa fa-remove"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
-                              <i class="fa fa-solid fa-image"></i>
+                            <button className="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                              <i className="fa fa-solid fa-image"></i>
                             </button>
                           </td>
                           <td className="d-none" ></td>
