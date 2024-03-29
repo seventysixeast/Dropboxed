@@ -3,11 +3,15 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { newBooking } from "../api/bookingApis";
 import FullCalendar from '@fullcalendar/react'
+import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 
 export const BookingListComponent = () => {
+  const [showRescheduleForm, setShowRescheduleForm] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   const bookings = [
     {
       title: "Booking 1",
@@ -40,6 +44,7 @@ export const BookingListComponent = () => {
       comment: "Third booking comment",
     },
   ];
+
   const events = bookings.map((booking, index) => ({
     id: index,
     title: booking.title,
@@ -74,6 +79,34 @@ export const BookingListComponent = () => {
     const { name, value } = e.target;
     setBookingData((prevData) => ({
       ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleEventClick = (info) => {
+    setSelectedEvent(info.event);
+    setShowRescheduleForm(true);
+  };
+
+  const handleRescheduleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Implement reschedule logic using the selectedEvent data
+      console.log("Reschedule data:", selectedEvent);
+      // Reset state and close the form
+      setShowRescheduleForm(false);
+      setSelectedEvent(null);
+    } catch (error) {
+      console.error("Failed to reschedule:", error.message);
+      // Handle error
+    }
+  };
+
+  const handleRescheduleChange = (e) => {
+    const { name, value } = e.target;
+    // Update selected event data
+    setSelectedEvent((prevEvent) => ({
+      ...prevEvent,
       [name]: value,
     }));
   };
@@ -280,14 +313,17 @@ export const BookingListComponent = () => {
                     <div className="card-content collapse show">
                       <div className="card-body fc-theme-bootstrap">
                         <FullCalendar
-                          plugins={[dayGridPlugin, timeGridPlugin]}
-                          initialView="dayGridMonth"
+                          plugins={[dayGridPlugin, timeGridPlugin,interactionPlugin]}
+                          initialView="timeGridWeek"
                           headerToolbar={{
                             left: "prev,next today",
                             center: "title",
                             right: "dayGridMonth,timeGridWeek,timeGridDay",
                           }}
+                          editable={true}
+                          selectable={true}
                           events={events}
+                          eventClick={handleEventClick} // Handle event click
                         />
                       </div>
                     </div>
