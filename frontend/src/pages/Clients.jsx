@@ -115,12 +115,12 @@ const Clients = () => {
                   <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
-                        <th style={{width:'30px'}}>S.No.</th>
+                        <th>S.No.</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Collections</th>
-                        <th style={{width:'110px'}}>Action</th>
+                        <th>Action</th>
 
                         <th className="d-none">Amount</th>
                         <th className="d-none">Status</th>
