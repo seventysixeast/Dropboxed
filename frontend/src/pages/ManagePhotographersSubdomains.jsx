@@ -30,12 +30,12 @@ const ManagePhotographersSubdomains = () => {
                   <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
-                        <th>S.No.</th>
+                        <th style={{ width: '30px' }}>S.No.</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Subdomain</th>
-                        <th>Action</th>
+                        <th style={{ width: '100px' }}>Action</th>
 
                         <th className="d-none">Amount</th>
                         <th className="d-none">Status</th>
@@ -51,12 +51,12 @@ const ManagePhotographersSubdomains = () => {
                         <td>76east.dropboxed.com</td>
                         <td className="d-flex justify-content-between">
                           <div className="btnsrow">
-                            <a href="#">
-                              <FaEdit title="Edit" className="fa-lg" />
-                            </a>
-                            <a href="#">
-                              <MdDelete title="Delete" className="fa-lg" />
-                            </a>
+                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <i className="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <i className="fa fa-remove"></i>
+                            </button>
                           </div>
                         </td>
 
@@ -74,12 +74,12 @@ const ManagePhotographersSubdomains = () => {
                         <td>abc.dropboxed.com</td>
                         <td className="d-flex justify-content-between">
                           <div className="btnsrow">
-                            <a href="#">
-                              <FaEdit title="Edit" className="fa-lg" />
-                            </a>
-                            <a href="#">
-                              <MdDelete title="Delete" className="fa-lg" />
-                            </a>
+                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <i className="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <i className="fa fa-remove"></i>
+                            </button>
                           </div>
                         </td>
 
