@@ -63,14 +63,29 @@ export const BookingListComponent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(bookingData);
-      await newBooking(bookingData);
+      const bookingDataToSend = {
+        user_id: 77777,
+        booking_title: bookingData.title,
+        client_name: bookingData.client,
+        client_address: bookingData.title,
+        package: 1,
+        package_ids: bookingData.services,
+        photographer_id: 12,
+        booking_date: bookingData.prefferedDate,
+        booking_time: bookingData.fromTime,
+        booking_time_to: bookingData.toTime,
+        booking_status: 1, // Example booking status, replace with actual value
+        comment: bookingData.comment,
+      };
+      console.log(bookingDataToSend);
+      await newBooking(bookingDataToSend);
       // Handle success
     } catch (error) {
       console.error("Failed to add booking:", error.message);
       // Handle error
     }
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;

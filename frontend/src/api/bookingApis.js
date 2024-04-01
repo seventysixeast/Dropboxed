@@ -1,6 +1,6 @@
 const newBooking = async (bookingData) => {
   try {
-    const response = await fetch(`/new-booking`, {
+    const response = await fetch(`http://localhost:6977/booking/new-booking`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
