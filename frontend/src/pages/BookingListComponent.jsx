@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { newBooking } from "../api/bookingApis";
-import FullCalendar from '@fullcalendar/react'
-import interactionPlugin from '@fullcalendar/interaction'
+import FullCalendar from "@fullcalendar/react";
+import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 
 export const BookingListComponent = () => {
-
   const bookings = [
     {
       title: "Booking 1",
@@ -58,7 +57,10 @@ export const BookingListComponent = () => {
     toTime: "",
     client: "",
     comment: "",
+    provider: "",
   });
+
+  const [providers, setProviders] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,7 +87,6 @@ export const BookingListComponent = () => {
       // Handle error
     }
   };
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -95,7 +96,22 @@ export const BookingListComponent = () => {
     }));
   };
 
+  useEffect(() => {
+    const fetchProviders = async () => {
+        try {
+            const response = await fetch('http://localhost:6977/booking/providers'); // Assuming '/api/providers' is the endpoint to get providers
+            if (!response.ok) {
+                throw new Error('Failed to fetch providers');
+            }
+            const data = await response.json();
+            setProviders(data); // Assuming the response data is an array of provider objects
+        } catch (error) {
+            console.error('Error fetching providers:', error.message);
+        }
+    };
 
+    fetchProviders();
+}, []);
 
   return (
     <>
@@ -126,7 +142,7 @@ export const BookingListComponent = () => {
                       data-toggle="modal"
                       data-target="#bootstrap"
                     >
-                      New Booking
+                      New Appointment
                     </button>
 
                     <div
@@ -138,10 +154,13 @@ export const BookingListComponent = () => {
                       aria-hidden="true"
                       style={{ display: "none" }}
                     >
-                      <div className="modal-dialog modal-lg" role="document">
+                      <div className="modal-dialog modal-md " role="document">
                         <div className="modal-content">
-                          <div className="modal-header">
-                            <h3 className="card-title">Add Booking</h3>
+                          <div
+                            className="modal-header"
+                            style={{ backgroundColor: "#DEE6EE" }}
+                          >
+                            <h3 className="card-title px-2">Appointment</h3>
                             <button
                               type="button"
                               className="close"
@@ -152,24 +171,57 @@ export const BookingListComponent = () => {
                             </button>
                           </div>
                           <form onSubmit={handleSubmit}>
-                            <div className="modal-body">
-                              <label htmlFor="title">Booking Title *</label>
-                              <input
-                                type="text"
-                                id="title"
-                                className="form-control border-primary"
-                                placeholder="Enter Client Address"
-                                name="title"
-                                value={bookingData.title}
-                                onChange={handleChange}
-                              />
+                            <div style={{ backgroundColor: "#EEF3F6" }}>
+                              <div className="px-2" style={{ width: "300px" }}>
+                                <ul className="nav nav-tabs nav-underline" style={{ backgroundColor: "#EEF3F6" }}>
+                                  <li className="nav-item">
+                                    <a
+                                      className="nav-link active"
+                                      data-toggle="tab"
+                                      href="#tab1"
+                                    >
+                                      Details
+                                    </a>
+                                  </li>
+                                  <li className="nav-item">
+                                    <a
+                                      className="nav-link"
+                                      data-toggle="tab"
+                                      href="#tab2"
+                                    >
+                                      Customer
+                                    </a>
+                                  </li>
+                                </ul>
+                              </div>
                             </div>
                             <div className="modal-body">
                               <label htmlFor="package">
                                 Package (Optional)
                               </label>
-                              <select className="select2 form-control" name="package" value={bookingData.package}
-                                onChange={handleChange}>
+                              <select
+                                className="select2 form-control"
+                                name="package"
+                                value={bookingData.package}
+                                onChange={handleChange}
+                              >
+                                <option value="Studio">Studio Package</option>
+                                <option value="Essential">
+                                  Essential Package
+                                </option>
+                                <option value="Premium">Premium Package</option>
+                              </select>
+                            </div>
+                            <div className="modal-body">
+                              <label htmlFor="package">
+                                Package (Optional)
+                              </label>
+                              <select
+                                className="select2 form-control"
+                                name="package"
+                                value={bookingData.package}
+                                onChange={handleChange}
+                              >
                                 <option value="Studio">Studio Package</option>
                                 <option value="Essential">
                                   Essential Package
@@ -181,8 +233,13 @@ export const BookingListComponent = () => {
                               <label htmlFor="services">
                                 Services (Optional)
                               </label>
-                              <select className="select2 form-control" name="services" value={bookingData.services}
-                                onChange={handleChange} required>
+                              <select
+                                className="select2 form-control"
+                                name="services"
+                                value={bookingData.services}
+                                onChange={handleChange}
+                                required
+                              >
                                 <option value="Studio">
                                   Studio Photography
                                 </option>
@@ -204,20 +261,31 @@ export const BookingListComponent = () => {
                               </select>
                             </div>
                             <div className="modal-body">
-                              <label className="d-block">Preffered Date *</label>
+                              <label className="d-block">
+                                Preffered Date *
+                              </label>
                               <DatePicker
                                 className="form-control w-100 d-block"
                                 id="datetimepicker4"
                                 name="prefferedDate"
                                 selected={bookingData.prefferedDate}
-                                onChange={(date) => setBookingData((prevData) => ({ ...prevData, prefferedDate: date }))}
-
+                                onChange={(date) =>
+                                  setBookingData((prevData) => ({
+                                    ...prevData,
+                                    prefferedDate: date,
+                                  }))
+                                }
                               />
                             </div>
                             <div className="modal-body">
                               <label>From Time *</label>
-                              <select className="select2 form-control" name="fromTime" value={bookingData.fromTime}
-                                onChange={handleChange} required>
+                              <select
+                                className="select2 form-control"
+                                name="fromTime"
+                                value={bookingData.fromTime}
+                                onChange={handleChange}
+                                required
+                              >
                                 <option value="1">7:00</option>
                                 <option value="2">7:30</option>
                                 <option value="3">8:00</option>
@@ -233,8 +301,13 @@ export const BookingListComponent = () => {
                             </div>
                             <div className="modal-body">
                               <label>To Time *</label>
-                              <select className="select2 form-control" name="toTime" value={bookingData.toTime}
-                                onChange={handleChange} required>
+                              <select
+                                className="select2 form-control"
+                                name="toTime"
+                                value={bookingData.toTime}
+                                onChange={handleChange}
+                                required
+                              >
                                 <option value="1">7:00</option>
                                 <option value="2">7:30</option>
                                 <option value="3">8:00</option>
@@ -249,16 +322,23 @@ export const BookingListComponent = () => {
                               </select>
                             </div>
                             <div className="modal-body">
-                              <label >Select Client</label>
-                              <select className="select2 form-control" name="client" value={bookingData.client}
-                                onChange={handleChange} required>
+                              <label>Select Client</label>
+                              <select
+                                className="select2 form-control"
+                                name="client"
+                                value={bookingData.client}
+                                onChange={handleChange}
+                                required
+                              >
                                 <option value="1">Peter</option>
                                 <option value="2">Admin</option>
                                 <option value="3">Belle</option>
                               </select>
                             </div>
                             <div className="modal-body">
-                              <label htmlFor="comment">Comment (optional)</label>
+                              <label htmlFor="comment">
+                                Comment (optional)
+                              </label>
                               <input
                                 type="text"
                                 id="comment"
@@ -293,7 +373,6 @@ export const BookingListComponent = () => {
                       id="reschedule"
                       tabIndex="-1"
                       role="dialog"
-
                       aria-labelledby="myModalLabel35"
                       aria-hidden="true"
                     >
@@ -327,8 +406,12 @@ export const BookingListComponent = () => {
                               <label htmlFor="package">
                                 Package (Optional)
                               </label>
-                              <select className="select2 form-control" name="package" value={bookingData.package}
-                                onChange={handleChange}>
+                              <select
+                                className="select2 form-control"
+                                name="package"
+                                value={bookingData.package}
+                                onChange={handleChange}
+                              >
                                 <option value="Studio">Studio Package</option>
                                 <option value="Essential">
                                   Essential Package
@@ -340,8 +423,13 @@ export const BookingListComponent = () => {
                               <label htmlFor="services">
                                 Services (Optional)
                               </label>
-                              <select className="select2 form-control" name="services" value={bookingData.services}
-                                onChange={handleChange} required>
+                              <select
+                                className="select2 form-control"
+                                name="services"
+                                value={bookingData.services}
+                                onChange={handleChange}
+                                required
+                              >
                                 <option value="Studio">
                                   Studio Photography
                                 </option>
@@ -363,20 +451,31 @@ export const BookingListComponent = () => {
                               </select>
                             </div>
                             <div className="modal-body">
-                              <label className="d-block">Preffered Date *</label>
+                              <label className="d-block">
+                                Preffered Date *
+                              </label>
                               <DatePicker
                                 className="form-control w-100 d-block"
                                 id="datetimepicker4"
                                 name="prefferedDate"
                                 selected={bookingData.prefferedDate}
-                                onChange={(date) => setBookingData((prevData) => ({ ...prevData, prefferedDate: date }))}
-
+                                onChange={(date) =>
+                                  setBookingData((prevData) => ({
+                                    ...prevData,
+                                    prefferedDate: date,
+                                  }))
+                                }
                               />
                             </div>
                             <div className="modal-body">
                               <label>From Time *</label>
-                              <select className="select2 form-control" name="fromTime" value={bookingData.fromTime}
-                                onChange={handleChange} required>
+                              <select
+                                className="select2 form-control"
+                                name="fromTime"
+                                value={bookingData.fromTime}
+                                onChange={handleChange}
+                                required
+                              >
                                 <option value="1">7:00</option>
                                 <option value="2">7:30</option>
                                 <option value="3">8:00</option>
@@ -392,8 +491,13 @@ export const BookingListComponent = () => {
                             </div>
                             <div className="modal-body">
                               <label>To Time *</label>
-                              <select className="select2 form-control" name="toTime" value={bookingData.toTime}
-                                onChange={handleChange} required>
+                              <select
+                                className="select2 form-control"
+                                name="toTime"
+                                value={bookingData.toTime}
+                                onChange={handleChange}
+                                required
+                              >
                                 <option value="1">7:00</option>
                                 <option value="2">7:30</option>
                                 <option value="3">8:00</option>
@@ -408,16 +512,23 @@ export const BookingListComponent = () => {
                               </select>
                             </div>
                             <div className="modal-body">
-                              <label >Select Client</label>
-                              <select className="select2 form-control" name="client" value={bookingData.client}
-                                onChange={handleChange} required>
+                              <label>Select Client</label>
+                              <select
+                                className="select2 form-control"
+                                name="client"
+                                value={bookingData.client}
+                                onChange={handleChange}
+                                required
+                              >
                                 <option value="1">Peter</option>
                                 <option value="2">Admin</option>
                                 <option value="3">Belle</option>
                               </select>
                             </div>
                             <div className="modal-body">
-                              <label htmlFor="comment">Comment (optional)</label>
+                              <label htmlFor="comment">
+                                Comment (optional)
+                              </label>
                               <input
                                 type="text"
                                 id="comment"
@@ -459,7 +570,11 @@ export const BookingListComponent = () => {
                     <div className="card-content collapse show">
                       <div className="card-body fc-theme-bootstrap">
                         <FullCalendar
-                          plugins={[dayGridPlugin, timeGridPlugin,interactionPlugin]}
+                          plugins={[
+                            dayGridPlugin,
+                            timeGridPlugin,
+                            interactionPlugin,
+                          ]}
                           initialView="timeGridWeek"
                           headerToolbar={{
                             left: "prev,next today",
@@ -523,19 +638,28 @@ export const BookingListComponent = () => {
                             <span className="badge badge-warning">Pending</span>
                           </td>
                           <td>
-                            <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <button
+                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                              title="Edit"
+                            >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <button
+                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
+                              title="Delete"
+                            >
                               <i className="fa fa-remove"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                            <button
+                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
+                              title="Turn into Gallery"
+                            >
                               <i className="fa fa-solid fa-image"></i>
                             </button>
                           </td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
+                          <td className="d-none"></td>
+                          <td className="d-none"></td>
+                          <td className="d-none"></td>
                         </tr>
                         <tr>
                           <td>26-03-2024</td>
@@ -553,19 +677,28 @@ export const BookingListComponent = () => {
                             <span className="badge badge-danger">Notify</span>
                           </td>
                           <td>
-                            <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <button
+                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                              title="Edit"
+                            >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <button
+                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
+                              title="Delete"
+                            >
                               <i className="fa fa-remove"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                            <button
+                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
+                              title="Turn into Gallery"
+                            >
                               <i className="fa fa-solid fa-image"></i>
                             </button>
                           </td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
+                          <td className="d-none"></td>
+                          <td className="d-none"></td>
+                          <td className="d-none"></td>
                         </tr>
                         <tr>
                           <td>26-03-2024</td>
@@ -583,19 +716,28 @@ export const BookingListComponent = () => {
                             <span className="badge badge-success">Booked</span>
                           </td>
                           <td>
-                            <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <button
+                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                              title="Edit"
+                            >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <button
+                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
+                              title="Delete"
+                            >
                               <i className="fa fa-remove"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-primary mr-1 mb-1" title="Turn into Gallery">
+                            <button
+                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
+                              title="Turn into Gallery"
+                            >
                               <i className="fa fa-solid fa-image"></i>
                             </button>
                           </td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
-                          <td className="d-none" ></td>
+                          <td className="d-none"></td>
+                          <td className="d-none"></td>
+                          <td className="d-none"></td>
                         </tr>
                       </tbody>
                     </table>

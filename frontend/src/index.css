@@ -801,3 +801,27 @@ a.fc-more:hover {
       margin: 0!important
   }
 }
+
+
+.fc-direction-ltr .fc-daygrid-event.fc-event-end, .fc-direction-rtl .fc-daygrid-event.fc-event-start{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  align-content: space-between;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+}
+
+.fc-daygrid-event-dot {
+  border: calc(var(--fc-daygrid-event-dot-width) / 2) solid var(--fc-event-border-color);
+  border-radius: calc(var(--fc-daygrid-event-dot-width) / 2);
+  box-sizing: content-box;
+  height: 0px;
+  margin: 0px 4px;
+  width: 0px;
+  display: none;
+}
+
+.fc-event .fc-event-draggable .fc-event-resizable .fc-event-start .fc-event-end .fc-event-today .fc-event-future .fc-timegrid-event .fc-v-event {
+  border-radius: 0% !important;
+}
