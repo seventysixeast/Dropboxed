@@ -197,12 +197,12 @@ export const BookingListComponent = () => {
                             </div>
                             <div className="modal-body">
                               <label htmlFor="package">
-                                Package (Optional)
+                                Provider
                               </label>
                               <select
                                 className="select2 form-control"
                                 name="package"
-                                value={bookingData.package}
+                                value={bookingData.provider}
                                 onChange={handleChange}
                               >
                                 <option value="Studio">Studio Package</option>
