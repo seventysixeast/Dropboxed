@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 const ToDo = () => {
   const [isNewTaskModalOpen, setNewTaskModalOpen] = useState(false);
+  const [show, setShow] = useState(false)
 
   const modalRef = useRef(null);
 
@@ -20,14 +21,13 @@ const ToDo = () => {
       document.removeEventListener("mousedown", handleModalClose);
     };
   }, []);
-
   return (
     <div className="todo-application">
       <div className="app-content content">
-        <div className="sidebar-left">
+        <div className={`sidebar-left ${show ? "show" : ""}`}>
           <div className="sidebar">
             <div className="todo-sidebar d-flex">
-              <span className="sidebar-close-icon">
+              <span className="sidebar-close-icon" onClick={() => setShow(!show)} onTouchStart={() => setShow(!show)}>
                 <i className="feather icon-x"></i>
               </span>
               <div className="todo-app-menu">
@@ -320,15 +320,19 @@ const ToDo = () => {
           <div className="content-wrapper">
             <div className="content-header row"></div>
             <div className="content-body">
-              <div
+              {show || isNewTaskModalOpen ? <div
+                className="app-content-overlay show"></div> : <div
+                  className="app-content-overlay"></div>}
+
+              {/* <div
                 className={`app-content-overlay ${isNewTaskModalOpen ? "show" : ""
                   }`}
-              ></div>
+              ></div> */}
               <div className="todo-app-area">
                 <div className="todo-app-list-wrapper">
                   <div className="todo-app-list">
                     <div className="todo-fixed-search d-flex justify-content-between align-items-center">
-                      <div className="sidebar-toggle d-block d-lg-none">
+                    <div className="sidebar-toggle d-block d-lg-none" onClick={() => setShow(!show)} onTouchStart={() => setShow(!show)}>
                         <i className="feather icon-menu"></i>
                       </div>
                       <fieldset className="form-group position-relative has-icon-left m-0 flex-grow-1 pl-2">

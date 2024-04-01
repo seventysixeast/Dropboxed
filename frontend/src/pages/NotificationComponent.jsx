@@ -35,14 +35,13 @@ export const NotificationComponent = () => {
             <div className="card">
               <div className="card-content">
                 <div className="card-body">
-                  {/* datatable start */}
                   <div className="table-responsive">
                     <table class="table table-striped table-bordered zero-configuration">
                       <thead>
                         <tr>
                           <th>Date</th>
                           <th>Notification</th>
-                          <th style={{width:'110px'}}>Action</th>
+                          <th>Action</th>
                           <th className="d-none">last activity</th>
                           <th className="d-none">verified</th>
                           <th className="d-none">role</th>
@@ -56,9 +55,6 @@ export const NotificationComponent = () => {
                           <td>Notification Message</td>
                           <td className="d-flex justify-content-between">
                             <div className="btnsrow">
-                              <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
-                                <i className="fa fa-pencil"></i>
-                              </button>
                               <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                                 <i className="fa fa-remove"></i>
                               </button>
@@ -81,9 +77,6 @@ export const NotificationComponent = () => {
                           <td>Notification Message</td>
                           <td className="d-flex justify-content-between">
                             <div className="btnsrow">
-                              <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
-                                <i className="fa fa-pencil"></i>
-                              </button>
                               <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                                 <i className="fa fa-remove"></i>
                               </button>
@@ -104,7 +97,6 @@ export const NotificationComponent = () => {
                       </tbody>
                     </table>
                   </div>
-                  {/* datatable ends */}
                 </div>
               </div>
             </div>

@@ -206,13 +206,13 @@ const Collections = () => {
                   <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
-                        <th style={{width:'30px'}}>S.No.</th>
+                        <th>S.No.</th>
                         <th>Banner</th>
                         <th>Title</th>
                         <th>Address</th>
                         <th>Packages With Images</th>
                         <th>Assign Client	</th>
-                        <th style={{width:'110px'}}>Action</th>
+                        <th>Action</th>
                         <th className="d-none">verified</th>
                       </tr>
                     </thead>
