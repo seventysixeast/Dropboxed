@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
@@ -18,6 +19,7 @@ app.use(cors({
 app.use(bodyParser.json());
 
 app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 app.use('/booking', bookingRouter);
 
 app.get('/protected', authenticateToken, (req, res) => {
