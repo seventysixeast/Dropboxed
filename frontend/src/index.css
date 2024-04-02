@@ -837,3 +837,8 @@ a.fc-more:hover {
   top: 50%;
   transform: translateY(-50%);
 }
+
+.form-control:disabled {
+  background-color: #ffffff;
+  opacity: 1;
+}
