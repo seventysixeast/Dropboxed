@@ -144,4 +144,8 @@ const Users = sequelize.define('User', {
   timestamps: false
 });
 
+<<<<<<< HEAD:server/models/Users.js
 module.exports = Users;
+=======
+module.exports = User;
+>>>>>>> stage:server/models/User.js
