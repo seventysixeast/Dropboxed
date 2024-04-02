@@ -1,7 +1,7 @@
 // controllers/bookingController.js
 
 const Booking = require('../models/Booking');
-const User = require('../models/User');
+const User = require('../models/Users');
 const Package = require('../models/Packages'); 
 
 // Controller function for creating a new booking

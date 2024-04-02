@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
+const clientRoutes = require('./routes/clientRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'build')));
 
 app.use('/auth', authRoutes);
-app.use('/user', userRoutes);
+app.use('/client', clientRoutes);
 app.use('/booking', bookingRouter);
 
 app.get('/protected', authenticateToken, (req, res) => {
