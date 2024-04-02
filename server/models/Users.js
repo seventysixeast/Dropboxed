@@ -19,7 +19,7 @@ const Users = sequelize.define('User', {
   },
   role_id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     defaultValue: 0
   },
   email: {
@@ -29,7 +29,7 @@ const Users = sequelize.define('User', {
   },
   phone: {
     type: DataTypes.STRING(15),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   password: {
@@ -39,89 +39,92 @@ const Users = sequelize.define('User', {
   },
   profile_photo: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true,
+    defaultValue: ''
   },
   logo: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true,
+    defaultValue: ''
   },
   company: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   subdomain: {
     type: DataTypes.STRING(255),
+    allowNull: true,
     unique: true
   },
   facebook: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   twitter: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   googleplus: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   linkedin: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   instagram: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   website: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   dob: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   country: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   address: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   account_email: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   account_name: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   account_number: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   bsb_number: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   abn_acn: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   colorcode: {
     type: DataTypes.STRING(20),
-    allowNull: false,
+    allowNull: true,
     defaultValue: ''
   },
   status: {
@@ -144,8 +147,4 @@ const Users = sequelize.define('User', {
   timestamps: false
 });
 
-<<<<<<< HEAD:server/models/Users.js
 module.exports = Users;
-=======
-module.exports = User;
->>>>>>> stage:server/models/User.js
