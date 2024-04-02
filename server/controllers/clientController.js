@@ -1,14 +1,29 @@
 const User = require('../models/Users');
 
 const createClient = async (req, res) => {
+  console.log(req.body);
   try {
-    const client = await User.create(req.body);
+    const client = await User.create({
+      name: req.body.name,
+      email: req.body.email,
+      account_email: req.body.email,
+      account_name: req.body.name,
+      account_number: '',
+      bsb_number: '',
+      abn_acn:'',
+      // phone: req.body.mobile,
+      role_id: 3,
+      address: `${req.body.home}, ${req.body.address}, ${req.body.city}, ${req.body.state}, ${req.body.zip}`,
+      status: req.body.status,
+    });
+    console.log(client);
     res.status(201).json({
       success: true,
       message: "Client created successfully",
       data: client
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Failed to add client" });
   }
 };

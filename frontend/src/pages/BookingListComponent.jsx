@@ -7,6 +7,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
+import { createClient } from "../api/clientApis";
+import { response } from "express";
 
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
@@ -110,6 +112,9 @@ export const BookingListComponent = () => {
       // };
       // console.log(bookingDataToSend);
       // await newBooking(bookingDataToSend);
+      response = await createClient(customerData);
+      console.log(response);
+      
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
