@@ -825,3 +825,15 @@ a.fc-more:hover {
 .fc-event .fc-event-draggable .fc-event-resizable .fc-event-start .fc-event-end .fc-event-today .fc-event-future .fc-timegrid-event .fc-v-event {
   border-radius: 0% !important;
 }
+
+.select2 {
+  position: relative;
+}
+
+.select2::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}

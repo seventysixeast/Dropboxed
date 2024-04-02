@@ -10,7 +10,9 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
-
+  const [packagePrice, setPackagePrices] = useState([]);
+  const [selectedPackage, setSelectedPackage] = useState();
+  const [selectedPackagePrice, setSelectedPackagePrice] = useState();
   const bookings = [
     {
       title: "Booking 1",
@@ -107,6 +109,11 @@ export const BookingListComponent = () => {
           const data = await response.json();
           setProviders(data.usersWithRoleId1);
           setPackages(data.packages);
+          const prices = data.packages.map((pack) => ({
+            id: pack.id,
+            price: pack.package_price,
+          }));
+          setPackagePrices(prices);
         } catch (error) {
           console.error("Error fetching providers:", error.message);
         }
@@ -115,6 +122,20 @@ export const BookingListComponent = () => {
 
     fetchProviders();
   }, []);
+
+  const handleSelectedChange = (e) => {
+    console.log(e.target);
+    const { name, value } = e.target;
+    setBookingData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    setSelectedPackage(value);
+    setSelectedPackagePrice(
+      packagePrice.find((price) => price.id === parseInt(value)).price
+    );
+  };
+  console.log(selectedPackage);
 
   return (
     <>
@@ -216,47 +237,57 @@ export const BookingListComponent = () => {
                                 ))}
                               </select>
                             </div>
-                            {packages.map((pack) => (
-                              <>
-                                <div className="modal-body">
-                                  <label htmlFor="package">
-                                    Package (Optional)
-                                  </label>
-                                  <select
-                                    className="select2 form-control"
-                                    name="package"
-                                    value={bookingData.package}
-                                    onChange={handleChange}
-                                  >
-                                    <option key={pack.id} value={pack.id}>
-                                      <img
-                                        src={pack.profile_photo}
-                                        alt={pack.package_name}
-                                      />
-                                      {pack.package_name}
-                                    </option>
-                                  </select>
-                                </div>
+                            <div className="modal-body">
+                              <label htmlFor="package">
+                                Package (Optional)
+                              </label>
+                              <select
+                                className="select2 form-control"
+                                name="package"
+                                value={bookingData.package}
+                                onChange={handleSelectedChange}
+                              >
+                                <option value="">Select Package</option>
+                                {packages.map((pack) => (
+                                  <option key={pack.id} value={pack.id}>
+                                    {/* <img
+                                      src={pack.profile_photo}
+                                      alt={pack.package_name}
+                                    /> */}
+                                    {pack.package_name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
 
-                                <div className="modal-body">
-                                  <select
-                                    className="select2 form-control"
-                                    name="package"
-                                    value={bookingData.price}
-                                    onChange={handleChange}
-                                  >
-                                    <input
-                                      type="text"
-                                      id="price"
-                                      className="form-control border-primary"
-                                      placeholder="price"
-                                      name="imagefolder"
-                                      disabled
-                                    />
-                                  </select>
-                                </div>
-                              </>
-                            ))}
+                            <div className="modal-body d-flex">
+                              <input
+                                type="text"
+                                id="comment"
+                                className="form-control border-primary mr-1"
+                                placeholder="Write Comment"
+                                name="comment"
+                                value={selectedPackagePrice}
+                                onChange={handleChange}
+                                required
+                              />
+<div className="input-group">
+  <select
+    className="select2 form-control fas fa-caret-down"
+    name="services"
+    value={bookingData.toTime}
+    onChange={handleChange}
+    required
+  >
+    <option value="60">60 Mins</option>
+    <option value="75">75 Mins</option>
+    <option value="90">90 Mins</option>
+    <option value="120">120 Mins</option>
+    <option value="150">150 Mins</option>
+    <option value="180">180 Mins</option>
+  </select>
+</div>
+                            </div>
 
                             <div className="modal-body">
                               <label htmlFor="services">
