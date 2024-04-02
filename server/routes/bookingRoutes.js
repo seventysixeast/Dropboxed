@@ -7,5 +7,6 @@ const router = express.Router();
 
 // Route for creating a new booking
 router.post('/new-booking', bookingController.createBooking);
+router.get('/providers', bookingController.providers)
 
 module.exports = router;

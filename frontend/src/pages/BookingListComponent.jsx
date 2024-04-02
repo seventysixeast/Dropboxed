@@ -8,6 +8,9 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 
 export const BookingListComponent = () => {
+  const [providers, setProviders] = useState([]);
+  const [packages, setPackages] = useState([]);
+
   const bookings = [
     {
       title: "Booking 1",
@@ -60,8 +63,6 @@ export const BookingListComponent = () => {
     provider: "",
   });
 
-  const [providers, setProviders] = useState([]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -98,20 +99,22 @@ export const BookingListComponent = () => {
 
   useEffect(() => {
     const fetchProviders = async () => {
+      if (providers.length === 0) {
         try {
-            const response = await fetch('http://localhost:6977/booking/providers'); // Assuming '/api/providers' is the endpoint to get providers
-            if (!response.ok) {
-                throw new Error('Failed to fetch providers');
-            }
-            const data = await response.json();
-            setProviders(data); // Assuming the response data is an array of provider objects
+          const response = await fetch(
+            "http://localhost:6977/booking/providers"
+          );
+          const data = await response.json();
+          setProviders(data.usersWithRoleId1);
+          setPackages(data.packages);
         } catch (error) {
-            console.error('Error fetching providers:', error.message);
+          console.error("Error fetching providers:", error.message);
         }
+      }
     };
 
     fetchProviders();
-}, []);
+  }, []);
 
   return (
     <>
@@ -173,7 +176,10 @@ export const BookingListComponent = () => {
                           <form onSubmit={handleSubmit}>
                             <div style={{ backgroundColor: "#EEF3F6" }}>
                               <div className="px-2" style={{ width: "300px" }}>
-                                <ul className="nav nav-tabs nav-underline" style={{ backgroundColor: "#EEF3F6" }}>
+                                <ul
+                                  className="nav nav-tabs nav-underline"
+                                  style={{ backgroundColor: "#EEF3F6" }}
+                                >
                                   <li className="nav-item">
                                     <a
                                       className="nav-link active"
@@ -196,39 +202,62 @@ export const BookingListComponent = () => {
                               </div>
                             </div>
                             <div className="modal-body">
-                              <label htmlFor="package">
-                                Provider
-                              </label>
+                              <label htmlFor="provider">Provider</label>
                               <select
                                 className="select2 form-control"
-                                name="package"
+                                name="provider"
                                 value={bookingData.provider}
                                 onChange={handleChange}
                               >
-                                <option value="Studio">Studio Package</option>
-                                <option value="Essential">
-                                  Essential Package
-                                </option>
-                                <option value="Premium">Premium Package</option>
+                                {providers.map((provider) => (
+                                  <option key={provider.id} value={provider.id}>
+                                    {provider.name}
+                                  </option>
+                                ))}
                               </select>
                             </div>
-                            <div className="modal-body">
-                              <label htmlFor="package">
-                                Package (Optional)
-                              </label>
-                              <select
-                                className="select2 form-control"
-                                name="package"
-                                value={bookingData.package}
-                                onChange={handleChange}
-                              >
-                                <option value="Studio">Studio Package</option>
-                                <option value="Essential">
-                                  Essential Package
-                                </option>
-                                <option value="Premium">Premium Package</option>
-                              </select>
-                            </div>
+                            {packages.map((pack) => (
+                              <>
+                                <div className="modal-body">
+                                  <label htmlFor="package">
+                                    Package (Optional)
+                                  </label>
+                                  <select
+                                    className="select2 form-control"
+                                    name="package"
+                                    value={bookingData.package}
+                                    onChange={handleChange}
+                                  >
+                                    <option key={pack.id} value={pack.id}>
+                                      <img
+                                        src={pack.profile_photo}
+                                        alt={pack.package_name}
+                                      />
+                                      {pack.package_name}
+                                    </option>
+                                  </select>
+                                </div>
+
+                                <div className="modal-body">
+                                  <select
+                                    className="select2 form-control"
+                                    name="package"
+                                    value={bookingData.price}
+                                    onChange={handleChange}
+                                  >
+                                    <input
+                                      type="text"
+                                      id="price"
+                                      className="form-control border-primary"
+                                      placeholder="price"
+                                      name="imagefolder"
+                                      disabled
+                                    />
+                                  </select>
+                                </div>
+                              </>
+                            ))}
+
                             <div className="modal-body">
                               <label htmlFor="services">
                                 Services (Optional)
