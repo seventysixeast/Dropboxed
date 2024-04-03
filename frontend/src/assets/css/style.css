@@ -86,3 +86,15 @@
     display: unset;
   }
 }
+
+.btn-social-icon {
+  font-size: 20px;
+}
+
+.btn-social-icon {
+  cursor: pointer;
+}
+
+.btn-social-icon:hover {
+  opacity: 0.8;
+}
