@@ -76,6 +76,7 @@ const Clients = () => {
       let res = await createClient(formDataToSend);
       toast.success(res.message);
       resetFormData();
+      document.getElementById('closeModal').click();
       getAllClientsData();
     } catch (error) {
       toast.error(error);
@@ -99,13 +100,14 @@ const Clients = () => {
       formDataToSend.append('id', clientIdToDelete);
       let res = await deleteClient(formDataToSend);
       if (res.success) {
+        toast.success(res.message);
         setShowDeleteModal(false);
         getAllClientsData();
       } else {
-        console.log("delete error");
+        toast.error(res.message);
       }
     } catch (error) {
-      console.error("Failed to delete client:", error.message);
+      toast.error(error);
     }
   };
 
@@ -139,7 +141,6 @@ const Clients = () => {
                   >
                     Add Client
                   </button>
-
                   <div
                     className="modal fade text-left"
                     id="bootstrap"
@@ -154,6 +155,7 @@ const Clients = () => {
                         <div className="modal-header">
                           <h3 className="card-title">{formData.id ? "Update" : "Add"} Client</h3>
                           <button
+                            id="closeModal"
                             type="button"
                             className="close"
                             data-dismiss="modal"
