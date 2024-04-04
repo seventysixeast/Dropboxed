@@ -1,44 +1,114 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import moment from "moment";
+import { getAllClients, createClient, getClient, deleteClient } from "../api/clientApis";
+import { toast } from 'react-toastify';
+import DeleteModal from "../components/DeleteModal";
 
 const Clients = () => {
-  const [clients, setClients] = useState([
-    { id: 1, name: "John Doe", email: "johndoe123@gmail.com", phone: "2222234321" },
-    { id: 2, name: "Jane Smith", email: "janesmith456@gmail.com", phone: "2343444545" }
-  ]);
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
-  const [editClientModel, setEditClientModel] = useState(false);
-  const [clientId, setClientId] = useState(null);
+
+  const [clients, setClients] = useState([]);
+
+  const [formData, setFormData] = useState({
+    id: '',
+    name: '',
+    email: '',
+    phone: '',
+    profile_photo: null
+  });
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [clientIdToDelete, setClientIdToDelete] = useState(null);
+
+  useEffect(() => {
+    getAllClientsData();
+  }, [])
+
+  const getAllClientsData = async () => {
+    try {
+      let allClients = await getAllClients();
+      setClients(allClients.data);
+    } catch (error) {
+      console.error("Failed to create client:", error.message);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editClientModel) {
-      const updatedClients = clients.map((client) =>
-        client.id === clientId ? { ...client, ...formData } : client
-      );
-      setClients(updatedClients);
-      setEditClientModel(false);
-      setClientId(null);
-    } else {
-      const newClient = { id: clients.length + 1, ...formData };
-      setClients([...clients, newClient]);
+    let client = { ...formData };
+    if (name === "name") {
+      client.name = value;
+    } else if (name === "email") {
+      client.email = value;
+    } else if (name === 'phone') {
+      client.phone = value
     }
-    setFormData({ name: "", email: "", phone: "" });
-  };
-
-  const handleDeleteClient = (clientId) => {
-    const updatedClients = clients.filter((client) => client.id !== clientId);
-    setClients(updatedClients);
-  };
-
-  const handleEditClient = (client) => {
     setFormData(client);
-    setEditClientModel(true);
-    setClientId(client.id);
+  };
+
+  const handlePhotoChange = (e) => {
+    setFormData({
+      ...formData,
+      profile_photo: e.target.files[0]
+    });
+  };
+
+  const resetFormData = async () => {
+    setFormData({
+      id: '',
+      name: '',
+      email: '',
+      phone: '',
+      profile_photo: null
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', formData.id);
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('phone', formData.phone);
+      formDataToSend.append('profile_photo', formData.profile_photo);
+      formDataToSend.append('role_id', 3);
+
+      let res = await createClient(formDataToSend);
+      toast.success(res.message);
+      resetFormData();
+      document.getElementById('closeModal').click();
+      getAllClientsData();
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getClientData = async (id) => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', id);
+      let clientData = await getClient(formDataToSend);
+      setFormData(clientData.data);
+    } catch (error) {
+      console.error("Failed to get clients:", error.message);
+    }
+  }
+
+  const deleteClientData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', clientIdToDelete);
+      let res = await deleteClient(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        setShowDeleteModal(false);
+        getAllClientsData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
   };
 
   return (
@@ -71,7 +141,6 @@ const Clients = () => {
                   >
                     Add Client
                   </button>
-
                   <div
                     className="modal fade text-left"
                     id="bootstrap"
@@ -84,12 +153,14 @@ const Clients = () => {
                     <div className="modal-dialog" role="document">
                       <div className="modal-content">
                         <div className="modal-header">
-                          <h3 className="card-title">Add Client</h3>
+                          <h3 className="card-title">{formData.id ? "Update" : "Add"} Client</h3>
                           <button
+                            id="closeModal"
                             type="button"
                             className="close"
                             data-dismiss="modal"
                             aria-label="Close"
+                            onClick={() => resetFormData()}
                           >
                             <span aria-hidden="true">×</span>
                           </button>
@@ -129,6 +200,17 @@ const Clients = () => {
                                 required
                               />
                             </div>
+                            <div className="form-group">
+                              <label>Profile Photo</label>
+                              <input
+                                type="file"
+                                className="form-control-file"
+                                name="profile_photo"
+                                onChange={handlePhotoChange}
+                                accept="image/*"
+                                required
+                              />
+                            </div>
                           </div>
                           <div className="modal-footer">
                             <input
@@ -136,11 +218,12 @@ const Clients = () => {
                               className="btn btn-secondary"
                               data-dismiss="modal"
                               value="Close"
+                              onClick={() => resetFormData()}
                             />
                             <input
                               type="submit"
                               className="btn btn-primary btn"
-                              value={editClientModel ? "Update" : "Add"}
+                              value={formData.id ? "Update" : "Add"}
                             />
                           </div>
                         </form>
@@ -152,64 +235,75 @@ const Clients = () => {
             </ul>
           </div>
         </div>
-        <div className="users-list-table">
-          <div className="card">
-            <div className="card-content">
-              <div className="card-body">
-                <div className="table-responsive">
-                  <table class="table table-striped table-bordered zero-configuration">
-                    <thead>
-                      <tr>
-                        <th>S.No.</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Collections</th>
-                        <th>Action</th>
-
-                        <th className="d-none"></th>
-                        <th className="d-none"></th>
-                        <th className="d-none"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {clients.map((client, index) => (
-                        <tr>
-                          <td>{index + 1}</td>
-                          <td>{client.name}</td>
-                          <td>{client.email}</td>
-                          <td>{client.phone}</td>
-                          <td>{client.collection}</td>
-                          <td>
-                            <button
-                              class="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                              title="Edit"
-                              data-toggle="modal"
-                              data-target="#bootstrap"
-                              onClick={() => handleEditClient(client)}
-                            >
-                              <i className="fa fa-pencil"></i>
-                            </button>
-                            <button
-                              class="btn btn-sm btn-outline-danger mr-1 mb-1"
-                              title="Delete"
-                              onClick={() => handleDeleteClient(client.id)}>
-                              <i className="fa fa-remove"></i>
-                            </button>
-                          </td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+        <div className="row">
+          {
+            clients && clients.map(item => (
+              <div className="col-xl-3 col-md-6 col-12" key={item.id}>
+                <div className="card">
+                  <div className="text-center">
+                    <div className="card-body">
+                      <img src="../../../app-assets/images/portrait/medium/avatar-m-4.png" className="rounded-circle height-150" alt="Card image" />
+                    </div>
+                    <div className="card-body">
+                      <h4 className="card-title">{item.name}</h4>
+                      <h6 className="card-subtitle text-muted">Created On : {moment(item.created).format('DD-MM-YYYY')}</h6>
+                    </div>
+                    <div className="text-center">
+                      <a
+                        href={`mailto:${item.email}`}
+                        className="btn btn-social-icon mr-1 mb-1"
+                        title={item.email}
+                      >
+                        <span className="fa fa-envelope"></span>
+                      </a>
+                      <a
+                        href={`tel:${item.phone}`}
+                        className="btn btn-social-icon mr-1 mb-1"
+                        title={item.phone}
+                      >
+                        <span className="fa fa-phone"></span>
+                      </a>
+                      <a
+                        href="#"
+                        className="btn btn-social-icon mr-1 mb-1"
+                        title="View Collection"
+                      >
+                        <span className="fa fa-picture-o"></span>
+                      </a>
+                      <a
+                        href="#"
+                        className="btn btn-social-icon mr-1 mb-1"
+                        title="Edit"
+                        onClick={() => getClientData(item.id)}
+                        data-toggle="modal"
+                        data-target="#bootstrap"
+                      >
+                        <span className="fa fa-edit"></span>
+                      </a>
+                      <a
+                        className="btn btn-social-icon mb-1"
+                        onClick={() => {
+                          setShowDeleteModal(true);
+                          setClientIdToDelete(item.id);
+                        }}
+                        title="Delete"
+                      >
+                        <span className="fa fa-trash"></span>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            ))
+          }
         </div>
       </div>
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={deleteClientData}
+        message="Are you sure you want to delete this client?"
+      />
     </div>
   );
 };

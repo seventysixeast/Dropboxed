@@ -1,21 +1,55 @@
-const createClient = async (userData) => {
-    try {
-        const response = await fetch("http://localhost:6977/client/createClient", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userData),
-        });
-        if (!response.ok) {
-            throw new Error("Failed to create a client!");
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        throw new Error(error.message);
+import API from "./baseApi";
+
+const getAllClients = async () => {
+  try {
+    const response = await API.get('/client/getAllClients');
+    if (response.status !== 200) {
+      throw new Error('Failed to get all clients');
     }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };
 
+const createClient = async (clientData) => {
+  try {
+    const response = await API.post('/client/createClient', clientData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    if (response.status !== 200) {
+      throw new Error('Failed to create client');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
-export { createClient, };
+const getClient = async (data) => {
+  try {
+    const response = await API.post('/client/getClient', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to get client');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const deleteClient = async (data) => {
+  try {
+    const response = await API.post('/client/deleteClient', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to delete client');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { getAllClients, createClient, getClient, deleteClient };
