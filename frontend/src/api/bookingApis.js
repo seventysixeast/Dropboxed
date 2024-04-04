@@ -19,19 +19,6 @@ const newBooking = async (bookingData) => {
   }
 };
 
-<<<<<<< HEAD
-const getAllBookings = async () => {
-  try {
-    const response = await axios.get('http://localhost:6977/booking/getAllBookings', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.status === 200) {
-      throw new Error('Failed to get all booking');
-    }
-    return response.data;
-=======
 const createCalendar = async (calendarData) => {
   console.log(calendarData);
   try {
@@ -47,15 +34,25 @@ const createCalendar = async (calendarData) => {
     }
     const filename = await response.text();
     return filename;
->>>>>>> stage
   } catch (error) {
     throw new Error(error.message);
   }
 };
 
-<<<<<<< HEAD
-export { newBooking, getAllBookings };
-=======
+const getAllBookings = async () => {
+  try {
+    const response = await axios.get('http://localhost:6977/booking/getAllBookings', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to get all booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
-export { newBooking, createCalendar };
->>>>>>> stage
+export { newBooking, createCalendar, getAllBookings };

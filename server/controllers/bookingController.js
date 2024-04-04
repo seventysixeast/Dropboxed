@@ -1,16 +1,10 @@
 // controllers/bookingController.js
 
-<<<<<<< HEAD
-const Booking = require('../models/Booking');
-const User = require('../models/Users');
-const Package = require('../models/Packages');
-=======
 const Booking = require("../models/Booking");
 const User = require("../models/Users");
 const Package = require("../models/Packages");
 const fs = require("fs");
 const md5 = require("md5");
->>>>>>> stage
 
 const createBooking = async (req, res) => {
   try {
@@ -31,43 +25,6 @@ const providers = async (req, res) => {
       attributes: ["id", "name", "profile_photo"],
     });
 
-<<<<<<< HEAD
-        // Fetch all packages
-        const packages = await Package.findAll({
-            attributes: ['id', 'package_name', 'package_price'],
-            where: { status: 'Active' }
-        });
-
-
-        res.json({ usersWithRoleId1, packages });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
-const getAllBookings = async (req, res) => {
-    try {
-        let bookings = await Booking.findAll({
-            include: [{
-                model: User,
-                attributes: ['name', 'colorcode', 'address'],
-                where: {
-                    role_id: 3
-                }
-            }],
-            attributes: ['id', 'booking_date', 'booking_time', 'comment', 'booking_status']
-        });
-        console.log(bookings);
-        res.status(200).json({ success: true, data: bookings });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to list bookings" });
-    }
-};
-
-module.exports = {
-    createBooking, providers, getAllBookings
-=======
     const users = await User.findAll({ 
       attributes: ["id", "name", "profile_photo"],
     });
@@ -157,9 +114,28 @@ const createCalendar = async (req, res) => {
   }
 };
 
+const getAllBookings = async (req, res) => {
+  try {
+      let bookings = await Booking.findAll({
+          include: [{
+              model: User,
+              attributes: ['name', 'colorcode', 'address'],
+              where: {
+                  role_id: 3
+              }
+          }],
+          attributes: ['id', 'booking_date', 'booking_time', 'comment', 'booking_status']
+      });
+      console.log(bookings);
+      res.status(200).json({ success: true, data: bookings });
+  } catch (error) {
+      res.status(500).json({ error: "Failed to list bookings" });
+  }
+};
+
 module.exports = {
   createBooking,
   providers,
   createCalendar,
->>>>>>> stage
+  getAllBookings
 };

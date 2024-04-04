@@ -1,11 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-<<<<<<< HEAD
-import { newBooking, getAllBookings } from "../api/bookingApis";
-=======
-import { createCalendar, newBooking } from "../api/bookingApis";
->>>>>>> stage
+import { createCalendar, newBooking, getAllBookings } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -178,23 +174,6 @@ export const BookingListComponent = () => {
     fetchProviders();
   }, []);
 
-<<<<<<< HEAD
-  const [bookingsData, setBookingsData] = useState([]);
-
-  useEffect(() => {
-    getAllBookingsData();
-  }, [])
-
-  const getAllBookingsData = async () => {
-    try {
-      let allBookingData = await getAllBookings();
-      setBookingsData(allBookingData.data);
-    } catch (error) {
-      console.error("Failed to:", error.message);
-    }
-  };
-
-=======
   // const handleSelectedChange = (e) => {
   //   const { name, value } = e.target;
   //   setBookingData((prevData) => ({
@@ -253,9 +232,22 @@ export const BookingListComponent = () => {
     setSelectedService(selectedOptions)
     // setSelectedPackagePrice
   };
-  
 
->>>>>>> stage
+  const [bookingsData, setBookingsData] = useState([]);
+
+  useEffect(() => {
+    getAllBookingsData();
+  }, [])
+
+  const getAllBookingsData = async () => {
+    try {
+      let allBookingData = await getAllBookings();
+      setBookingsData(allBookingData.data);
+    } catch (error) {
+      console.error("Failed to:", error.message);
+    }
+  };
+
   return (
     <>
       <div className="app-content content">
@@ -370,34 +362,34 @@ export const BookingListComponent = () => {
                                           Provider
                                         </label>
                                         <Select
-                                            className="form-select w-100 "
-                                            name="customer"
-                                            defaultValue={selectedProvider}
-                                            onChange={setSelectedProvider}
-                                            options={providers.map(
-                                              (client) => ({
-                                                label: (
-                                                  <>
-                                                    <img
-                                                      src={
-                                                        client.image ||
-                                                        avatar1
-                                                      }
-                                                      alt={client.name}
-                                                      style={{
-                                                        width: "20px",
-                                                        marginRight: "10px",
-                                                      }}
-                                                    />
-                                                    {client.name}
-                                                  </>
-                                                ),
-                                                value: client.id,
-                                              })
-                                            )}
-                                            isSearchable
-                                            hideSelectedOptions
-                                          />
+                                          className="form-select w-100 "
+                                          name="customer"
+                                          defaultValue={selectedProvider}
+                                          onChange={setSelectedProvider}
+                                          options={providers.map(
+                                            (client) => ({
+                                              label: (
+                                                <>
+                                                  <img
+                                                    src={
+                                                      client.image ||
+                                                      avatar1
+                                                    }
+                                                    alt={client.name}
+                                                    style={{
+                                                      width: "20px",
+                                                      marginRight: "10px",
+                                                    }}
+                                                  />
+                                                  {client.name}
+                                                </>
+                                              ),
+                                              value: client.id,
+                                            })
+                                          )}
+                                          isSearchable
+                                          hideSelectedOptions
+                                        />
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
@@ -943,7 +935,7 @@ export const BookingListComponent = () => {
               <div className="card-content">
                 <div className="card-body">
                   <div className="table-responsive">
-                    <table className="table-inverse table-striped table-bordered zero-configuration">
+                    <table className="table table-inverse table-striped mb-0">
                       <thead>
                         <tr>
                           <th>Booking Date</th>
