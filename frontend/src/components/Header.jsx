@@ -1,4 +1,5 @@
 import React from "react";
+import { useAuth } from '../context/authContext';
 import logoLight from "../assets/images/dropboxed-logo-wt.png";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import avatar2 from "../app-assets/images/portrait/small/avatar-s-2.png";
@@ -6,7 +7,13 @@ import avatar3 from "../app-assets/images/portrait/small/avatar-s-3.png";
 import avatar4 from "../app-assets/images/portrait/small/avatar-s-6.png";
 
 const Header = () => {
+  const { logout } = useAuth();
 
+  const handleLogout = (e) => {
+      e.preventDefault();
+      logout();
+      window.location.href = '/login';
+  };
 
   return (
     <nav className="header-navbar navbar-expand-lg navbar navbar-with-menu fixed-top navbar-semi-dark navbar-shadow">
@@ -105,8 +112,8 @@ const Header = () => {
                     <i className="feather icon-user"></i> Edit Profile
                   </a>
                   <div className="dropdown-divider"></div>
-                  <a className="dropdown-item" href="login-with-bg-image.html">
-                    <i className="feather icon-power"></i> Logout
+                  <a className="dropdown-item" href="#" onClick={handleLogout}>
+                      <i className="feather icon-power"></i> Logout
                   </a>
                 </div>
               </li>

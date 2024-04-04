@@ -24,8 +24,9 @@ import Login from "../pages/Login";
 import ManagePhotographersSubdomains from "../pages/ManagePhotographersSubdomains";
 import EditProfile from "../pages/EditProfile";
 import SignUp from "../pages/SignUp";
+// Import other components/pages as needed
 
-const AdminRouter = ({ logoutUser = null }) => {
+const AdminRouter = () => {
   const route = useRoutes([
     { path: "/dashboard", element: <Dashboard /> },
     { path: "/booking-list-calendar", element: <BookingListComponent /> },
@@ -42,23 +43,24 @@ const AdminRouter = ({ logoutUser = null }) => {
     { path: "/notifications-of-booking", element: <NotificationComponent /> },
     { path: "/manage-photographers-subdomains", element: <ManagePhotographersSubdomains /> },
     { path: "/edit-profile", element: <EditProfile /> },
-    { path: "/login", element: <Login /> },
-    { path: "/signup", element: <SignUp /> },
+    //{ path: "/login", element: <Login /> },
+    //{ path: "/signup", element: <SignUp /> },
     // { path: "/add-collection", element: <AddCollection /> },
     { path: "/collections", element: <Collections /> },
     // { path: "/download", element: <Download /> },
     // { path: "/users", element: <Users /> },
     // { path: "/*", element: <Navigate to="/dashboard" /> },
-
   ]);
+
   return (
     <div className="wrapper-foot">
-      {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <Header />}
-      {window.location.pathname !== '/login' && window.location.pathname !== '/signup' && <SideNav />}
+      <Header />
+      <SideNav />
       <div id="script-warning"></div>
       <div className="content-foot">{route}</div>
       <Footer />
     </div>
   );
-  }
+};
+
 export default AdminRouter;

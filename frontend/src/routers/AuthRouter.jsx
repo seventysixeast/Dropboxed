@@ -1,15 +1,16 @@
+// AuthRouter.js
 import React from "react";
-import { Navigate, useRoutes } from "react-router-dom";
+import { useRoutes } from "react-router-dom";
 import Login from "../pages/Login";
 import SignUp from "../pages/SignUp";
 
-
-const AuthRouter = ({ logoutUser = null }) => {
+const AuthRouter = () => {
   const route = useRoutes([
     { path: "/login", element: <Login /> },
-    { path: "/*", element: <Navigate to="/login" /> },
     { path: "/signup", element: <SignUp /> },
+    // Add other authentication routes if needed
   ]);
+
   return <>{route}</>;
 };
 

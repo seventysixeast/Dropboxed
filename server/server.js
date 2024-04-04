@@ -11,9 +11,9 @@ console.log('Generated JWT secret:', secret);
 const app = express();
 const PORT = process.env.PORT || 6977;
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-}));
+app.use(cors(/*{
+  origin: /^https?:\/\/[^/]+\.example\.com$/,
+}*/));
 
 app.use(bodyParser.json());
 

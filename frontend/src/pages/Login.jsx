@@ -29,22 +29,35 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await validationSchema.validate(userData, { abortEarly: false });
-      await login(userData);
-      // Operation on success, send to dashboard page
-      window.location.href = "/dashboard";
+        await validationSchema.validate(userData, { abortEarly: false });
+        const { accessToken, user } = await login(userData);
+        console.log("user>>>",user)
+        // Save user data and access token in localStorage
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('isAuth', true);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        // Set cookies with domain attribute
+        document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
+        document.cookie = `isAuth=true; domain=.localhost; path=/`;
+        document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;
+    
+        // Operation on success, send to dashboard page
+        window.location.href = "/dashboard";
     } catch (error) {
-      if (error.name === "ValidationError") {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err.message;
-        });
-        setValidationErrors(validationErrors);
-      } else {
-        console.error("Login failed:", error.message);
-      }
+        if (error.name === "ValidationError") {
+            const validationErrors = {};
+            error.inner.forEach((err) => {
+                validationErrors[err.path] = err.message;
+            });
+            setValidationErrors(validationErrors);
+        } else {
+            console.error("Login failed:", error.message);
+        }
     }
-  };
+};
+
+  
 
   return (
     <div className="bg-full-screen-image" style={{ height: "100vh" }}>

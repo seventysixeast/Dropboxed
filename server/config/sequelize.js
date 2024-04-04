@@ -2,7 +2,7 @@
 
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('dropboxed_db', 'root', 'Admin@123', {
+const sequelize = new Sequelize('dropboxed_db', 'root', '', {
     host: 'localhost',
     dialect: 'mysql'
 });
