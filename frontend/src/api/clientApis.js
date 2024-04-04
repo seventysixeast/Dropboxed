@@ -28,7 +28,7 @@ const createClient = async (clientData) => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data.message;
   }
 };
 

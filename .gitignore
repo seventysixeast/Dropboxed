@@ -6,3 +6,4 @@ build/
 /build
 ./env
 .env
+/server/public
