@@ -19,7 +19,8 @@ root.render(
         <ToastContainer position="top-right" autoClose={2000} />
       </Router>
     </AuthProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
+  document.getElementById('root')
 );
 
 reportWebVitals();

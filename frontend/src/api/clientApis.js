@@ -1,13 +1,9 @@
-import axios from 'axios';
+import API from "./baseApi";
 
 const getAllClients = async () => {
   try {
-    const response = await axios.get('http://localhost:6977/client/getAllClients', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.status === 200) {
+    const response = await API.get('/client/getAllClients');
+    if (response.status !== 200) {
       throw new Error('Failed to get all clients');
     }
     return response.data;
@@ -18,12 +14,12 @@ const getAllClients = async () => {
 
 const createClient = async (clientData) => {
   try {
-    const response = await axios.post('http://localhost:6977/client/createClient', clientData, {
+    const response = await API.post('/client/createClient', clientData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    if (!response.status === 200) {
+    if (response.status !== 200) {
       throw new Error('Failed to create client');
     }
     return response.data;
@@ -34,12 +30,8 @@ const createClient = async (clientData) => {
 
 const getClient = async (data) => {
   try {
-    const response = await axios.post('http://localhost:6977/client/getClient', data, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.status === 200) {
+    const response = await API.post('/client/getClient', data);
+    if (response.status !== 200) {
       throw new Error('Failed to get client');
     }
     return response.data;
@@ -50,12 +42,8 @@ const getClient = async (data) => {
 
 const deleteClient = async (data) => {
   try {
-    const response = await axios.post('http://localhost:6977/client/deleteClient', data, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.status === 200) {
+    const response = await API.post('/client/deleteClient', data);
+    if (response.status !== 200) {
       throw new Error('Failed to delete client');
     }
     return response.data;

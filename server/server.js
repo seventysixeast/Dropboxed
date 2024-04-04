@@ -17,10 +17,9 @@ const PORT = process.env.PORT || 6977;
 app.use(fileUpload())
 let clientbuildpath = path.join(__dirname, "build");
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-}));
-
+app.use(cors(/*{
+  origin: /^https?:\/\/[^/]+\.example\.com$/,
+}*/));
 
 app.use(bodyParser.json({
   limit: '500mb'
@@ -31,6 +30,7 @@ app.use(bodyParser.urlencoded({
   parameterLimit: 100000,
   extended: true
 }));
+<<<<<<< HEAD
 
 const dir = ['./public/clients'];
 dir.forEach(function (item) {
@@ -61,11 +61,28 @@ app.use('/auth', authRoutes);
 app.use('/client', clientRoutes);
 app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
+=======
+// Serve static files from the 'build' directory
+app.use(express.static(path.join(__dirname, "build")));
+// app.use(express.static(path.join(__dirname, 'build')));
 
-app.get('/protected', authenticateToken, (req, res) => {
-  res.json({ message: 'Protected route' });
+app.use("/auth", authRoutes);
+app.use("/client", clientRoutes);
+app.use("/booking", bookingRouter);
+>>>>>>> stage
+
+app.get("/protected", authenticateToken, (req, res) => {
+  res.json({ message: "Protected route" });
 });
 
+<<<<<<< HEAD
+=======
+// For any other route, serve the index.html file
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
+>>>>>>> stage
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

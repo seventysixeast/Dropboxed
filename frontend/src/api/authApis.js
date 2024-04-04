@@ -1,17 +1,12 @@
+import API from "./baseApi";
+
 const signup = async (userData) => {
-    console.log(userData);
     try {
-        const response = await fetch("/signup", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userData),
-        });
-        if (!response.ok) {
+        const response = await API.post("/auth/signup", userData);
+        if (response.status !== 201) {
             throw new Error("Signup failed");
         }
-        const data = await response.json();
+        const data = response.data;
         return data;
     } catch (error) {
         throw new Error(error.message);
@@ -20,23 +15,15 @@ const signup = async (userData) => {
 
 const login = async (userData) => {
     try {
-        const response = await fetch("/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userData),
-        });
-        if (!response.ok) {
+        const response = await API.post("/auth/login", userData);
+        if (response.status !== 200) {
             throw new Error("Login failed");
         }
-        const data = await response.json();
+        const data = response.data;
         return data;
     } catch (error) {
         throw new Error(error.message);
     }
 };
-
-
 
 export { signup, login };
