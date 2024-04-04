@@ -40,8 +40,9 @@ const SignUp = () => {
     try {
       await validationSchema.validate(userData, { abortEarly: false });
       await signup(userData);
-      // Operation on success, send to login page
-      window.location.href = "/login";
+      const subdomain = userData.studioName.toLowerCase().replace(/\s/g, '');
+      // Redirect to subdomain
+      window.location.href = `http://${subdomain}.${window.location.host}`;
     } catch (error) {
       if (error.name === "ValidationError") {
         const validationErrors = {};

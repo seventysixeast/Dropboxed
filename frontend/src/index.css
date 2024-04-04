@@ -825,3 +825,42 @@ a.fc-more:hover {
 .fc-event .fc-event-draggable .fc-event-resizable .fc-event-start .fc-event-end .fc-event-today .fc-event-future .fc-timegrid-event .fc-v-event {
   border-radius: 0% !important;
 }
+
+.select2 {
+  position: relative;
+}
+
+.select2::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.form-control:disabled {
+  background-color: #ffffff;
+  opacity: 1;
+}
+
+.css-13cymwt-control {
+  border: 1px solid #ccd6e6 !important;
+    color: #3f587e !important;
+}
+
+.css-13cymwt-control:hover {
+  border: 1px solid #ccd6e6 !important;
+  color: #3f587e !important;
+}
+
+.css-t3ipsp-control {
+  border-color: #00b5b8 !important;
+  outline: #00b5b8 !important;
+  box-shadow: none !important;
+}
+
+.css-t3ipsp-control:hover {
+  border-color: #00b5b8 !important;
+  outline: #00b5b8 !important;
+  box-shadow: none !important;
+}
