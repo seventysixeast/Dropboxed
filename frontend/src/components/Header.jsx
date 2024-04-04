@@ -31,7 +31,7 @@ const Header = () => {
             <li className="nav-item mr-auto">
               <a
                 className="navbar-brand"
-                href="../../../html/ltr/vertical-modern-menu-template/index.html"
+                href="/dashboard"
               >
                 <img
                   className="brand-logo dropLogo"

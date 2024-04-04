@@ -1,6 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Clients = () => {
+  const [clients, setClients] = useState([
+    { id: 1, name: "John Doe", email: "johndoe123@gmail.com", phone: "2222234321" },
+    { id: 2, name: "Jane Smith", email: "janesmith456@gmail.com", phone: "2343444545" }
+  ]);
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
+  const [editClientModel, setEditClientModel] = useState(false);
+  const [clientId, setClientId] = useState(null);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editClientModel) {
+      const updatedClients = clients.map((client) =>
+        client.id === clientId ? { ...client, ...formData } : client
+      );
+      setClients(updatedClients);
+      setEditClientModel(false);
+      setClientId(null);
+    } else {
+      const newClient = { id: clients.length + 1, ...formData };
+      setClients([...clients, newClient]);
+    }
+    setFormData({ name: "", email: "", phone: "" });
+  };
+
+  const handleDeleteClient = (clientId) => {
+    const updatedClients = clients.filter((client) => client.id !== clientId);
+    setClients(updatedClients);
+  };
+
+  const handleEditClient = (client) => {
+    setFormData(client);
+    setEditClientModel(true);
+    setClientId(client.id);
+  };
+
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -54,48 +94,53 @@ const Clients = () => {
                             <span aria-hidden="true">×</span>
                           </button>
                         </div>
-                        <form>
+                        <form onSubmit={handleSubmit}>
                           <div className="modal-body">
-                            <label>Name *</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Enter Name"
-                              required=""
-                              data-validation-required-message="This name field is required"
-                            />
-                          </div>
-                          <div className="modal-body">
-                            <label>Email *</label>
-                            <input
-                              type="email"
-                              className="form-control"
-                              placeholder="Enter Email"
-                              required=""
-                              data-validation-required-message="This name field is required"
-                            />
-                          </div>
-                          <div className="modal-body">
-                            <label>Phone *</label>
-                            <input
-                              type="phone"
-                              className="form-control"
-                              placeholder="Enter Phone"
-                              required=""
-                              data-validation-required-message="This name field is required"
-                            />
+                            <div className="form-group">
+                              <label>Name</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                required
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Email</label>
+                              <input
+                                type="email"
+                                className="form-control"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                required
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Phone</label>
+                              <input
+                                type="tel"
+                                className="form-control"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleInputChange}
+                                required
+                              />
+                            </div>
                           </div>
                           <div className="modal-footer">
                             <input
-                              type="submit"
-                              className="btn btn-primary btn"
-                              value="Add"
-                            />
-                            <input
                               type="reset"
-                              className="btn btn-secondary btn"
+                              className="btn btn-secondary"
                               data-dismiss="modal"
                               value="Close"
+                            />
+                            <input
+                              type="submit"
+                              className="btn btn-primary btn"
+                              value={editClientModel ? "Update" : "Add"}
                             />
                           </div>
                         </form>
@@ -115,65 +160,48 @@ const Clients = () => {
                   <table class="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
-                        <th style={{width:'30px'}}>S.No.</th>
+                        <th>S.No.</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Collections</th>
-                        <th style={{width:'110px'}}>Action</th>
+                        <th>Action</th>
 
-                        <th className="d-none">Amount</th>
-                        <th className="d-none">Status</th>
-                        <th className="d-none">Invoice Link</th>
+                        <th className="d-none"></th>
+                        <th className="d-none"></th>
+                        <th className="d-none"></th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>1</td>
-                        <td>John Doe</td>
-                        <td>johndoe123@gmail.com</td>
-                        <td>2222234321</td>
-                        <td>
-                          <button class="btn btn-sm btn-outline-primary mr-1 mb-1">View Gallery</button>
-                        </td>
-                        <td>
-                          <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
-                            <i className="fa fa-pencil"></i>
-                          </button>
-                          <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
-                            <i className="fa fa-remove"></i>
-                          </button>
-                        </td>
-
-                        <td className="d-none">$150</td>
-                        <td className="d-none">Shipped</td>
-                        <td className="d-none">
-                          <a href="invoice_link_12345">View Invoice</a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>2</td>
-                        <td>Jane Smith</td>
-                        <td>janesmith456@gmail.com</td>
-                        <td>2343444545</td>
-                        <td>
-                          <button class="btn btn-sm btn-outline-primary mr-1 mb-1">View Gallery</button>
-                        </td>
-                        <td>
-                          <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
-                            <i className="fa fa-pencil"></i>
-                          </button>
-                          <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
-                            <i className="fa fa-remove"></i>
-                          </button>
-                        </td>
-
-                        <td className="d-none">$200</td>
-                        <td className="d-none">Processing</td>
-                        <td className="d-none">
-                          <a href="invoice_link_67890">View Invoice</a>
-                        </td>
-                      </tr>
+                      {clients.map((client, index) => (
+                        <tr>
+                          <td>{index + 1}</td>
+                          <td>{client.name}</td>
+                          <td>{client.email}</td>
+                          <td>{client.phone}</td>
+                          <td>{client.collection}</td>
+                          <td>
+                            <button
+                              class="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                              title="Edit"
+                              data-toggle="modal"
+                              data-target="#bootstrap"
+                              onClick={() => handleEditClient(client)}
+                            >
+                              <i className="fa fa-pencil"></i>
+                            </button>
+                            <button
+                              class="btn btn-sm btn-outline-danger mr-1 mb-1"
+                              title="Delete"
+                              onClick={() => handleDeleteClient(client.id)}>
+                              <i className="fa fa-remove"></i>
+                            </button>
+                          </td>
+                          <td className="d-none"></td>
+                          <td className="d-none"></td>
+                          <td className="d-none"></td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

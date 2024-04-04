@@ -156,6 +156,17 @@ const SideNav = () => {
             </Link>
           </li>
           <li className=" nav-item">
+            <Link to="/booking-list-calendar">
+              <i className="feather icon-zap"></i>
+              <span className="menu-title" data-i18n="Starter kit">
+                Booking List/Calendar
+              </span>
+              {/* <span className="badge badge badge-primary badge-pill float-right mr-2">
+                2
+              </span> */}
+            </Link>
+          </li>
+          <li className=" nav-item">
             <Link to="/notifications-of-booking">
               <i className="feather icon-mail"></i>
               <span className="menu-title" data-i18n="Email Application">

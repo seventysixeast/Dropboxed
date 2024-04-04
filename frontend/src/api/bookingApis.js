@@ -17,4 +17,25 @@ const newBooking = async (bookingData) => {
   }
 };
 
-export { newBooking };
+const createCalendar = async (calendarData) => {
+  console.log(calendarData);
+  try {
+    const response = await fetch(`http://localhost:6977/booking/create-calendar`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(calendarData),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to create calendar");
+    }
+    const filename = await response.text();
+    return filename;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+
+export { newBooking, createCalendar };
