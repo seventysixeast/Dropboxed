@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { createCalendar, newBooking, getAllBookings } from "../api/bookingApis";
+import { createCalendar, newBooking, getAllBookings, deleteBooking } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -9,6 +9,8 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import { createClient } from "../api/clientApis";
 import Select from "react-select";
+import DeleteModal from "../components/DeleteModal";
+import { toast } from 'react-toastify';
 
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
@@ -20,6 +22,8 @@ export const BookingListComponent = () => {
   const [appointmentTime, setAppointmentTime] = useState();
   const buttonRef = useRef(null);
   const [showNewCustomer, setShowNewCustomer] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
   const bookings = [
     {
       title: "Booking 1",
@@ -245,6 +249,23 @@ export const BookingListComponent = () => {
       setBookingsData(allBookingData.data);
     } catch (error) {
       console.error("Failed to:", error.message);
+    }
+  };
+
+  const deleteBookingData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', bookingIdToDelete);
+      let res = await deleteBooking(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        setShowDeleteModal(false);
+        getAllBookingsData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
     }
   };
 
@@ -935,7 +956,7 @@ export const BookingListComponent = () => {
               <div className="card-content">
                 <div className="card-body">
                   <div className="table-responsive">
-                    <table className="table table-inverse table-striped mb-0">
+                    <table className="table table-inverse table-striped mb-0 black">
                       <thead>
                         <tr>
                           <th>Booking Date</th>
@@ -976,8 +997,12 @@ export const BookingListComponent = () => {
                                 <i className="fa fa-pencil"></i>
                               </button>
                               <button
-                                className="btn btn-sm btn-outline-danger mr-1 mb-1"
+                                class="btn btn-sm btn-outline-danger mr-1 mb-1"
                                 title="Delete"
+                                onClick={() => {
+                                  setShowDeleteModal(true);
+                                  setBookingIdToDelete(item.id);
+                                }}
                               >
                                 <i className="fa fa-remove"></i>
                               </button>
@@ -1001,6 +1026,12 @@ export const BookingListComponent = () => {
             </div>
           </div>
         </div>
+        <DeleteModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={deleteBookingData}
+          message="Are you sure you want to delete this imageType?"
+        />
       </div>
 
       <div className="sidenav-overlay"></div>

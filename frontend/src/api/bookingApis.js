@@ -55,4 +55,20 @@ const getAllBookings = async () => {
   }
 };
 
-export { newBooking, createCalendar, getAllBookings };
+const deleteBooking = async (data) => {
+  try {
+    const response = await axios.post('http://localhost:6977/booking/deleteBooking', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to delete booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { newBooking, createCalendar, getAllBookings, deleteBooking };

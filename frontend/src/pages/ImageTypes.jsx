@@ -234,7 +234,7 @@ const ImageTypes = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table class="table table-inverse table-striped mb-0">
+                  <table class="table table-inverse table-striped mb-0 black">
                     <thead>
                       <tr>
                         <th>S.No.</th>

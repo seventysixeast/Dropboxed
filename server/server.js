@@ -40,9 +40,9 @@ dir.forEach(function (item) {
 
 app.get("/*", (req, res, next) => {
   if (
-    req.url.startsWith("/auth") ||
-    req.url.startsWith("/client") ||
-    req.url.startsWith("/booking") ||
+    req.url.startsWith("/auth/") ||
+    req.url.startsWith("/client/") ||
+    req.url.startsWith("/booking/") ||
     req.url.includes("/imageType/") ||
     req.url.includes("/assets/")
   )

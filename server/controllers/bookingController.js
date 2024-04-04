@@ -8,8 +8,6 @@ const md5 = require("md5");
 
 const createBooking = async (req, res) => {
   try {
-    console.log(req.body);
-
     const booking = await Booking.create(req.body);
     res.status(201).json(booking);
   } catch (error) {
@@ -54,8 +52,6 @@ const createCalendar = async (req, res) => {
     const results = await Booking.findAll({
       where: { user_id: user_id },
     });
-
-    console.log(results);
 
     if (!results) {
       return res.status(404).json({ error: "Booking not found" });
@@ -126,10 +122,25 @@ const getAllBookings = async (req, res) => {
           }],
           attributes: ['id', 'booking_date', 'booking_time', 'comment', 'booking_status']
       });
-      console.log(bookings);
       res.status(200).json({ success: true, data: bookings });
   } catch (error) {
       res.status(500).json({ error: "Failed to list bookings" });
+  }
+};
+
+const deleteBooking = async (req, res) => {
+  try {
+    const bookingId = req.body.id;
+    const deleted = await Booking.destroy({
+      where: { id: bookingId }
+    });
+    if (deleted) {
+      res.status(200).json({ success: true, message: "Booking deleted successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "Booking not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete Booking" });
   }
 };
 
@@ -137,5 +148,6 @@ module.exports = {
   createBooking,
   providers,
   createCalendar,
-  getAllBookings
+  getAllBookings,
+  deleteBooking
 };
