@@ -12,6 +12,7 @@ import Select from "react-select";
 
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
+  const [selectedProvider, setSelectedProvider] = useState(null);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState();
@@ -51,9 +52,9 @@ export const BookingListComponent = () => {
       comment: "Third booking comment",
     },
   ];
-  console.log(packages);
   const [selectedService, setSelectedService] = useState(null);
-
+  const [clientList, setClientList] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
   const options = [
     { value: "chocolate", label: "Chocolate" },
     { value: "strawberry", label: "Strawberry" },
@@ -157,6 +158,7 @@ export const BookingListComponent = () => {
           );
           const data = await response.json();
           setProviders(data.usersWithRoleId1);
+          setClientList(data.users);
           setPackages(data.packages);
           const prices = data.packages.map((pack) => ({
             id: pack.id,
@@ -172,21 +174,21 @@ export const BookingListComponent = () => {
     fetchProviders();
   }, []);
 
-  const handleSelectedChange = (e) => {
-    const { name, value } = e.target;
-    setBookingData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    setSelectedPackage(value);
-    setBookingData((prevData) => ({
-      ...prevData,
-      package: value,
-    }));
-    setSelectedPackagePrice(
-      packagePrice.find((price) => price.id === parseInt(value)).price
-    );
-  };
+  // const handleSelectedChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setBookingData((prevData) => ({
+  //     ...prevData,
+  //     [name]: value,
+  //   }));
+  //   setSelectedPackage(value);
+  //   setBookingData((prevData) => ({
+  //     ...prevData,
+  //     package: value,
+  //   }));
+  //   setSelectedPackagePrice(
+  //     packagePrice.find((price) => price.id === parseInt(value)).price
+  //   );
+  // };
 
   const handleDateClick = (arg) => {
     console.log("Date clicked:", arg);
@@ -225,6 +227,12 @@ export const BookingListComponent = () => {
       console.error("Failed to create calendar:", error.message);
     }
   };
+
+  const handleSelectedChange = (selectedOptions) => {
+    setSelectedService(selectedOptions)
+    // setSelectedPackagePrice
+  };
+  
 
   return (
     <>
@@ -339,21 +347,35 @@ export const BookingListComponent = () => {
                                         >
                                           Provider
                                         </label>
-                                        <select
-                                          className="select2 form-control"
-                                          name="provider"
-                                          value={bookingData.provider}
-                                          onChange={handleChange}
-                                        >
-                                          {providers.map((provider) => (
-                                            <option
-                                              key={provider.id}
-                                              value={provider.id}
-                                            >
-                                              {provider.name}
-                                            </option>
-                                          ))}
-                                        </select>
+                                        <Select
+                                            className="form-select w-100 "
+                                            name="customer"
+                                            defaultValue={selectedProvider}
+                                            onChange={setSelectedProvider}
+                                            options={providers.map(
+                                              (client) => ({
+                                                label: (
+                                                  <>
+                                                    <img
+                                                      src={
+                                                        client.image ||
+                                                        avatar1
+                                                      }
+                                                      alt={client.name}
+                                                      style={{
+                                                        width: "20px",
+                                                        marginRight: "10px",
+                                                      }}
+                                                    />
+                                                    {client.name}
+                                                  </>
+                                                ),
+                                                value: client.id,
+                                              })
+                                            )}
+                                            isSearchable
+                                            hideSelectedOptions
+                                          />
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
@@ -365,7 +387,7 @@ export const BookingListComponent = () => {
                                         <Select
                                           className="form-select w-100 "
                                           defaultValue={selectedService}
-                                          onChange={setSelectedService}
+                                          onChange={handleSelectedChange}
                                           options={packages.map((pkg) => ({
                                             label: pkg.package_name,
                                             value: pkg.id,
@@ -384,7 +406,6 @@ export const BookingListComponent = () => {
                                           className="form-control border-primary mr-1"
                                           name="price"
                                           value={`$ ${selectedPackagePrice}`}
-                                          onChange={handleChange}
                                           disabled
                                         />
                                         <div className="input-group">
@@ -628,20 +649,36 @@ export const BookingListComponent = () => {
 
                                     <div className="tab-pane fade" id="tab2">
                                       {showNewCustomer == false && (
-
                                         <div className="modal-body d-flex px-4 justify-content-between ">
-                                          <select
-                                            className="select2 form-control"
+                                          <Select
+                                            className="form-select w-100 "
                                             name="customer"
-                                            value={bookingData.customer}
-                                            onChange={handleChange}
-                                            required
-                                          >
-                                            <option value="0">Customer</option>
-                                            <option value="1">Customer1</option>
-                                            <option value="2">Customer2</option>
-                                            <option value="3">Customer3</option>
-                                          </select>
+                                            defaultValue={selectedClient}
+                                            onChange={setSelectedClient}
+                                            options={clientList.map(
+                                              (client) => ({
+                                                label: (
+                                                  <>
+                                                    <img
+                                                      src={
+                                                        client.image ||
+                                                        avatar1
+                                                      }
+                                                      alt={client.name}
+                                                      style={{
+                                                        width: "20px",
+                                                        marginRight: "10px",
+                                                      }}
+                                                    />
+                                                    {client.name}
+                                                  </>
+                                                ),
+                                                value: client.id,
+                                              })
+                                            )}
+                                            isSearchable
+                                            hideSelectedOptions
+                                          />
                                         </div>
                                       )}
                                       {showNewCustomer ? (
@@ -884,7 +921,7 @@ export const BookingListComponent = () => {
               <div className="card-content">
                 <div className="card-body">
                   <div className="table-responsive">
-                    <table className="table table-striped table-bordered zero-configuration">
+                    <table className="table-inverse table-striped table-bordered zero-configuration">
                       <thead>
                         <tr>
                           <th>Booking Date</th>
