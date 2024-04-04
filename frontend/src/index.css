@@ -842,3 +842,25 @@ a.fc-more:hover {
   background-color: #ffffff;
   opacity: 1;
 }
+
+.css-13cymwt-control {
+  border: 1px solid #ccd6e6 !important;
+    color: #3f587e !important;
+}
+
+.css-13cymwt-control:hover {
+  border: 1px solid #ccd6e6 !important;
+  color: #3f587e !important;
+}
+
+.css-t3ipsp-control {
+  border-color: #00b5b8 !important;
+  outline: #00b5b8 !important;
+  box-shadow: none !important;
+}
+
+.css-t3ipsp-control:hover {
+  border-color: #00b5b8 !important;
+  outline: #00b5b8 !important;
+  box-shadow: none !important;
+}

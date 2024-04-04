@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { newBooking } from "../api/bookingApis";
+import { createCalendar, newBooking } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import { createClient } from "../api/clientApis";
-import { response } from "express";
+import Select from "react-select";
 
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
@@ -51,6 +51,14 @@ export const BookingListComponent = () => {
       comment: "Third booking comment",
     },
   ];
+  console.log(packages);
+  const [selectedService, setSelectedService] = useState(null);
+
+  const options = [
+    { value: "chocolate", label: "Chocolate" },
+    { value: "strawberry", label: "Strawberry" },
+    { value: "vanilla", label: "Vanilla" },
+  ];
 
   const events = bookings.map((booking, index) => ({
     id: index,
@@ -61,8 +69,8 @@ export const BookingListComponent = () => {
 
   const [bookingData, setBookingData] = useState({
     title: "",
-    package: "",
-    services: "",
+    package: 1,
+    services: null,
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -96,36 +104,48 @@ export const BookingListComponent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // const bookingDataToSend = {
-      //   user_id: 77777,
-      //   booking_title: bookingData.title,
-      //   client_name: bookingData.client,
-      //   client_address: bookingData.title,
-      //   package: 1,
-      //   package_ids: bookingData.services,
-      //   photographer_id: 12,
-      //   booking_date: bookingData.prefferedDate,
-      //   booking_time: bookingData.fromTime,
-      //   booking_time_to: bookingData.toTime,
-      //   booking_status: 1,
-      //   comment: bookingData.comment,
-      // };
-      // console.log(bookingDataToSend);
-      // await newBooking(bookingDataToSend);
-      response = await createClient(customerData);
-      console.log(response);
-      
+      const data = await createClient(customerData);
+      console.log(data.data.id);
+      let fromTimenew = bookingData.fromTime;
+      let convertedTime = fromTimenew.replace(
+        /^(\d{2}:\d{2}) (AM|PM)$/,
+        "$1:00"
+      );
+
+      const bookingDataToSend = {
+        user_id: data.data.id,
+        booking_title: data.data.address,
+        client_name: data.data.name,
+        client_address: data.data.address,
+        package_ids: bookingData.package,
+        package: 0,
+        photographer_id: 12,
+        booking_date: bookingData.prefferedDate,
+        booking_time: convertedTime,
+        booking_time_to: bookingData.toTime,
+        booking_status: 1,
+        comment: bookingData.comment,
+      };
+      await newBooking(bookingDataToSend);
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
   };
 
   const handleChange = (e) => {
+    console.log(e);
     const { name, value } = e.target;
-    setBookingData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    if (name === "services") {
+      setBookingData((prevData) => ({
+        ...prevData,
+        [name]: [...prevData[name], value],
+      }));
+    } else {
+      setBookingData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   useEffect(() => {
@@ -153,13 +173,16 @@ export const BookingListComponent = () => {
   }, []);
 
   const handleSelectedChange = (e) => {
-    console.log(e.target);
     const { name, value } = e.target;
     setBookingData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
     setSelectedPackage(value);
+    setBookingData((prevData) => ({
+      ...prevData,
+      package: value,
+    }));
     setSelectedPackagePrice(
       packagePrice.find((price) => price.id === parseInt(value)).price
     );
@@ -194,6 +217,15 @@ export const BookingListComponent = () => {
     setShowNewCustomer(!showNewCustomer);
   };
 
+  const handleCreateCalendar = async (e) => {
+    e.preventDefault();
+    try {
+      const data = await createCalendar({ user_id: 16 });
+    } catch (error) {
+      console.error("Failed to create calendar:", error.message);
+    }
+  };
+
   return (
     <>
       <div className="app-content content">
@@ -226,7 +258,13 @@ export const BookingListComponent = () => {
                     >
                       New Appointment
                     </button>
-
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-block"
+                      onClick={handleCreateCalendar}
+                    >
+                      Create Calendar
+                    </button>
                     <div
                       className="modal fade text-left"
                       id="appointment"
@@ -319,26 +357,23 @@ export const BookingListComponent = () => {
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
-                                          htmlFor="package"
+                                          htmlFor="services"
                                           style={{ width: "10rem" }}
                                         >
                                           Service
                                         </label>
-                                        <select
-                                          className="select2 form-control"
-                                          name="package"
-                                          value={bookingData.package}
-                                          onChange={handleSelectedChange}
-                                        >
-                                          {packages.map((pack) => (
-                                            <option
-                                              key={pack.id}
-                                              value={pack.id}
-                                            >
-                                              {pack.package_name}
-                                            </option>
-                                          ))}
-                                        </select>
+                                        <Select
+                                          className="form-select w-100 "
+                                          defaultValue={selectedService}
+                                          onChange={setSelectedService}
+                                          options={packages.map((pkg) => ({
+                                            label: pkg.package_name,
+                                            value: pkg.id,
+                                          }))}
+                                          isSearchable
+                                          isMulti
+                                          hideSelectedOptions
+                                        />
                                       </div>
 
                                       <div className="modal-body d-flex px-4">
@@ -593,6 +628,7 @@ export const BookingListComponent = () => {
 
                                     <div className="tab-pane fade" id="tab2">
                                       {showNewCustomer == false && (
+
                                         <div className="modal-body d-flex px-4 justify-content-between ">
                                           <select
                                             className="select2 form-control"
@@ -728,40 +764,42 @@ export const BookingListComponent = () => {
                                             />
                                           </div>
                                           <div className="modal-body d-flex px-4">
-                                             <div style={{width:'47rem'}}></div>
-                                              <input
-                                                type="text"
-                                                className="form-control mr-1"
-                                                name="city"
-                                                value={customerData.city}
-                                                onChange={
-                                                  handleCustomerDataChange
-                                                }
-                                                placeholder="City"
-                                              />
-                                              
-                                              <input
-                                                type="text"
-                                                className="form-control  mr-1"
-                                                name="state"
-                                                value={customerData.state}
-                                                onChange={
-                                                  handleCustomerDataChange
-                                                }
-                                                placeholder="State"
-                                              />
-                                             
-                                              <input
-                                                type="text"
-                                                className="form-control "
-                                                name="zip"
-                                                value={customerData.zip}
-                                                onChange={
-                                                  handleCustomerDataChange
-                                                }
-                                                placeholder="Zip"
-                                              />
-                                            </div>
+                                            <div
+                                              style={{ width: "47rem" }}
+                                            ></div>
+                                            <input
+                                              type="text"
+                                              className="form-control mr-1"
+                                              name="city"
+                                              value={customerData.city}
+                                              onChange={
+                                                handleCustomerDataChange
+                                              }
+                                              placeholder="City"
+                                            />
+
+                                            <input
+                                              type="text"
+                                              className="form-control  mr-1"
+                                              name="state"
+                                              value={customerData.state}
+                                              onChange={
+                                                handleCustomerDataChange
+                                              }
+                                              placeholder="State"
+                                            />
+
+                                            <input
+                                              type="text"
+                                              className="form-control "
+                                              name="zip"
+                                              value={customerData.zip}
+                                              onChange={
+                                                handleCustomerDataChange
+                                              }
+                                              placeholder="Zip"
+                                            />
+                                          </div>
                                           <input
                                             className="btn btn-outline-primary mb-1 btn ml-4"
                                             onClick={handleNewCustomer}
