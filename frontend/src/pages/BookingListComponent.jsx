@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { newBooking } from "../api/bookingApis";
+import { newBooking, getAllBookings } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -50,7 +50,7 @@ export const BookingListComponent = () => {
     start: booking.prefferedDate,
     end: booking.prefferedDate,
   }));
-  console.log(events);
+
   const [bookingData, setBookingData] = useState({
     title: "",
     package: "",
@@ -115,6 +115,21 @@ export const BookingListComponent = () => {
 
     fetchProviders();
   }, []);
+
+  const [bookingsData, setBookingsData] = useState([]);
+
+  useEffect(() => {
+    getAllBookingsData();
+  }, [])
+
+  const getAllBookingsData = async () => {
+    try {
+      let allBookingData = await getAllBookings();
+      setBookingsData(allBookingData.data);
+    } catch (error) {
+      console.error("Failed to:", error.message);
+    }
+  };
 
   return (
     <>
@@ -648,126 +663,47 @@ export const BookingListComponent = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>22-03-2024</td>
-                          <td>10:30 am - 01:00 pm</td>
-                          <td>Client Name</td>
-                          <td>
-                            <span
-                              className="bullet bullet-sm tooltip_color"
-                              style={{ backgroundColor: "#000000" }}
-                            ></span>
-                          </td>
-                          <td>
-                            Essential Clothing Limited, Mouchak - Fulbaria Road,
-                            Bangladesh
-                          </td>
-                          <td>Test Comment</td>
-                          <td>
-                            <span className="badge badge-warning">Pending</span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                              title="Edit"
-                            >
-                              <i className="fa fa-pencil"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
-                              title="Delete"
-                            >
-                              <i className="fa fa-remove"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
-                              title="Turn into Gallery"
-                            >
-                              <i className="fa fa-solid fa-image"></i>
-                            </button>
-                          </td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                        </tr>
-                        <tr>
-                          <td>26-03-2024</td>
-                          <td>03:00 pm - 06:00 am</td>
-                          <td>Client Name</td>
-                          <td>
-                            <span
-                              className="bullet bullet-sm tooltip_color"
-                              style={{ backgroundColor: "#000000" }}
-                            ></span>
-                          </td>
-                          <td>First Canadian Place, Toronto, ON, Canada</td>
-                          <td> </td>
-                          <td>
-                            <span className="badge badge-danger">Notify</span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                              title="Edit"
-                            >
-                              <i className="fa fa-pencil"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
-                              title="Delete"
-                            >
-                              <i className="fa fa-remove"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
-                              title="Turn into Gallery"
-                            >
-                              <i className="fa fa-solid fa-image"></i>
-                            </button>
-                          </td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                        </tr>
-                        <tr>
-                          <td>26-03-2024</td>
-                          <td>03:00 pm - 06:00 am</td>
-                          <td>Client Name</td>
-                          <td>
-                            <span
-                              className="bullet bullet-sm tooltip_color"
-                              style={{ backgroundColor: "#000000" }}
-                            ></span>
-                          </td>
-                          <td>First Canadian Place, Toronto, ON, Canada</td>
-                          <td> </td>
-                          <td>
-                            <span className="badge badge-success">Booked</span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                              title="Edit"
-                            >
-                              <i className="fa fa-pencil"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
-                              title="Delete"
-                            >
-                              <i className="fa fa-remove"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
-                              title="Turn into Gallery"
-                            >
-                              <i className="fa fa-solid fa-image"></i>
-                            </button>
-                          </td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                        </tr>
+                        {bookingsData && bookingsData.map(item => (
+                          <tr>
+                            <td>{item.booking_date}</td>
+                            <td>{item.booking_time}</td>
+                            <td>{item.User.name}</td>
+                            <td>
+                              <span
+                                className="bullet bullet-sm tooltip_color"
+                                style={{ backgroundColor: item.User.colorcode }}
+                              ></span>
+                            </td>
+                            <td>{item.User.address}</td>
+                            <td>{item.comment}</td>
+                            <td>
+                              <span className="badge badge-warning">{item.booking_status == 1 ? "Confirmed" : "Pending"}</span>
+                            </td>
+                            <td>
+                              <button
+                                className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                title="Edit"
+                              >
+                                <i className="fa fa-pencil"></i>
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline-danger mr-1 mb-1"
+                                title="Delete"
+                              >
+                                <i className="fa fa-remove"></i>
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline-primary mr-1 mb-1"
+                                title="Turn into Gallery"
+                              >
+                                <i className="fa fa-solid fa-image"></i>
+                              </button>
+                            </td>
+                            <td className="d-none"></td>
+                            <td className="d-none"></td>
+                            <td className="d-none"></td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>

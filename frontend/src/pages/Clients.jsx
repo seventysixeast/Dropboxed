@@ -26,7 +26,7 @@ const Clients = () => {
       let allClients = await getAllClients();
       setClients(allClients.data);
     } catch (error) {
-      console.error("Failed to", error.message);
+      toast.error(error);
     }
   };
 
@@ -92,7 +92,7 @@ const Clients = () => {
       let clientData = await getClient(formDataToSend);
       setFormData(clientData.data);
     } catch (error) {
-      console.error("Failed to get clients:", error.message);
+      toast.error(error);
     }
   }
 
@@ -106,7 +106,7 @@ const Clients = () => {
         setShowDeleteModal(false);
         getAllClientsData();
       } else {
-        toast.error(res.message);
+        toast.error(res);
       }
     } catch (error) {
       toast.error(error);
@@ -210,6 +210,7 @@ const Clients = () => {
                                 name="profile_photo"
                                 onChange={handlePhotoChange}
                                 accept="image/*"
+                                required
                               />
                               {formData.id && <img src={`${formData.profile_photo ? `http://localhost:6977/public/clients/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150" alt="Card image" />}
                             </div>

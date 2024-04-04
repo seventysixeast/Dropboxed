@@ -2,7 +2,7 @@
 
 const Booking = require('../models/Booking');
 const User = require('../models/Users');
-const Package = require('../models/Packages'); 
+const Package = require('../models/Packages');
 
 // Controller function for creating a new booking
 const createBooking = async (req, res) => {
@@ -31,15 +31,34 @@ const providers = async (req, res) => {
             attributes: ['id', 'package_name', 'package_price'],
             where: { status: 'Active' }
         });
-        
 
-        res.json({usersWithRoleId1, packages});
+
+        res.json({ usersWithRoleId1, packages });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
 
+const getAllBookings = async (req, res) => {
+    try {
+        let bookings = await Booking.findAll({
+            include: [{
+                model: User,
+                attributes: ['name', 'colorcode', 'address'],
+                where: {
+                    role_id: 3
+                }
+            }],
+            attributes: ['id', 'booking_date', 'booking_time', 'comment', 'booking_status']
+        });
+        console.log(bookings);
+        res.status(200).json({ success: true, data: bookings });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to list bookings" });
+    }
+};
+
 module.exports = {
-    createBooking, providers
+    createBooking, providers, getAllBookings
 };
