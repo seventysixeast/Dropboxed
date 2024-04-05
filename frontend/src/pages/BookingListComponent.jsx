@@ -13,6 +13,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
+import toolIcons from "../assets/images/i.png"
 import { createClient } from "../api/clientApis";
 import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
@@ -58,6 +59,8 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
+
+  console.log(packages);
 
   const [bookingData, setBookingData] = useState({
     title: "",
@@ -178,7 +181,7 @@ export const BookingListComponent = () => {
         state: "",
         zip: "",
       });
-      
+
       toast.success("Booking added successfully");
     } catch (error) {
       console.error("Failed to add booking:", error.message);
@@ -278,41 +281,40 @@ export const BookingListComponent = () => {
     console.log(arg.event.start);
     let id = arg.event._def.publicId;
     console.log(arg.event.start);
-  
+
     // Create Date objects with timezone offsets
-    let newDate = new Date(arg.event.start + 'Z'); // Assuming the date string is in UTC
-    let endDate = new Date(arg.event.end + 'Z'); // Assuming the date string is in UTC
-  
+    let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
+    let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
+
     console.log(newDate);
-  
+
     let newDateString = newDate.toISOString().split("T")[0];
     console.log(newDateString);
-  
+
     // Convert times to UTC time with timezone offsets
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
-      timeZone: "UTC"
+      timeZone: "UTC",
     });
     let endTime = endDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
-      timeZone: "UTC"
+      timeZone: "UTC",
     });
-  
+
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
-  
+
     setUpdateData({
       id: id,
       prefferedDate: newDate,
       startTime: newStartTime,
       endTime: newEndTime,
     });
-  
+
     setShowConfirmModel(true);
   };
-  
 
   useEffect(() => {}, []);
 
@@ -402,32 +404,32 @@ export const BookingListComponent = () => {
   const handleEventResize = (arg) => {
     console.log(arg);
     let id = arg.event._def.publicId;
-  
+
     // Create Date objects with timezone offsets
-    let newDate = new Date(arg.event.start + 'Z'); // Assuming the date string is in UTC
-    let endDate = new Date(arg.event.end + 'Z'); // Assuming the date string is in UTC
+    let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
+    let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
     console.log(newDate);
-    newDate.setDate(newDate.getDate() + 1);
-  
+    newDate.setDate(newDate.getDate());
+
     let newDateString = newDate.toISOString().split("T")[0];
     // let newDateString = newDate.toISOString().split("T")[0];
     console.log(newDateString);
-    
+
     // Convert times to UTC time with timezone offsets
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
-      timeZone: "UTC"
+      timeZone: "UTC",
     });
     let endTime = endDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
-      timeZone: "UTC"
+      timeZone: "UTC",
     });
-  
+
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
-  
+
     setUpdateData({
       id: id,
       prefferedDate: newDate,
@@ -436,7 +438,7 @@ export const BookingListComponent = () => {
     });
     setShowConfirmModel(true);
   };
-  
+
   return (
     <>
       <div className="app-content content">
@@ -577,7 +579,7 @@ export const BookingListComponent = () => {
                                         >
                                           Service
                                         </label>
-                                        <Select
+                                        {/* <Select
                                           className="form-select w-100 "
                                           defaultValue={selectedService}
                                           onChange={handleSelectedChange}
@@ -589,6 +591,37 @@ export const BookingListComponent = () => {
                                           isMulti
                                           hideSelectedOptions
                                           required
+                                        /> */}
+                                        <Select
+                                          className="form-select w-100"
+                                          defaultValue={selectedService}
+                                          onChange={handleSelectedChange}
+                                          options={packages.map((pkg) => ({
+                                            label: pkg.package_name,
+                                            value: pkg.id,
+                                            package_price: pkg.package_price,
+                                          }))}
+                                          isSearchable
+                                          isMulti
+                                          hideSelectedOptions
+                                          required
+                                          components={{
+                                            Option: ({
+                                              data,
+                                              innerRef,
+                                              innerProps,
+                                            }) => (
+                                              <div
+                                                ref={innerRef}
+                                                {...innerProps}
+                                                className="d-flex align-items-center custom-class-select"
+                                              >
+                                                <img src={toolIcons} className="" style={{marginLeft:'4px', marginRight:'4px'}} width={'14px'} alt="" />
+                                                <span>{data.label}</span>
+                                                
+                                              </div>
+                                            ),
+                                          }}
                                         />
                                       </div>
 
