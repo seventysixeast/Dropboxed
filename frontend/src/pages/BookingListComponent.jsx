@@ -1,16 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { createCalendar, newBooking, getAllBookings, deleteBooking } from "../api/bookingApis";
+import {
+  createCalendar,
+  newBooking,
+  updateBooking,
+  getAllBookings,
+  deleteBooking,
+} from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
+import toolIcons from "../assets/images/i.png"
 import { createClient } from "../api/clientApis";
 import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
@@ -24,38 +31,6 @@ export const BookingListComponent = () => {
   const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
-  const bookings = [
-    {
-      title: "Booking 1",
-      package: "Studio",
-      services: "Studio Photography",
-      prefferedDate: new Date("2024-04-01T10:00:00"),
-      fromTime: "10:00",
-      toTime: "12:00",
-      client: "Peter",
-      comment: "First booking comment",
-    },
-    {
-      title: "Booking 2",
-      package: "Essential",
-      services: "Essential Floor Plan",
-      prefferedDate: new Date("2024-04-05T13:00:00"),
-      fromTime: "13:00",
-      toTime: "15:00",
-      client: "Admin",
-      comment: "Second booking comment",
-    },
-    {
-      title: "Booking 3",
-      package: "Premium",
-      services: "Premium Photography",
-      prefferedDate: new Date("2024-04-10T16:00:00"),
-      fromTime: "16:00",
-      toTime: "18:00",
-      client: "Belle",
-      comment: "Third booking comment",
-    },
-  ];
   const [selectedService, setSelectedService] = useState(null);
   const [clientList, setClientList] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
@@ -64,13 +39,28 @@ export const BookingListComponent = () => {
     { value: "strawberry", label: "Strawberry" },
     { value: "vanilla", label: "Vanilla" },
   ];
+  const [events, setEvents] = useState([]);
 
-  const events = bookings.map((booking, index) => ({
-    id: index,
-    title: booking.title,
-    start: booking.prefferedDate,
-    end: booking.prefferedDate,
-  }));
+  const [showUpdateModel, setShowUpdateModel] = useState(false);
+  const [bookingToUpdate, setBookingToUpdate] = useState(null);
+  const [showConfirmModel, setShowConfirmModel] = useState(false);
+
+  const [showUpdateBox, setShowUpdateBox] = useState(false);
+
+  const [updateData, setUpdateData] = useState({
+    title: "",
+    package: 1,
+    services: null,
+    prefferedDate: new Date(),
+    fromTime: "",
+    toTime: "",
+    client: "",
+    comment: "",
+    provider: "",
+    customer: "",
+  });
+
+  console.log(packages);
 
   const [bookingData, setBookingData] = useState({
     title: "",
@@ -97,7 +87,22 @@ export const BookingListComponent = () => {
     zip: "",
   });
 
-  // Function to handle changes in customer data
+  const convertTo24Hour = (time12h) => {
+    const [time, modifier] = time12h.split(" ");
+
+    let [hours, minutes] = time.split(":");
+
+    if (hours === "12") {
+      hours = "00";
+    }
+
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+
+    return `${hours}:${minutes}:00`;
+  };
+
   const handleCustomerDataChange = (e) => {
     const { name, value } = e.target;
     setCustomerData((prevData) => ({
@@ -109,90 +114,116 @@ export const BookingListComponent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await createClient(customerData);
-      console.log(data.data.id);
-      let fromTimenew = bookingData.fromTime;
-      let convertedTime = fromTimenew.replace(
-        /^(\d{2}:\d{2}) (AM|PM)$/,
-        "$1:00"
-      );
+      // const data = await createClient(customerData);
+      // console.log(data.data.id);
+      // Function to convert 12-hour time to 24-hour time
+
+      const convertedTime = convertTo24Hour(bookingData.fromTime);
+      const hoursToAdd = Math.floor(bookingData.toTime / 60);
+      const minutesToAdd = bookingData.toTime % 60;
+
+      let [currentHours, currentMinutes, currentSeconds] =
+        convertedTime.split(":");
+
+      currentHours = parseInt(currentHours, 10) + hoursToAdd;
+      currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
+
+      if (currentMinutes >= 60) {
+        currentHours += 1;
+        currentMinutes -= 60;
+      }
+
+      currentHours = ("0" + currentHours).slice(-2);
+      currentMinutes = ("0" + currentMinutes).slice(-2);
+
+      let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
+      console.log(selectedProvider.value, selectedClient.value);
+      const values = selectedService.map((service) => service.value);
+      const formattedValues = values.join(", ");
 
       const bookingDataToSend = {
-        user_id: data.data.id,
-        booking_title: data.data.address,
-        client_name: data.data.name,
-        client_address: data.data.address,
-        package_ids: bookingData.package,
+        user_id: selectedClient.value,
+        package_ids: formattedValues,
         package: 0,
-        photographer_id: 12,
+        photographer_id: selectedProvider.value,
         booking_date: bookingData.prefferedDate,
         booking_time: convertedTime,
-        booking_time_to: bookingData.toTime,
+        booking_time_to: newToTime,
         booking_status: 1,
         comment: bookingData.comment,
       };
       await newBooking(bookingDataToSend);
+      getAllBookingsData();
+      if (buttonRef.current) {
+        buttonRef.current.click();
+      }
+      // clear data
+      setBookingData({
+        title: "",
+        package: 1,
+        services: null,
+        prefferedDate: new Date(),
+        fromTime: "",
+        toTime: "",
+        client: "",
+        comment: "",
+        provider: "",
+        customer: "",
+      });
+      setCustomerData({
+        name: "",
+        email: "",
+        mobile: "",
+        office: "",
+        home: "",
+        address: "",
+        city: "",
+        state: "",
+        zip: "",
+      });
+
+      toast.success("Booking added successfully");
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
   };
 
   const handleChange = (e) => {
-    console.log(e);
+    console.log(e.target.value);
     const { name, value } = e.target;
-    if (name === "services") {
-      setBookingData((prevData) => ({
-        ...prevData,
-        [name]: [...prevData[name], value],
-      }));
-    } else {
-      setBookingData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+
+    setBookingData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
+  const [bookingsData, setBookingsData] = useState([]);
+
   useEffect(() => {
-    const fetchProviders = async () => {
-      if (providers.length === 0) {
-        try {
-          const response = await fetch(
-            "http://localhost:6977/booking/providers"
-          );
-          const data = await response.json();
-          setProviders(data.usersWithRoleId1);
-          setClientList(data.users);
-          setPackages(data.packages);
-          const prices = data.packages.map((pack) => ({
-            id: pack.id,
-            price: pack.package_price,
-          }));
-          setPackagePrices(prices);
-        } catch (error) {
-          console.error("Error fetching providers:", error.message);
-        }
-      }
-    };
+    getAllBookingsData();
 
     fetchProviders();
   }, []);
 
-  // const handleSelectedChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setBookingData((prevData) => ({
-  //     ...prevData,
-  //     [name]: value,
-  //   }));
-  //   setSelectedPackage(value);
-  //   setBookingData((prevData) => ({
-  //     ...prevData,
-  //     package: value,
-  //   }));
-  //   setSelectedPackagePrice(
-  //     packagePrice.find((price) => price.id === parseInt(value)).price
-  //   );
-  // };
+  const fetchProviders = async () => {
+    if (providers.length === 0) {
+      try {
+        const response = await fetch("http://localhost:6977/booking/providers");
+        const data = await response.json();
+        setProviders(data.usersWithRoleId1);
+        setClientList(data.users);
+        setPackages(data.packages);
+        const prices = data.packages.map((pack) => ({
+          id: pack.id,
+          price: pack.package_price,
+        }));
+        setPackagePrices(prices);
+      } catch (error) {
+        console.error("Error fetching providers:", error.message);
+      }
+    }
+  };
 
   const handleDateClick = (arg) => {
     console.log("Date clicked:", arg);
@@ -233,20 +264,72 @@ export const BookingListComponent = () => {
   };
 
   const handleSelectedChange = (selectedOptions) => {
-    setSelectedService(selectedOptions)
-    // setSelectedPackagePrice
+    setSelectedService(selectedOptions);
+    // for each selectedOptions.value find the price in packages
+    const selectedPrices = selectedOptions.map((option) => {
+      const price = packagePrice.find((pack) => pack.id === option.value);
+      return price.price;
+    });
+    console.log(selectedPrices);
+    // add the selected prices as there are multiple and we need total of all
+    const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
+    console.log(totalPrice);
+    setSelectedPackagePrice(totalPrice);
   };
 
-  const [bookingsData, setBookingsData] = useState([]);
+  const handleDateChange = (arg) => {
+    console.log(arg.event.start);
+    let id = arg.event._def.publicId;
+    console.log(arg.event.start);
 
-  useEffect(() => {
-    getAllBookingsData();
-  }, [])
+    // Create Date objects with timezone offsets
+    let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
+    let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
+
+    console.log(newDate);
+
+    let newDateString = newDate.toISOString().split("T")[0];
+    console.log(newDateString);
+
+    // Convert times to UTC time with timezone offsets
+    let startTime = newDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+    let endTime = endDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+
+    const newStartTime = convertTo24Hour(startTime);
+    const newEndTime = convertTo24Hour(endTime);
+
+    setUpdateData({
+      id: id,
+      prefferedDate: newDate,
+      startTime: newStartTime,
+      endTime: newEndTime,
+    });
+
+    setShowConfirmModel(true);
+  };
+
+  useEffect(() => {}, []);
 
   const getAllBookingsData = async () => {
     try {
       let allBookingData = await getAllBookings();
       setBookingsData(allBookingData.data);
+      let events = allBookingData.data.map((booking) => ({
+        id: booking.id,
+        title: booking.booking_title,
+        start: `${booking.booking_date}T${booking.booking_time}`,
+        end: `${booking.booking_date}T${booking.booking_time_to}`,
+      }));
+
+      setEvents(events);
     } catch (error) {
       console.error("Failed to:", error.message);
     }
@@ -255,7 +338,7 @@ export const BookingListComponent = () => {
   const deleteBookingData = async () => {
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('id', bookingIdToDelete);
+      formDataToSend.append("id", bookingIdToDelete);
       let res = await deleteBooking(formDataToSend);
       if (res.success) {
         toast.success(res.message);
@@ -267,6 +350,93 @@ export const BookingListComponent = () => {
     } catch (error) {
       toast.error(error);
     }
+  };
+
+  const handleEditClick = (booking) => {
+    setUpdateData({
+      id: booking.id,
+      title: booking.title,
+      package: 1,
+      services: null,
+      prefferedDate: new Date(booking.start),
+      fromTime: booking.start.split("T")[1],
+      toTime: booking.end.split("T")[1],
+      client: "",
+      comment: booking.comment,
+      provider: "",
+      customer: "",
+    });
+    setShowUpdateModel(true);
+  };
+
+  const updateBookingData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", updateData.id);
+      formDataToSend.append("booking_date", updateData.prefferedDate);
+      formDataToSend.append("booking_time", updateData.startTime);
+      formDataToSend.append("booking_time_to", updateData.endTime);
+      let res = await updateBooking(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        getAllBookingsData();
+        setUpdateData({
+          title: "",
+          package: 1,
+          services: null,
+          prefferedDate: new Date(),
+          fromTime: "",
+          toTime: "",
+          client: "",
+          comment: "",
+          provider: "",
+          customer: "",
+        });
+        setShowConfirmModel(false);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const handleEventResize = (arg) => {
+    console.log(arg);
+    let id = arg.event._def.publicId;
+
+    // Create Date objects with timezone offsets
+    let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
+    let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
+    console.log(newDate);
+    newDate.setDate(newDate.getDate());
+
+    let newDateString = newDate.toISOString().split("T")[0];
+    // let newDateString = newDate.toISOString().split("T")[0];
+    console.log(newDateString);
+
+    // Convert times to UTC time with timezone offsets
+    let startTime = newDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+    let endTime = endDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+
+    const newStartTime = convertTo24Hour(startTime);
+    const newEndTime = convertTo24Hour(endTime);
+
+    setUpdateData({
+      id: id,
+      prefferedDate: newDate,
+      startTime: newStartTime,
+      endTime: newEndTime,
+    });
+    setShowConfirmModel(true);
   };
 
   return (
@@ -301,13 +471,7 @@ export const BookingListComponent = () => {
                     >
                       New Appointment
                     </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary btn-block"
-                      onClick={handleCreateCalendar}
-                    >
-                      Create Calendar
-                    </button>
+
                     <div
                       className="modal fade text-left"
                       id="appointment"
@@ -387,27 +551,23 @@ export const BookingListComponent = () => {
                                           name="customer"
                                           defaultValue={selectedProvider}
                                           onChange={setSelectedProvider}
-                                          options={providers.map(
-                                            (client) => ({
-                                              label: (
-                                                <>
-                                                  <img
-                                                    src={
-                                                      client.image ||
-                                                      avatar1
-                                                    }
-                                                    alt={client.name}
-                                                    style={{
-                                                      width: "20px",
-                                                      marginRight: "10px",
-                                                    }}
-                                                  />
-                                                  {client.name}
-                                                </>
-                                              ),
-                                              value: client.id,
-                                            })
-                                          )}
+                                          options={providers.map((client) => ({
+                                            label: (
+                                              <>
+                                                <img
+                                                  src={client.image || avatar1}
+                                                  alt={client.name}
+                                                  style={{
+                                                    width: "20px",
+                                                    marginRight: "10px",
+                                                  }}
+                                                />
+                                                {client.name}
+                                              </>
+                                            ),
+                                            value: client.id,
+                                          }))}
+                                          required
                                           isSearchable
                                           hideSelectedOptions
                                         />
@@ -419,7 +579,7 @@ export const BookingListComponent = () => {
                                         >
                                           Service
                                         </label>
-                                        <Select
+                                        {/* <Select
                                           className="form-select w-100 "
                                           defaultValue={selectedService}
                                           onChange={handleSelectedChange}
@@ -430,11 +590,43 @@ export const BookingListComponent = () => {
                                           isSearchable
                                           isMulti
                                           hideSelectedOptions
+                                          required
+                                        /> */}
+                                        <Select
+                                          className="form-select w-100"
+                                          defaultValue={selectedService}
+                                          onChange={handleSelectedChange}
+                                          options={packages.map((pkg) => ({
+                                            label: pkg.package_name,
+                                            value: pkg.id,
+                                            package_price: pkg.package_price,
+                                          }))}
+                                          isSearchable
+                                          isMulti
+                                          hideSelectedOptions
+                                          required
+                                          components={{
+                                            Option: ({
+                                              data,
+                                              innerRef,
+                                              innerProps,
+                                            }) => (
+                                              <div
+                                                ref={innerRef}
+                                                {...innerProps}
+                                                className="d-flex align-items-center custom-class-select"
+                                              >
+                                                <img src={toolIcons} className="" style={{marginLeft:'4px', marginRight:'4px'}} width={'14px'} alt="" />
+                                                <span>{data.label}</span>
+                                                
+                                              </div>
+                                            ),
+                                          }}
                                         />
                                       </div>
 
                                       <div className="modal-body d-flex px-4">
-                                        <div style={{ width: "21rem" }}></div>
+                                        <div style={{ width: "23rem" }}></div>
                                         <input
                                           type="text"
                                           id="price"
@@ -446,7 +638,7 @@ export const BookingListComponent = () => {
                                         <div className="input-group">
                                           <select
                                             className="select2 form-control fa fa-caret-down"
-                                            name="services"
+                                            name="toTime"
                                             value={bookingData.toTime}
                                             onChange={handleChange}
                                             required
@@ -470,7 +662,7 @@ export const BookingListComponent = () => {
                                       <div className="modal-body d-flex px-4">
                                         <label
                                           htmlFor="datetimepicker4"
-                                          style={{ width: "10rem" }}
+                                          style={{ width: "11rem" }}
                                         >
                                           Date/Time
                                         </label>
@@ -485,6 +677,7 @@ export const BookingListComponent = () => {
                                               prefferedDate: date,
                                             }))
                                           }
+                                          required
                                         />
                                         <select
                                           className="select2 form-control w-50 ml-1"
@@ -654,7 +847,6 @@ export const BookingListComponent = () => {
                                           name="notify"
                                           value={bookingData.notify}
                                           onChange={handleChange}
-                                          required
                                         >
                                           <option value="0">
                                             Select Frequency
@@ -696,8 +888,7 @@ export const BookingListComponent = () => {
                                                   <>
                                                     <img
                                                       src={
-                                                        client.image ||
-                                                        avatar1
+                                                        client.image || avatar1
                                                       }
                                                       alt={client.name}
                                                       style={{
@@ -713,10 +904,11 @@ export const BookingListComponent = () => {
                                             )}
                                             isSearchable
                                             hideSelectedOptions
+                                            required
                                           />
                                         </div>
                                       )}
-                                      {showNewCustomer ? (
+                                      {/* {showNewCustomer ? (
                                         <>
                                           <div className="modal-body d-flex px-4 justify-content-between   ">
                                             <label
@@ -886,7 +1078,7 @@ export const BookingListComponent = () => {
                                           value="+ New Customer"
                                           readOnly
                                         />
-                                      )}
+                                      )} */}
                                     </div>
                                   </div>
                                 </div>
@@ -928,8 +1120,11 @@ export const BookingListComponent = () => {
                             timeGridPlugin,
                             interactionPlugin,
                           ]}
+                          eventResize={handleEventResize}
+                          firstDay={1}
                           dateClick={handleDateClick}
                           initialView="timeGridWeek"
+                          eventDrop={handleDateChange}
                           headerToolbar={{
                             left: "prev,next today",
                             center: "title",
@@ -973,51 +1168,63 @@ export const BookingListComponent = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {bookingsData && bookingsData.map(item => (
-                          <tr>
-                            <td>{item.booking_date}</td>
-                            <td>{item.booking_time}</td>
-                            <td>{item.User.name}</td>
-                            <td>
-                              <span
-                                className="bullet bullet-sm tooltip_color"
-                                style={{ backgroundColor: item.User.colorcode }}
-                              ></span>
-                            </td>
-                            <td>{item.User.address}</td>
-                            <td>{item.comment}</td>
-                            <td>
-                              <span className="badge badge-warning">{item.booking_status == 1 ? "Confirmed" : "Pending"}</span>
-                            </td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                                title="Edit"
-                              >
-                                <i className="fa fa-pencil"></i>
-                              </button>
-                              <button
-                                class="btn btn-sm btn-outline-danger mr-1 mb-1"
-                                title="Delete"
-                                onClick={() => {
-                                  setShowDeleteModal(true);
-                                  setBookingIdToDelete(item.id);
-                                }}
-                              >
-                                <i className="fa fa-remove"></i>
-                              </button>
-                              <button
-                                className="btn btn-sm btn-outline-primary mr-1 mb-1"
-                                title="Turn into Gallery"
-                              >
-                                <i className="fa fa-solid fa-image"></i>
-                              </button>
-                            </td>
-                            <td className="d-none"></td>
-                            <td className="d-none"></td>
-                            <td className="d-none"></td>
-                          </tr>
-                        ))}
+                        {bookingsData &&
+                          bookingsData.map((item) => (
+                            <tr>
+                              <td>{item.booking_date}</td>
+                              <td>{item.booking_time}</td>
+                              <td>{item.User.name}</td>
+                              <td>
+                                <span
+                                  className="bullet bullet-sm tooltip_color"
+                                  style={{
+                                    backgroundColor: item.User.colorcode,
+                                  }}
+                                ></span>
+                              </td>
+                              <td>{item.User.address}</td>
+                              <td>{item.comment}</td>
+                              <td>
+                                <span className="badge badge-warning">
+                                  {item.booking_status == 1
+                                    ? "Confirmed"
+                                    : "Pending"}
+                                </span>
+                              </td>
+                              <td>
+                                <button
+                                  className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                  title="Edit"
+                                  onClick={() => {
+                                    setShowUpdateModel(true);
+                                    setBookingToUpdate(item);
+                                    console.log(item);
+                                  }}
+                                >
+                                  <i className="fa fa-pencil"></i>
+                                </button>
+                                <button
+                                  class="btn btn-sm btn-outline-danger mr-1 mb-1"
+                                  title="Delete"
+                                  onClick={() => {
+                                    setBookingIdToDelete(item.id);
+                                    setShowDeleteModal(true);
+                                  }}
+                                >
+                                  <i className="fa fa-remove"></i>
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-primary mr-1 mb-1"
+                                  title="Turn into Gallery"
+                                >
+                                  <i className="fa fa-solid fa-image"></i>
+                                </button>
+                              </td>
+                              <td className="d-none"></td>
+                              <td className="d-none"></td>
+                              <td className="d-none"></td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -1031,6 +1238,23 @@ export const BookingListComponent = () => {
           onClose={() => setShowDeleteModal(false)}
           onConfirm={deleteBookingData}
           message="Are you sure you want to delete this imageType?"
+        />
+        <DeleteModal
+          isOpen={showConfirmModel}
+          onClose={() => setShowConfirmModel(false)}
+          onConfirm={updateBookingData}
+          message={
+            <>
+              <div className="justify-items-center" role="alert">
+                <h3 className="text-center">Confirm Rechedule </h3>
+                <div className="p-2 text-center">
+                  <p className="mb-0 ">
+                    Do you with to Reschedule the appointment?
+                  </p>
+                </div>
+              </div>
+            </>
+          }
         />
       </div>
 

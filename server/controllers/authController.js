@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
-const User = require('../models/User');
+const User = require('../models/Users');
 const { generateAccessToken } = require('../utils/jwtUtils');
 const { SEND_EMAIL } = require('../helpers/emailTemplate');
 const { sendEmail } = require('../helpers/sendEmail');
@@ -50,6 +50,7 @@ exports.login = async (req, res) => {
 
 exports.signup = async (req, res) => {
   const { studioName, email, password, country } = req.body;
+  console.log("req.body", req.body);
   try {
     // Check if the email is already registered
     const existingUser = await User.findOne({ where: { email } });
@@ -72,7 +73,7 @@ exports.signup = async (req, res) => {
       password: hashedPassword,
       country,
       role_id: 3, // User role id 3
-      subdomain: studioName // Save studioName in subdomain field
+      subdomain: studioName, // Save studioName in subdomain field
     });
 
     //SEND_EMAIL.replace('#studioName#', studioName);
