@@ -17,6 +17,7 @@ const newBooking = async (bookingData) => {
   }
 };
 
+
 const createCalendar = async (calendarData) => {
   console.log(calendarData);
   try {

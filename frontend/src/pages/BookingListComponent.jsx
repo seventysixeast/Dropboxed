@@ -20,38 +20,7 @@ export const BookingListComponent = () => {
   const [appointmentTime, setAppointmentTime] = useState();
   const buttonRef = useRef(null);
   const [showNewCustomer, setShowNewCustomer] = useState(false);
-  const bookings = [
-    {
-      title: "Booking 1",
-      package: "Studio",
-      services: "Studio Photography",
-      prefferedDate: new Date("2024-04-01T10:00:00"),
-      fromTime: "10:00",
-      toTime: "12:00",
-      client: "Peter",
-      comment: "First booking comment",
-    },
-    {
-      title: "Booking 2",
-      package: "Essential",
-      services: "Essential Floor Plan",
-      prefferedDate: new Date("2024-04-05T13:00:00"),
-      fromTime: "13:00",
-      toTime: "15:00",
-      client: "Admin",
-      comment: "Second booking comment",
-    },
-    {
-      title: "Booking 3",
-      package: "Premium",
-      services: "Premium Photography",
-      prefferedDate: new Date("2024-04-10T16:00:00"),
-      fromTime: "16:00",
-      toTime: "18:00",
-      client: "Belle",
-      comment: "Third booking comment",
-    },
-  ];
+  const [bookings, setBookings] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [clientList, setClientList] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
@@ -60,13 +29,22 @@ export const BookingListComponent = () => {
     { value: "strawberry", label: "Strawberry" },
     { value: "vanilla", label: "Vanilla" },
   ];
+  const [events, setEvents] = useState([]);
 
-  const events = bookings.map((booking, index) => ({
-    id: index,
-    title: booking.title,
-    start: booking.prefferedDate,
-    end: booking.prefferedDate,
-  }));
+  const [showUpdateBox, setShowUpdateBox] = useState(false);
+  //variable for handle date change data
+  const [updateData, setUpdateData] = useState({
+    title: "",
+    package: 1,
+    services: null,
+    prefferedDate: new Date(),
+    fromTime: "",
+    toTime: "",
+    client: "",
+    comment: "",
+    provider: "",
+    customer: "",
+  });
 
   const [bookingData, setBookingData] = useState({
     title: "",
@@ -92,7 +70,21 @@ export const BookingListComponent = () => {
     state: "",
     zip: "",
   });
+  const convertTo24Hour = (time12h) => {
+    const [time, modifier] = time12h.split(" ");
 
+    let [hours, minutes] = time.split(":");
+
+    if (hours === "12") {
+      hours = "00";
+    }
+
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+
+    return `${hours}:${minutes}:00`;
+  };
   // Function to handle changes in customer data
   const handleCustomerDataChange = (e) => {
     const { name, value } = e.target;
@@ -105,25 +97,41 @@ export const BookingListComponent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await createClient(customerData);
-      console.log(data.data.id);
-      let fromTimenew = bookingData.fromTime;
-      let convertedTime = fromTimenew.replace(
-        /^(\d{2}:\d{2}) (AM|PM)$/,
-        "$1:00"
-      );
+      // const data = await createClient(customerData);
+      // console.log(data.data.id);
+      // Function to convert 12-hour time to 24-hour time
+
+      const convertedTime = convertTo24Hour(bookingData.fromTime);
+      const hoursToAdd = Math.floor(bookingData.toTime / 60);
+      const minutesToAdd = bookingData.toTime % 60;
+
+      let [currentHours, currentMinutes, currentSeconds] =
+        convertedTime.split(":");
+
+      currentHours = parseInt(currentHours, 10) + hoursToAdd;
+      currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
+
+      if (currentMinutes >= 60) {
+        currentHours += 1;
+        currentMinutes -= 60;
+      }
+
+      currentHours = ("0" + currentHours).slice(-2);
+      currentMinutes = ("0" + currentMinutes).slice(-2);
+
+      let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
+      console.log(selectedProvider.value, selectedClient.value);
+      const values = selectedService.map((service) => service.value);
+      const formattedValues = values.join(", ");
 
       const bookingDataToSend = {
-        user_id: data.data.id,
-        booking_title: data.data.address,
-        client_name: data.data.name,
-        client_address: data.data.address,
-        package_ids: bookingData.package,
+        user_id: selectedClient.value,
+        package_ids: formattedValues,
         package: 0,
-        photographer_id: 12,
+        photographer_id: selectedProvider.value,
         booking_date: bookingData.prefferedDate,
         booking_time: convertedTime,
-        booking_time_to: bookingData.toTime,
+        booking_time_to: newToTime,
         booking_status: 1,
         comment: bookingData.comment,
       };
@@ -134,22 +142,40 @@ export const BookingListComponent = () => {
   };
 
   const handleChange = (e) => {
-    console.log(e);
+    console.log(e.target.value);
     const { name, value } = e.target;
-    if (name === "services") {
-      setBookingData((prevData) => ({
-        ...prevData,
-        [name]: [...prevData[name], value],
-      }));
-    } else {
-      setBookingData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+
+    setBookingData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   useEffect(() => {
+    const getBookings = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:6977/booking/get-bookings"
+        );
+        const data = await response.json();
+        let events = data.map((booking) => ({
+          id: booking.id,
+          title: booking.booking_title,
+          start: `${booking.booking_date}T${booking.booking_time}`,
+          end: `${booking.booking_date}T${booking.booking_time_to}`,
+        }));
+
+        console.log(events);
+        setBookings(data);
+        setEvents(events);
+
+        console.log(data);
+        console.log(events);
+      } catch (error) {
+        console.error("Error fetching bookings:", error.message);
+      }
+    };
+
     const fetchProviders = async () => {
       if (providers.length === 0) {
         try {
@@ -171,6 +197,7 @@ export const BookingListComponent = () => {
       }
     };
 
+    getBookings();
     fetchProviders();
   }, []);
 
@@ -229,10 +256,37 @@ export const BookingListComponent = () => {
   };
 
   const handleSelectedChange = (selectedOptions) => {
-    setSelectedService(selectedOptions)
+    setSelectedService(selectedOptions);
     // setSelectedPackagePrice
   };
-  
+
+  const handleDateChange = (arg) => {
+    let id = arg.event._def.publicId;
+
+    let newDate = new Date(arg.event.start);
+    let endDate = new Date(arg.event.end);
+    let newDateString = newDate.toISOString().split("T")[0];
+    console.log(newDateString);
+    let startTime = newDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    let endTime = endDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const newStartTime = convertTo24Hour(startTime);
+    const newEndTime = convertTo24Hour(endTime);
+
+    setUpdateData({
+      id: id,
+      prefferedDate: newDateString,
+      startTime: newStartTime,
+      endTime: newEndTime,
+    });
+
+    setShowUpdateBox(true);
+  };
 
   return (
     <>
@@ -266,13 +320,70 @@ export const BookingListComponent = () => {
                     >
                       New Appointment
                     </button>
-                    <button
+                    {/* <button
                       type="button"
                       className="btn btn-outline-primary btn-block"
                       onClick={handleCreateCalendar}
                     >
                       Create Calendar
+                    </button> */}
+
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-block "
+                      data-toggle="modal"
+                      data-target="#confirmation"
+                    >
+                      Add Client
                     </button>
+                    <div
+                      className="modal fade text-left"
+                      id="confirmation"
+                      tabIndex="-1"
+                      role="dialog"
+                      aria-labelledby="myModalLabel35"
+                      aria-hidden="true"
+                      style={{ display: "none" }}
+                    >
+                      <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <button
+                              id="closeModal"
+                              type="button"
+                              className="close"
+                              data-dismiss="modal"
+                              aria-label="Close"
+                            >
+                              <span aria-hidden="true">×</span>
+                            </button>
+                          </div>
+                          <form onSubmit={handleSubmit}>
+                          <div className="modal-body">
+                            <div className="form-group">
+                              <h3 className="text-center">Confirm Reschedule</h3>
+                              <p>From: {updateData.prefferedDate.value} </p>
+                              <p>To: {updateData.toTime}</p>
+                            </div>
+                            <div className="modal-footer">
+                              <input
+                                type="reset"
+                                className="btn btn-secondary"
+                                data-dismiss="modal"
+                                value="Close"
+                              />
+                              <input
+                                type="submit"
+                                className="btn btn-primary btn"
+                                value="Close"
+                              />
+                            </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
                     <div
                       className="modal fade text-left"
                       id="appointment"
@@ -348,34 +459,29 @@ export const BookingListComponent = () => {
                                           Provider
                                         </label>
                                         <Select
-                                            className="form-select w-100 "
-                                            name="customer"
-                                            defaultValue={selectedProvider}
-                                            onChange={setSelectedProvider}
-                                            options={providers.map(
-                                              (client) => ({
-                                                label: (
-                                                  <>
-                                                    <img
-                                                      src={
-                                                        client.image ||
-                                                        avatar1
-                                                      }
-                                                      alt={client.name}
-                                                      style={{
-                                                        width: "20px",
-                                                        marginRight: "10px",
-                                                      }}
-                                                    />
-                                                    {client.name}
-                                                  </>
-                                                ),
-                                                value: client.id,
-                                              })
-                                            )}
-                                            isSearchable
-                                            hideSelectedOptions
-                                          />
+                                          className="form-select w-100 "
+                                          name="customer"
+                                          defaultValue={selectedProvider}
+                                          onChange={setSelectedProvider}
+                                          options={providers.map((client) => ({
+                                            label: (
+                                              <>
+                                                <img
+                                                  src={client.image || avatar1}
+                                                  alt={client.name}
+                                                  style={{
+                                                    width: "20px",
+                                                    marginRight: "10px",
+                                                  }}
+                                                />
+                                                {client.name}
+                                              </>
+                                            ),
+                                            value: client.id,
+                                          }))}
+                                          isSearchable
+                                          hideSelectedOptions
+                                        />
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
@@ -411,7 +517,7 @@ export const BookingListComponent = () => {
                                         <div className="input-group">
                                           <select
                                             className="select2 form-control fa fa-caret-down"
-                                            name="services"
+                                            name="toTime"
                                             value={bookingData.toTime}
                                             onChange={handleChange}
                                             required
@@ -661,8 +767,7 @@ export const BookingListComponent = () => {
                                                   <>
                                                     <img
                                                       src={
-                                                        client.image ||
-                                                        avatar1
+                                                        client.image || avatar1
                                                       }
                                                       alt={client.name}
                                                       style={{
@@ -893,8 +998,10 @@ export const BookingListComponent = () => {
                             timeGridPlugin,
                             interactionPlugin,
                           ]}
+                          firstDay={1}
                           dateClick={handleDateClick}
                           initialView="timeGridWeek"
+                          eventDrop={handleDateChange}
                           headerToolbar={{
                             left: "prev,next today",
                             center: "title",
