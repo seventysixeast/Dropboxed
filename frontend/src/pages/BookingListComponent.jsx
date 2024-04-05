@@ -39,7 +39,7 @@ export const BookingListComponent = () => {
     { value: "vanilla", label: "Vanilla" },
   ];
   const [events, setEvents] = useState([]);
-  
+
   const [showUpdateModel, setShowUpdateModel] = useState(false);
   const [bookingToUpdate, setBookingToUpdate] = useState(null);
   const [showConfirmModel, setShowConfirmModel] = useState(false);
@@ -154,6 +154,31 @@ export const BookingListComponent = () => {
       if (buttonRef.current) {
         buttonRef.current.click();
       }
+      // clear data
+      setBookingData({
+        title: "",
+        package: 1,
+        services: null,
+        prefferedDate: new Date(),
+        fromTime: "",
+        toTime: "",
+        client: "",
+        comment: "",
+        provider: "",
+        customer: "",
+      });
+      setCustomerData({
+        name: "",
+        email: "",
+        mobile: "",
+        office: "",
+        home: "",
+        address: "",
+        city: "",
+        state: "",
+        zip: "",
+      });
+      
       toast.success("Booking added successfully");
     } catch (error) {
       console.error("Failed to add booking:", error.message);
@@ -250,37 +275,44 @@ export const BookingListComponent = () => {
   };
 
   const handleDateChange = (arg) => {
+    console.log(arg.event.start);
     let id = arg.event._def.publicId;
-
-    let newDate = new Date(arg.event.start);
-    let endDate = new Date(arg.event.end);
+    console.log(arg.event.start);
+  
+    // Create Date objects with timezone offsets
+    let newDate = new Date(arg.event.start + 'Z'); // Assuming the date string is in UTC
+    let endDate = new Date(arg.event.end + 'Z'); // Assuming the date string is in UTC
+  
     console.log(newDate);
-    newDate.setDate(newDate.getDate() + 1);
-
+  
     let newDateString = newDate.toISOString().split("T")[0];
-    // let newDateString = newDate.toISOString().split("T")[0];
     console.log(newDateString);
+  
+    // Convert times to UTC time with timezone offsets
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "UTC"
     });
     let endTime = endDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "UTC"
     });
+  
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
-
+  
     setUpdateData({
       id: id,
       prefferedDate: newDate,
       startTime: newStartTime,
       endTime: newEndTime,
     });
-
+  
     setShowConfirmModel(true);
   };
-  console.log(updateData);
+  
 
   useEffect(() => {}, []);
 
@@ -332,7 +364,7 @@ export const BookingListComponent = () => {
       provider: "",
       customer: "",
     });
-  setShowUpdateModel(true);
+    setShowUpdateModel(true);
   };
 
   const updateBookingData = async () => {
@@ -370,26 +402,32 @@ export const BookingListComponent = () => {
   const handleEventResize = (arg) => {
     console.log(arg);
     let id = arg.event._def.publicId;
-
-    let newDate = new Date(arg.event.start);
-    let endDate = new Date(arg.event.end);
+  
+    // Create Date objects with timezone offsets
+    let newDate = new Date(arg.event.start + 'Z'); // Assuming the date string is in UTC
+    let endDate = new Date(arg.event.end + 'Z'); // Assuming the date string is in UTC
     console.log(newDate);
     newDate.setDate(newDate.getDate() + 1);
-
+  
     let newDateString = newDate.toISOString().split("T")[0];
     // let newDateString = newDate.toISOString().split("T")[0];
     console.log(newDateString);
+    
+    // Convert times to UTC time with timezone offsets
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "UTC"
     });
     let endTime = endDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "UTC"
     });
+  
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
-
+  
     setUpdateData({
       id: id,
       prefferedDate: newDate,
@@ -398,9 +436,7 @@ export const BookingListComponent = () => {
     });
     setShowConfirmModel(true);
   };
-
-
-
+  
   return (
     <>
       <div className="app-content content">
@@ -433,13 +469,6 @@ export const BookingListComponent = () => {
                     >
                       New Appointment
                     </button>
-                    {/* <button
-                      type="button"
-                      className="btn btn-outline-primary btn-block"
-                      onClick={handleCreateCalendar}
-                    >
-                      Create Calendar
-                    </button> */}
 
                     <div
                       className="modal fade text-left"
@@ -559,7 +588,7 @@ export const BookingListComponent = () => {
                                           isSearchable
                                           isMulti
                                           hideSelectedOptions
-                                        required
+                                          required
                                         />
                                       </div>
 
@@ -614,7 +643,6 @@ export const BookingListComponent = () => {
                                               ...prevData,
                                               prefferedDate: date,
                                             }))
-                                          
                                           }
                                           required
                                         />
@@ -1147,7 +1175,7 @@ export const BookingListComponent = () => {
                                   title="Delete"
                                   onClick={() => {
                                     setBookingIdToDelete(item.id);
-                                    showDeleteModal(true)
+                                    setShowDeleteModal(true);
                                   }}
                                 >
                                   <i className="fa fa-remove"></i>
