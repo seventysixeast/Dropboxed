@@ -9,12 +9,48 @@ const md5 = require("md5");
 const createBooking = async (req, res) => {
   try {
     console.log(req.body);
+    // {
+    //   user_id: 17,
+    //   package_ids: '6, 8',
+    //   package: '',
+    //   photographer_id: 87,
+    //   booking_date: '2024-04-04T09:30:01.618Z',
+    //   booking_time: '02:00:00',
+    //   booking_time_to: '',
+    //   booking_status: 1,
+    //   comment: ''
+    // }
+    let data = req.body;
+    
+    const usersWithRoleId1 = await User.findAll({
+      where: { id: req.body.user_id },
+      attributes: ["id", "name", "address"],
+    });
 
-    const booking = await Booking.create(req.body);
+    const { name, address } = usersWithRoleId1[0];
+    let client_address;
+    let client_name;
+    client_address = address;
+    client_name = name;
+    data.client_address = client_address;
+    data.client_name = client_name;
+    data.booking_title = client_address
+    console.log(data);
+    const booking = await Booking.create(data);
     res.status(201).json(booking);
   } catch (error) {
     console.error("Failed to add booking:", error.message);
     res.status(500).json({ error: "Failed to add booking" });
+  }
+};
+
+const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.findAll();
+    res.json(bookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -116,6 +152,7 @@ const createCalendar = async (req, res) => {
 
 module.exports = {
   createBooking,
+  getAllBookings,
   providers,
   createCalendar,
 };
