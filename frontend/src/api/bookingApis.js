@@ -19,6 +19,7 @@ const newBooking = async (bookingData) => {
   }
 };
 
+
 const createCalendar = async (calendarData) => {
   console.log(calendarData);
   try {
@@ -38,6 +39,8 @@ const createCalendar = async (calendarData) => {
     throw new Error(error.message);
   }
 };
+
+
 
 const getAllBookings = async () => {
   try {
@@ -71,4 +74,20 @@ const deleteBooking = async (data) => {
   }
 };
 
-export { newBooking, createCalendar, getAllBookings, deleteBooking };
+const updateBooking = async (data) => {
+  try {
+    const response = await axios.post('http://localhost:6977/booking/updateBooking', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to update booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { newBooking, createCalendar, getAllBookings, deleteBooking, updateBooking };

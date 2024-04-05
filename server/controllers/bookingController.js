@@ -8,13 +8,52 @@ const md5 = require("md5");
 
 const createBooking = async (req, res) => {
   try {
-    const booking = await Booking.create(req.body);
+    console.log(req.body);
+    // {
+    //   user_id: 17,
+    //   package_ids: '6, 8',
+    //   package: '',
+    //   photographer_id: 87,
+    //   booking_date: '2024-04-04T09:30:01.618Z',
+    //   booking_time: '02:00:00',
+    //   booking_time_to: '',
+    //   booking_status: 1,
+    //   comment: ''
+    // }
+    let data = req.body;
+    
+    const usersWithRoleId1 = await User.findAll({
+      where: { id: req.body.user_id },
+      attributes: ["id", "name", "address"],
+    });
+
+    const { name, address } = usersWithRoleId1[0];
+    let client_address;
+    let client_name;
+    client_address = address;
+    client_name = name;
+    data.client_address = client_address;
+    data.client_name = client_name;
+    data.booking_title = client_address
+    console.log(data);
+    const booking = await Booking.create(data);
+    // const booking = await Booking.create(req.body);
     res.status(201).json(booking);
   } catch (error) {
     console.error("Failed to add booking:", error.message);
     res.status(500).json({ error: "Failed to add booking" });
   }
 };
+
+// const getAllBookings = async (req, res) => {
+//   try {
+//     const bookings = await Booking.findAll();
+//     res.json(bookings);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
 const providers = async (req, res) => {
   try {
@@ -120,7 +159,6 @@ const getAllBookings = async (req, res) => {
                   role_id: 3
               }
           }],
-          attributes: ['id', 'booking_date', 'booking_time', 'comment', 'booking_status']
       });
       res.status(200).json({ success: true, data: bookings });
   } catch (error) {
@@ -144,10 +182,27 @@ const deleteBooking = async (req, res) => {
   }
 };
 
+const updateBooking = async (req, res) => {
+  try {
+    const bookingId = req.body.id;
+    const updated = await Booking.update(req.body, {
+      where: { id: bookingId }
+    });
+    if (updated) {
+      res.status(200).json({ success: true, message: "Booking updated successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "Booking not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update Booking" });
+  }
+};
+
 module.exports = {
   createBooking,
+  getAllBookings,
   providers,
   createCalendar,
-  getAllBookings,
-  deleteBooking
+  deleteBooking,
+  updateBooking
 };

@@ -5,5 +5,5 @@ build/
 ./build
 /build
 ./env
-.env
+/server/.env
 /server/public
