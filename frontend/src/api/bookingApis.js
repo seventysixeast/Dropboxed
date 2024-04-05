@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const newBooking = async (bookingData) => {
   try {
     const response = await fetch(`http://localhost:6977/booking/new-booking`, {
@@ -39,4 +41,53 @@ const createCalendar = async (calendarData) => {
 };
 
 
-export { newBooking, createCalendar };
+
+const getAllBookings = async () => {
+  try {
+    const response = await axios.get('http://localhost:6977/booking/getAllBookings', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to get all booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const deleteBooking = async (data) => {
+  try {
+    const response = await axios.post('http://localhost:6977/booking/deleteBooking', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to delete booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const updateBooking = async (data) => {
+  try {
+    const response = await axios.post('http://localhost:6977/booking/updateBooking', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to update booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { newBooking, createCalendar, getAllBookings, deleteBooking, updateBooking };

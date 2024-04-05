@@ -7,17 +7,15 @@ import DeleteModal from "../components/DeleteModal";
 const Clients = () => {
 
   const [clients, setClients] = useState([]);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [clientIdToDelete, setClientIdToDelete] = useState(null);
   const [formData, setFormData] = useState({
     id: '',
     name: '',
     email: '',
     phone: '',
-    profile_photo: null
+    profile_photo: ''
   });
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [clientIdToDelete, setClientIdToDelete] = useState(null);
 
   useEffect(() => {
     getAllClientsData();
@@ -28,7 +26,7 @@ const Clients = () => {
       let allClients = await getAllClients();
       setClients(allClients.data);
     } catch (error) {
-      console.error("Failed to create client:", error.message);
+      toast.error(error);
     }
   };
 
@@ -74,10 +72,14 @@ const Clients = () => {
       formDataToSend.append('role_id', 3);
 
       let res = await createClient(formDataToSend);
-      toast.success(res.message);
-      resetFormData();
-      document.getElementById('closeModal').click();
-      getAllClientsData();
+      if (res.success) {
+        toast.success(res.message);
+        resetFormData();
+        document.getElementById('closeModal').click();
+        getAllClientsData();
+      } else {
+        toast.error(res);
+      }
     } catch (error) {
       toast.error(error);
     }
@@ -90,7 +92,7 @@ const Clients = () => {
       let clientData = await getClient(formDataToSend);
       setFormData(clientData.data);
     } catch (error) {
-      console.error("Failed to get clients:", error.message);
+      toast.error(error);
     }
   }
 
@@ -104,7 +106,7 @@ const Clients = () => {
         setShowDeleteModal(false);
         getAllClientsData();
       } else {
-        toast.error(res.message);
+        toast.error(res);
       }
     } catch (error) {
       toast.error(error);
@@ -210,6 +212,7 @@ const Clients = () => {
                                 accept="image/*"
                                 required
                               />
+                              {formData.id && <img src={`${formData.profile_photo ? `http://localhost:6977/public/clients/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150" alt="Card image" />}
                             </div>
                           </div>
                           <div className="modal-footer">
@@ -242,7 +245,7 @@ const Clients = () => {
                 <div className="card">
                   <div className="text-center">
                     <div className="card-body">
-                      <img src="../../../app-assets/images/portrait/medium/avatar-m-4.png" className="rounded-circle height-150" alt="Card image" />
+                      <img src={item.profile_photo ? `http://localhost:6977/public/clients/${item.profile_photo}` : "../../../app-assets/images/portrait/medium/avatar-m-4.png"} className="rounded-circle height-150" alt="Card image" />
                     </div>
                     <div className="card-body">
                       <h4 className="card-title">{item.name}</h4>
@@ -282,11 +285,11 @@ const Clients = () => {
                       </a>
                       <a
                         className="btn btn-social-icon mb-1"
+                        title="Delete"
                         onClick={() => {
                           setShowDeleteModal(true);
                           setClientIdToDelete(item.id);
                         }}
-                        title="Delete"
                       >
                         <span className="fa fa-trash"></span>
                       </a>

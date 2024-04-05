@@ -2,6 +2,7 @@
 
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
+const User = require('./Users');
 
 const Booking = sequelize.define('Booking', {
     id: {
@@ -61,7 +62,9 @@ const Booking = sequelize.define('Booking', {
     }
 }, {
     tableName: 'booking',
-    timestamps: false // Set to true if you want Sequelize to automatically manage createdAt and updatedAt fields
+    timestamps: false
 });
+
+Booking.belongsTo(User, { foreignKey: 'user_id' });
 
 module.exports = Booking;

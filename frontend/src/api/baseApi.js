@@ -2,8 +2,7 @@
 import axios from 'axios';
 
 
-const API_URL = process.env.REACT_APP_API_URL;
-console.log("API_URL",API_URL)
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
 let csrfToken = null; 
 export const fetchCsrfToken = async () => {
   try {

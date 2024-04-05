@@ -8,7 +8,7 @@ const getAllClients = async () => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data.error;
   }
 };
 
@@ -24,7 +24,7 @@ const createClient = async (clientData) => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data.error;
   }
 };
 
@@ -36,7 +36,7 @@ const getClient = async (data) => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data.error;
   }
 };
 
@@ -48,7 +48,7 @@ const deleteClient = async (data) => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data.error;
   }
 };
 

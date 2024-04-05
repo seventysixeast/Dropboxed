@@ -16,30 +16,27 @@ const getAllClients = async (req, res) => {
   }
 };
 
-
 const createClient = async (req, res) => {
   try {
-    let imageName = req.files.profile_photo.name;
+    let imageName = req.files && req.files.profile_photo.name;
     let clientData = {
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
       role_id: req.body.role_id,
-      profile_photo: imageName
+      profile_photo: imageName || req.body.profile_photo
     };
+    console.log("req.files", req.files);
+    if (req.files && Object.keys(req.files).length) {
+      let file = req.files.profile_photo;
+      let fileUrl = `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
 
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).send('No files were uploaded.');
+      file.mv(fileUrl, async function (err) {
+        if (err) {
+          console.log("in image move error...", fileUrl, err);
+        }
+      });
     }
-
-    let file = req.files.profile_photo;
-    let fileUrl = `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
-
-    file.mv(fileUrl, async function (err) {
-      if (err) {
-        console.log("in image move error...", fileUrl, err);
-      }
-    });
 
     let client;
     if (req.body.id) {
@@ -66,13 +63,12 @@ const createClient = async (req, res) => {
       data: client
     });
   } catch (error) {
+    console.log("error", error);
     res.status(500).json({ error: "Failed to add/update client" });
   }
 };
 
 const getClient = async (req, res) => {
-  console.log("req.body", req.id);
-  console.log("req.body.id", req.body.id);
   try {
     const clientData = await User.findOne({ where: { id: req.body.id } });
     res.status(200).json({ success: true, data: clientData });
@@ -84,7 +80,6 @@ const getClient = async (req, res) => {
 const deleteClient = async (req, res) => {
   try {
     const clientId = req.body.id;
-    console.log("clientId", clientId);
     const deleted = await User.destroy({
       where: { id: clientId }
     });
@@ -98,4 +93,4 @@ const deleteClient = async (req, res) => {
   }
 };
 
-module.exports = { createClient, getClient, deleteClient, getAllClients };
+module.exports = { getAllClients, createClient, getClient, deleteClient };

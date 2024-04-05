@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { createCalendar, newBooking } from "../api/bookingApis";
+import {
+  createCalendar,
+  newBooking,
+  updateBooking,
+  getAllBookings,
+  deleteBooking,
+} from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -9,6 +15,8 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import { createClient } from "../api/clientApis";
 import Select from "react-select";
+import DeleteModal from "../components/DeleteModal";
+import { toast } from "react-toastify";
 
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
@@ -20,7 +28,8 @@ export const BookingListComponent = () => {
   const [appointmentTime, setAppointmentTime] = useState();
   const buttonRef = useRef(null);
   const [showNewCustomer, setShowNewCustomer] = useState(false);
-  const [bookings, setBookings] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
   const [clientList, setClientList] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
@@ -30,9 +39,13 @@ export const BookingListComponent = () => {
     { value: "vanilla", label: "Vanilla" },
   ];
   const [events, setEvents] = useState([]);
+  
+  const [showUpdateModel, setShowUpdateModel] = useState(false);
+  const [bookingToUpdate, setBookingToUpdate] = useState(null);
+  const [showConfirmModel, setShowConfirmModel] = useState(false);
 
   const [showUpdateBox, setShowUpdateBox] = useState(false);
-  //variable for handle date change data
+
   const [updateData, setUpdateData] = useState({
     title: "",
     package: 1,
@@ -70,6 +83,7 @@ export const BookingListComponent = () => {
     state: "",
     zip: "",
   });
+
   const convertTo24Hour = (time12h) => {
     const [time, modifier] = time12h.split(" ");
 
@@ -85,7 +99,7 @@ export const BookingListComponent = () => {
 
     return `${hours}:${minutes}:00`;
   };
-  // Function to handle changes in customer data
+
   const handleCustomerDataChange = (e) => {
     const { name, value } = e.target;
     setCustomerData((prevData) => ({
@@ -136,6 +150,11 @@ export const BookingListComponent = () => {
         comment: bookingData.comment,
       };
       await newBooking(bookingDataToSend);
+      getAllBookingsData();
+      if (buttonRef.current) {
+        buttonRef.current.click();
+      }
+      toast.success("Booking added successfully");
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
@@ -151,71 +170,32 @@ export const BookingListComponent = () => {
     }));
   };
 
+  const [bookingsData, setBookingsData] = useState([]);
+
   useEffect(() => {
-    const getBookings = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:6977/booking/get-bookings"
-        );
-        const data = await response.json();
-        let events = data.map((booking) => ({
-          id: booking.id,
-          title: booking.booking_title,
-          start: `${booking.booking_date}T${booking.booking_time}`,
-          end: `${booking.booking_date}T${booking.booking_time_to}`,
-        }));
+    getAllBookingsData();
 
-        console.log(events);
-        setBookings(data);
-        setEvents(events);
-
-        console.log(data);
-        console.log(events);
-      } catch (error) {
-        console.error("Error fetching bookings:", error.message);
-      }
-    };
-
-    const fetchProviders = async () => {
-      if (providers.length === 0) {
-        try {
-          const response = await fetch(
-            "http://localhost:6977/booking/providers"
-          );
-          const data = await response.json();
-          setProviders(data.usersWithRoleId1);
-          setClientList(data.users);
-          setPackages(data.packages);
-          const prices = data.packages.map((pack) => ({
-            id: pack.id,
-            price: pack.package_price,
-          }));
-          setPackagePrices(prices);
-        } catch (error) {
-          console.error("Error fetching providers:", error.message);
-        }
-      }
-    };
-
-    getBookings();
     fetchProviders();
   }, []);
 
-  // const handleSelectedChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setBookingData((prevData) => ({
-  //     ...prevData,
-  //     [name]: value,
-  //   }));
-  //   setSelectedPackage(value);
-  //   setBookingData((prevData) => ({
-  //     ...prevData,
-  //     package: value,
-  //   }));
-  //   setSelectedPackagePrice(
-  //     packagePrice.find((price) => price.id === parseInt(value)).price
-  //   );
-  // };
+  const fetchProviders = async () => {
+    if (providers.length === 0) {
+      try {
+        const response = await fetch("http://localhost:6977/booking/providers");
+        const data = await response.json();
+        setProviders(data.usersWithRoleId1);
+        setClientList(data.users);
+        setPackages(data.packages);
+        const prices = data.packages.map((pack) => ({
+          id: pack.id,
+          price: pack.package_price,
+        }));
+        setPackagePrices(prices);
+      } catch (error) {
+        console.error("Error fetching providers:", error.message);
+      }
+    }
+  };
 
   const handleDateClick = (arg) => {
     console.log("Date clicked:", arg);
@@ -257,7 +237,16 @@ export const BookingListComponent = () => {
 
   const handleSelectedChange = (selectedOptions) => {
     setSelectedService(selectedOptions);
-    // setSelectedPackagePrice
+    // for each selectedOptions.value find the price in packages
+    const selectedPrices = selectedOptions.map((option) => {
+      const price = packagePrice.find((pack) => pack.id === option.value);
+      return price.price;
+    });
+    console.log(selectedPrices);
+    // add the selected prices as there are multiple and we need total of all
+    const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
+    console.log(totalPrice);
+    setSelectedPackagePrice(totalPrice);
   };
 
   const handleDateChange = (arg) => {
@@ -265,7 +254,11 @@ export const BookingListComponent = () => {
 
     let newDate = new Date(arg.event.start);
     let endDate = new Date(arg.event.end);
+    console.log(newDate);
+    newDate.setDate(newDate.getDate() + 1);
+
     let newDateString = newDate.toISOString().split("T")[0];
+    // let newDateString = newDate.toISOString().split("T")[0];
     console.log(newDateString);
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
@@ -280,13 +273,133 @@ export const BookingListComponent = () => {
 
     setUpdateData({
       id: id,
-      prefferedDate: newDateString,
+      prefferedDate: newDate,
       startTime: newStartTime,
       endTime: newEndTime,
     });
 
-    setShowUpdateBox(true);
+    setShowConfirmModel(true);
   };
+  console.log(updateData);
+
+  useEffect(() => {}, []);
+
+  const getAllBookingsData = async () => {
+    try {
+      let allBookingData = await getAllBookings();
+      setBookingsData(allBookingData.data);
+      let events = allBookingData.data.map((booking) => ({
+        id: booking.id,
+        title: booking.booking_title,
+        start: `${booking.booking_date}T${booking.booking_time}`,
+        end: `${booking.booking_date}T${booking.booking_time_to}`,
+      }));
+
+      setEvents(events);
+    } catch (error) {
+      console.error("Failed to:", error.message);
+    }
+  };
+
+  const deleteBookingData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", bookingIdToDelete);
+      let res = await deleteBooking(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        setShowDeleteModal(false);
+        getAllBookingsData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const handleEditClick = (booking) => {
+    setUpdateData({
+      id: booking.id,
+      title: booking.title,
+      package: 1,
+      services: null,
+      prefferedDate: new Date(booking.start),
+      fromTime: booking.start.split("T")[1],
+      toTime: booking.end.split("T")[1],
+      client: "",
+      comment: booking.comment,
+      provider: "",
+      customer: "",
+    });
+  setShowUpdateModel(true);
+  };
+
+  const updateBookingData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", updateData.id);
+      formDataToSend.append("booking_date", updateData.prefferedDate);
+      formDataToSend.append("booking_time", updateData.startTime);
+      formDataToSend.append("booking_time_to", updateData.endTime);
+      let res = await updateBooking(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        getAllBookingsData();
+        setUpdateData({
+          title: "",
+          package: 1,
+          services: null,
+          prefferedDate: new Date(),
+          fromTime: "",
+          toTime: "",
+          client: "",
+          comment: "",
+          provider: "",
+          customer: "",
+        });
+        setShowConfirmModel(false);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const handleEventResize = (arg) => {
+    console.log(arg);
+    let id = arg.event._def.publicId;
+
+    let newDate = new Date(arg.event.start);
+    let endDate = new Date(arg.event.end);
+    console.log(newDate);
+    newDate.setDate(newDate.getDate() + 1);
+
+    let newDateString = newDate.toISOString().split("T")[0];
+    // let newDateString = newDate.toISOString().split("T")[0];
+    console.log(newDateString);
+    let startTime = newDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    let endTime = endDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const newStartTime = convertTo24Hour(startTime);
+    const newEndTime = convertTo24Hour(endTime);
+
+    setUpdateData({
+      id: id,
+      prefferedDate: newDate,
+      startTime: newStartTime,
+      endTime: newEndTime,
+    });
+    setShowConfirmModel(true);
+  };
+
+
 
   return (
     <>
@@ -327,62 +440,6 @@ export const BookingListComponent = () => {
                     >
                       Create Calendar
                     </button> */}
-
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary btn-block "
-                      data-toggle="modal"
-                      data-target="#confirmation"
-                    >
-                      Add Client
-                    </button>
-                    <div
-                      className="modal fade text-left"
-                      id="confirmation"
-                      tabIndex="-1"
-                      role="dialog"
-                      aria-labelledby="myModalLabel35"
-                      aria-hidden="true"
-                      style={{ display: "none" }}
-                    >
-                      <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                          <div className="modal-header">
-                            <button
-                              id="closeModal"
-                              type="button"
-                              className="close"
-                              data-dismiss="modal"
-                              aria-label="Close"
-                            >
-                              <span aria-hidden="true">×</span>
-                            </button>
-                          </div>
-                          <form onSubmit={handleSubmit}>
-                          <div className="modal-body">
-                            <div className="form-group">
-                              <h3 className="text-center">Confirm Reschedule</h3>
-                              <p>From: {updateData.prefferedDate.value} </p>
-                              <p>To: {updateData.toTime}</p>
-                            </div>
-                            <div className="modal-footer">
-                              <input
-                                type="reset"
-                                className="btn btn-secondary"
-                                data-dismiss="modal"
-                                value="Close"
-                              />
-                              <input
-                                type="submit"
-                                className="btn btn-primary btn"
-                                value="Close"
-                              />
-                            </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
 
                     <div
                       className="modal fade text-left"
@@ -479,6 +536,7 @@ export const BookingListComponent = () => {
                                             ),
                                             value: client.id,
                                           }))}
+                                          required
                                           isSearchable
                                           hideSelectedOptions
                                         />
@@ -501,11 +559,12 @@ export const BookingListComponent = () => {
                                           isSearchable
                                           isMulti
                                           hideSelectedOptions
+                                        required
                                         />
                                       </div>
 
                                       <div className="modal-body d-flex px-4">
-                                        <div style={{ width: "21rem" }}></div>
+                                        <div style={{ width: "23rem" }}></div>
                                         <input
                                           type="text"
                                           id="price"
@@ -541,7 +600,7 @@ export const BookingListComponent = () => {
                                       <div className="modal-body d-flex px-4">
                                         <label
                                           htmlFor="datetimepicker4"
-                                          style={{ width: "10rem" }}
+                                          style={{ width: "11rem" }}
                                         >
                                           Date/Time
                                         </label>
@@ -555,7 +614,9 @@ export const BookingListComponent = () => {
                                               ...prevData,
                                               prefferedDate: date,
                                             }))
+                                          
                                           }
+                                          required
                                         />
                                         <select
                                           className="select2 form-control w-50 ml-1"
@@ -725,7 +786,6 @@ export const BookingListComponent = () => {
                                           name="notify"
                                           value={bookingData.notify}
                                           onChange={handleChange}
-                                          required
                                         >
                                           <option value="0">
                                             Select Frequency
@@ -783,10 +843,11 @@ export const BookingListComponent = () => {
                                             )}
                                             isSearchable
                                             hideSelectedOptions
+                                            required
                                           />
                                         </div>
                                       )}
-                                      {showNewCustomer ? (
+                                      {/* {showNewCustomer ? (
                                         <>
                                           <div className="modal-body d-flex px-4 justify-content-between   ">
                                             <label
@@ -956,7 +1017,7 @@ export const BookingListComponent = () => {
                                           value="+ New Customer"
                                           readOnly
                                         />
-                                      )}
+                                      )} */}
                                     </div>
                                   </div>
                                 </div>
@@ -998,6 +1059,7 @@ export const BookingListComponent = () => {
                             timeGridPlugin,
                             interactionPlugin,
                           ]}
+                          eventResize={handleEventResize}
                           firstDay={1}
                           dateClick={handleDateClick}
                           initialView="timeGridWeek"
@@ -1028,7 +1090,7 @@ export const BookingListComponent = () => {
               <div className="card-content">
                 <div className="card-body">
                   <div className="table-responsive">
-                    <table className="table-inverse table-striped table-bordered zero-configuration">
+                    <table className="table table-inverse table-striped mb-0 black">
                       <thead>
                         <tr>
                           <th>Booking Date</th>
@@ -1045,126 +1107,63 @@ export const BookingListComponent = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>22-03-2024</td>
-                          <td>10:30 am - 01:00 pm</td>
-                          <td>Client Name</td>
-                          <td>
-                            <span
-                              className="bullet bullet-sm tooltip_color"
-                              style={{ backgroundColor: "#000000" }}
-                            ></span>
-                          </td>
-                          <td>
-                            Essential Clothing Limited, Mouchak - Fulbaria Road,
-                            Bangladesh
-                          </td>
-                          <td>Test Comment</td>
-                          <td>
-                            <span className="badge badge-warning">Pending</span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                              title="Edit"
-                            >
-                              <i className="fa fa-pencil"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
-                              title="Delete"
-                            >
-                              <i className="fa fa-remove"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
-                              title="Turn into Gallery"
-                            >
-                              <i className="fa fa-solid fa-image"></i>
-                            </button>
-                          </td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                        </tr>
-                        <tr>
-                          <td>26-03-2024</td>
-                          <td>03:00 pm - 06:00 am</td>
-                          <td>Client Name</td>
-                          <td>
-                            <span
-                              className="bullet bullet-sm tooltip_color"
-                              style={{ backgroundColor: "#000000" }}
-                            ></span>
-                          </td>
-                          <td>First Canadian Place, Toronto, ON, Canada</td>
-                          <td> </td>
-                          <td>
-                            <span className="badge badge-danger">Notify</span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                              title="Edit"
-                            >
-                              <i className="fa fa-pencil"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
-                              title="Delete"
-                            >
-                              <i className="fa fa-remove"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
-                              title="Turn into Gallery"
-                            >
-                              <i className="fa fa-solid fa-image"></i>
-                            </button>
-                          </td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                        </tr>
-                        <tr>
-                          <td>26-03-2024</td>
-                          <td>03:00 pm - 06:00 am</td>
-                          <td>Client Name</td>
-                          <td>
-                            <span
-                              className="bullet bullet-sm tooltip_color"
-                              style={{ backgroundColor: "#000000" }}
-                            ></span>
-                          </td>
-                          <td>First Canadian Place, Toronto, ON, Canada</td>
-                          <td> </td>
-                          <td>
-                            <span className="badge badge-success">Booked</span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                              title="Edit"
-                            >
-                              <i className="fa fa-pencil"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger mr-1 mb-1"
-                              title="Delete"
-                            >
-                              <i className="fa fa-remove"></i>
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-primary mr-1 mb-1"
-                              title="Turn into Gallery"
-                            >
-                              <i className="fa fa-solid fa-image"></i>
-                            </button>
-                          </td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                          <td className="d-none"></td>
-                        </tr>
+                        {bookingsData &&
+                          bookingsData.map((item) => (
+                            <tr>
+                              <td>{item.booking_date}</td>
+                              <td>{item.booking_time}</td>
+                              <td>{item.User.name}</td>
+                              <td>
+                                <span
+                                  className="bullet bullet-sm tooltip_color"
+                                  style={{
+                                    backgroundColor: item.User.colorcode,
+                                  }}
+                                ></span>
+                              </td>
+                              <td>{item.User.address}</td>
+                              <td>{item.comment}</td>
+                              <td>
+                                <span className="badge badge-warning">
+                                  {item.booking_status == 1
+                                    ? "Confirmed"
+                                    : "Pending"}
+                                </span>
+                              </td>
+                              <td>
+                                <button
+                                  className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                  title="Edit"
+                                  onClick={() => {
+                                    setShowUpdateModel(true);
+                                    setBookingToUpdate(item);
+                                    console.log(item);
+                                  }}
+                                >
+                                  <i className="fa fa-pencil"></i>
+                                </button>
+                                <button
+                                  class="btn btn-sm btn-outline-danger mr-1 mb-1"
+                                  title="Delete"
+                                  onClick={() => {
+                                    setBookingIdToDelete(item.id);
+                                    showDeleteModal(true)
+                                  }}
+                                >
+                                  <i className="fa fa-remove"></i>
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-primary mr-1 mb-1"
+                                  title="Turn into Gallery"
+                                >
+                                  <i className="fa fa-solid fa-image"></i>
+                                </button>
+                              </td>
+                              <td className="d-none"></td>
+                              <td className="d-none"></td>
+                              <td className="d-none"></td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -1173,6 +1172,29 @@ export const BookingListComponent = () => {
             </div>
           </div>
         </div>
+        <DeleteModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={deleteBookingData}
+          message="Are you sure you want to delete this imageType?"
+        />
+        <DeleteModal
+          isOpen={showConfirmModel}
+          onClose={() => setShowConfirmModel(false)}
+          onConfirm={updateBookingData}
+          message={
+            <>
+              <div className="justify-items-center" role="alert">
+                <h3 className="text-center">Confirm Rechedule </h3>
+                <div className="p-2 text-center">
+                  <p className="mb-0 ">
+                    Do you with to Reschedule the appointment?
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+        />
       </div>
 
       <div className="sidenav-overlay"></div>

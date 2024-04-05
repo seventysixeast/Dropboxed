@@ -5,13 +5,7 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, message }) => {
     <div className={`modal fade ${isOpen ? 'show' : ''}`} style={{ display: isOpen ? 'block' : 'none' }}>
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Delete Client</h5>
-            <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={onClose}>
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div className="modal-body">
+          <div className="modal-body mt-2">
             <p>{message}</p>
           </div>
           <div className="modal-footer">
