@@ -72,8 +72,8 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPassword,
       country,
-      role_id: 3, // User role id 3
-      subdomain: studioName, // Save studioName in subdomain field
+      role_id: 5, // Business role id 5
+      subdomain: studioName // Save studioName in subdomain field
     });
 
     //SEND_EMAIL.replace('#studioName#', studioName);
