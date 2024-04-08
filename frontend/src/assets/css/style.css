@@ -53,10 +53,6 @@
   flex: 1;
 }
 
-.col-xl-4.col-md-4.col-12 {
-  margin-bottom: 25px;
-}
-
 .col-xl-3.col-md-6.col-sm-12 {
   margin-bottom: 25px;
 }
@@ -88,13 +84,17 @@
 }
 
 .btn-social-icon {
-  font-size: 20px;
-}
-
-.btn-social-icon {
   cursor: pointer;
 }
 
 .btn-social-icon:hover {
   opacity: 0.8;
+}
+
+.custom-card {
+  height: 80%;
+}
+
+.card.border-green.border-lighten-2.custom-card {
+  border: 1px solid green !important;
 }
