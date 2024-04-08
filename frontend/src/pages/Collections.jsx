@@ -208,7 +208,7 @@ const Collections = () => {
                       <tr>
                         <th>S.No.</th>
                         <th>Banner</th>
-                        <th>Title</th>
+                        <th>Photographer</th>
                         <th>Address</th>
                         <th>Packages With Images</th>
                         <th>Assign Client	</th>
@@ -220,35 +220,26 @@ const Collections = () => {
                       <tr>
                         <td>925</td>
                         <td><img src={banner1} style={{ width: "150px" }} /></td>
-                        <td>title1</td>
+                        <td>Pete</td>
                         <td>6 Tara Downs, Lennox Head NSW, Australia</td>
-                        <td>
-                          <b>Essential Package - $485.00</b><br />
-                          (20) High resolution images <br />
-                          (5) Aerials <br />
-                          (1) Floor plan and site plan <br />
-                          <button className="btn btn-danger white">Create Invoice</button>
-                        </td>
+                        <td><b>Essential Package - $485.00</b></td>
                         <td>
                           Lois Bucket Real Estate <br />
                           <b>Username: </b>dylan@loisbuckett.com.au <br />
                           <b>22 Mar 2024 06:21 am</b>
                         </td>
                         <td>
-                          <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
-                            <i className="fa fa-pencil"></i>
+                          <button class="btn btn-icon btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <i className="feather white icon-edit"></i>
                           </button>
-                          <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
-                            <i className="fa fa-remove"></i>
+                          <button class="btn btn-icon btn-outline-danger mr-1 mb-1" title="Delete">
+                            <i className="feather white icon-trash"></i>
                           </button>
-                          <button class="btn btn-sm btn-outline-warning mr-1 mb-1" title="Copy Url">
-                            <i className="fa fa-copy"></i>
+                          <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
+                            <i className="feather white icon-copy"></i>
                           </button>
-                          <button class="btn btn-sm btn-outline-success mr-1 mb-1" title="Notify Client">
-                            <i className="fa fa-check"></i>
-                          </button>
-                          <button class="btn btn-sm btn-outline-primary mr-1 mb-1" title="View Gallery">
-                            <i class="fa fa-solid fa-image"></i>
+                          <button class="btn btn-icon btn-outline-success mr-1 mb-1" title="Notify Client">
+                            <i className="feather white icon-check"></i>
                           </button>
                         </td>
                         <td className="d-none">No</td>
@@ -256,17 +247,11 @@ const Collections = () => {
                       <tr>
                         <td>924</td>
                         <td><img src={banner2} style={{ width: "150px" }} /></td>
-                        <td>title2</td>
+                        <td>Josh</td>
                         <td>60 Kingsley Street, Byron Bay NSW, Australia</td>
                         <td>
-                          <b>Virtual 360 Tour - $275.00</b><br />
-                          (1) Virtual Tour Locations <br />
-                          <b>Premium Package - $900.00</b> <br />
-                          (20) High resolution images <br />
-                          (1) Standard Floor and Site Plan <br />
-                          (8) High Resolution Aerial Photos <br />
-                          (1) Property Video <br />
-                          <button className="btn btn-danger white">Create Invoice</button>
+                          <b>Virtual 360 Tour - $275.00</b> <br />
+                          <b>Premium Package - $900.00</b>
                         </td>
                         <td>
                           Mcgrath Real Estate <br />
@@ -274,20 +259,17 @@ const Collections = () => {
                           <b>21 Mar 2024 06:23 pm</b>
                         </td>
                         <td>
-                          <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
-                            <i className="fa fa-pencil"></i>
+                          <button class="btn btn-icon btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <i className="feather white icon-edit"></i>
                           </button>
-                          <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
-                            <i className="fa fa-remove"></i>
+                          <button class="btn btn-icon btn-outline-danger mr-1 mb-1" title="Delete">
+                            <i className="feather white icon-trash"></i>
                           </button>
-                          <button class="btn btn-sm btn-outline-warning mr-1 mb-1" title="Copy Url">
-                            <i className="fa fa-copy"></i>
+                          <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
+                            <i className="feather white icon-copy"></i>
                           </button>
-                          <button class="btn btn-sm btn-outline-success mr-1 mb-1" title="Notify Client">
-                            <i className="fa fa-check"></i>
-                          </button>
-                          <button class="btn btn-sm btn-outline-primary mr-1 mb-1" title="View Gallery">
-                            <i class="fa fa-solid fa-image"></i>
+                          <button class="btn btn-icon btn-outline-success mr-1 mb-1" title="Notify Client">
+                            <i className="feather white icon-check"></i>
                           </button>
                         </td>
                         <td className="d-none">No</td>

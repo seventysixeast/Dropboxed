@@ -14,6 +14,7 @@ const Clients = () => {
     name: '',
     email: '',
     phone: '',
+    business_name: '',
     profile_photo: ''
   });
 
@@ -39,6 +40,8 @@ const Clients = () => {
       client.email = value;
     } else if (name === 'phone') {
       client.phone = value
+    } else if (name === 'business_name') {
+      client.business_name = value
     }
     setFormData(client);
   };
@@ -56,11 +59,13 @@ const Clients = () => {
       name: '',
       email: '',
       phone: '',
+      business_name: '',
       profile_photo: null
     });
   };
 
   const handleSubmit = async (e) => {
+    console.log("1");
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
@@ -68,19 +73,24 @@ const Clients = () => {
       formDataToSend.append('name', formData.name);
       formDataToSend.append('email', formData.email);
       formDataToSend.append('phone', formData.phone);
+      formDataToSend.append('business_name', formData.business_name);
       formDataToSend.append('profile_photo', formData.profile_photo);
       formDataToSend.append('role_id', 3);
 
       let res = await createClient(formDataToSend);
+      console.log("0000000",res);
       if (res.success) {
+        console.log("11111",res);
         toast.success(res.message);
         resetFormData();
         document.getElementById('closeModal').click();
         getAllClientsData();
       } else {
+        console.log("2222222222",res);
         toast.error(res);
       }
     } catch (error) {
+      console.log("333333",error);
       toast.error(error);
     }
   };
@@ -199,7 +209,16 @@ const Clients = () => {
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleInputChange}
-                                required
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Business Name</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="business_name"
+                                value={formData.business_name}
+                                onChange={handleInputChange}
                               />
                             </div>
                             <div className="form-group">
@@ -210,7 +229,6 @@ const Clients = () => {
                                 name="profile_photo"
                                 onChange={handlePhotoChange}
                                 accept="image/*"
-                                required
                               />
                               {formData.id && <img src={`${formData.profile_photo ? `http://localhost:6977/public/clients/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150" alt="Card image" />}
                             </div>
@@ -249,6 +267,7 @@ const Clients = () => {
                     </div>
                     <div className="card-body">
                       <h4 className="card-title">{item.name}</h4>
+                      <h6 className="card-subtitle text-muted mb-2">{item.business_name}</h6>
                       <h6 className="card-subtitle text-muted">Created On : {moment(item.created).format('DD-MM-YYYY')}</h6>
                     </div>
                     <div className="text-center">

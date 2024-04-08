@@ -22,11 +22,11 @@ const createClient = async (req, res) => {
     let clientData = {
       name: req.body.name,
       email: req.body.email,
-      phone: req.body.phone,
+      phone: req.body.phone || '',
+      business_name: req.body.business_name || '',
       role_id: req.body.role_id,
       profile_photo: imageName || req.body.profile_photo
     };
-    console.log("req.files", req.files);
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
       let fileUrl = `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
@@ -46,18 +46,21 @@ const createClient = async (req, res) => {
       }
       await client.update(clientData);
     } else {
-      const existingEmail = await User.findOne({ where: { email: req.body.email } });
-      if (existingEmail) {
-        return res.status(400).json({ error: 'Email already exists' });
+      if (req.body.email !== '') {
+        const existingEmail = await User.findOne({ where: { email: req.body.email } });
+        if (existingEmail) {
+          return res.status(400).json({ error: 'Email already exists' });
+        }
       }
-
-      const existingPhone = await User.findOne({ where: { phone: req.body.phone } });
-      if (existingPhone) {
-        return res.status(400).json({ error: 'Phone number already exists' });
+      if (req.body.phone !== '') {
+        const existingPhone = await User.findOne({ where: { phone: req.body.phone } });
+        if (existingPhone) {
+          return res.status(400).json({ error: 'Phone number already exists' });
+        }
       }
       client = await User.create(clientData);
     }
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: req.body.id ? "Client updated successfully" : "Client created successfully",
       data: client
