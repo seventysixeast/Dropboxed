@@ -11,7 +11,8 @@ const path = require('path');
 const fs = require('fs');
 const fileUpload = require('express-fileupload')
 
-const secret = crypto.randomBytes(64).toString('hex');
+const secret = crypto.randomBytes(32).toString('hex');
+console.log('Generated JWT secret:', secret);
 const app = express();
 const PORT = process.env.PORT || 6977;
 app.use(fileUpload())
