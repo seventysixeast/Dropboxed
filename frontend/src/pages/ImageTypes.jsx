@@ -119,23 +119,23 @@ const ImageTypes = () => {
         Cell: ({ row }) => (
           <div className="btnsrow">
             <button
-              className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+              className="btn btn-icon btn-outline-secondary mr-1 mb-1"
               title="Edit"
               onClick={() => getImageTypeData(row.original.id)}
               data-toggle="modal"
               data-target="#bootstrap"
             >
-              <i className="fa fa-pencil"></i>
+              <i className="feather white icon-edit"></i>
             </button>
             <button
-              className="btn btn-sm btn-outline-danger mr-1 mb-1"
+              className="btn btn-icon btn-outline-danger mr-1 mb-1"
               title="Delete"
               onClick={() => {
                 setShowDeleteModal(true);
                 setImageTypeIdToDelete(row.original.id);
               }}
             >
-              <i className="fa fa-remove"></i>
+              <i className="feather white icon-trash"></i>
             </button>
           </div>
         ),

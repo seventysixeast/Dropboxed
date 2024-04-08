@@ -17,6 +17,11 @@ const Users = sequelize.define('User', {
     allowNull: false,
     defaultValue: ''
   },
+  business_name: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: ''
+  },
   role_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
