@@ -323,7 +323,7 @@ export const BookingListComponent = () => {
     setShowConfirmModel(true);
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const getAllBookingsData = async () => {
     try {
@@ -549,37 +549,37 @@ export const BookingListComponent = () => {
     setIsLoggedIn(true);
     console.log(response);
     setAccessToken(response.code);
-};
+  };
 
-const onLoginFailure = (error) => {
+  const onLoginFailure = (error) => {
     console.error('Login failed:', error);
-};
+  };
 
-const login = useGoogleLogin({
-  scope: 'https://www.googleapis.com/auth/calendar.readonly', 
-  onSuccess: (response) => {
-    console.log('Login successful:', response);
-  },
-  // flow: 'auth-code',
-  onError: (error) => alert('Login Failed:', error)
-});
+  const login = useGoogleLogin({
+    scope: 'https://www.googleapis.com/auth/calendar.readonly',
+    onSuccess: (response) => {
+      console.log('Login successful:', response);
+    },
+    // flow: 'auth-code',
+    onError: (error) => alert('Login Failed:', error)
+  });
 
-const insertEvent = () => {
+  const insertEvent = () => {
     const event = {
-        title: 'Appointment',
-        description: 'Description',
-        startDate: '2024-04-08T09:00:00',
-        endDate: '2024-04-08T10:00:00',
+      title: 'Appointment',
+      description: 'Description',
+      startDate: '2024-04-08T09:00:00',
+      endDate: '2024-04-08T10:00:00',
     };
-    
+
     try {
-        axios.post('http://localhost:6977/calender/addcalenderevent', {
-            event: event,
-            accessToken: accessToken
-        })
+      axios.post('http://localhost:6977/calender/addcalenderevent', {
+        event: event,
+        accessToken: accessToken
+      })
     } catch (error) {
       // 
-        console.error(error);
+      console.error(error);
     }
   }
 
@@ -616,7 +616,7 @@ const insertEvent = () => {
                     >
                       New Appointment
                     </button>
-                    
+
                     {/* <GoogleLogin
                     clientId='49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com'
                     buttonText="Login with Google"
@@ -625,8 +625,8 @@ const insertEvent = () => {
                     scope="https://www.googleapis.com/auth/calendar" // Request Calendar API scope
                     prompt="consent" // Ensure user consent is requested
                 /> */}
-                  <button onClick={login}>Sign in with Google 🚀 </button>
-                  <button onClick={insertEvent}>Add Event</button>
+                    {/* <button onClick={login}>Sign in with Google 🚀 </button>
+                  <button onClick={insertEvent}>Add Event</button> */}
                     <div
                       className="modal fade text-left"
                       id="appointment"
@@ -699,32 +699,43 @@ const insertEvent = () => {
                                           htmlFor="provider"
                                           style={{ width: "10rem" }}
                                         >
-                                          Provider
+                                          Providers
                                         </label>
                                         <Select
-                                          className="form-select w-100 "
-                                          name="customer"
-                                          defaultValue={selectedProvider}
-                                          onChange={setSelectedProvider}
-                                          options={providers.map((client) => ({
-                                            label: (
-                                              <>
-                                                <img
-                                                  src={client.image || avatar1}
-                                                  alt={client.name}
-                                                  style={{
-                                                    width: "20px",
-                                                    marginRight: "10px",
-                                                  }}
-                                                />
-                                                {client.name}
-                                              </>
-                                            ),
-                                            value: client.id,
+                                          className="form-select w-100"
+                                          name="services"
+                                          defaultValue={selectedService}
+                                          onChange={handleSelectedChange}
+                                          options={packages.map((pkg) => ({
+                                            label: pkg.package_name,
+                                            value: pkg.id,
+                                            package_price: pkg.package_price,
                                           }))}
-                                          required
                                           isSearchable
+                                          isMulti
                                           hideSelectedOptions
+                                          required
+                                          components={{
+                                            Option: ({ data, innerRef, innerProps }) => (
+                                              <div
+                                                ref={innerRef}
+                                                {...innerProps}
+                                                className="d-flex align-items-center custom-class-select"
+                                              >
+                                                <img
+                                                  src={avatar1}
+                                                  className=""
+                                                  style={{
+                                                    marginLeft: "4px",
+                                                    marginRight: "4px",
+                                                  }}
+                                                  width={"14px"}
+                                                  alt=""
+                                                />
+                                                <span>{data.label}</span>
+                                              </div>
+                                            ),
+                                          }}
                                         />
                                       </div>
                                       <div className="modal-body d-flex px-4">
@@ -749,6 +760,7 @@ const insertEvent = () => {
                                         /> */}
                                         <Select
                                           className="form-select w-100"
+                                          name="services"
                                           defaultValue={selectedService}
                                           onChange={handleSelectedChange}
                                           options={packages.map((pkg) => ({

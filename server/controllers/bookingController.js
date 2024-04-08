@@ -58,7 +58,7 @@ const createBooking = async (req, res) => {
 const providers = async (req, res) => {
   try {
     const usersWithRoleId1 = await User.findAll({
-      where: { role_id: 1 },
+      where: { role_id: 2 },
       attributes: ["id", "name", "profile_photo"],
     });
 
