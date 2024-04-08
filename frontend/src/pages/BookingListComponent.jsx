@@ -123,12 +123,14 @@ export const BookingListComponent = () => {
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
+      console.log(hoursToAdd, minutesToAdd);
+
       let [currentHours, currentMinutes, currentSeconds] =
         convertedTime.split(":");
-
+      console.log(convertedTime);
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
+      console.log(currentHours);
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
-
       if (currentMinutes >= 60) {
         currentHours += 1;
         currentMinutes -= 60;
@@ -138,6 +140,7 @@ export const BookingListComponent = () => {
       currentMinutes = ("0" + currentMinutes).slice(-2);
 
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
+      console.log(newToTime);
       console.log(selectedProvider.value, selectedClient.value);
       const values = selectedService.map((service) => service.value);
       const formattedValues = values.join(", ");
@@ -279,7 +282,7 @@ export const BookingListComponent = () => {
   };
 
   const handleDateChange = (arg) => {
-    console.log(arg.event.start);
+    console.log(arg.event);
     let id = arg.event._def.publicId;
     console.log(arg.event.start);
 
@@ -287,7 +290,7 @@ export const BookingListComponent = () => {
     let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
     let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
 
-    console.log(newDate);
+    console.log(endDate, newDate);
 
     let newDateString = newDate.toISOString().split("T")[0];
     console.log(newDateString);
@@ -306,7 +309,7 @@ export const BookingListComponent = () => {
 
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
-
+    console.log(newEndTime);
     setUpdateData({
       id: id,
       prefferedDate: newDate,
@@ -392,7 +395,7 @@ export const BookingListComponent = () => {
           services: null,
           prefferedDate: new Date(),
           fromTime: "",
-          toTime: "",
+          toTime: "60",
           client: "",
           comment: "",
           provider: "",
