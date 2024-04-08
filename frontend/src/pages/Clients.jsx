@@ -257,21 +257,21 @@ const Clients = () => {
                         className="btn btn-social-icon mr-1 mb-1"
                         title={item.email}
                       >
-                        <span className="fa fa-envelope"></span>
+                        <span className="icon-envelope"></span>
                       </a>
                       <a
                         href={`tel:${item.phone}`}
                         className="btn btn-social-icon mr-1 mb-1"
                         title={item.phone}
                       >
-                        <span className="fa fa-phone"></span>
+                        <span className="icon-call-out"></span>
                       </a>
                       <a
                         href="#"
                         className="btn btn-social-icon mr-1 mb-1"
                         title="View Collection"
                       >
-                        <span className="fa fa-picture-o"></span>
+                        <span className="icon-grid"></span>
                       </a>
                       <a
                         href="#"
@@ -281,7 +281,7 @@ const Clients = () => {
                         data-toggle="modal"
                         data-target="#bootstrap"
                       >
-                        <span className="fa fa-edit"></span>
+                        <span className="icon-note"></span>
                       </a>
                       <a
                         className="btn btn-social-icon mb-1"
@@ -291,7 +291,7 @@ const Clients = () => {
                           setClientIdToDelete(item.id);
                         }}
                       >
-                        <span className="fa fa-trash"></span>
+                        <span className="icon-trash"></span>
                       </a>
                     </div>
                   </div>
