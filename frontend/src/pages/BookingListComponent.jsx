@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
 import {
   createCalendar,
   newBooking,
@@ -19,6 +20,8 @@ import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
 import TableCustom from "../components/Table";
+import { GoogleLogin, useGoogleLogin, hasGrantedAllScopesGoogle } from '@react-oauth/google';
+
 
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
@@ -539,6 +542,48 @@ export const BookingListComponent = () => {
     []
   );
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [accessToken, setAccessToken] = useState(null);
+
+  const onLoginSuccess = (response) => {
+    setIsLoggedIn(true);
+    console.log(response);
+    setAccessToken(response.code);
+};
+
+const onLoginFailure = (error) => {
+    console.error('Login failed:', error);
+};
+
+const login = useGoogleLogin({
+  scope: 'https://www.googleapis.com/auth/calendar.readonly', 
+  onSuccess: (response) => {
+    console.log('Login successful:', response);
+  },
+  // flow: 'auth-code',
+  onError: (error) => alert('Login Failed:', error)
+});
+
+const insertEvent = () => {
+    const event = {
+        title: 'Appointment',
+        description: 'Description',
+        startDate: '2024-04-08T09:00:00',
+        endDate: '2024-04-08T10:00:00',
+    };
+    
+    try {
+        axios.post('http://localhost:6977/calender/addcalenderevent', {
+            event: event,
+            accessToken: accessToken
+        })
+    } catch (error) {
+      // 
+        console.error(error);
+    }
+  }
+
+
   return (
     <>
       <div className="app-content content">
@@ -571,7 +616,17 @@ export const BookingListComponent = () => {
                     >
                       New Appointment
                     </button>
-
+                    
+                    {/* <GoogleLogin
+                    clientId='49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com'
+                    buttonText="Login with Google"
+                    onSuccess={onLoginSuccess}
+                    onError={onLoginFailure}
+                    scope="https://www.googleapis.com/auth/calendar" // Request Calendar API scope
+                    prompt="consent" // Ensure user consent is requested
+                /> */}
+                  <button onClick={login}>Sign in with Google 🚀 </button>
+                  <button onClick={insertEvent}>Add Event</button>
                     <div
                       className="modal fade text-left"
                       id="appointment"
@@ -942,7 +997,7 @@ export const BookingListComponent = () => {
                                         </select>
                                       </div>
 
-                                      <div className="modal-body d-flex px-4 justify-content-between ">
+                                      {/* <div className="modal-body d-flex px-4 justify-content-between ">
                                         <label
                                           htmlFor="notify"
                                           style={{ width: "10rem" }}
@@ -963,7 +1018,7 @@ export const BookingListComponent = () => {
                                           <option value="2">Once</option>
                                           <option value="3">Always</option>
                                         </select>
-                                      </div>
+                                      </div> */}
 
                                       <div className="modal-body d-flex px-4">
                                         <label

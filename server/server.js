@@ -4,12 +4,15 @@ const authRoutes = require('./routes/authRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const imageTypeRoutes = require('./routes/imageTypeRoutes');
+const calenderRoutes = require('./routes/calenderRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const fileUpload = require('express-fileupload')
+const { OAuth2Client } = require("google-auth-library");
+const jwt = require("jsonwebtoken");
 
 const secret = crypto.randomBytes(64).toString('hex');
 const app = express();
@@ -20,7 +23,6 @@ let clientbuildpath = path.join(__dirname, "build");
 app.use(cors(/*{
   origin: /^https?:\/\/[^/]+\.example\.com$/,
 }*/));
-
 app.use(bodyParser.json({
   limit: '500mb'
 }));
@@ -60,6 +62,7 @@ app.use('/auth', authRoutes);
 app.use('/client', clientRoutes);
 app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
+app.use('/calender', calenderRoutes)
 
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Protected route" });
