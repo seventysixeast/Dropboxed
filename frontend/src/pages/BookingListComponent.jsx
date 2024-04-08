@@ -13,11 +13,12 @@ import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
-import toolIcons from "../assets/images/i.png"
+import toolIcons from "../assets/images/i.png";
 import { createClient } from "../api/clientApis";
 import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
+import TableCustom from "../components/Table";
 
 export const BookingListComponent = () => {
   const [providers, setProviders] = useState([]);
@@ -122,12 +123,14 @@ export const BookingListComponent = () => {
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
+      console.log(hoursToAdd, minutesToAdd);
+
       let [currentHours, currentMinutes, currentSeconds] =
         convertedTime.split(":");
-
+      console.log(convertedTime);
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
+      console.log(currentHours);
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
-
       if (currentMinutes >= 60) {
         currentHours += 1;
         currentMinutes -= 60;
@@ -137,6 +140,7 @@ export const BookingListComponent = () => {
       currentMinutes = ("0" + currentMinutes).slice(-2);
 
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
+      console.log(newToTime);
       console.log(selectedProvider.value, selectedClient.value);
       const values = selectedService.map((service) => service.value);
       const formattedValues = values.join(", ");
@@ -278,7 +282,7 @@ export const BookingListComponent = () => {
   };
 
   const handleDateChange = (arg) => {
-    console.log(arg.event.start);
+    console.log(arg.event);
     let id = arg.event._def.publicId;
     console.log(arg.event.start);
 
@@ -286,7 +290,7 @@ export const BookingListComponent = () => {
     let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
     let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
 
-    console.log(newDate);
+    console.log(endDate, newDate);
 
     let newDateString = newDate.toISOString().split("T")[0];
     console.log(newDateString);
@@ -305,7 +309,7 @@ export const BookingListComponent = () => {
 
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
-
+    console.log(newEndTime);
     setUpdateData({
       id: id,
       prefferedDate: newDate,
@@ -340,6 +344,9 @@ export const BookingListComponent = () => {
       const formDataToSend = new FormData();
       formDataToSend.append("id", bookingIdToDelete);
       let res = await deleteBooking(formDataToSend);
+      setBookingsData((prevData) =>
+        prevData.filter((booking) => booking.id !== bookingIdToDelete)
+      );
       if (res.success) {
         toast.success(res.message);
         setShowDeleteModal(false);
@@ -353,14 +360,16 @@ export const BookingListComponent = () => {
   };
 
   const handleEditClick = (booking) => {
+    console.log(booking);
+
     setUpdateData({
       id: booking.id,
       title: booking.title,
       package: 1,
       services: null,
       prefferedDate: new Date(booking.start),
-      fromTime: booking.start.split("T")[1],
-      toTime: booking.end.split("T")[1],
+      fromTime: booking.booking_time,
+      toTime: booking.booking_time_to,
       client: "",
       comment: booking.comment,
       provider: "",
@@ -386,7 +395,7 @@ export const BookingListComponent = () => {
           services: null,
           prefferedDate: new Date(),
           fromTime: "",
-          toTime: "",
+          toTime: "60",
           client: "",
           comment: "",
           provider: "",
@@ -438,6 +447,97 @@ export const BookingListComponent = () => {
     });
     setShowConfirmModel(true);
   };
+
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: "Booking Date",
+        accessor: "booking_date",
+        headerStyle: { width: "fit-content" },
+      },
+      {
+        Header: "Booking Time",
+        accessor: "booking_time",
+      },
+      {
+        Header: "Client",
+        accessor: "client_name",
+      },
+      // {
+      //   Header: "Code",
+      //   accessor: "User.colorcode",
+      //   Cell: ({ value }) => (
+      //     <div
+      //       style={{
+      //         width: "14px",
+      //         height: "14px",
+      //         borderRadius: "50%",
+      //         backgroundColor: value,
+      //         display: "flex",
+      //         alignItems: "center",
+      //         justifyContent: "center",
+      //         margin: "auto",
+      //       }}
+      //     />
+      //   ),
+      // },
+
+      {
+        Header: "Address",
+        accessor: "client_address",
+      },
+      {
+        Header: "Comment",
+        accessor: "comment",
+      },
+      {
+        Header: "Status",
+        accessor: "booking_status",
+        // 1 = pending, 2 = notify, 3 = booked
+        Cell: ({ value }) => (
+          <div className="badge badge-pill badge-light-primary">
+            {value === 1 ? "Pending" : value === 2 ? "Notify" : "Booked"}
+          </div>
+        ),
+      },
+      {
+        Header: "Action",
+        accessor: "action",
+        Cell: (props) => (
+          <div className="d-flex">
+            <button
+              className="btn btn-icon btn-outline-primary "
+              onClick={() => handleEditClick(props.row.original)}
+            >
+              <i className="feather icon-edit"></i>
+            </button>
+
+            <button
+              className="btn btn-icon btn-outline-danger ml-1"
+              // onClick={() => setBookingIdToDelete(props.row.original.id);  setShowDeleteModal(true);}
+              onClick={() => {
+                setBookingIdToDelete(props.row.original.id);
+                setShowDeleteModal(true);
+              }}
+              id="delete-row"
+              data-toggle="modal"
+              data-target="#deleteModal"
+            >
+              <i className="feather icon-trash"></i>
+            </button>
+
+            <button
+              className="btn btn-icon btn-outline-primary ml-1"
+              title="Turn into Gallery"
+            >
+              <i className="feather icon-image"></i>
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <>
@@ -616,9 +716,17 @@ export const BookingListComponent = () => {
                                                 {...innerProps}
                                                 className="d-flex align-items-center custom-class-select"
                                               >
-                                                <img src={toolIcons} className="" style={{marginLeft:'4px', marginRight:'4px'}} width={'14px'} alt="" />
+                                                <img
+                                                  src={toolIcons}
+                                                  className=""
+                                                  style={{
+                                                    marginLeft: "4px",
+                                                    marginRight: "4px",
+                                                  }}
+                                                  width={"14px"}
+                                                  alt=""
+                                                />
                                                 <span>{data.label}</span>
-                                                
                                               </div>
                                             ),
                                           }}
@@ -1120,6 +1228,20 @@ export const BookingListComponent = () => {
                             timeGridPlugin,
                             interactionPlugin,
                           ]}
+                          views={{
+                            timeGridWeek: {
+                              dayHeaderContent: ({ date }) => {
+                                const day = date
+                                  .getDate()
+                                  .toString()
+                                  .padStart(2, "0");
+                                const month = (date.getMonth() + 1)
+                                  .toString()
+                                  .padStart(2, "0");
+                                return `${day}/${month}`;
+                              },
+                            },
+                          }}
                           eventResize={handleEventResize}
                           firstDay={1}
                           dateClick={handleDateClick}
@@ -1143,120 +1265,30 @@ export const BookingListComponent = () => {
           </div>
         </div>
       </div>
-      <div className="app-content content">
-        <div className="content-overlay"></div>
-        <div className="content-wrapper">
-          <div className="users-list-table">
-            <div className="card">
-              <div className="card-content">
-                <div className="card-body">
-                  <div className="table-responsive">
-                    <table className="table table-inverse table-striped mb-0 black">
-                      <thead>
-                        <tr>
-                          <th>Booking Date</th>
-                          <th>Booking Time</th>
-                          <th>Client</th>
-                          <th>Code</th>
-                          <th>Address</th>
-                          <th>Comment</th>
-                          <th>Status</th>
-                          <th>Action</th>
-                          <th className="d-none"></th>
-                          <th className="d-none"></th>
-                          <th className="d-none"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bookingsData &&
-                          bookingsData.map((item) => (
-                            <tr>
-                              <td>{item.booking_date}</td>
-                              <td>{item.booking_time}</td>
-                              <td>{item.User.name}</td>
-                              <td>
-                                <span
-                                  className="bullet bullet-sm tooltip_color"
-                                  style={{
-                                    backgroundColor: item.User.colorcode,
-                                  }}
-                                ></span>
-                              </td>
-                              <td>{item.User.address}</td>
-                              <td>{item.comment}</td>
-                              <td>
-                                <span className="badge badge-warning">
-                                  {item.booking_status == 1
-                                    ? "Confirmed"
-                                    : "Pending"}
-                                </span>
-                              </td>
-                              <td>
-                                <button
-                                  className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                                  title="Edit"
-                                  onClick={() => {
-                                    setShowUpdateModel(true);
-                                    setBookingToUpdate(item);
-                                    console.log(item);
-                                  }}
-                                >
-                                  <i className="fa fa-pencil"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-danger mr-1 mb-1"
-                                  title="Delete"
-                                  onClick={() => {
-                                    setBookingIdToDelete(item.id);
-                                    setShowDeleteModal(true);
-                                  }}
-                                >
-                                  <i className="fa fa-remove"></i>
-                                </button>
-                                <button
-                                  className="btn btn-sm btn-outline-primary mr-1 mb-1"
-                                  title="Turn into Gallery"
-                                >
-                                  <i className="fa fa-solid fa-image"></i>
-                                </button>
-                              </td>
-                              <td className="d-none"></td>
-                              <td className="d-none"></td>
-                              <td className="d-none"></td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+      <TableCustom data={bookingsData} columns={columns} />
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={deleteBookingData}
+        message="Are you sure you want to delete this imageType?"
+      />
+      <DeleteModal
+        isOpen={showConfirmModel}
+        onClose={() => setShowConfirmModel(false)}
+        onConfirm={updateBookingData}
+        message={
+          <>
+            <div className="justify-items-center" role="alert">
+              <h3 className="text-center">Confirm Rechedule </h3>
+              <div className="p-2 text-center">
+                <p className="mb-0 ">
+                  Do you with to Reschedule the appointment?
+                </p>
               </div>
             </div>
-          </div>
-        </div>
-        <DeleteModal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={deleteBookingData}
-          message="Are you sure you want to delete this imageType?"
-        />
-        <DeleteModal
-          isOpen={showConfirmModel}
-          onClose={() => setShowConfirmModel(false)}
-          onConfirm={updateBookingData}
-          message={
-            <>
-              <div className="justify-items-center" role="alert">
-                <h3 className="text-center">Confirm Rechedule </h3>
-                <div className="p-2 text-center">
-                  <p className="mb-0 ">
-                    Do you with to Reschedule the appointment?
-                  </p>
-                </div>
-              </div>
-            </>
-          }
-        />
-      </div>
+          </>
+        }
+      />
 
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
