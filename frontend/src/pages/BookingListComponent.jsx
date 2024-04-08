@@ -509,7 +509,7 @@ export const BookingListComponent = () => {
               className="btn btn-icon btn-outline-primary "
               onClick={() => handleEditClick(props.row.original)}
             >
-              <i className="feather icon-edit"></i>
+              <i className="feather white icon-edit"></i>
             </button>
 
             <button
@@ -523,14 +523,14 @@ export const BookingListComponent = () => {
               data-toggle="modal"
               data-target="#deleteModal"
             >
-              <i className="feather icon-trash"></i>
+              <i className="feather white icon-trash"></i>
             </button>
 
             <button
               className="btn btn-icon btn-outline-primary ml-1"
               title="Turn into Gallery"
             >
-              <i className="feather icon-image"></i>
+              <i className="feather white icon-image"></i>
             </button>
           </div>
         ),
@@ -794,7 +794,7 @@ export const BookingListComponent = () => {
                                           onChange={handleChange}
                                           required
                                         >
-                                          <option value="0">Select Time</option>
+                                          <option value="">Select Time</option>
                                           <option value="12:00 AM">
                                             12:00 AM
                                           </option>
