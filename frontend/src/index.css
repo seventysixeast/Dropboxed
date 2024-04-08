@@ -868,3 +868,18 @@ a.fc-more:hover {
 /* .custom-class-select {
   padding: 1;
 } */
+.fc .fc-button-group > .fc-button.fc-button-active {
+  background-color: #00b5b8 !important;
+  color: white !important;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: #00A5A8;
+}
+
+/* .table-inverse .selected {
+  background-color: inherit !important;
+}
+.table-inverse .odd {
+  display: none;
+} */
