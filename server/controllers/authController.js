@@ -87,4 +87,38 @@ exports.signup = async (req, res) => {
   }
 };
 
+exports.google =(req, res) => {
+  
+  const { code } = req.body;
+  console.log(code);
+  const client_id = "49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com"
+  const client_secret = "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"
+  const redirect_uri = 'postmessage'
+  const grant_type = "authorization_code";
 
+  fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      code,
+      client_id,
+      client_secret,
+      redirect_uri,
+      grant_type,
+      scope: "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.readonly",
+      access_type: "offline",
+    }),
+  })
+  .then(response => response.json())
+  .then(tokens => {
+    // Send the tokens back to the frontend, or store them securely and create a session
+    res.json(tokens);
+  })
+  .catch(error => {
+    // Handle errors in the token exchange
+    console.error('Token exchange error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  });
+};

@@ -466,25 +466,6 @@ export const BookingListComponent = () => {
         Header: "Client",
         accessor: "client_name",
       },
-      // {
-      //   Header: "Code",
-      //   accessor: "User.colorcode",
-      //   Cell: ({ value }) => (
-      //     <div
-      //       style={{
-      //         width: "14px",
-      //         height: "14px",
-      //         borderRadius: "50%",
-      //         backgroundColor: value,
-      //         display: "flex",
-      //         alignItems: "center",
-      //         justifyContent: "center",
-      //         margin: "auto",
-      //       }}
-      //     />
-      //   ),
-      // },
-
       {
         Header: "Address",
         accessor: "client_address",
@@ -555,14 +536,41 @@ export const BookingListComponent = () => {
     console.error('Login failed:', error);
   };
 
+  // const login = useGoogleLogin({
+  //   scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
+  //   onSuccess: (response) => {
+  //     console.log('Login successful:', response);
+  //   },
+  //   onError: (error) => alert('Login Failed:', error)
+  // });
+
   const login = useGoogleLogin({
-    scope: 'https://www.googleapis.com/auth/calendar.readonly',
-    onSuccess: (response) => {
-      console.log('Login successful:', response);
+    onSuccess: (codeResponse) => {
+      // Send the authorization code to the backend server
+      console.log(codeResponse);
+      fetch('http://localhost:6977/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code: codeResponse.code }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Backend response:', data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
     },
-    // flow: 'auth-code',
-    onError: (error) => alert('Login Failed:', error)
+    onError: () => {
+      // Handle login errors here
+      console.error('Google login failed');
+    },
+    flow: 'auth-code',
   });
+  
+  
 
   const insertEvent = () => {
     const event = {
@@ -583,6 +591,7 @@ export const BookingListComponent = () => {
     }
   }
 
+  console.log(bookingData.provider);
 
   return (
     <>
@@ -626,7 +635,7 @@ export const BookingListComponent = () => {
                     prompt="consent" // Ensure user consent is requested
                 /> */}
                     <button onClick={login}>Sign in with Google 🚀 </button>
-                  <button onClick={insertEvent}>Add Event</button>
+                    <button onClick={insertEvent}>Add Event</button>
                     <div
                       className="modal fade text-left"
                       id="appointment"
@@ -702,34 +711,37 @@ export const BookingListComponent = () => {
                                           Providers
                                         </label>
                                         <Select
-                                          className="form-select w-100"
-                                          name="services"
-                                          defaultValue={selectedService}
-                                          onChange={handleSelectedChange}
-                                          options={packages.map((pkg) => ({
-                                            label: pkg.package_name,
-                                            value: pkg.id,
-                                            package_price: pkg.package_price,
+                                          className="select2 w-100"
+                                          name="providers"
+                                          defaultValue={bookingData.provider}
+                                          onChange={(e) => {
+                                            setBookingData({
+                                              ...bookingData,
+                                              provider: e.value,
+                                            });
+                                          }}
+                                          options={providers.map((provider) => ({
+                                            label: provider.name,
+                                            value: provider.id,
                                           }))}
                                           isSearchable
-                                          isMulti
-                                          hideSelectedOptions
                                           required
                                           components={{
-                                            Option: ({ data, innerRef, innerProps }) => (
+                                            Option: ({
+                                              data,
+                                              innerRef,
+                                              innerProps,
+                                            }) => (
                                               <div
                                                 ref={innerRef}
                                                 {...innerProps}
-                                                className="d-flex align-items-center custom-class-select"
+                                                style={{ display: 'flex form-select', alignItems: 'center' }}
                                               >
                                                 <img
-                                                  src={avatar1}
-                                                  className=""
-                                                  style={{
-                                                    marginLeft: "4px",
-                                                    marginRight: "4px",
-                                                  }}
+                                                  src={data.profile_photo || avatar1}
+                                                  className="mr-1 ml-1"
                                                   width={"14px"}
+                                                  height={"14px"}
                                                   alt=""
                                                 />
                                                 <span>{data.label}</span>
@@ -737,6 +749,7 @@ export const BookingListComponent = () => {
                                             ),
                                           }}
                                         />
+
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
@@ -745,21 +758,8 @@ export const BookingListComponent = () => {
                                         >
                                           Service
                                         </label>
-                                        {/* <Select
-                                          className="form-select w-100 "
-                                          defaultValue={selectedService}
-                                          onChange={handleSelectedChange}
-                                          options={packages.map((pkg) => ({
-                                            label: pkg.package_name,
-                                            value: pkg.id,
-                                          }))}
-                                          isSearchable
-                                          isMulti
-                                          hideSelectedOptions
-                                          required
-                                        /> */}
                                         <Select
-                                          className="form-select w-100"
+                                          className="select2 w-100"
                                           name="services"
                                           defaultValue={selectedService}
                                           onChange={handleSelectedChange}
@@ -781,16 +781,13 @@ export const BookingListComponent = () => {
                                               <div
                                                 ref={innerRef}
                                                 {...innerProps}
-                                                className="d-flex align-items-center custom-class-select"
+                                                style={{ display: 'flex form-select ', alignItems: 'center' }}
                                               >
                                                 <img
                                                   src={toolIcons}
-                                                  className=""
-                                                  style={{
-                                                    marginLeft: "4px",
-                                                    marginRight: "4px",
-                                                  }}
+                                                  className="mr-1 ml-1"
                                                   width={"14px"}
+                                                  height={"14px"}
                                                   alt=""
                                                 />
                                                 <span>{data.label}</span>
@@ -1009,29 +1006,6 @@ export const BookingListComponent = () => {
                                         </select>
                                       </div>
 
-                                      {/* <div className="modal-body d-flex px-4 justify-content-between ">
-                                        <label
-                                          htmlFor="notify"
-                                          style={{ width: "10rem" }}
-                                        >
-                                          Notify
-                                        </label>
-
-                                        <select
-                                          className="select2 form-control w-50"
-                                          name="notify"
-                                          value={bookingData.notify}
-                                          onChange={handleChange}
-                                        >
-                                          <option value="0">
-                                            Select Frequency
-                                          </option>
-                                          <option value="1">Never</option>
-                                          <option value="2">Once</option>
-                                          <option value="3">Always</option>
-                                        </select>
-                                      </div> */}
-
                                       <div className="modal-body d-flex px-4">
                                         <label
                                           htmlFor="comment"
@@ -1053,34 +1027,32 @@ export const BookingListComponent = () => {
                                       {showNewCustomer == false && (
                                         <div className="modal-body d-flex px-4 justify-content-between ">
                                           <Select
-                                            className="form-select w-100 "
-                                            name="customer"
-                                            defaultValue={selectedClient}
-                                            onChange={setSelectedClient}
-                                            options={clientList.map(
-                                              (client) => ({
-                                                label: (
-                                                  <>
-                                                    <img
-                                                      src={
-                                                        client.image || avatar1
-                                                      }
-                                                      alt={client.name}
-                                                      style={{
-                                                        width: "20px",
-                                                        marginRight: "10px",
-                                                      }}
-                                                    />
-                                                    {client.name}
-                                                  </>
-                                                ),
-                                                value: client.id,
-                                              })
-                                            )}
+                                            className="select2 w-100"
+                                            name="clients"
+                                            defaultValue={bookingData.client}
+                                            onChange={(e) => {
+                                              setBookingData({
+                                                ...bookingData,
+                                                client: e.value,
+                                              });
+                                            }}
+                                            options={clientList.map((client) => ({
+                                              label: (
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                  <img
+                                                    src={client.profile_photo || avatar1}
+                                                    alt="Profile"
+                                                    style={{ marginRight: '10px', borderRadius: '50%', width: '30px', height: '30px' }}
+                                                  />
+                                                  <span>{client.name}</span>
+                                                </div>
+                                              ),
+                                              value: client.id,
+                                            }))}
                                             isSearchable
-                                            hideSelectedOptions
                                             required
                                           />
+
                                         </div>
                                       )}
                                       {/* {showNewCustomer ? (
