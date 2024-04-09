@@ -8,25 +8,11 @@ const md5 = require("md5");
 
 const createBooking = async (req, res) => {
   try {
-    console.log(req.body);
-    // {
-    //   user_id: 17,
-    //   package_ids: '6, 8',
-    //   package: '',
-    //   photographer_id: 87,
-    //   booking_date: '2024-04-04T09:30:01.618Z',
-    //   booking_time: '02:00:00',
-    //   booking_time_to: '',
-    //   booking_status: 1,
-    //   comment: ''
-    // }
     let data = req.body;
-    
     const usersWithRoleId1 = await User.findAll({
       where: { id: req.body.user_id },
       attributes: ["id", "name", "address"],
     });
-
     const { name, address } = usersWithRoleId1[0];
     let client_address;
     let client_name;
@@ -35,10 +21,23 @@ const createBooking = async (req, res) => {
     data.client_address = client_address;
     data.client_name = client_name;
     data.booking_title = client_address
-    console.log(data);
-    const booking = await Booking.create(data);
-    // const booking = await Booking.create(req.body);
-    res.status(201).json(booking);
+
+
+    let booking;
+    if (req.body.id) {
+      booking = await Booking.findOne({ where: { id: req.body.id } });
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      await booking.update(data);
+    } else {
+      booking = await Booking.create(data);
+    }
+    res.status(200).json({
+      success: true,
+      message: req.body.id ? "Booking updated successfully" : "Booking created successfully",
+      data: booking
+    });
   } catch (error) {
     console.error("Failed to add booking:", error.message);
     res.status(500).json({ error: "Failed to add booking" });
@@ -62,7 +61,7 @@ const providers = async (req, res) => {
       attributes: ["id", "name", "profile_photo"],
     });
 
-    const users = await User.findAll({ 
+    const users = await User.findAll({
       attributes: ["id", "name", "profile_photo"],
     });
 
@@ -151,18 +150,27 @@ const createCalendar = async (req, res) => {
 
 const getAllBookings = async (req, res) => {
   try {
-      let bookings = await Booking.findAll({
-          include: [{
-              model: User,
-              attributes: ['name', 'colorcode', 'address'],
-              where: {
-                  role_id: 3
-              }
-          }],
-      });
-      res.status(200).json({ success: true, data: bookings });
+    let bookings = await Booking.findAll({
+      include: [{
+        model: User,
+        attributes: ['name', 'colorcode', 'address'],
+        where: {
+          role_id: 3
+        }
+      }],
+    });
+    res.status(200).json({ success: true, data: bookings });
   } catch (error) {
-      res.status(500).json({ error: "Failed to list bookings" });
+    res.status(500).json({ error: "Failed to list bookings" });
+  }
+};
+
+const getBooking = async (req, res) => {
+  try {
+    const bookingData = await Booking.findOne({ where: { id: req.body.id } });
+    res.status(200).json({ success: true, data: bookingData });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to data of booking" });
   }
 };
 
@@ -203,6 +211,7 @@ module.exports = {
   getAllBookings,
   providers,
   createCalendar,
+  getBooking,
   deleteBooking,
   updateBooking
 };

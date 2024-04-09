@@ -58,6 +58,22 @@ const getAllBookings = async () => {
   }
 };
 
+const getBooking = async (data) => {
+  try {
+    const response = await axios.post('http://localhost:6977/booking/getBooking', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to delete booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 const deleteBooking = async (data) => {
   try {
     const response = await axios.post('http://localhost:6977/booking/deleteBooking', data, {
@@ -90,4 +106,4 @@ const updateBooking = async (data) => {
   }
 };
 
-export { newBooking, createCalendar, getAllBookings, deleteBooking, updateBooking };
+export { newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking };

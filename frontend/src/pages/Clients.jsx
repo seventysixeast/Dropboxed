@@ -65,7 +65,6 @@ const Clients = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("1");
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
