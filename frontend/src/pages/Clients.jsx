@@ -3,7 +3,7 @@ import moment from "moment";
 import { getAllClients, createClient, getClient, deleteClient } from "../api/clientApis";
 import { toast } from 'react-toastify';
 import DeleteModal from "../components/DeleteModal";
-
+const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 const Clients = () => {
 
   const [clients, setClients] = useState([]);
@@ -230,7 +230,7 @@ const Clients = () => {
                                 onChange={handlePhotoChange}
                                 accept="image/*"
                               />
-                              {formData.id && <img src={`${formData.profile_photo ? `http://localhost:6977/public/clients/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150" alt="Card image" />}
+                              {formData.id && <img src={`${formData.profile_photo ? `${IMAGE_URL}/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150" alt="Card image" />}
                             </div>
                           </div>
                           <div className="modal-footer">
@@ -263,7 +263,7 @@ const Clients = () => {
                 <div className="card">
                   <div className="text-center">
                     <div className="card-body">
-                      <img src={item.profile_photo ? `http://localhost:6977/public/clients/${item.profile_photo}` : "../../../app-assets/images/portrait/medium/avatar-m-4.png"} className="rounded-circle height-150" alt="Card image" />
+                      <img src={item.profile_photo ? `${IMAGE_URL}/${item.profile_photo}` : "../../../app-assets/images/portrait/medium/avatar-m-4.png"} className="rounded-circle height-150" alt="Card image" />
                     </div>
                     <div className="card-body">
                       <h4 className="card-title">{item.name}</h4>
