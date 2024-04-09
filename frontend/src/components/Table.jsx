@@ -63,10 +63,11 @@ const TableCustom = ({ data, columns }) => {
                           {" "}Entries
                           </span>
                         </div>
-                        <div className="col-sm-12 col-md-7 ">
+                        <div className="col-sm-12 col-md-7">
                           <input
                             type="search"
                             className="form-control form-control-sm float-right w-25"
+                            style={{marginRight:'-16px'}}
                             value={globalFilter || ""}
                             onChange={(e) => setGlobalFilter(e.target.value)}
                             placeholder="Search..."
