@@ -625,8 +625,8 @@ export const BookingListComponent = () => {
                     scope="https://www.googleapis.com/auth/calendar" // Request Calendar API scope
                     prompt="consent" // Ensure user consent is requested
                 /> */}
-                    {/* <button onClick={login}>Sign in with Google 🚀 </button>
-                  <button onClick={insertEvent}>Add Event</button> */}
+                    <button onClick={login}>Sign in with Google 🚀 </button>
+                  <button onClick={insertEvent}>Add Event</button>
                     <div
                       className="modal fade text-left"
                       id="appointment"

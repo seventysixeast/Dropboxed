@@ -1,56 +1,37 @@
-import axios from 'axios';
+import API from "./baseApi";
+import axios from "axios";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
 
 const newBooking = async (bookingData) => {
   try {
-    const response = await fetch(`http://localhost:6977/booking/new-booking`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(bookingData),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to add booking");
+    const response = await API.post('/booking/new-booking', bookingData);
+    if (response.status !== 200) {
+      throw new Error('Failed to add booking');
     }
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     throw new Error(error.message);
   }
 };
-
 
 const createCalendar = async (calendarData) => {
-  console.log(calendarData);
   try {
-    const response = await fetch(`http://localhost:6977/booking/create-calendar`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(calendarData),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to create calendar");
+    const response = await API.post('/booking/create-calendar', calendarData);
+    if (response.status !== 200) {
+      throw new Error('Failed to create calendar');
     }
-    const filename = await response.text();
-    return filename;
+    return response.data;
   } catch (error) {
     throw new Error(error.message);
   }
 };
-
-
 
 const getAllBookings = async () => {
   try {
-    const response = await axios.get('http://localhost:6977/booking/getAllBookings', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.status === 200) {
-      throw new Error('Failed to get all booking');
+    const response = await axios.get(`${API_URL}/booking/getAllBookings`);
+    if (response.status !== 200) {
+      throw new Error('Failed to get all bookings');
     }
     return response.data;
   } catch (error) {
@@ -60,12 +41,8 @@ const getAllBookings = async () => {
 
 const deleteBooking = async (data) => {
   try {
-    const response = await axios.post('http://localhost:6977/booking/deleteBooking', data, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.status === 200) {
+    const response = await API.post('/booking/deleteBooking', data);
+    if (response.status !== 200) {
       throw new Error('Failed to delete booking');
     }
     return response.data;
@@ -76,12 +53,8 @@ const deleteBooking = async (data) => {
 
 const updateBooking = async (data) => {
   try {
-    const response = await axios.post('http://localhost:6977/booking/updateBooking', data, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.status === 200) {
+    const response = await API.post('/booking/updateBooking', data);
+    if (response.status !== 200) {
       throw new Error('Failed to update booking');
     }
     return response.data;
