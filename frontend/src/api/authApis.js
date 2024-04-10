@@ -39,4 +39,17 @@ const login = async (userData) => {
     }
 };
 
-export { signup, login, clientSignup };
+const verifyToken = async (token) => {
+    try {
+        const response = await API.post("/auth/verify-token", { token });
+        if (response.status !== 200) {
+            throw new Error("Token verification failed");
+        }
+        const data = response.data;
+        return data;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+export { signup, login, verifyToken, clientSignup };
