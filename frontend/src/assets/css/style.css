@@ -98,3 +98,7 @@
 .card.border-green.border-lighten-2.custom-card {
   border: 1px solid green !important;
 }
+
+.card {
+  height: 95%;
+}

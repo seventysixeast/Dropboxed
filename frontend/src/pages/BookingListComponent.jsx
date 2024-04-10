@@ -7,6 +7,7 @@ import {
   newBooking,
   updateBooking,
   getAllBookings,
+  getBooking,
   deleteBooking,
 } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
@@ -164,6 +165,8 @@ export const BookingListComponent = () => {
       if (buttonRef.current) {
         buttonRef.current.click();
       }
+
+      console.log(bookingsData);
       // clear data
       setBookingData({
         title: "",
@@ -342,6 +345,21 @@ export const BookingListComponent = () => {
     }
   };
 
+  const getBookingData = (data) => {
+    setBookingData(prevBookingData => ({
+      ...prevBookingData,
+      title: data.booking_title,
+      package: data.package,
+      prefferedDate: new Date(data.booking_date),
+      fromTime: data.booking_time,
+      toTime: data.booking_time_to,
+      client: data.client_name,
+      comment: data.comment,
+      provider: data.User.name,
+      customer: data.User.name
+    }));
+  }
+
   const deleteBookingData = async () => {
     try {
       const formDataToSend = new FormData();
@@ -490,8 +508,12 @@ export const BookingListComponent = () => {
         Cell: (props) => (
           <div className="d-flex">
             <button
-              className="btn btn-icon btn-outline-primary "
-              onClick={() => handleEditClick(props.row.original)}
+              ref={buttonRef}
+              type="button"
+              className="btn btn-icon btn-outline-primary"
+              onClick={() => getBookingData(props.row.original)}
+              data-toggle="modal"
+              data-target="#appointment"
             >
               <i className="feather white icon-edit"></i>
             </button>
@@ -1236,7 +1258,7 @@ export const BookingListComponent = () => {
                               <input
                                 type="submit"
                                 className="btn btn-primary btn"
-                                value="Save"
+                                value={bookingData.id ? "Update" : "Save"}
                               />
                               <input
                                 type="reset"
