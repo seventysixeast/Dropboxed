@@ -1,10 +1,50 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { Op } = require('sequelize');
-const User = require('../models/Users');
-const { generateAccessToken } = require('../utils/jwtUtils');
-const { SEND_EMAIL } = require('../helpers/emailTemplate');
-const { sendEmail } = require('../helpers/sendEmail');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
+const User = require("../models/Users");
+const { generateAccessToken } = require("../utils/jwtUtils");
+const { SEND_EMAIL } = require("../helpers/emailTemplate");
+const { sendEmail } = require("../helpers/sendEmail");
+
+const { google } = require("googleapis");
+const { OAuth2 } = google.auth;
+const axios = require("axios");
+
+const oAuth2Client = new OAuth2(
+  "49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com",
+  "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",
+  "http://localhost:3000/auth/google/callback"
+);
+
+oAuth2Client.setCredentials({
+  access_token:
+    "ya29.a0Ad52N38IUZXQTTqvuTXjXHYMcEIwZJfaOzdIijKFw1k6PQTqKr72uNuPSKL76_2F4JnOdVTNE0p-8Ygji2jer7jvQ1RVZMtAokJt8k9Bk_OCNgMmRutdxTfV1uDGczhO4GMJ36gFyi-ICZJJQSyTlJDaFRlOQ9trVzREaCgYKAZ4SARASFQHGX2Mimz6H4PCQbNhP18IH1TACaA0171",
+});
+
+const SCOPES = [
+  "https://www.googleapis.com/auth/calendar.events.readonly",
+  "https://www.googleapis.com/auth/calendar.events",
+  "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/calendar.app.created",
+  "https://www.googleapis.com/auth/calendar.readonly",
+];
+const tokenEndpoint = "https://oauth2.googleapis.com/token";
+const authorizationCode =
+  "4/0AeaYSHBwjSq5-UPOC2M4_piiMi273mhISRZewsb7ESik4n-OxvN3aKQwgiApS4IymwJAXQ";
+
+const tokenRequestBody = {
+  code: authorizationCode,
+  client_id:
+    "49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com",
+  client_secret: "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",
+  redirect_uri: "http://localhost:3000/auth/google/callback",
+  grant_type: "authorization_code",
+};
+
+const authUrl = oAuth2Client.generateAuthUrl({
+  access_type: "offline",
+  scope: SCOPES,
+});
 
 exports.login = async (req, res) => {
   const { userName, password } = req.body;
@@ -13,18 +53,22 @@ exports.login = async (req, res) => {
     const user = await User.findOne({
       where: {
         email: {
-          [Op.eq]: userName
-        }
-      }
+          [Op.eq]: userName,
+        },
+      },
     });
 
     if (!user) {
-      return res.status(401).json({ status: false, message: 'Invalid email or password' });
+      return res
+        .status(401)
+        .json({ status: false, message: "Invalid email or password" });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ status: false, message: 'Invalid email or password' });
+      return res
+        .status(401)
+        .json({ status: false, message: "Invalid email or password" });
     }
 
     // Generate JWT token
@@ -38,15 +82,15 @@ exports.login = async (req, res) => {
         userName: user.name,
         email: user.email,
         profilePhoto: user.profile_photo,
-        subdomain: user.subdomain
-      }
+        subdomain: user.subdomain,
+        calendarSub: user.calendar_sub,
+      },
     });
   } catch (error) {
-    console.error('Error logging in: ', error);
-    res.status(500).json({status: false, message: 'Internal Server Error' });
+    console.error("Error logging in: ", error);
+    res.status(500).json({ status: false, message: "Internal Server Error" });
   }
 };
-
 
 exports.signup = async (req, res) => {
   const { studioName, email, password, country } = req.body;
@@ -55,12 +99,18 @@ exports.signup = async (req, res) => {
     // Check if the email is already registered
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ status: false, message: 'Email already exists' });
+      return res
+        .status(400)
+        .json({ status: false, message: "Email already exists" });
     }
 
-    const existingDomain = await User.findOne({ where: { subdomain: studioName } });
+    const existingDomain = await User.findOne({
+      where: { subdomain: studioName },
+    });
     if (existingDomain) {
-      return res.status(400).json({ status: false, message: 'Studio name already exists' });
+      return res
+        .status(400)
+        .json({ status: false, message: "Studio name already exists" });
     }
 
     // Hash the password
@@ -72,53 +122,120 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPassword,
       country,
-      role_id: 5, // Business role id 5
-      subdomain: studioName // Save studioName in subdomain field
+      role_id: 5,
+      subdomain: studioName,
     });
 
     //SEND_EMAIL.replace('#studioName#', studioName);
     // Send email notification
-    await sendEmail(email, 'Welcome to Our App', SEND_EMAIL);
+    await sendEmail(email, "Welcome to Our App", SEND_EMAIL);
 
-    res.status(201).json({ status: true, message: 'User created successfully', user: newUser });
+    res
+      .status(201)
+      .json({
+        status: true,
+        message: "User created successfully",
+        user: newUser,
+      });
   } catch (error) {
-    console.error('Error signing up: ', error);
-    res.status(500).json({ status: false, message: 'Internal Server Error' });
+    console.error("Error signing up: ", error);
+    res.status(500).json({ status: false, message: "Internal Server Error" });
   }
 };
 
-exports.google =(req, res) => {
-  
-  const { code } = req.body;
-  console.log(code);
-  const client_id = "49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com"
-  const client_secret = "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"
-  const redirect_uri = 'postmessage'
-  const grant_type = "authorization_code";
+// async function getCalendarList() {
+//   try {
+//     const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
 
-  fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      code,
-      client_id,
-      client_secret,
-      redirect_uri,
-      grant_type,
-      scope: "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.readonly",
-      access_type: "offline",
-    }),
-  })
-  .then(response => response.json())
-  .then(tokens => {
-    // Send the tokens back to the frontend, or store them securely and create a session
-    res.json(tokens);
-  })
-  .catch(error => {
-    // Handle errors in the token exchange
-    console.error('Token exchange error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+//     return calendars;
+//   } catch (error) {
+//     console.error("Error fetching calendar list:", error);
+//     throw error;
+//   }
+// }
+
+async function createCalendar(data) {
+  oAuth2Client.setCredentials({
+    access_token: data.access_token,
   });
+
+  try {
+    const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
+
+    const calendarName = "dropboxed";
+
+    const calendarlist = await calendar.calendarList.list();
+    const userCalenders = calendarlist.data.items;
+
+    // if dropboxed named calendar exists then don't create new calendar just return the id of the old calnedar
+    if (userCalenders.some((calendar) => calendar.summary === calendarName)) {
+      const calendarId = userCalenders.find(
+        (calendar) => calendar.summary === calendarName
+      ).id;
+      console.log("Calendar already exists:", calendarId);
+      return calendarId;
+    }
+
+    const response = await calendar.calendars.insert({
+      requestBody: {
+        summary: calendarName,
+      },
+    });
+
+    console.log("Calendar created:", response.data.id);
+  } catch (error) {
+    console.error("Error creating calendar:", error);
+    throw error;
+  }
+}
+
+exports.google = async (req, res) => {
+  try {
+    const { code, id } = req.body;
+    const client_id = process.env.GOOGLE_CLIENT_ID;
+    const client_secret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirect_uri = "postmessage";
+    const grant_type = "authorization_code";
+
+    const response = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      new URLSearchParams({
+        code,
+        client_id,
+        client_secret,
+        redirect_uri,
+        grant_type,
+        scope:
+          "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
+        access_type: "offline",
+        prompt: "consent",
+        include_granted_scopes: "true",
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    const tokens = response.data;
+    let resp = await createCalendar(tokens);
+
+    await User.update(
+      {
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        calendar_sub: 1,
+        calendar_id: resp,
+      },
+      {
+        where: { id },
+      }
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Token exchange error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };

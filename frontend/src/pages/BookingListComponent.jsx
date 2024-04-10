@@ -3,11 +3,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import {
-  createCalendar,
   newBooking,
   updateBooking,
   getAllBookings,
-  getBooking,
   deleteBooking,
 } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
@@ -16,46 +14,37 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import toolIcons from "../assets/images/i.png";
-import { createClient } from "../api/clientApis";
 import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
 import TableCustom from "../components/Table";
-import { GoogleLogin, useGoogleLogin, hasGrantedAllScopesGoogle } from '@react-oauth/google';
-
+import { useGoogleLogin, } from '@react-oauth/google';
+import { useAuth } from "../context/authContext";
+import API from "../api/baseApi";
 
 export const BookingListComponent = () => {
+  const { authData } = useAuth();
   const [providers, setProviders] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
-  const [selectedPackage, setSelectedPackage] = useState();
   const [selectedPackagePrice, setSelectedPackagePrice] = useState(0);
-  const [appointmentTime, setAppointmentTime] = useState();
   const buttonRef = useRef(null);
   const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
   const [clientList, setClientList] = useState([]);
-  const [selectedClient, setSelectedClient] = useState(null);
-  const options = [
-    { value: "chocolate", label: "Chocolate" },
-    { value: "strawberry", label: "Strawberry" },
-    { value: "vanilla", label: "Vanilla" },
-  ];
   const [events, setEvents] = useState([]);
 
-  const [showUpdateModel, setShowUpdateModel] = useState(false);
-  const [bookingToUpdate, setBookingToUpdate] = useState(null);
   const [showConfirmModel, setShowConfirmModel] = useState(false);
-
-  const [showUpdateBox, setShowUpdateBox] = useState(false);
+  const userId = authData.user ? authData.user.id : null;
+  const calendarSub = authData.user ? authData.user.calendarSub : null;
 
   const [updateData, setUpdateData] = useState({
     title: "",
     package: 1,
-    services: null,
+    services: '',
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -64,13 +53,11 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
-
-  console.log(packages);
 
   const [bookingData, setBookingData] = useState({
     title: "",
     package: 1,
-    services: null,
+    services: '',
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -79,6 +66,8 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
+
+  console.log(bookingData);
 
   const [customerData, setCustomerData] = useState({
     name: "",
@@ -117,23 +106,18 @@ export const BookingListComponent = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log('oifjgoaijfgasdkljf;la');
     e.preventDefault();
     try {
-      // const data = await createClient(customerData);
-      // console.log(data.data.id);
-      // Function to convert 12-hour time to 24-hour time
+    console.log('oifjgoaijfgasdkljf;la 22222');
 
       const convertedTime = convertTo24Hour(bookingData.fromTime);
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
-      console.log(hoursToAdd, minutesToAdd);
-
       let [currentHours, currentMinutes, currentSeconds] =
         convertedTime.split(":");
-      console.log(convertedTime);
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
-      console.log(currentHours);
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
       if (currentMinutes >= 60) {
         currentHours += 1;
@@ -144,41 +128,37 @@ export const BookingListComponent = () => {
       currentMinutes = ("0" + currentMinutes).slice(-2);
 
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
-      console.log(newToTime);
-      console.log(selectedProvider.value, selectedClient.value);
-      const values = selectedService.map((service) => service.value);
-      const formattedValues = values.join(", ");
+      console.log('newToTime');
 
       const bookingDataToSend = {
-        user_id: selectedClient.value,
-        package_ids: formattedValues,
+        user_id: bookingData.client,
+        package_ids: bookingData.services,
         package: 0,
-        photographer_id: selectedProvider.value,
+        photographer_id: bookingData.provider,
         booking_date: bookingData.prefferedDate,
         booking_time: convertedTime,
         booking_time_to: newToTime,
         booking_status: 1,
         comment: bookingData.comment,
       };
+
+      console.log(bookingDataToSend);
       await newBooking(bookingDataToSend);
       getAllBookingsData();
       if (buttonRef.current) {
         buttonRef.current.click();
       }
 
-      console.log(bookingsData);
-      // clear data
       setBookingData({
         title: "",
         package: 1,
-        services: null,
+        services: '',
         prefferedDate: new Date(),
         fromTime: "",
         toTime: "",
         client: "",
         comment: "",
         provider: "",
-        customer: "",
       });
       setCustomerData({
         name: "",
@@ -199,8 +179,8 @@ export const BookingListComponent = () => {
   };
 
   const handleChange = (e) => {
-    console.log(e.target.value);
     const { name, value } = e.target;
+    console.log(e.target.name);
 
     setBookingData((prevData) => ({
       ...prevData,
@@ -219,8 +199,8 @@ export const BookingListComponent = () => {
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {
-        const response = await fetch("http://localhost:6977/booking/providers");
-        const data = await response.json();
+        const response = await API.get("/booking/providers");
+        const data = response.data;
         setProviders(data.usersWithRoleId1);
         setClientList(data.users);
         setPackages(data.packages);
@@ -234,24 +214,19 @@ export const BookingListComponent = () => {
       }
     }
   };
-
   const handleDateClick = (arg) => {
-    console.log("Date clicked:", arg);
     const selectedDate = new Date(arg.date);
     const selectedTime = selectedDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
-    console.log("Selected time:", selectedTime);
 
     setBookingData((prevData) => {
-      console.log("Previous data:", prevData);
       const newData = {
         ...prevData,
         prefferedDate: selectedDate,
         fromTime: selectedTime,
       };
-      console.log("New data:", newData);
       return newData;
     });
 
@@ -264,44 +239,37 @@ export const BookingListComponent = () => {
     setShowNewCustomer(!showNewCustomer);
   };
 
-  const handleCreateCalendar = async (e) => {
-    e.preventDefault();
-    try {
-      const data = await createCalendar({ user_id: 16 });
-    } catch (error) {
-      console.error("Failed to create calendar:", error.message);
-    }
-  };
-
   const handleSelectedChange = (selectedOptions) => {
     setSelectedService(selectedOptions);
-    // for each selectedOptions.value find the price in packages
+
+    const selectedValues = selectedOptions.map(option => option.value);
+    const selectedValuesString = selectedValues.join(', ');
+
+    console.log(selectedValuesString);
+    setBookingData((prevData) => ({
+      ...prevData,
+      services: selectedValuesString,
+    }));
+    // The rest of your code...
     const selectedPrices = selectedOptions.map((option) => {
       const price = packagePrice.find((pack) => pack.id === option.value);
       return price.price;
     });
-    console.log(selectedPrices);
-    // add the selected prices as there are multiple and we need total of all
+
     const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
-    console.log(totalPrice);
     setSelectedPackagePrice(totalPrice);
   };
 
+
   const handleDateChange = (arg) => {
-    console.log(arg.event);
     let id = arg.event._def.publicId;
-    console.log(arg.event.start);
 
-    // Create Date objects with timezone offsets
-    let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
-    let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
-
-    console.log(endDate, newDate);
+    let newDate = new Date(arg.event.start + "Z");
+    let endDate = new Date(arg.event.end + "Z");
 
     let newDateString = newDate.toISOString().split("T")[0];
     console.log(newDateString);
 
-    // Convert times to UTC time with timezone offsets
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -315,7 +283,6 @@ export const BookingListComponent = () => {
 
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
-    console.log(newEndTime);
     setUpdateData({
       id: id,
       prefferedDate: newDate,
@@ -340,6 +307,7 @@ export const BookingListComponent = () => {
       }));
 
       setEvents(events);
+      console.log(events);
     } catch (error) {
       console.error("Failed to:", error.message);
     }
@@ -380,25 +348,6 @@ export const BookingListComponent = () => {
     }
   };
 
-  const handleEditClick = (booking) => {
-    console.log(booking);
-
-    setUpdateData({
-      id: booking.id,
-      title: booking.title,
-      package: 1,
-      services: null,
-      prefferedDate: new Date(booking.start),
-      fromTime: booking.booking_time,
-      toTime: booking.booking_time_to,
-      client: "",
-      comment: booking.comment,
-      provider: "",
-      customer: "",
-    });
-    setShowUpdateModel(true);
-  };
-
   const updateBookingData = async () => {
     try {
       const formDataToSend = new FormData();
@@ -432,20 +381,14 @@ export const BookingListComponent = () => {
   };
 
   const handleEventResize = (arg) => {
-    console.log(arg);
     let id = arg.event._def.publicId;
 
-    // Create Date objects with timezone offsets
-    let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
-    let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
-    console.log(newDate);
+    let newDate = new Date(arg.event.start + "Z");
+    let endDate = new Date(arg.event.end + "Z");
     newDate.setDate(newDate.getDate());
 
     let newDateString = newDate.toISOString().split("T")[0];
-    // let newDateString = newDate.toISOString().split("T")[0];
-    console.log(newDateString);
 
-    // Convert times to UTC time with timezone offsets
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -495,7 +438,6 @@ export const BookingListComponent = () => {
       {
         Header: "Status",
         accessor: "booking_status",
-        // 1 = pending, 2 = notify, 3 = booked
         Cell: ({ value }) => (
           <div className="badge badge-pill badge-light-primary">
             {value === 1 ? "Pending" : value === 2 ? "Notify" : "Booked"}
@@ -520,7 +462,6 @@ export const BookingListComponent = () => {
 
             <button
               className="btn btn-icon btn-outline-danger ml-1"
-              // onClick={() => setBookingIdToDelete(props.row.original.id);  setShowDeleteModal(true);}
               onClick={() => {
                 setBookingIdToDelete(props.row.original.id);
                 setShowDeleteModal(true);
@@ -545,75 +486,59 @@ export const BookingListComponent = () => {
     []
   );
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
 
-  const onLoginSuccess = (response) => {
-    setIsLoggedIn(true);
-    console.log(response);
-    setAccessToken(response.code);
-  };
 
-  const onLoginFailure = (error) => {
-    console.error('Login failed:', error);
-  };
-
-  // const login = useGoogleLogin({
-  //   scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
-  //   onSuccess: (response) => {
-  //     console.log('Login successful:', response);
-  //   },
-  //   onError: (error) => alert('Login Failed:', error)
-  // });
-
-  const login = useGoogleLogin({
+  const subscribe = useGoogleLogin({
     onSuccess: (codeResponse) => {
-      // Send the authorization code to the backend server
-      console.log(codeResponse);
-      fetch('http://localhost:6977/auth/google', {
-        method: 'POST',
+      axios.post(`${API_URL}/auth/google`, {
+        code: codeResponse.code,
+        id: userId
+      }, {
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code: codeResponse.code }),
+          'Content-Type': 'application/json'
+        }
       })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Backend response:', data);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+        .then(response => {
+          console.log('Backend response:', response.data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
     },
     onError: () => {
-      // Handle login errors here
       console.error('Google login failed');
     },
+    scope: "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
     flow: 'auth-code',
+    include_granted_scopes: true
   });
-  
-  
+  console.log(selectedService);
 
-  const insertEvent = () => {
+  const insertEvent = async () => { // Make the function async
     const event = {
-      title: 'Appointment',
-      description: 'Description',
-      startDate: '2024-04-08T09:00:00',
-      endDate: '2024-04-08T10:00:00',
+      id: 155999,
+      summary: "Test Event",
+      location: "Test Location",
+      description: "This is a test event for testing purposes.",
+      start: {
+        dateTime: "2024-04-10T02:00:00+05:30",
+        timeZone: "Asia/Kolkata",
+      },
+      end: {
+        dateTime: "2024-04-10T04:00:00+05:30",
+        timeZone: "Asia/Kolkata",
+      },
     };
 
     try {
-      axios.post('http://localhost:6977/calender/addcalenderevent', {
-        event: event,
-        accessToken: accessToken
-      })
+      const response = await API.post('/calender/addcalenderevent', {
+        event: event
+      });
     } catch (error) {
-      // 
       console.error(error);
     }
-  }
-
-  console.log(bookingData.provider);
+  };
 
   return (
     <>
@@ -638,26 +563,28 @@ export const BookingListComponent = () => {
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group">
-                    <button
-                      ref={buttonRef}
-                      type="button"
-                      className="btn btn-outline-primary btn-block"
-                      data-toggle="modal"
-                      data-target="#appointment"
-                    >
-                      New Appointment
-                    </button>
+                    <div className='d-flex' >
+                      {calendarSub == null ? <></> :
+                        <>
+                          {calendarSub == 0 ? <button onClick={subscribe} type="button"
+                            className="btn btn-outline-primary btn-block" title="Already subscribed to the calendar">Subscribe to Calendar</button> :
+                            <button type="button"
+                              className="btn btn-outline-primary btn-block" disabled title="Already subscribed to the calendar">Subscribed</button>
+                          }</>
+                      }
+                      <button
+                        ref={buttonRef}
+                        type="button"
+                        className="btn btn-outline-primary btn-block"
+                        data-toggle="modal"
+                        data-target="#appointment"
+                      >
+                        New Appointment
+                      </button>
+                    </div>
+                    {/* <button onClick={subscribe}>Subscribe to Calendar</button> */}
 
-                    {/* <GoogleLogin
-                    clientId='49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com'
-                    buttonText="Login with Google"
-                    onSuccess={onLoginSuccess}
-                    onError={onLoginFailure}
-                    scope="https://www.googleapis.com/auth/calendar" // Request Calendar API scope
-                    prompt="consent" // Ensure user consent is requested
-                /> */}
-                    <button onClick={login}>Sign in with Google 🚀 </button>
-                    <button onClick={insertEvent}>Add Event</button>
+                    {/* <button onClick={insertEvent}>Add Event</button> */}
                     <div
                       className="modal fade text-left"
                       id="appointment"
