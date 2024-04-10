@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as Yup from "yup";
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { login } from "../api/authApis";
+import { encryptToken } from "../helpers/tokenUtils";
 
 const Login = () => {
   const [userData, setUserData] = useState({
@@ -32,18 +33,31 @@ const Login = () => {
         await validationSchema.validate(userData, { abortEarly: false });
         const { accessToken, user } = await login(userData);
         console.log("user>>>",user)
+        
         // Save user data and access token in localStorage
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('isAuth', true);
         localStorage.setItem('user', JSON.stringify(user));
-
+        //console.log("tttttt",encryptedToken)
+        const encryptedToken = encryptToken(accessToken);
+        console.log("encryptedToken",encryptedToken)
         // Set cookies with domain attribute
         document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
         document.cookie = `isAuth=true; domain=.localhost; path=/`;
         document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;
     
-        // Operation on success, send to dashboard page
-        window.location.href = "/dashboard";
+        const subdomain = user.subdomain.toLowerCase().replace(/\s/g, '');
+        const currentSubdomain = window.location.hostname.split('.')[0];
+        const baseUrl = window.location.protocol + "//" + window.location.hostname;
+
+        // Check if the current URL already contains a subdomain
+        const redirectToSubdomain = currentSubdomain === "localhost" ? `${subdomain}.` : "";
+
+        // Construct the redirection URL
+        //const redirectUrl = `${window.location.protocol}//${redirectToSubdomain}${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
+        const redirectUrl = `/dashboard`; //Comment this line and uncomment above line to redirect to subdomain
+        // Redirect to subdomain
+        window.location.href = redirectUrl;
     } catch (error) {
         if (error.name === "ValidationError") {
             const validationErrors = {};

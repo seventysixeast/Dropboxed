@@ -14,7 +14,8 @@ const fileUpload = require('express-fileupload')
 const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 
-const secret = crypto.randomBytes(64).toString('hex');
+const secret = crypto.randomBytes(32).toString('hex');
+console.log('Generated JWT secret:', secret);
 const app = express();
 const PORT = process.env.PORT || 6977;
 app.use(fileUpload())
