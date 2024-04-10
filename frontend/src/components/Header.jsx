@@ -68,11 +68,11 @@ const Header = () => {
         <div className="navbar-container content">
           <div className="collapse navbar-collapse" id="navbar-mobile">
             <ul className="nav navbar-nav mr-auto float-left d-flex align-items-center">
-              <li className="nav-item d-none d-md-block">
+              {/* <li className="nav-item d-none d-md-block">
                 <a className="nav-link nav-link-expand" href="#">
                   <i className="ficon feather icon-maximize"></i>
                 </a>
-              </li>
+              </li> */}
               {/* <li className="nav-item d-none d-md-block">
                 <a className="nav-link nav-link-expand py-0" href="#">
                   <button className="btn btn-blue text-white glow ">+ New Gallery</button>

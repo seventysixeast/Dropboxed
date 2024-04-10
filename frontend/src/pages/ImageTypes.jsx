@@ -143,7 +143,7 @@ const ImageTypes = () => {
     ],
     []
   );
-  
+
 
   const data = React.useMemo(() => imagesTypes, [imagesTypes]);
 
@@ -166,6 +166,115 @@ const ImageTypes = () => {
                 </div>
               </div>
             </div>
+            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
+              <ul className="list-inline mb-0">
+                <li>
+                  <div className="form-group">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      data-toggle="modal"
+                      data-target="#bootstrap"
+                    >
+                      Add New
+                    </button>
+
+                    <div
+                      className="modal fade text-left"
+                      id="bootstrap"
+                      tabIndex="-1"
+                      role="dialog"
+                      aria-labelledby="myModalLabel35"
+                      aria-hidden="true"
+                      style={{ display: "none" }}
+                    >
+                      <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <h3 className="card-title">Add Image Type</h3>
+                            <button
+                              type="button"
+                              className="close"
+                              data-dismiss="modal"
+                              aria-label="Close"
+                            >
+                              <span aria-hidden="true">×</span>
+                            </button>
+                          </div>
+                          <form onSubmit={handleSubmit}>
+                            <div className="modal-body">
+                              <fieldset className="form-group floating-label-form-group">
+                                <label>Type *</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="type"
+                                  value={formData.type}
+                                  onChange={handleInputChange}
+                                  required
+                                />
+                              </fieldset>
+                              <fieldset className="form-group floating-label-form-group">
+                                <label>Price *</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="price"
+                                  value={formData.price}
+                                  onChange={handleInputChange}
+                                  required
+                                />
+                              </fieldset>
+                              <fieldset className="form-group floating-label-form-group">
+                                <label>Status *</label>
+                                <select
+                                  className="select2 form-control"
+                                  name="status"
+                                  value={formData.status}
+                                  onChange={handleInputChange}
+                                  required
+                                >
+                                  <option value="Active">Active</option>
+                                  <option value="Inactive">Inactive</option>
+                                </select>
+                              </fieldset>
+                              <fieldset className="form-group floating-label-form-group">
+                                <label>Gallery Status *</label>
+                                <select
+                                  className="select2 form-control"
+                                  name="gallery_status"
+                                  value={formData.gallery_status}
+                                  onChange={handleInputChange}
+                                  required
+                                >
+                                  <option value="Image">Image</option>
+                                  <option value="Video Link">Video Link</option>
+                                </select>
+                              </fieldset>
+                            </div>
+                            <div className="modal-footer">
+                              <input
+                                id="closeModal"
+                                type="reset"
+                                className="btn btn-secondary"
+                                data-dismiss="modal"
+                                value="Close"
+                                onClick={() => resetFormData()}
+                              />
+                              <input
+                                type="submit"
+                                className="btn btn-primary btn"
+                                value={formData.id ? "Update" : "Add"}
+                              />
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -175,7 +284,7 @@ const ImageTypes = () => {
         onConfirm={deleteImageTypeData}
         message="Are you sure you want to delete this imageType?"
       />
-            <div className="sidenav-overlay"></div>
+      <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
       <TableCustom data={data} columns={columns} />
 
