@@ -111,7 +111,7 @@ export const BookingListComponent = () => {
       const convertedTime = convertTo24Hour(bookingData.fromTime);
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
-
+  
       let [currentHours, currentMinutes, currentSeconds] = convertedTime.split(":");
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
@@ -119,13 +119,12 @@ export const BookingListComponent = () => {
         currentHours += 1;
         currentMinutes -= 60;
       }
-
+  
       currentHours = ("0" + currentHours).slice(-2);
       currentMinutes = ("0" + currentMinutes).slice(-2);
-
+  
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
-      console.log('newToTime');
-
+  
       const bookingDataToSend = {
         user_id: bookingData.client,
         package_ids: bookingData.services,
@@ -137,17 +136,18 @@ export const BookingListComponent = () => {
         booking_status: 1,
         comment: bookingData.comment,
       };
-
+  
       await newBooking(bookingDataToSend);
       getAllBookingsData();
       if (buttonRef.current) {
         buttonRef.current.click();
       }
-
+  
+      // Clear form data
       setBookingData({
         title: "",
         package: 1,
-        services: '',
+        services: "",
         prefferedDate: new Date(),
         fromTime: "",
         toTime: "",
@@ -155,7 +155,7 @@ export const BookingListComponent = () => {
         comment: "",
         provider: "",
       });
-
+  
       setCustomerData({
         name: "",
         email: "",
@@ -167,12 +167,13 @@ export const BookingListComponent = () => {
         state: "",
         zip: "",
       });
-
+  
       toast.success("Booking added successfully");
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
   };
+  
 
 
   const handleChange = (e) => {
@@ -575,7 +576,7 @@ export const BookingListComponent = () => {
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group">
-                    <div className='d-flex' >
+                    <div className='' >
                       {calendarSub == null ? <></> :
                         <>
                           {calendarSub == 0 ? <button onClick={subscribe} type="button"
