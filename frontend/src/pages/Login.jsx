@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import * as Yup from "yup";
+import { toast } from 'react-toastify';
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { login } from "../api/authApis";
 import { encryptToken } from "../helpers/tokenUtils";
+import { getSubdomainFromUrl } from "../helpers/utils";
 
 const Login = () => {
   const [userData, setUserData] = useState({
@@ -31,7 +33,15 @@ const Login = () => {
     e.preventDefault();
     try {
         await validationSchema.validate(userData, { abortEarly: false });
-        const { accessToken, user } = await login(userData);
+        const BASE_URL = process.env.REACT_APP_BASE_URL;
+        const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL); //Check if current url is subdomain
+        const loginData = subdomain ? { ...userData, subdomain } : userData;  
+        const { success, message, accessToken, user } = await login(loginData);
+        if(success){
+          toast.success('Login successful');
+        } else{
+          toast.error(message);
+        }
         console.log("user>>>",user)
         
         // Save user data and access token in localStorage
@@ -46,12 +56,12 @@ const Login = () => {
         document.cookie = `isAuth=true; domain=.localhost; path=/`;
         document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;
     
-        const subdomain = user.subdomain.toLowerCase().replace(/\s/g, '');
+        const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
         const currentSubdomain = window.location.hostname.split('.')[0];
         const baseUrl = window.location.protocol + "//" + window.location.hostname;
 
         // Check if the current URL already contains a subdomain
-        const redirectToSubdomain = currentSubdomain === "localhost" ? `${subdomain}.` : "";
+        const redirectToSubdomain = currentSubdomain === "localhost" ? `${sd}.` : "";
 
         // Construct the redirection URL
         //const redirectUrl = `${window.location.protocol}//${redirectToSubdomain}${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
@@ -67,6 +77,7 @@ const Login = () => {
             setValidationErrors(validationErrors);
         } else {
             console.error("Login failed:", error.message);
+            toast.error("Login failed");
         }
     }
 };

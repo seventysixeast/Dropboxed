@@ -4,7 +4,6 @@ import { clientSignup } from "../api/authApis";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 
-
 const ClientSignup = () => {
     const navigate = useNavigate();
     const [userData, setUserData] = useState({
@@ -14,7 +13,6 @@ const ClientSignup = () => {
         business_name: "",
         password: "",
         confirm_password: "",
-        profile_photo: "",
         subdomain: ""
     });
 
@@ -32,10 +30,10 @@ const ClientSignup = () => {
     const validationSchema = Yup.object().shape({
         name: Yup.string().required("Name is required"),
         email: Yup.string().email("Invalid email").required("Email is required"),
+        phone: Yup.string().required("Phone is required"),
         business_name: Yup.string().required("Business Name is required"),
         password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
         confirm_password: Yup.string().oneOf([Yup.ref('password'), null], "Passwords must match").required("Confirm Password is required"),
-        profile_photo: Yup.mixed().required("Profile Photo is required")
     });
 
     const handleChange = (e) => {
@@ -52,11 +50,12 @@ const ClientSignup = () => {
             await validationSchema.validate(userData, { abortEarly: false });
             const response = await clientSignup(userData);
             if (response && response.status === 200) {
+                toast.success('Registration successful');
                 navigate("/login");
             } else {
+                toast.error('Registration failed');
                 console.error("Registration failed:", response.data.error);
             }
-
         } catch (error) {
             if (error.name === "ValidationError") {
                 const validationErrors = {};
@@ -67,6 +66,7 @@ const ClientSignup = () => {
             } else {
                 console.error("Signup failed:", error.message);
             }
+            toast.error('Signup failed');
         }
     };
 
@@ -120,6 +120,18 @@ const ClientSignup = () => {
                                                     <input
                                                         type="text"
                                                         className="form-control"
+                                                        id="user-phone"
+                                                        name="phone"
+                                                        value={userData.phone}
+                                                        onChange={handleChange}
+                                                        placeholder="Phone"
+                                                    />
+                                                    <small className="text-danger">{validationErrors.phone}</small>
+                                                </fieldset>
+                                                <fieldset className="form-group position-relative has-icon-left">
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
                                                         id="user-business-name"
                                                         name="business_name"
                                                         value={userData.business_name}
@@ -151,17 +163,6 @@ const ClientSignup = () => {
                                                         placeholder="Confirm Password"
                                                     />
                                                     <small className="text-danger">{validationErrors.confirm_password}</small>
-                                                </fieldset>
-                                                <fieldset className="form-group position-relative has-icon-left">
-                                                    <input
-                                                        type="file"
-                                                        className="form-control-file"
-                                                        id="user-profile-photo"
-                                                        name="profile_photo"
-                                                        onChange={handleChange}
-                                                        accept="image/*"
-                                                    />
-                                                    <small className="text-danger">{validationErrors.profile_photo}</small>
                                                 </fieldset>
                                                 <button
                                                     type="submit"

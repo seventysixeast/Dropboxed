@@ -8,7 +8,7 @@ const { SEND_EMAIL } = require('../helpers/emailTemplate');
 const { sendEmail } = require('../helpers/sendEmail');
 
 exports.login = async (req, res) => {
-  const { userName, password } = req.body;
+  const { userName, password, subdomain } = req.body;
 
   try {
     const user = await User.findOne({
@@ -20,12 +20,34 @@ exports.login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ status: false, message: 'Invalid email or password' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ status: false, message: 'Invalid email or password' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    // Check if the user's role is business owner (role = 5)
+    if (user.role === 5) {
+      // Verify if the user's subdomain matches the provided subdomain
+      if (user.subdomain !== subdomain) {
+        return res.status(401).json({ success: false, message: 'Unauthorized access' });
+      }
+    }
+
+    // Check if the user's role is client (role = 3)
+    if (user.role === 3) {
+      // Check if the client is connected to the provided subdomain
+      const businessClient = await BusinessClients.findOne({ where: { client_id: user.id } });
+      if (!businessClient) {
+        return res.status(401).json({ success: false, message: 'Unauthorized access' });
+      }
+
+      const businessOwner = await User.findByPk(businessClient.business_id);
+      if (!businessOwner || businessOwner.subdomain !== subdomain) {
+        return res.status(401).json({ success: false, message: 'Unauthorized access' });
+      }
     }
 
     // Generate JWT token
@@ -33,6 +55,7 @@ exports.login = async (req, res) => {
 
     // Return user information along with token
     res.json({
+      success: true,
       accessToken,
       user: {
         id: user.id,
@@ -40,11 +63,11 @@ exports.login = async (req, res) => {
         email: user.email,
         profilePhoto: user.profile_photo,
         subdomain: user.subdomain
-      }
+      },
     });
   } catch (error) {
     console.error('Error logging in: ', error);
-    res.status(500).json({status: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
@@ -52,17 +75,17 @@ exports.login = async (req, res) => {
 exports.signup = async (req, res) => {
   const { studioName, email, password, country } = req.body;
   console.log("req.body", req.body);
-  return res.status(401).json({ status: false, message: 'Invalid email or password' });
+  return res.status(401).json({ success: false, message: 'Invalid email or password' });
   try {
     // Check if the email is already registered
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ status: false, message: 'Email already exists' });
+      return res.status(400).json({ success: false, message: 'Email already exists' });
     }
 
     const existingDomain = await User.findOne({ where: { subdomain: studioName } });
     if (existingDomain) {
-      return res.status(400).json({ status: false, message: 'Studio name already exists' });
+      return res.status(400).json({ success: false, message: 'Studio name already exists' });
     }
 
     // Hash the password
@@ -82,10 +105,10 @@ exports.signup = async (req, res) => {
     // Send email notification
     await sendEmail(email, 'Welcome to Our App', SEND_EMAIL);
 
-    res.status(201).json({ status: true, message: 'User created successfully', user: newUser });
+    res.status(201).json({ success: true, message: 'Registration successfull', user: newUser });
   } catch (error) {
     console.error('Error signing up: ', error);
-    res.status(500).json({ status: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
@@ -128,13 +151,16 @@ exports.clientSignup = async (req, res) => {
   try {
     let imageName = req.files && req.files.profile_photo.name;
 
+    const { password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
     let clientData = {
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone || '',
       business_name: req.body.business_name || '',
       role_id: 3,
-      profile_photo: ''
+      //profile_photo: '',
+      password: hashedPassword
     };
 
     // Check if a subdomain exists for the business
@@ -143,7 +169,7 @@ exports.clientSignup = async (req, res) => {
       return res.status(400).json({ error: 'Subdomain does not exist' });
     }
 
-    if (req.files && Object.keys(req.files).length) {
+    /*if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
 
       // Generate a unique image name using timestamp
@@ -159,7 +185,7 @@ exports.clientSignup = async (req, res) => {
 
       // Assign the unique image name to clientData
       clientData.profile_photo = uniqueImageName;
-    }
+    }*/
 
     if (req.body.email !== '') {
       const existingEmail = await User.findOne({ where: { email: req.body.email } });
