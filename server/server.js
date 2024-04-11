@@ -4,7 +4,6 @@ const authRoutes = require('./routes/authRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const imageTypeRoutes = require('./routes/imageTypeRoutes');
-const calenderRoutes = require('./routes/calenderRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
 const cors = require('cors');
@@ -62,7 +61,6 @@ app.use('/auth', authRoutes);
 app.use('/client', clientRoutes);
 app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
-app.use('/calender', calenderRoutes)
 
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Protected route" });

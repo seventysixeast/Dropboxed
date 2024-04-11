@@ -23,9 +23,9 @@ import { useAuth } from "../context/authContext";
 import API from "../api/baseApi";
 
 export const BookingListComponent = () => {
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
   const { authData } = useAuth();
   const [providers, setProviders] = useState([]);
-  const [selectedProvider, setSelectedProvider] = useState(null);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
   const [selectedPackagePrice, setSelectedPackagePrice] = useState(0);
@@ -36,12 +36,14 @@ export const BookingListComponent = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [clientList, setClientList] = useState([]);
   const [events, setEvents] = useState([]);
-
+  const [bookingsData, setBookingsData] = useState([]);
   const [showConfirmModel, setShowConfirmModel] = useState(false);
   const userId = authData.user ? authData.user.id : null;
   const calendarSub = authData.user ? authData.user.calendarSub : null;
+  const [showDateModel, setShowDateModel] = useState(false);
 
   const [updateData, setUpdateData] = useState({
+    id: "",
     title: "",
     package: 1,
     services: '',
@@ -66,8 +68,6 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
-
-  console.log(bookingData);
 
   const [customerData, setCustomerData] = useState({
     name: "",
@@ -106,17 +106,13 @@ export const BookingListComponent = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log('oifjgoaijfgasdkljf;la');
     e.preventDefault();
     try {
-    console.log('oifjgoaijfgasdkljf;la 22222');
-
       const convertedTime = convertTo24Hour(bookingData.fromTime);
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
-      let [currentHours, currentMinutes, currentSeconds] =
-        convertedTime.split(":");
+      let [currentHours, currentMinutes, currentSeconds] = convertedTime.split(":");
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
       if (currentMinutes >= 60) {
@@ -142,7 +138,6 @@ export const BookingListComponent = () => {
         comment: bookingData.comment,
       };
 
-      console.log(bookingDataToSend);
       await newBooking(bookingDataToSend);
       getAllBookingsData();
       if (buttonRef.current) {
@@ -160,6 +155,7 @@ export const BookingListComponent = () => {
         comment: "",
         provider: "",
       });
+
       setCustomerData({
         name: "",
         email: "",
@@ -178,6 +174,7 @@ export const BookingListComponent = () => {
     }
   };
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     console.log(e.target.name);
@@ -188,7 +185,6 @@ export const BookingListComponent = () => {
     }));
   };
 
-  const [bookingsData, setBookingsData] = useState([]);
 
   useEffect(() => {
     getAllBookingsData();
@@ -260,7 +256,168 @@ export const BookingListComponent = () => {
     setSelectedPackagePrice(totalPrice);
   };
 
+  const getAllBookingsData = async () => {
+    try {
+      let allBookingData = await getAllBookings(userId);
+      setBookingsData(allBookingData.data);
+      let events = allBookingData.data.map((booking) => ({
+        id: booking.id,
+        title: booking.booking_title,
+        start: `${booking.booking_date}T${booking.booking_time}`,
+        end: `${booking.booking_date}T${booking.booking_time_to}`,
+      }));
 
+      setEvents(events);
+      console.log(events);
+    } catch (error) {
+      console.error("Failed to:", error.message);
+    }
+  };
+
+  const getBookingData = (data) => {
+    console.log(data);
+    const booking = bookingsData.find((booking) => booking.id === parseInt(data.id));
+    setBookingData({
+      title: data.booking_title,
+      package: data.package,
+      services: data.package_ids,
+      prefferedDate: data.booking_date,
+      fromTime: data.booking_time,
+      toTime: data.booking_time_to,
+      client: data.user_id,
+      comment: data.comment,
+      provider: data.photographer_id,
+      customer: data.user_id,
+    });
+  }
+
+  const deleteBookingData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", bookingIdToDelete);
+      formDataToSend.append("user_id", userId);
+      let res = await deleteBooking(formDataToSend);
+      setBookingsData((prevData) =>
+        prevData.filter((booking) => booking.id !== bookingIdToDelete)
+      );
+      if (res.success) {
+        toast.success(res.message);
+        setShowDeleteModal(false);
+        getAllBookingsData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const updateTimeData = async () => {
+    try {
+      const booking = bookingsData.find((booking) => booking.id === parseInt(updateData.id));
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", updateData.id);
+      formDataToSend.append("booking_date", booking.booking_date);
+      formDataToSend.append("booking_time", updateData.startTime);
+      formDataToSend.append("booking_time_to", updateData.endTime);
+      formDataToSend.append("user_id", userId);
+      formDataToSend.append("package_ids", booking.package_ids);
+      formDataToSend.append("package", booking.package);
+      formDataToSend.append("photographer_id", booking.photographer_id);
+      formDataToSend.append("booking_status", 1);
+      formDataToSend.append("comment", booking.comment);
+
+
+      await newBooking(formDataToSend);
+      getAllBookingsData();
+
+      setUpdateData({
+        title: "",
+        package: 1,
+        services: '',
+        prefferedDate: new Date(),
+        fromTime: "",
+        toTime: "60",
+        client: "",
+        comment: "",
+        provider: "",
+        customer: "",
+      });
+      setShowConfirmModel(false);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+  const handleEventResize = (arg) => {
+    let id = arg.event._def.publicId;
+
+    let newDate = new Date(arg.event.start + "Z");
+    let endDate = new Date(arg.event.end + "Z");
+    newDate.setDate(newDate.getDate());
+
+    let startTime = newDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+    let endTime = endDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+
+    const newStartTime = convertTo24Hour(startTime);
+    const newEndTime = convertTo24Hour(endTime);
+
+    setUpdateData((prevData) => ({
+      ...prevData,
+      id: id,
+      prefferedDate: newDate,
+      startTime: newStartTime,
+      endTime: newEndTime,
+    }));
+    console.log(updateData);
+
+
+    setShowConfirmModel(true);
+  };
+
+  const updateDateData = async () => {
+    try {
+      const booking = bookingsData.find((booking) => booking.id === parseInt(updateData.id));
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", updateData.id);
+      formDataToSend.append("booking_date", updateData.prefferedDate);
+      formDataToSend.append("booking_time", updateData.startTime);
+      formDataToSend.append("booking_time_to", updateData.endTime);
+      formDataToSend.append("user_id", userId);
+      formDataToSend.append("package_ids", booking.package_ids);
+      formDataToSend.append("package", booking.package);
+      formDataToSend.append("photographer_id", booking.photographer_id);
+      formDataToSend.append("booking_status", 1);
+      formDataToSend.append("comment", booking.comment);
+
+
+      await newBooking(formDataToSend);
+      getAllBookingsData();
+
+      setUpdateData({
+        title: "",
+        package: 1,
+        services: '',
+        prefferedDate: new Date(),
+        fromTime: "",
+        toTime: "60",
+        client: "",
+        comment: "",
+        provider: "",
+        customer: "",
+      });
+      setShowDateModel(false);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
   const handleDateChange = (arg) => {
     let id = arg.event._def.publicId;
 
@@ -290,126 +447,7 @@ export const BookingListComponent = () => {
       endTime: newEndTime,
     });
 
-    setShowConfirmModel(true);
-  };
-
-  useEffect(() => { }, []);
-
-  const getAllBookingsData = async () => {
-    try {
-      let allBookingData = await getAllBookings();
-      setBookingsData(allBookingData.data);
-      let events = allBookingData.data.map((booking) => ({
-        id: booking.id,
-        title: booking.booking_title,
-        start: `${booking.booking_date}T${booking.booking_time}`,
-        end: `${booking.booking_date}T${booking.booking_time_to}`,
-      }));
-
-      setEvents(events);
-      console.log(events);
-    } catch (error) {
-      console.error("Failed to:", error.message);
-    }
-  };
-
-  const getBookingData = (data) => {
-    setBookingData(prevBookingData => ({
-      ...prevBookingData,
-      title: data.booking_title,
-      package: data.package,
-      prefferedDate: new Date(data.booking_date),
-      fromTime: data.booking_time,
-      toTime: data.booking_time_to,
-      client: data.client_name,
-      comment: data.comment,
-      provider: data.User.name,
-      customer: data.User.name
-    }));
-  }
-
-  const deleteBookingData = async () => {
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("id", bookingIdToDelete);
-      let res = await deleteBooking(formDataToSend);
-      setBookingsData((prevData) =>
-        prevData.filter((booking) => booking.id !== bookingIdToDelete)
-      );
-      if (res.success) {
-        toast.success(res.message);
-        setShowDeleteModal(false);
-        getAllBookingsData();
-      } else {
-        toast.error(res.message);
-      }
-    } catch (error) {
-      toast.error(error);
-    }
-  };
-
-  const updateBookingData = async () => {
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("id", updateData.id);
-      formDataToSend.append("booking_date", updateData.prefferedDate);
-      formDataToSend.append("booking_time", updateData.startTime);
-      formDataToSend.append("booking_time_to", updateData.endTime);
-      let res = await updateBooking(formDataToSend);
-      if (res.success) {
-        toast.success(res.message);
-        getAllBookingsData();
-        setUpdateData({
-          title: "",
-          package: 1,
-          services: null,
-          prefferedDate: new Date(),
-          fromTime: "",
-          toTime: "60",
-          client: "",
-          comment: "",
-          provider: "",
-          customer: "",
-        });
-        setShowConfirmModel(false);
-      } else {
-        toast.error(res.message);
-      }
-    } catch (error) {
-      toast.error(error);
-    }
-  };
-
-  const handleEventResize = (arg) => {
-    let id = arg.event._def.publicId;
-
-    let newDate = new Date(arg.event.start + "Z");
-    let endDate = new Date(arg.event.end + "Z");
-    newDate.setDate(newDate.getDate());
-
-    let newDateString = newDate.toISOString().split("T")[0];
-
-    let startTime = newDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "UTC",
-    });
-    let endTime = endDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "UTC",
-    });
-
-    const newStartTime = convertTo24Hour(startTime);
-    const newEndTime = convertTo24Hour(endTime);
-
-    setUpdateData({
-      id: id,
-      prefferedDate: newDate,
-      startTime: newStartTime,
-      endTime: newEndTime,
-    });
-    setShowConfirmModel(true);
+    setShowDateModel(true);
   };
 
   const columns = React.useMemo(
@@ -417,7 +455,7 @@ export const BookingListComponent = () => {
       {
         Header: "Booking Date",
         accessor: "booking_date",
-        headerStyle: { width: "fit-content" },
+        headerStyle: { width: '200px' },
       },
       {
         Header: "Booking Time",
@@ -486,9 +524,6 @@ export const BookingListComponent = () => {
     []
   );
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
-
-
   const subscribe = useGoogleLogin({
     onSuccess: (codeResponse) => {
       axios.post(`${API_URL}/auth/google`, {
@@ -513,32 +548,6 @@ export const BookingListComponent = () => {
     flow: 'auth-code',
     include_granted_scopes: true
   });
-  console.log(selectedService);
-
-  const insertEvent = async () => { // Make the function async
-    const event = {
-      id: 155999,
-      summary: "Test Event",
-      location: "Test Location",
-      description: "This is a test event for testing purposes.",
-      start: {
-        dateTime: "2024-04-10T02:00:00+05:30",
-        timeZone: "Asia/Kolkata",
-      },
-      end: {
-        dateTime: "2024-04-10T04:00:00+05:30",
-        timeZone: "Asia/Kolkata",
-      },
-    };
-
-    try {
-      const response = await API.post('/calender/addcalenderevent', {
-        event: event
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   return (
     <>
@@ -582,9 +591,7 @@ export const BookingListComponent = () => {
                         New Appointment
                       </button>
                     </div>
-                    {/* <button onClick={subscribe}>Subscribe to Calendar</button> */}
 
-                    {/* <button onClick={insertEvent}>Add Event</button> */}
                     <div
                       className="modal fade text-left"
                       id="appointment"
@@ -1197,6 +1204,7 @@ export const BookingListComponent = () => {
                           </form>
                         </div>
                       </div>
+
                     </div>
                   </div>
                 </li>
@@ -1263,7 +1271,24 @@ export const BookingListComponent = () => {
       <DeleteModal
         isOpen={showConfirmModel}
         onClose={() => setShowConfirmModel(false)}
-        onConfirm={updateBookingData}
+        onConfirm={updateTimeData}
+        message={
+          <>
+            <div className="justify-items-center" role="alert">
+              <h3 className="text-center">Confirm Rechedule </h3>
+              <div className="p-2 text-center">
+                <p className="mb-0 ">
+                  Do you with to Reschedule the appointment?
+                </p>
+              </div>
+            </div>
+          </>
+        }
+      />
+      <DeleteModal
+        isOpen={showDateModel}
+        onClose={() => setShowDateModel(false)}
+        onConfirm={updateDateData}
         message={
           <>
             <div className="justify-items-center" role="alert">

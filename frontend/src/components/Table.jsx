@@ -1,8 +1,7 @@
-import React, { useMemo } from "react";
-import { useTable, useFilters, useGlobalFilter, usePagination } from "react-table";
+import React from "react";
+import { useTable, useFilters, useGlobalFilter, useSortBy, usePagination } from "react-table";
 
 const TableCustom = ({ data, columns }) => {
-  // Use the necessary hooks for table functionality
   const {
     getTableProps,
     getTableBodyProps,
@@ -24,17 +23,15 @@ const TableCustom = ({ data, columns }) => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0 }, // Start at page 0
+      initialState: { pageIndex: 0, sortBy: [{ id: columns[0].accessor, desc: true }]}
+      
     },
     useFilters,
     useGlobalFilter,
-    usePagination
+    useSortBy,
+    usePagination,
+
   );
-
-  // Memoize the table data to prevent unnecessary re-renders
-  const memoizedColumns = useMemo(() => columns, [columns]);
-
-  // Render the table
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -43,31 +40,31 @@ const TableCustom = ({ data, columns }) => {
           <section id="pagination">
             <div className="row">
               <div className="col-12">
-                <div className="card">
+                <div className="card pb-4">
                   <div className="card-content collapse show">
                     <div className="card-body card-dashboard dataTables_wrapper dt-bootstrap4">
-                      <div className="d-flex justify-content-between" style={{marginBottom:'5px', marginLeft:'0 !important'}}>
-                        <div className="col-sm-12 col-md-5" style={{ marginLeft:'-15px'}}>
+                      <div className="d-flex justify-content-between" style={{ marginBottom: '5px', marginLeft: '0 !important' }}>
+                        <div className="col-sm-12 col-md-5" style={{ marginLeft: '-15px' }}>
                           <span> Show{" "}
-                          <select
-                            value={pageSize}
-                            onChange={(e) => setPageSize(Number(e.target.value))}
-                            className="custom-select custom-select-sm form-control form-control-sm  w-25"
-                          >
-                            {[10, 25, 50, 100].map((pageSize) => (
-                              <option key={pageSize} value={pageSize}>
-                                Show {pageSize}
-                              </option>
-                            ))}
-                          </select>
-                          {" "}Entries
+                            <select
+                              value={pageSize}
+                              onChange={(e) => setPageSize(Number(e.target.value))}
+                              className="custom-select custom-select-sm form-control form-control-sm  w-25"
+                            >
+                              {[10, 25, 50, 100].map((pageSize) => (
+                                <option key={pageSize} value={pageSize}>
+                                  Show {pageSize}
+                                </option>
+                              ))}
+                            </select>
+                            {" "}Entries
                           </span>
                         </div>
                         <div className="col-sm-12 col-md-7">
                           <input
                             type="search"
                             className="form-control form-control-sm float-right w-25"
-                            style={{marginRight:'-16px'}}
+                            style={{ marginRight: '-16px' }}
                             value={globalFilter || ""}
                             onChange={(e) => setGlobalFilter(e.target.value)}
                             placeholder="Search..."
@@ -79,7 +76,14 @@ const TableCustom = ({ data, columns }) => {
                           {headerGroups.map((headerGroup) => (
                             <tr {...headerGroup.getHeaderGroupProps()}>
                               {headerGroup.headers.map((column) => (
-                                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                                  {column.render("Header")}
+                                  {/* Add sorting indicators. also show both when not sorting by any*/}
+                                                                    
+                                  <span>
+                                    {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc"/> : <i className="fa fa-sort-asc"/>) : ''}
+                                  </span>
+                                </th>
                               ))}
                             </tr>
                           ))}

@@ -3,63 +3,20 @@
 const Booking = require("../models/Booking");
 const User = require("../models/Users");
 const Package = require("../models/Packages");
-const fs = require("fs");
-const md5 = require("md5");
 const { google } = require("googleapis");
 const { OAuth2 } = google.auth;
 const axios = require("axios");
 const Users = require("../models/Users");
 
 const oAuth2Client = new OAuth2(
-  "49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com",
-  "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",
-  "http://localhost:3000/auth/google/callback"
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_CLIENT_CALLBACK
 );
 
-oAuth2Client.setCredentials({
-  access_token:
-    "ya29.a0Ad52N39O7YTV2QnDUbI3hN9t_Sf_TPXOkb0Wzu-TbsR9gyPYCamzkMa0UkOT7xeK8WLdlanKhSlhpXu_oOHkI9RGCCMs2M9SM_nMjch2hPIIAJ1EeYJMthiA79FQqvIAQlBkRSvBC2waVCP_kDv90tE_ZG4xAegLplGYaCgYKAe8SARASFQHGX2Mi9sP8FgfhQ7uW3wZd4ZUYRA0171",
-});
-
-const SCOPES = [
-  "https://www.googleapis.com/auth/calendar.events.readonly",
-  "https://www.googleapis.com/auth/calendar.events",
-  "https://www.googleapis.com/auth/calendar",
-  "https://www.googleapis.com/auth/calendar.app.created",
-  "https://www.googleapis.com/auth/calendar.readonly",
-];
-const tokenEndpoint = "https://oauth2.googleapis.com/token";
-const authorizationCode =
-  "4/0AeaYSHBwjSq5-UPOC2M4_piiMi273mhISRZewsb7ESik4n-OxvN3aKQwgiApS4IymwJAXQ";
-
-const tokenRequestBody = {
-  code: authorizationCode,
-  client_id:
-    "49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com",
-  client_secret: "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",
-  redirect_uri: "http://localhost:3000/auth/google/callback",
-  grant_type: "authorization_code",
-};
-
-const authUrl = oAuth2Client.generateAuthUrl({
-  access_type: "offline",
-  scope: SCOPES,
-});
-
-async function getTokens() {
-  try {
-    const response = await axios.post(tokenEndpoint, tokenRequestBody);
-    console.log(response);
-    const tokens = response;
-    return tokens;
-  } catch (error) {
-    console.error(
-      "Error exchanging authorization code for tokens:",
-      error.response
-    );
-    throw error;
-  }
-}
+const client_id = process.env.GOOGLE_CLIENT_ID;
+const client_secret = process.env.GOOGLE_CLIENT_SECRET;
+const redirect_uri = "postmessage";
 
 async function getCalendarList() {
   try {
@@ -93,80 +50,168 @@ async function createCalendar() {
   }
 }
 
-// const addevent = async (req, res) => {
-//   const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
-//   // await createCalendar()
-//   // const calendarsMy = await getCalendarList();
-
-//   const events = await calendar.events.list({
-//     calendarId: "c17bb61364a8fff468066de3a7b884a8cbe83e61ad9b47cf633f34b4d01d1297@group.calendar.google.com",
-//     singleEvents: true,
-//     orderBy: "startTime",
-//   });
-//   //prevent readding same event if booking_id is same
-//   if (events.data.items.find((event) => event.id === req.body.event.id)) {
-//     return res.status(400).json({
-//       message: "event already exists",
-//       events
-//     });
-//   }
-
-//   const resp = await calendar.events.insert({
-//     calendarId: "c17bb61364a8fff468066de3a7b884a8cbe83e61ad9b47cf633f34b4d01d1297@group.calendar.google.com",
-//     resource: req.body.event,
-//     events
-//   });
-
-//   res.status(200).json({
-//     message: "event added",
-//     events
-//   });
-// };
-
-async function addevent(data) {
+async function addevent(data, userID) {
   console.log(data);
+  let theuser = await Users.findOne({ where: { id: userID } });
+  let code = theuser.dataValues.refresh_token;
+  let grant_type = "refresh_token";
 
-  let theuser = await Users.findOne({ where: { id: data.user_id } });
+  const response = await axios
+    .post(
+      "https://oauth2.googleapis.com/token",
+      new URLSearchParams({
+        refresh_token: code,
+        client_id,
+        client_secret,
+        redirect_uri,
+        grant_type,
+        scope:
+          "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
+        access_type: "offline",
+        prompt: "consent",
+        include_granted_scopes: "true",
+      }).toString(),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    )
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error("Refresh token exchange error:", error);
+      throw new Error("Refresh token exchange error");
+    });
+
+  const tokens = response;
   oAuth2Client.setCredentials({
-    access_token: theuser.access_token
+    access_token: tokens.access_token,
   });
   const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
-  // const events = await calendar.events.list({
-  //   calendarId: theuser.calendar_id,
-  //   singleEvents: true,
-  //   orderBy: "startTime",
-  // });
+  const id = "123" + data.id;
 
-  const resp = await calendar.events.insert({
+  const events = await calendar.events.list({
     calendarId: theuser.calendar_id,
-    resource: {
-      summary: data.booking_title || 'Untitled Event',
-      start: {
-        dateTime: data.booking_date,
-        timeZone: 'UTC',
-      },
-      end: {
-        dateTime: data.booking_date_to || data.booking_date,
-        timeZone: 'UTC',
-      },
-    },
+    singleEvents: true,
+    orderBy: "startTime",
+    showDeleted: true,
   });
+  console.log(events.data.items[1].id, id);
+  const existingEvent = events.data.items.find((event) => event.id === id);
+  console.log("update");
 
-  return resp;
+  console.log(existingEvent);
+  if (existingEvent && existingEvent.status !== "cancelled") {
+    const resp = await calendar.events.update({
+      calendarId: theuser.calendar_id,
+      eventId: id,
+      resource: {
+        id: id,
+        summary: data.booking_title || "Untitled Event",
+        start: {
+          dateTime: data.booking_date,
+          timeZone: "UTC",
+        },
+        end: {
+          dateTime: data.booking_date_to || data.booking_date,
+          timeZone: "UTC",
+        },
+        status: data.status || "confirmed",
+      },
+    });
+    return;
+  } else {
+    const resp = await calendar.events.insert({
+      calendarId: theuser.calendar_id,
+      resource: {
+        id: id,
+        summary: data.booking_title || "Untitled Event",
+        start: {
+          dateTime: data.booking_date,
+          timeZone: "UTC",
+        },
+        end: {
+          dateTime: data.booking_date_to || data.booking_date,
+          timeZone: "UTC",
+        },
+        status: data.status || "confirmed",
+      },
+    });
+    return;
+  }
 }
+
+async function deleteevent(bookingId, userId) {
+
+  let theuser = await Users.findOne({ where: { id: userId } });
+  let code = theuser.dataValues.refresh_token;
+  let grant_type = "refresh_token";
+
+  const response = await axios
+    .post(
+      "https://oauth2.googleapis.com/token",
+      new URLSearchParams({
+        refresh_token: code,
+        client_id,
+        client_secret,
+        redirect_uri,
+        grant_type,
+        scope:
+        "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
+        access_type: "offline",
+        prompt: "consent",
+        include_granted_scopes: "true",
+      }).toString(),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+      )
+      .then((response) => response.data)
+      .catch((error) => {
+        console.error("Refresh token exchange error:", error);
+        throw new Error("Refresh token exchange error");
+      });
+
+      const tokens = response;
+      oAuth2Client.setCredentials({
+        access_token: tokens.access_token,
+      });
+      const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
+      const id = "123" + bookingId;
+      //get event list
+      const events = await calendar.events.list({
+        calendarId: theuser.calendar_id,
+        singleEvents: true,
+        orderBy: "startTime",
+        showDeleted: true,
+      });
+      //find the event with the matching id
+      const existingEvent = events.data.items.find((event) => event.id === id);
+      console.log(existingEvent);
+      if (!existingEvent) {
+        return;
+      }
+      const resp = await calendar.events.delete({
+        calendarId: theuser.calendar_id,
+        eventId: id,
+      });
+      return resp;
+    }
 
 const createBooking = async (req, res) => {
   try {
     let data = req.body;
+    let userID = req.body.user_id;
     const usersWithRoleId1 = await User.findAll({
       where: { id: req.body.user_id },
       attributes: ["id", "name", "address"],
     });
-    const { name, address } = usersWithRoleId1[0];
     let client_address;
     let client_name;
-    client_address = address;
-    client_name = name;
+    client_address = usersWithRoleId1[0].address || "";
+    client_name = usersWithRoleId1[0].name || "";
     data.client_address = client_address;
     data.client_name = client_name;
     data.booking_title = client_address;
@@ -181,10 +226,21 @@ const createBooking = async (req, res) => {
     } else {
       booking = await Booking.create(data);
     }
-    let theuser = await Users.findOne({ where: { id: booking.user_id } });
 
-    if (theuser.calendar_sub == 1) {
-      await addevent(booking);
+    let theUser = await Users.findOne({
+      attributes: ["calendar_sub"],
+      where: { id: userID },
+    });
+
+    if (theUser && theUser.calendar_sub == 1) {
+      // Use try-catch to handle the asynchronous addevent function
+      try {
+        await addevent(booking, userID);
+      } catch (error) {
+        console.error("Failed to add event:", error.message);
+        // Handle the error from addevent function
+        return res.status(500).json({ error: "Failed to add event" });
+      }
     }
 
     res.status(200).json({
@@ -192,8 +248,6 @@ const createBooking = async (req, res) => {
       message: req.body.id
         ? "Booking updated successfully"
         : "Booking created successfully",
-      data: booking,
-      theuser,
     });
   } catch (error) {
     console.error("Failed to add booking:", error.message);
@@ -227,21 +281,17 @@ const providers = async (req, res) => {
 const getAllBookings = async (req, res) => {
   try {
     let bookings = await Booking.findAll({
-      include: [
-        {
-          model: User,
-          attributes: ["name", "colorcode", "address"],
-          where: {
-            role_id: 3,
-          },
-        },
-      ],
+      include: [{
+        model: User,
+        attributes: ['name', 'colorcode', 'address']
+      }]
     });
     res.status(200).json({ success: true, data: bookings });
   } catch (error) {
     res.status(500).json({ error: "Failed to list bookings" });
   }
 };
+
 
 const getBooking = async (req, res) => {
   try {
@@ -255,20 +305,41 @@ const getBooking = async (req, res) => {
 const deleteBooking = async (req, res) => {
   try {
     const bookingId = req.body.id;
+    const userId = req.body.user_id;
     const deleted = await Booking.destroy({
       where: { id: bookingId },
     });
+
+    let responseMessage = "Booking deleted successfully";
+    let responseData = null;
+
     if (deleted) {
-      res
-        .status(200)
-        .json({ success: true, message: "Booking deleted successfully" });
+      let theUser = await Users.findOne({
+        attributes: ["calendar_sub"],
+        where: { id: userId },
+      });
+
+      if (theUser && theUser.calendar_sub == 1) {
+        // Delete event from calendar
+        try {
+          responseData = await deleteevent(bookingId, userId);
+        } catch (error) {
+          console.error("Error deleting event:", error);
+          responseMessage = "Error deleting event";
+        }
+      }
     } else {
-      res.status(404).json({ success: false, message: "Booking not found" });
+      responseMessage = "Booking not found";
+      res.status(404);
     }
+
+    res.json({ success: deleted, message: responseMessage, data: responseData });
   } catch (error) {
+    console.error("Failed to delete Booking:", error);
     res.status(500).json({ error: "Failed to delete Booking" });
   }
 };
+
 
 const updateBooking = async (req, res) => {
   try {

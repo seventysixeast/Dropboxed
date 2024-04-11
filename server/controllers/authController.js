@@ -5,46 +5,15 @@ const User = require("../models/Users");
 const { generateAccessToken } = require("../utils/jwtUtils");
 const { SEND_EMAIL } = require("../helpers/emailTemplate");
 const { sendEmail } = require("../helpers/sendEmail");
-
 const { google } = require("googleapis");
 const { OAuth2 } = google.auth;
 const axios = require("axios");
 
 const oAuth2Client = new OAuth2(
-  "49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com",
-  "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",
-  "http://localhost:3000/auth/google/callback"
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_CLIENT_CALLBACK
 );
-
-oAuth2Client.setCredentials({
-  access_token:
-    "ya29.a0Ad52N38IUZXQTTqvuTXjXHYMcEIwZJfaOzdIijKFw1k6PQTqKr72uNuPSKL76_2F4JnOdVTNE0p-8Ygji2jer7jvQ1RVZMtAokJt8k9Bk_OCNgMmRutdxTfV1uDGczhO4GMJ36gFyi-ICZJJQSyTlJDaFRlOQ9trVzREaCgYKAZ4SARASFQHGX2Mimz6H4PCQbNhP18IH1TACaA0171",
-});
-
-const SCOPES = [
-  "https://www.googleapis.com/auth/calendar.events.readonly",
-  "https://www.googleapis.com/auth/calendar.events",
-  "https://www.googleapis.com/auth/calendar",
-  "https://www.googleapis.com/auth/calendar.app.created",
-  "https://www.googleapis.com/auth/calendar.readonly",
-];
-const tokenEndpoint = "https://oauth2.googleapis.com/token";
-const authorizationCode =
-  "4/0AeaYSHBwjSq5-UPOC2M4_piiMi273mhISRZewsb7ESik4n-OxvN3aKQwgiApS4IymwJAXQ";
-
-const tokenRequestBody = {
-  code: authorizationCode,
-  client_id:
-    "49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com",
-  client_secret: "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",
-  redirect_uri: "http://localhost:3000/auth/google/callback",
-  grant_type: "authorization_code",
-};
-
-const authUrl = oAuth2Client.generateAuthUrl({
-  access_type: "offline",
-  scope: SCOPES,
-});
 
 exports.login = async (req, res) => {
   const { userName, password } = req.body;
@@ -130,29 +99,16 @@ exports.signup = async (req, res) => {
     // Send email notification
     await sendEmail(email, "Welcome to Our App", SEND_EMAIL);
 
-    res
-      .status(201)
-      .json({
-        status: true,
-        message: "User created successfully",
-        user: newUser,
-      });
+    res.status(201).json({
+      status: true,
+      message: "User created successfully",
+      user: newUser,
+    });
   } catch (error) {
     console.error("Error signing up: ", error);
     res.status(500).json({ status: false, message: "Internal Server Error" });
   }
 };
-
-// async function getCalendarList() {
-//   try {
-//     const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
-
-//     return calendars;
-//   } catch (error) {
-//     console.error("Error fetching calendar list:", error);
-//     throw error;
-//   }
-// }
 
 async function createCalendar(data) {
   oAuth2Client.setCredentials({
@@ -161,18 +117,14 @@ async function createCalendar(data) {
 
   try {
     const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
-
     const calendarName = "dropboxed";
-
     const calendarlist = await calendar.calendarList.list();
     const userCalenders = calendarlist.data.items;
 
-    // if dropboxed named calendar exists then don't create new calendar just return the id of the old calnedar
     if (userCalenders.some((calendar) => calendar.summary === calendarName)) {
       const calendarId = userCalenders.find(
         (calendar) => calendar.summary === calendarName
       ).id;
-      console.log("Calendar already exists:", calendarId);
       return calendarId;
     }
 
@@ -181,8 +133,6 @@ async function createCalendar(data) {
         summary: calendarName,
       },
     });
-
-    console.log("Calendar created:", response.data.id);
   } catch (error) {
     console.error("Error creating calendar:", error);
     throw error;

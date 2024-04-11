@@ -1,5 +1,4 @@
 import API from "./baseApi";
-import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
 
@@ -29,7 +28,7 @@ const createCalendar = async (calendarData) => {
 
 const getAllBookings = async () => {
   try {
-    const response = await axios.get(`${API_URL}/booking/getAllBookings`);
+    const response = await API.get(`/booking/getAllBookings`);
     if (response.status !== 200) {
       throw new Error('Failed to get all bookings');
     }
@@ -41,7 +40,7 @@ const getAllBookings = async () => {
 
 const getBooking = async (data) => {
   try {
-    const response = await axios.post('http://localhost:6977/booking/getBooking', data, {
+    const response = await API.post(`/booking/getBooking`, data, {
       headers: {
         'Content-Type': 'application/json',
       },
