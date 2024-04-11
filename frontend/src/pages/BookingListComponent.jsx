@@ -111,7 +111,7 @@ export const BookingListComponent = () => {
       const convertedTime = convertTo24Hour(bookingData.fromTime);
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
-  
+
       let [currentHours, currentMinutes, currentSeconds] = convertedTime.split(":");
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
@@ -119,12 +119,12 @@ export const BookingListComponent = () => {
         currentHours += 1;
         currentMinutes -= 60;
       }
-  
+
       currentHours = ("0" + currentHours).slice(-2);
       currentMinutes = ("0" + currentMinutes).slice(-2);
-  
+
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
-  
+
       const bookingDataToSend = {
         user_id: bookingData.client,
         package_ids: bookingData.services,
@@ -136,13 +136,13 @@ export const BookingListComponent = () => {
         booking_status: 1,
         comment: bookingData.comment,
       };
-  
+
       await newBooking(bookingDataToSend);
       getAllBookingsData();
       if (buttonRef.current) {
         buttonRef.current.click();
       }
-  
+
       // Clear form data
       setBookingData({
         title: "",
@@ -155,7 +155,7 @@ export const BookingListComponent = () => {
         comment: "",
         provider: "",
       });
-  
+
       setCustomerData({
         name: "",
         email: "",
@@ -167,13 +167,13 @@ export const BookingListComponent = () => {
         state: "",
         zip: "",
       });
-  
+
       toast.success("Booking added successfully");
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
   };
-  
+
 
 
   const handleChange = (e) => {
@@ -557,9 +557,9 @@ export const BookingListComponent = () => {
     <>
       <div className="app-content content">
         <div className={`content-overlay`}></div>
-        <div className="content-wrapper">
-          <div className="content-header row">
-            <div className="content-header-left col-md-6 col-6 mb-2">
+        <div className="content-wrapper" >
+          <div className="content-header row" style={{paddingBottom: '5px'}}>
+            <div className="content-header-left col-md-6 col-6">
               <h3 className="content-header-title mb-0">Booking List</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
@@ -572,30 +572,25 @@ export const BookingListComponent = () => {
                 </div>
               </div>
             </div>
-            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
+            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center ">
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group">
-                    <div className='' >
+                    <div className="">
                       {calendarSub == null ? <></> :
-                        <>
-                          {calendarSub == 0 ? <button onClick={subscribe} type="button"
-                            className="btn btn-outline-primary btn-block" title="Already subscribed to the calendar">Subscribe to Calendar</button> :
-                            <button type="button"
-                              className="btn btn-outline-primary btn-block" disabled title="Already subscribed to the calendar">Subscribed</button>
-                          }</>
+                        <button type="button"
+                          className="btn btn-outline-primary mx-1" disabled={calendarSub == 1} >{calendarSub == 1 ? 'Subsribed' : 'Subsribe to Calendar'}</button>
                       }
                       <button
                         ref={buttonRef}
                         type="button"
-                        className="btn btn-outline-primary btn-block"
+                        className="btn btn-outline-primary"
                         data-toggle="modal"
                         data-target="#appointment"
                       >
                         New Appointment
                       </button>
                     </div>
-
                     <div
                       className="modal fade text-left"
                       id="appointment"
