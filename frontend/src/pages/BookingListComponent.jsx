@@ -65,8 +65,6 @@ export const BookingListComponent = () => {
     customer: "",
   });
 
-  console.log(packages);
-
   const [bookingData, setBookingData] = useState({
     title: "",
     package: 1,

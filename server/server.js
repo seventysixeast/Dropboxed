@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
 const clientRoutes = require('./routes/clientRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const imageTypeRoutes = require('./routes/imageTypeRoutes');
 const calenderRoutes = require('./routes/calenderRoutes');
@@ -45,6 +46,7 @@ app.get("/*", (req, res, next) => {
   if (
     req.url.startsWith("/auth/") ||
     req.url.startsWith("/client/") ||
+    req.url.startsWith("/service/") ||
     req.url.startsWith("/booking/") ||
     req.url.includes("/imageType/") ||
     req.url.includes("/assets/")
@@ -61,6 +63,7 @@ app.get("/*", (req, res, next) => {
 
 app.use('/auth', authRoutes);
 app.use('/client', clientRoutes);
+app.use('/service', serviceRoutes);
 app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
 app.use('/calender', calenderRoutes)
