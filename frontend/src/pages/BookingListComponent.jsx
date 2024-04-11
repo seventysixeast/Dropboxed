@@ -3,11 +3,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import {
-  createCalendar,
   newBooking,
   updateBooking,
   getAllBookings,
-  getBooking,
   deleteBooking,
 } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
@@ -16,46 +14,39 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import toolIcons from "../assets/images/i.png";
-import { createClient } from "../api/clientApis";
 import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
 import TableCustom from "../components/Table";
-import { GoogleLogin, useGoogleLogin, hasGrantedAllScopesGoogle } from '@react-oauth/google';
-
+import { useGoogleLogin, } from '@react-oauth/google';
+import { useAuth } from "../context/authContext";
+import API from "../api/baseApi";
 
 export const BookingListComponent = () => {
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
+  const { authData } = useAuth();
   const [providers, setProviders] = useState([]);
-  const [selectedProvider, setSelectedProvider] = useState(null);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
-  const [selectedPackage, setSelectedPackage] = useState();
   const [selectedPackagePrice, setSelectedPackagePrice] = useState(0);
-  const [appointmentTime, setAppointmentTime] = useState();
   const buttonRef = useRef(null);
   const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
   const [clientList, setClientList] = useState([]);
-  const [selectedClient, setSelectedClient] = useState(null);
-  const options = [
-    { value: "chocolate", label: "Chocolate" },
-    { value: "strawberry", label: "Strawberry" },
-    { value: "vanilla", label: "Vanilla" },
-  ];
   const [events, setEvents] = useState([]);
-
-  const [showUpdateModel, setShowUpdateModel] = useState(false);
-  const [bookingToUpdate, setBookingToUpdate] = useState(null);
+  const [bookingsData, setBookingsData] = useState([]);
   const [showConfirmModel, setShowConfirmModel] = useState(false);
-
-  const [showUpdateBox, setShowUpdateBox] = useState(false);
+  const userId = authData.user ? authData.user.id : null;
+  const calendarSub = authData.user ? authData.user.calendarSub : null;
+  const [showDateModel, setShowDateModel] = useState(false);
 
   const [updateData, setUpdateData] = useState({
+    id: "",
     title: "",
     package: 1,
-    services: null,
+    services: '',
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -65,12 +56,10 @@ export const BookingListComponent = () => {
     customer: "",
   });
 
-  console.log(packages);
-
   const [bookingData, setBookingData] = useState({
     title: "",
     package: 1,
-    services: null,
+    services: '',
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -119,21 +108,12 @@ export const BookingListComponent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // const data = await createClient(customerData);
-      // console.log(data.data.id);
-      // Function to convert 12-hour time to 24-hour time
-
       const convertedTime = convertTo24Hour(bookingData.fromTime);
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
-      console.log(hoursToAdd, minutesToAdd);
-
-      let [currentHours, currentMinutes, currentSeconds] =
-        convertedTime.split(":");
-      console.log(convertedTime);
+      let [currentHours, currentMinutes, currentSeconds] = convertedTime.split(":");
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
-      console.log(currentHours);
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
       if (currentMinutes >= 60) {
         currentHours += 1;
@@ -144,42 +124,38 @@ export const BookingListComponent = () => {
       currentMinutes = ("0" + currentMinutes).slice(-2);
 
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
-      console.log(newToTime);
-      console.log(selectedProvider.value, selectedClient.value);
-      const values = selectedService.map((service) => service.value);
-      const formattedValues = values.join(", ");
 
       const bookingDataToSend = {
-        user_id: selectedClient.value,
-        package_ids: formattedValues,
+        user_id: bookingData.client,
+        package_ids: bookingData.services,
         package: 0,
-        photographer_id: selectedProvider.value,
+        photographer_id: bookingData.provider,
         booking_date: bookingData.prefferedDate,
         booking_time: convertedTime,
         booking_time_to: newToTime,
         booking_status: 1,
         comment: bookingData.comment,
       };
+
       await newBooking(bookingDataToSend);
       getAllBookingsData();
       if (buttonRef.current) {
         buttonRef.current.click();
       }
 
-      console.log(bookingsData);
-      // clear data
+      // Clear form data
       setBookingData({
         title: "",
         package: 1,
-        services: null,
+        services: "",
         prefferedDate: new Date(),
         fromTime: "",
         toTime: "",
         client: "",
         comment: "",
         provider: "",
-        customer: "",
       });
+
       setCustomerData({
         name: "",
         email: "",
@@ -198,9 +174,11 @@ export const BookingListComponent = () => {
     }
   };
 
+
+
   const handleChange = (e) => {
-    console.log(e.target.value);
     const { name, value } = e.target;
+    console.log(e.target.name);
 
     setBookingData((prevData) => ({
       ...prevData,
@@ -208,7 +186,6 @@ export const BookingListComponent = () => {
     }));
   };
 
-  const [bookingsData, setBookingsData] = useState([]);
 
   useEffect(() => {
     getAllBookingsData();
@@ -219,8 +196,8 @@ export const BookingListComponent = () => {
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {
-        const response = await fetch("http://localhost:6977/booking/providers");
-        const data = await response.json();
+        const response = await API.get("/booking/providers");
+        const data = response.data;
         setProviders(data.usersWithRoleId1);
         setClientList(data.users);
         setPackages(data.packages);
@@ -234,24 +211,19 @@ export const BookingListComponent = () => {
       }
     }
   };
-
   const handleDateClick = (arg) => {
-    console.log("Date clicked:", arg);
     const selectedDate = new Date(arg.date);
     const selectedTime = selectedDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
-    console.log("Selected time:", selectedTime);
 
     setBookingData((prevData) => {
-      console.log("Previous data:", prevData);
       const newData = {
         ...prevData,
         prefferedDate: selectedDate,
         fromTime: selectedTime,
       };
-      console.log("New data:", newData);
       return newData;
     });
 
@@ -264,73 +236,30 @@ export const BookingListComponent = () => {
     setShowNewCustomer(!showNewCustomer);
   };
 
-  const handleCreateCalendar = async (e) => {
-    e.preventDefault();
-    try {
-      const data = await createCalendar({ user_id: 16 });
-    } catch (error) {
-      console.error("Failed to create calendar:", error.message);
-    }
-  };
-
   const handleSelectedChange = (selectedOptions) => {
     setSelectedService(selectedOptions);
-    // for each selectedOptions.value find the price in packages
+
+    const selectedValues = selectedOptions.map(option => option.value);
+    const selectedValuesString = selectedValues.join(', ');
+
+    console.log(selectedValuesString);
+    setBookingData((prevData) => ({
+      ...prevData,
+      services: selectedValuesString,
+    }));
+    // The rest of your code...
     const selectedPrices = selectedOptions.map((option) => {
       const price = packagePrice.find((pack) => pack.id === option.value);
       return price.price;
     });
-    console.log(selectedPrices);
-    // add the selected prices as there are multiple and we need total of all
+
     const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
-    console.log(totalPrice);
     setSelectedPackagePrice(totalPrice);
   };
 
-  const handleDateChange = (arg) => {
-    console.log(arg.event);
-    let id = arg.event._def.publicId;
-    console.log(arg.event.start);
-
-    // Create Date objects with timezone offsets
-    let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
-    let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
-
-    console.log(endDate, newDate);
-
-    let newDateString = newDate.toISOString().split("T")[0];
-    console.log(newDateString);
-
-    // Convert times to UTC time with timezone offsets
-    let startTime = newDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "UTC",
-    });
-    let endTime = endDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "UTC",
-    });
-
-    const newStartTime = convertTo24Hour(startTime);
-    const newEndTime = convertTo24Hour(endTime);
-    console.log(newEndTime);
-    setUpdateData({
-      id: id,
-      prefferedDate: newDate,
-      startTime: newStartTime,
-      endTime: newEndTime,
-    });
-
-    setShowConfirmModel(true);
-  };
-
-  useEffect(() => { }, []);
-
   const getAllBookingsData = async () => {
     try {
-      let allBookingData = await getAllBookings();
+      let allBookingData = await getAllBookings(userId);
       setBookingsData(allBookingData.data);
       let events = allBookingData.data.map((booking) => ({
         id: booking.id,
@@ -340,30 +269,33 @@ export const BookingListComponent = () => {
       }));
 
       setEvents(events);
+      console.log(events);
     } catch (error) {
       console.error("Failed to:", error.message);
     }
   };
 
   const getBookingData = (data) => {
-    setBookingData(prevBookingData => ({
-      ...prevBookingData,
+    console.log(data);
+    setBookingData({
       title: data.booking_title,
       package: data.package,
-      prefferedDate: new Date(data.booking_date),
+      services: data.package_ids,
+      prefferedDate: data.booking_date,
       fromTime: data.booking_time,
       toTime: data.booking_time_to,
-      client: data.client_name,
+      client: data.user_id,
       comment: data.comment,
-      provider: data.User.name,
-      customer: data.User.name
-    }));
+      provider: data.photographer_id,
+      customer: data.user_id,
+    });
   }
 
   const deleteBookingData = async () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", bookingIdToDelete);
+      formDataToSend.append("user_id", userId);
       let res = await deleteBooking(formDataToSend);
       setBookingsData((prevData) =>
         prevData.filter((booking) => booking.id !== bookingIdToDelete)
@@ -380,72 +312,51 @@ export const BookingListComponent = () => {
     }
   };
 
-  const handleEditClick = (booking) => {
-    console.log(booking);
-
-    setUpdateData({
-      id: booking.id,
-      title: booking.title,
-      package: 1,
-      services: null,
-      prefferedDate: new Date(booking.start),
-      fromTime: booking.booking_time,
-      toTime: booking.booking_time_to,
-      client: "",
-      comment: booking.comment,
-      provider: "",
-      customer: "",
-    });
-    setShowUpdateModel(true);
-  };
-
-  const updateBookingData = async () => {
+  const updateTimeData = async () => {
     try {
+      const booking = bookingsData.find((booking) => booking.id === parseInt(updateData.id));
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
-      formDataToSend.append("booking_date", updateData.prefferedDate);
+      formDataToSend.append("booking_date", booking.booking_date);
       formDataToSend.append("booking_time", updateData.startTime);
       formDataToSend.append("booking_time_to", updateData.endTime);
-      let res = await updateBooking(formDataToSend);
-      if (res.success) {
-        toast.success(res.message);
-        getAllBookingsData();
-        setUpdateData({
-          title: "",
-          package: 1,
-          services: null,
-          prefferedDate: new Date(),
-          fromTime: "",
-          toTime: "60",
-          client: "",
-          comment: "",
-          provider: "",
-          customer: "",
-        });
-        setShowConfirmModel(false);
-      } else {
-        toast.error(res.message);
-      }
+      formDataToSend.append("user_id", userId);
+      formDataToSend.append("package_ids", booking.package_ids);
+      formDataToSend.append("package", booking.package);
+      formDataToSend.append("photographer_id", booking.photographer_id);
+      formDataToSend.append("booking_status", 1);
+      formDataToSend.append("comment", booking.comment);
+
+
+      await newBooking(formDataToSend);
+      getAllBookingsData();
+
+      setUpdateData({
+        title: "",
+        package: 1,
+        services: '',
+        prefferedDate: new Date(),
+        fromTime: "",
+        toTime: "60",
+        client: "",
+        comment: "",
+        provider: "",
+        customer: "",
+      });
+      setShowConfirmModel(false);
+      toast.success("Booking updated successfully");
     } catch (error) {
       toast.error(error);
+      console.error("Failed to add booking:", error.message);
     }
   };
-
   const handleEventResize = (arg) => {
-    console.log(arg);
     let id = arg.event._def.publicId;
 
-    // Create Date objects with timezone offsets
-    let newDate = new Date(arg.event.start + "Z"); // Assuming the date string is in UTC
-    let endDate = new Date(arg.event.end + "Z"); // Assuming the date string is in UTC
-    console.log(newDate);
+    let newDate = new Date(arg.event.start + "Z");
+    let endDate = new Date(arg.event.end + "Z");
     newDate.setDate(newDate.getDate());
 
-    let newDateString = newDate.toISOString().split("T")[0];
-    // let newDateString = newDate.toISOString().split("T")[0];
-    console.log(newDateString);
-
-    // Convert times to UTC time with timezone offsets
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -460,13 +371,87 @@ export const BookingListComponent = () => {
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
 
+    setUpdateData((prevData) => ({
+      ...prevData,
+      id: id,
+      prefferedDate: newDate,
+      startTime: newStartTime,
+      endTime: newEndTime,
+    }));
+    console.log(updateData);
+
+
+    setShowConfirmModel(true);
+  };
+
+  const updateDateData = async () => {
+    try {
+      const booking = bookingsData.find((booking) => booking.id === parseInt(updateData.id));
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", updateData.id);
+      formDataToSend.append("booking_date", updateData.prefferedDate);
+      formDataToSend.append("booking_time", updateData.startTime);
+      formDataToSend.append("booking_time_to", updateData.endTime);
+      formDataToSend.append("user_id", userId);
+      formDataToSend.append("package_ids", booking.package_ids);
+      formDataToSend.append("package", booking.package);
+      formDataToSend.append("photographer_id", booking.photographer_id);
+      formDataToSend.append("booking_status", 1);
+      formDataToSend.append("comment", booking.comment);
+
+
+      await newBooking(formDataToSend);
+      getAllBookingsData();
+
+      setUpdateData({
+        title: "",
+        package: 1,
+        services: '',
+        prefferedDate: new Date(),
+        fromTime: "",
+        toTime: "60",
+        client: "",
+        comment: "",
+        provider: "",
+        customer: "",
+      });
+      setShowDateModel(false);
+      toast.success("Booking updated successfully");
+    } catch (error) {
+      toast.error(error);
+      console.error("Failed to add booking:", error.message);
+    }
+  };
+  const handleDateChange = (arg) => {
+    let id = arg.event._def.publicId;
+
+    let newDate = new Date(arg.event.start + "Z");
+    let endDate = new Date(arg.event.end + "Z");
+
+    let newDateString = newDate.toISOString().split("T")[0];
+    console.log(newDateString);
+
+    let startTime = newDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+    let endTime = endDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+
+    const newStartTime = convertTo24Hour(startTime);
+    const newEndTime = convertTo24Hour(endTime);
     setUpdateData({
       id: id,
       prefferedDate: newDate,
       startTime: newStartTime,
       endTime: newEndTime,
     });
-    setShowConfirmModel(true);
+
+    setShowDateModel(true);
   };
 
   const columns = React.useMemo(
@@ -474,7 +459,7 @@ export const BookingListComponent = () => {
       {
         Header: "Booking Date",
         accessor: "booking_date",
-        headerStyle: { width: "fit-content" },
+        headerStyle: { width: '200px' },
       },
       {
         Header: "Booking Time",
@@ -495,7 +480,6 @@ export const BookingListComponent = () => {
       {
         Header: "Status",
         accessor: "booking_status",
-        // 1 = pending, 2 = notify, 3 = booked
         Cell: ({ value }) => (
           <div className="badge badge-pill badge-light-primary">
             {value === 1 ? "Pending" : value === 2 ? "Notify" : "Booked"}
@@ -520,7 +504,6 @@ export const BookingListComponent = () => {
 
             <button
               className="btn btn-icon btn-outline-danger ml-1"
-              // onClick={() => setBookingIdToDelete(props.row.original.id);  setShowDeleteModal(true);}
               onClick={() => {
                 setBookingIdToDelete(props.row.original.id);
                 setShowDeleteModal(true);
@@ -545,83 +528,38 @@ export const BookingListComponent = () => {
     []
   );
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
-
-  const onLoginSuccess = (response) => {
-    setIsLoggedIn(true);
-    console.log(response);
-    setAccessToken(response.code);
-  };
-
-  const onLoginFailure = (error) => {
-    console.error('Login failed:', error);
-  };
-
-  // const login = useGoogleLogin({
-  //   scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly',
-  //   onSuccess: (response) => {
-  //     console.log('Login successful:', response);
-  //   },
-  //   onError: (error) => alert('Login Failed:', error)
-  // });
-
-  const login = useGoogleLogin({
+  const subscribe = useGoogleLogin({
     onSuccess: (codeResponse) => {
-      // Send the authorization code to the backend server
-      console.log(codeResponse);
-      fetch('http://localhost:6977/auth/google', {
-        method: 'POST',
+      axios.post(`${API_URL}/auth/google`, {
+        code: codeResponse.code,
+        id: userId
+      }, {
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code: codeResponse.code }),
+          'Content-Type': 'application/json'
+        }
       })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Backend response:', data);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+        .then(response => {
+          console.log('Backend response:', response.data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
     },
     onError: () => {
-      // Handle login errors here
       console.error('Google login failed');
     },
+    scope: "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
     flow: 'auth-code',
+    include_granted_scopes: true
   });
-  
-  
-
-  const insertEvent = () => {
-    const event = {
-      title: 'Appointment',
-      description: 'Description',
-      startDate: '2024-04-08T09:00:00',
-      endDate: '2024-04-08T10:00:00',
-    };
-
-    try {
-      axios.post('http://localhost:6977/calender/addcalenderevent', {
-        event: event,
-        accessToken: accessToken
-      })
-    } catch (error) {
-      // 
-      console.error(error);
-    }
-  }
-
-  console.log(bookingData.provider);
 
   return (
     <>
       <div className="app-content content">
         <div className={`content-overlay`}></div>
-        <div className="content-wrapper">
-          <div className="content-header row">
-            <div className="content-header-left col-md-6 col-6 mb-2">
+        <div className="content-wrapper" >
+          <div className="content-header row" style={{paddingBottom: '5px'}}>
+            <div className="content-header-left col-md-6 col-6">
               <h3 className="content-header-title mb-0">Booking List</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
@@ -634,30 +572,25 @@ export const BookingListComponent = () => {
                 </div>
               </div>
             </div>
-            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
+            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center ">
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group">
-                    <button
-                      ref={buttonRef}
-                      type="button"
-                      className="btn btn-outline-primary btn-block"
-                      data-toggle="modal"
-                      data-target="#appointment"
-                    >
-                      New Appointment
-                    </button>
-
-                    {/* <GoogleLogin
-                    clientId='49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com'
-                    buttonText="Login with Google"
-                    onSuccess={onLoginSuccess}
-                    onError={onLoginFailure}
-                    scope="https://www.googleapis.com/auth/calendar" // Request Calendar API scope
-                    prompt="consent" // Ensure user consent is requested
-                /> */}
-                    <button onClick={login}>Sign in with Google 🚀 </button>
-                    <button onClick={insertEvent}>Add Event</button>
+                    <div className="">
+                      {calendarSub == null ? <></> :
+                        <button type="button"
+                          className="btn btn-outline-primary mx-1" disabled={calendarSub == 1} >{calendarSub == 1 ? 'Subsribed' : 'Subsribe to Calendar'}</button>
+                      }
+                      <button
+                        ref={buttonRef}
+                        type="button"
+                        className="btn btn-outline-primary"
+                        data-toggle="modal"
+                        data-target="#appointment"
+                      >
+                        New Appointment
+                      </button>
+                    </div>
                     <div
                       className="modal fade text-left"
                       id="appointment"
@@ -1336,7 +1269,24 @@ export const BookingListComponent = () => {
       <DeleteModal
         isOpen={showConfirmModel}
         onClose={() => setShowConfirmModel(false)}
-        onConfirm={updateBookingData}
+        onConfirm={updateTimeData}
+        message={
+          <>
+            <div className="justify-items-center" role="alert">
+              <h3 className="text-center">Confirm Rechedule </h3>
+              <div className="p-2 text-center">
+                <p className="mb-0 ">
+                  Do you with to Reschedule the appointment?
+                </p>
+              </div>
+            </div>
+          </>
+        }
+      />
+      <DeleteModal
+        isOpen={showDateModel}
+        onClose={() => setShowDateModel(false)}
+        onConfirm={updateDateData}
         message={
           <>
             <div className="justify-items-center" role="alert">

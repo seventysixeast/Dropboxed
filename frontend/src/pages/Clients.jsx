@@ -77,19 +77,16 @@ const Clients = () => {
       formDataToSend.append('role_id', 3);
 
       let res = await createClient(formDataToSend);
-      console.log("0000000",res);
+      console.log("0000000", res);
       if (res.success) {
-        console.log("11111",res);
         toast.success(res.message);
         resetFormData();
         document.getElementById('closeModal').click();
         getAllClientsData();
       } else {
-        console.log("2222222222",res);
         toast.error(res);
       }
     } catch (error) {
-      console.log("333333",error);
       toast.error(error);
     }
   };
@@ -229,7 +226,7 @@ const Clients = () => {
                                 onChange={handlePhotoChange}
                                 accept="image/*"
                               />
-                              {formData.id && <img src={`${formData.profile_photo ? `${IMAGE_URL}/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150" alt="Card image" />}
+                              {formData.id && <img src={`${formData.profile_photo ? `${IMAGE_URL}/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 mt-2" alt="Card image" />}
                             </div>
                           </div>
                           <div className="modal-footer">
@@ -256,68 +253,80 @@ const Clients = () => {
           </div>
         </div>
         <div className="row">
-          {
-            clients && clients.map(item => (
+          {clients &&
+            clients.map((item) => (
               <div className="col-xl-3 col-md-6 col-12" key={item.id}>
-                <div className="card">
+                <div className="card d-flex flex-column">
                   <div className="text-center">
                     <div className="card-body">
-                      <img src={item.profile_photo ? `${IMAGE_URL}/${item.profile_photo}` : "../../../app-assets/images/portrait/medium/avatar-m-4.png"} className="rounded-circle height-150" alt="Card image" />
+                      <img
+                        src={
+                          item.profile_photo
+                            ? `${IMAGE_URL}/${item.profile_photo}`
+                            : "../../../app-assets/images/portrait/medium/avatar-m-4.png"
+                        }
+                        className="rounded-circle height-150"
+                        alt="Card image"
+                      />
                     </div>
                     <div className="card-body">
                       <h4 className="card-title">{item.name}</h4>
-                      <h6 className="card-subtitle text-muted mb-2">{item.business_name}</h6>
-                      <h6 className="card-subtitle text-muted">Created On : {moment(item.created).format('DD-MM-YYYY')}</h6>
+                      <h6 className="card-subtitle text-muted mb-2">
+                        {item.business_name}
+                      </h6>
+                      <h6 className="card-subtitle text-muted">
+                        Created On : {moment(item.created).format("DD-MM-YYYY")}
+                      </h6>
                     </div>
-                    <div className="text-center">
-                      <a
-                        href={`mailto:${item.email}`}
-                        className="btn btn-social-icon mr-1 mb-1"
-                        title={item.email}
-                      >
-                        <span className="icon-envelope"></span>
-                      </a>
-                      <a
-                        href={`tel:${item.phone}`}
-                        className="btn btn-social-icon mr-1 mb-1"
-                        title={item.phone}
-                      >
-                        <span className="icon-call-out"></span>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1"
-                        title="View Collection"
-                      >
-                        <span className="icon-grid"></span>
-                      </a>
-                      <a
-                        href="#"
-                        className="btn btn-social-icon mr-1 mb-1"
-                        title="Edit"
-                        onClick={() => getClientData(item.id)}
-                        data-toggle="modal"
-                        data-target="#bootstrap"
-                      >
-                        <span className="icon-note"></span>
-                      </a>
-                      <a
-                        className="btn btn-social-icon mb-1"
-                        title="Delete"
-                        onClick={() => {
-                          setShowDeleteModal(true);
-                          setClientIdToDelete(item.id);
-                        }}
-                      >
-                        <span className="icon-trash"></span>
-                      </a>
-                    </div>
+                  </div>
+                  <div className="text-center mt-auto">
+                    <a
+                      href={`mailto:${item.email}`}
+                      className="btn btn-social-icon mr-1 mb-1"
+                      title={item.email}
+                    >
+                      <span className="icon-envelope"></span>
+                    </a>
+                    <a
+                      href={`tel:${item.phone}`}
+                      className="btn btn-social-icon mr-1 mb-1"
+                      title={item.phone}
+                    >
+                      <span className="icon-call-out"></span>
+                    </a>
+                    <a
+                      href="#"
+                      className="btn btn-social-icon mr-1 mb-1"
+                      title="View Collection"
+                    >
+                      <span className="icon-grid"></span>
+                    </a>
+                    <a
+                      href="#"
+                      className="btn btn-social-icon mr-1 mb-1"
+                      title="Edit"
+                      onClick={() => getClientData(item.id)}
+                      data-toggle="modal"
+                      data-target="#bootstrap"
+                    >
+                      <span className="icon-note"></span>
+                    </a>
+                    <a
+                      className="btn btn-social-icon mb-1"
+                      title="Delete"
+                      onClick={() => {
+                        setShowDeleteModal(true);
+                        setClientIdToDelete(item.id);
+                      }}
+                    >
+                      <span className="icon-trash"></span>
+                    </a>
                   </div>
                 </div>
               </div>
-            ))
-          }
+            ))}
         </div>
+
       </div>
       <DeleteModal
         isOpen={showDeleteModal}
