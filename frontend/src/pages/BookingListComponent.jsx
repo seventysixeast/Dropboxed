@@ -276,7 +276,6 @@ export const BookingListComponent = () => {
 
   const getBookingData = (data) => {
     console.log(data);
-    const booking = bookingsData.find((booking) => booking.id === parseInt(data.id));
     setBookingData({
       title: data.booking_title,
       package: data.package,
@@ -344,8 +343,10 @@ export const BookingListComponent = () => {
         customer: "",
       });
       setShowConfirmModel(false);
+      toast.success("Booking updated successfully");
     } catch (error) {
       toast.error(error);
+      console.error("Failed to add booking:", error.message);
     }
   };
   const handleEventResize = (arg) => {
@@ -414,8 +415,10 @@ export const BookingListComponent = () => {
         customer: "",
       });
       setShowDateModel(false);
+      toast.success("Booking updated successfully");
     } catch (error) {
       toast.error(error);
+      console.error("Failed to add booking:", error.message);
     }
   };
   const handleDateChange = (arg) => {
@@ -1204,7 +1207,6 @@ export const BookingListComponent = () => {
                           </form>
                         </div>
                       </div>
-
                     </div>
                   </div>
                 </li>
