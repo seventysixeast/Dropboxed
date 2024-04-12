@@ -5,7 +5,7 @@ const EditProfile = () => {
     <div className="app-content content">
       <div className="content-overlay" />
       <div className="content-wrapper">
-        <div className="content-header row"></div>
+        <div className="content-header row mt-2"></div>
         <div className="content-body">
           {/* users edit start */}
           <section className="users-edit">

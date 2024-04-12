@@ -56,12 +56,12 @@ const Login = () => {
         document.cookie = `isAuth=true; domain=.localhost; path=/`;
         document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;
     
-        const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
+        // const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
         const currentSubdomain = window.location.hostname.split('.')[0];
         const baseUrl = window.location.protocol + "//" + window.location.hostname;
 
         // Check if the current URL already contains a subdomain
-        const redirectToSubdomain = currentSubdomain === "localhost" ? `${sd}.` : "";
+        // const redirectToSubdomain = currentSubdomain === "localhost" ? `${sd}.` : "";
 
         // Construct the redirection URL
         //const redirectUrl = `${window.location.protocol}//${redirectToSubdomain}${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
