@@ -55,7 +55,7 @@ app.get("/protected", authenticateToken, (req, res) => {
 });
 
 // Serve index.html for all other routes
-app.get("/*", (req, res) => {
+app.get("/*", (req, res, next) => {
   if (
     req.url.startsWith("/auth/") ||
     req.url.startsWith("/client/") ||
