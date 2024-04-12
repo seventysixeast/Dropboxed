@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import * as Yup from "yup";
+import { toast } from 'react-toastify';
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { signup } from "../api/authApis";
 
@@ -39,7 +40,12 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await validationSchema.validate(userData, { abortEarly: false });
-      await signup(userData);
+      const response = await signup(userData);
+      if(response.success){
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
       const subdomain = userData.studioName.toLowerCase().replace(/\s/g, '');
       // Redirect to subdomain
       //window.location.href = `http://${subdomain}.${window.location.host}`;
@@ -53,6 +59,7 @@ const SignUp = () => {
         setValidationErrors(validationErrors);
       } else {
         console.error("Signup failed:", error.message);
+        toast.error("Registration failed");
       }
     }
   };
