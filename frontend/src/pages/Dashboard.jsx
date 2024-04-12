@@ -1,5 +1,118 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getAllClients } from "../api/clientApis";
+import { getAllServices } from "../api/serviceApis";
+import { addGallery } from "../api/galleryApis";
+import { toast } from 'react-toastify';
+import Select from "react-select";
+import toolIcons from "../assets/images/i.png";
+const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
+
 export const Dashboard = () => {
+
+  const [clients, setClients] = useState([]);
+  const [services, setServices] = useState([]);
+
+  const [formData, setFormData] = useState({
+    id: '',
+    title: '',
+    client: '',
+    address: '',
+    services: [],
+    banner: '',
+    status: ''
+  });
+
+  useEffect(() => {
+    getClients();
+    getServices();
+  }, [])
+
+  const getClients = async () => {
+    try {
+      let clients = await getAllClients();
+      setClients(clients.data);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getServices = async () => {
+    try {
+      let services = await getAllServices();
+      setServices(services.data);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let gallery = { ...formData };
+    if (name === "title") {
+      gallery.title = value;
+    } else if (name === "client") {
+      gallery.client = value;
+    } else if (name === 'address') {
+      gallery.address = value
+    } else if (name === 'status') {
+      gallery.status = value
+    }
+    setFormData(gallery);
+  };
+
+  const handleBannerChange = (e) => {
+    setFormData({
+      ...formData,
+      banner: e.target.files[0]
+    });
+  };
+
+  const handleSelectedChange = (selectedOptions) => {
+    setFormData({
+      ...formData,
+      services: selectedOptions
+    });
+  };
+
+  const resetFormData = async () => {
+    setFormData({
+      id: '',
+      title: '',
+      client: '',
+      address: '',
+      services: [],
+      banner: '',
+      status: ''
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formDataToSend = new FormData();
+      console.log("formData",formData);
+      formDataToSend.append('id', formData.id);
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('client', formData.client);
+      formDataToSend.append('address', formData.address);
+      formDataToSend.append('services', formData.services);
+      formDataToSend.append('banner', formData.banner);
+      formDataToSend.append('status', formData.status);
+
+      // let res = await addGallery(formDataToSend);
+      // if (res.success) {
+      //   toast.success(res.message);
+      //   resetFormData();
+      //   document.getElementById('closeModal').click();
+      //   getAllClientsData();
+      // } else {
+      //   toast.error(res);
+      // }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
   return (
     <>
       <div className="app-content content">
@@ -140,84 +253,94 @@ export const Dashboard = () => {
                                   <span aria-hidden="true">×</span>
                                 </button>
                               </div>
-                              <form>
+                              <form onSubmit={handleSubmit}>
                                 <div className="modal-body">
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="title">
-                                      Title *
-                                    </label>
-                                    <textarea
+                                    <label htmlFor="title">Title *</label>
+                                    <input
+                                      type="text"
+                                      placeholder="Enter Title"
                                       className="form-control"
-                                      id="title"
-                                      rows="1"
-                                      placeholder="Title"
-                                    ></textarea>
+                                      name="title"
+                                      value={formData.title}
+                                      onChange={handleInputChange}
+                                      required
+                                    />
                                   </fieldset>
                                   <fieldset className="form-group floating-label-form-group">
                                     <label>Clients</label>
                                     <select
                                       className="select2 form-control"
+                                      name="client"
                                       required
+                                      onChange={handleInputChange}
+                                      value={formData.client}
                                     >
-                                      <option value="client1">Client 1</option>
-                                      <option value="client2">Client 2</option>
-                                      <option value="client3">Client 3</option>
+                                      {clients && clients.map(item => (
+                                        <option key={item.id} value={item.name}>
+                                          {item.name}
+                                        </option>
+                                      ))}
                                     </select>
                                   </fieldset>
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="address">
-                                      Address
-                                    </label>
-                                    <textarea
+                                    <label htmlFor="address">Address</label>
+                                    <input
+                                      type="text"
+                                      placeholder="Enter Address"
                                       className="form-control"
-                                      id="address"
-                                      rows="1"
-                                      placeholder="Address"
-                                    ></textarea>
+                                      name="address"
+                                      value={formData.address}
+                                      onChange={handleInputChange}
+                                      required
+                                    />
                                   </fieldset>
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="package">Package</label>
-                                    <select
-                                      className="select2 form-control"
-                                      required
+                                    <label
+                                      htmlFor="services"
+                                      style={{ width: "10rem" }}
                                     >
-                                      <option value="Studio">
-                                        Studio Package
-                                      </option>
-                                      <option value="Essential">
-                                        Essential Package
-                                      </option>
-                                      <option value="Premium">
-                                        Premium Package
-                                      </option>
-                                    </select>
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="services">Services</label>
-                                    <select
-                                      className="select2 form-control"
+                                      Services
+                                    </label>
+                                    <Select
+                                      className="select2 w-100"
+                                      name="services"
+                                      defaultValue={formData.services}
+                                      onChange={handleSelectedChange}
+                                      options={services.map((pkg) => ({
+                                        label: pkg.package_name,
+                                        value: pkg.id,
+                                        package_price: pkg.package_price,
+                                      }))}
+                                      isSearchable
+                                      isMulti
+                                      hideSelectedOptions
                                       required
-                                    >
-                                      <option value="Studio">
-                                        Studio Photography
-                                      </option>
-                                      <option value="Essential">
-                                        Essential Photography
-                                      </option>
-                                      <option value="Premium">
-                                        Premium Photography
-                                      </option>
-                                      <option value="Studio">
-                                        Studio Floor Plan
-                                      </option>
-                                      <option value="Essential">
-                                        Essential Floor Plan
-                                      </option>
-                                      <option value="Premium">
-                                        Premium Floor Plan
-                                      </option>
-                                    </select>
+                                      components={{
+                                        Option: ({
+                                          data,
+                                          innerRef,
+                                          innerProps,
+                                        }) => (
+                                          <div
+                                            ref={innerRef}
+                                            {...innerProps}
+                                            style={{ display: 'flex form-select ', alignItems: 'center' }}
+                                          >
+                                            <img
+                                              src={toolIcons}
+                                              className="mr-1 ml-1"
+                                              width={"14px"}
+                                              height={"14px"}
+                                              alt=""
+                                            />
+                                            <span>{data.label}</span>
+                                          </div>
+                                        ),
+                                      }}
+                                    />
                                   </fieldset>
+
                                   <fieldset className="form-group floating-label-form-group">
                                     <label htmlFor="link">
                                       Dropbox Link
@@ -243,19 +366,28 @@ export const Dashboard = () => {
                                   <div className="row">
                                     <div className="col-md-6">
                                       <div className="form-group">
-                                        <label htmlFor="projectinput2">Banner</label><br />
-                                        <input type="file" name="banner" id="banner" />
-                                        <input type="hidden" name="bannerimage" value="" />
+                                        <label>Banner</label>
+                                        <input
+                                          type="file"
+                                          className="form-control-file"
+                                          name="banner"
+                                          onChange={handleBannerChange}
+                                          accept="image/*"
+                                        />
+                                        {formData.id && <img src={`${formData.banner ? `${IMAGE_URL}/${formData.banner}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 mt-2" alt="Card image" />}
                                       </div>
                                     </div>
                                     <fieldset className="form-group floating-label-form-group">
                                       <label>Status *</label>
                                       <select
                                         className="select2 form-control"
+                                        name="status"
                                         required
+                                        onChange={handleInputChange}
+                                        value={formData.status}
                                       >
-                                        <option value="on">On</option>
                                         <option value="off">Off</option>
+                                        <option value="on">On</option>
                                       </select>
                                     </fieldset>
                                   </div>

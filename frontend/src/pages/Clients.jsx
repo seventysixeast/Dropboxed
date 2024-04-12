@@ -77,7 +77,6 @@ const Clients = () => {
       formDataToSend.append('role_id', 3);
 
       let res = await createClient(formDataToSend);
-      console.log("0000000", res);
       if (res.success) {
         toast.success(res.message);
         resetFormData();
