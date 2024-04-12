@@ -33,10 +33,11 @@ const Login = () => {
     e.preventDefault();
     try {
         await validationSchema.validate(userData, { abortEarly: false });
-        const BASE_URL = process.env.REACT_APP_BASE_URL;
-        const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL); //Check if current url is subdomain
-        const loginData = subdomain ? { ...userData, subdomain } : userData;  
-        const { success, message, accessToken, user } = await login(loginData);
+        // const BASE_URL = process.env.REACT_APP_BASE_URL;
+        // const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
+        // const loginData = subdomain ? { ...userData, subdomain } : userData;
+        // const { success, message, accessToken, user } = await login(loginData);
+        const { success, message, accessToken, user } = await login(userData);
         if(success){
           toast.success('Login successful');
         } else{

@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
     const accessToken = generateAccessToken(user.id);
 
     // Return user information along with token
-    res.json({
+    return res.status(200).json({
       success: true,
       accessToken,
       user: {
