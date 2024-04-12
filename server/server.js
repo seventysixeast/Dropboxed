@@ -64,10 +64,11 @@ app.get("/*", (req, res) => {
     req.url.includes("/imageType/") ||
     //req.url.includes("/calender/") ||
     req.url.includes("/assets/")
-  )
-  return next();
-  else
+  ) {
+    return next();
+  } else {
     res.sendFile(path.join(__dirname, "build", "index.html"));
+  }
 });
 
 // Start the server
