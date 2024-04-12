@@ -137,6 +137,26 @@ const Users = sequelize.define('User', {
     allowNull: false,
     defaultValue: 'Active'
   },
+  access_token: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    defaultValue: ''
+  },
+  refresh_token: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    defaultValue: ''
+  },
+  calendar_sub: {
+    type: DataTypes.TINYINT(1),
+    allowNull: false,
+    defaultValue: 0
+  },
+  calendar_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    defaultValue: ''
+  },
   created: {
     type: DataTypes.DATE,
     allowNull: false,
