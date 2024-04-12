@@ -178,7 +178,6 @@ export const BookingListComponent = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(e.target.name);
 
     setBookingData((prevData) => ({
       ...prevData,
@@ -241,8 +240,6 @@ export const BookingListComponent = () => {
 
     const selectedValues = selectedOptions.map(option => option.value);
     const selectedValuesString = selectedValues.join(', ');
-
-    console.log(selectedValuesString);
     setBookingData((prevData) => ({
       ...prevData,
       services: selectedValuesString,
@@ -269,14 +266,12 @@ export const BookingListComponent = () => {
       }));
 
       setEvents(events);
-      console.log(events);
     } catch (error) {
       console.error("Failed to:", error.message);
     }
   };
 
   const getBookingData = (data) => {
-    console.log(data);
     setBookingData({
       title: data.booking_title,
       package: data.package,
@@ -378,7 +373,6 @@ export const BookingListComponent = () => {
       startTime: newStartTime,
       endTime: newEndTime,
     }));
-    console.log(updateData);
 
 
     setShowConfirmModel(true);
@@ -429,7 +423,6 @@ export const BookingListComponent = () => {
     let endDate = new Date(arg.event.end + "Z");
 
     let newDateString = newDate.toISOString().split("T")[0];
-    console.log(newDateString);
 
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",

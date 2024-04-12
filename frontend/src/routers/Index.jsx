@@ -7,7 +7,6 @@ import { useAuth } from "../context/authContext";
 const IndexRouter = () => {
   const {authData} = useAuth();
   const { isAuth } = authData;
-  console.log("isAuth",useAuth())
 
   return isAuth ? <AdminRouter /> : <AuthRouter />;
 };

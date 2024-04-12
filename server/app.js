@@ -13,7 +13,6 @@ const fs = require('fs');
 const fileUpload = require('express-fileupload');
 
 const secret = crypto.randomBytes(32).toString('hex');
-console.log('Generated JWT secret:', secret);
 const app = express();
 const PORT = process.env.PORT || 6977;
 
@@ -54,7 +53,6 @@ app.get("/protected", authenticateToken, (req, res) => {
 
 // Serve index.html for all other routes
 app.get("/*", (req, res, next) => {
-  console.log("A11111111111");
   if (
     req.url.startsWith("/auth/") ||
     req.url.startsWith("/client/") ||
@@ -63,10 +61,8 @@ app.get("/*", (req, res, next) => {
     //req.url.includes("/calender/") ||
     req.url.includes("/assets/")
   ) {
-    console.log("A222222222");
     return next();
   } else {
-    console.log("A3333333333");
     res.sendFile(path.join(__dirname, "build", "index.html"));
   }
 });

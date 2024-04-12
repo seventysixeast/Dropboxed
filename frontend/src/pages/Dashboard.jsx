@@ -90,7 +90,6 @@ export const Dashboard = () => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      console.log("formData",formData);
       formDataToSend.append('id', formData.id);
       formDataToSend.append('title', formData.title);
       formDataToSend.append('client', formData.client);
@@ -307,7 +306,7 @@ export const Dashboard = () => {
                                       name="services"
                                       defaultValue={formData.services}
                                       onChange={handleSelectedChange}
-                                      options={services.map((pkg) => ({
+                                      options={services && services.map((pkg) => ({
                                         label: pkg.package_name,
                                         value: pkg.id,
                                         package_price: pkg.package_price,

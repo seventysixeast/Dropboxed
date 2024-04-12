@@ -43,15 +43,12 @@ const Login = () => {
         } else{
           toast.error(message);
         }
-        console.log("user>>>",user)
         
         // Save user data and access token in localStorage
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('isAuth', true);
         localStorage.setItem('user', JSON.stringify(user));
-        //console.log("tttttt",encryptedToken)
         const encryptedToken = encryptToken(accessToken);
-        console.log("encryptedToken",encryptedToken)
         // Set cookies with domain attribute
         document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
         document.cookie = `isAuth=true; domain=.localhost; path=/`;

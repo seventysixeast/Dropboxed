@@ -66,7 +66,6 @@ const createClient = async (req, res) => {
       data: client
     });
   } catch (error) {
-    console.log("error", error);
     res.status(500).json({ error: "Failed to add/update client" });
   }
 };

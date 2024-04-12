@@ -277,7 +277,6 @@ exports.clientSignup = async (req, res) => {
       data: client,
     });
   } catch (error) {
-    console.log("Error:", error);
     res.status(500).json({ error: "Failed to register client" });
   }
 };

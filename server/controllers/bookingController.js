@@ -42,8 +42,6 @@ async function createCalendar() {
         summary: calendarName,
       },
     });
-
-    console.log("Calendar created:", response.data.id);
   } catch (error) {
     console.error("Error creating calendar:", error);
     throw error;
@@ -51,7 +49,6 @@ async function createCalendar() {
 }
 
 async function addevent(data, userID) {
-  console.log(data);
   let theuser = await Users.findOne({ where: { id: userID } });
   let code = theuser.dataValues.refresh_token;
   let grant_type = "refresh_token";
@@ -96,11 +93,8 @@ async function addevent(data, userID) {
     orderBy: "startTime",
     showDeleted: true,
   });
-  console.log(events.data.items[1].id, id);
   const existingEvent = events.data.items.find((event) => event.id === id);
-  console.log("update");
 
-  console.log(existingEvent);
   if (existingEvent && existingEvent.status !== "cancelled") {
     const resp = await calendar.events.update({
       calendarId: theuser.calendar_id,
@@ -189,7 +183,6 @@ async function deleteevent(bookingId, userId) {
       });
       //find the event with the matching id
       const existingEvent = events.data.items.find((event) => event.id === id);
-      console.log(existingEvent);
       if (!existingEvent) {
         return;
       }

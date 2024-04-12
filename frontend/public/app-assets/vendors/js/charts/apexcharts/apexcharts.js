@@ -8,7 +8,6 @@
   typeof define === 'function' && define.amd ? define(factory) :
   (global = global || self, global.ApexCharts = factory());
 }(this, function () { 'use strict';
-console.log('amritt hlkkkkjlllllllllllll')
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
