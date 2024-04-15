@@ -102,3 +102,11 @@
 .card {
   height: 95%;
 }
+
+.css-byenzh-MuiButtonBase-root-MuiSwitch-switchBase.Mui-checked {
+  color: #00b5b8 !important;
+}
+
+.dull-card {
+  color: lightgray !important;
+}

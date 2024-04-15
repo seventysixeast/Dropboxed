@@ -95,4 +95,24 @@ const deleteClient = async (req, res) => {
   }
 };
 
-module.exports = { getAllClients, createClient, getClient, deleteClient };
+const activeInactiveClient = async (req, res) => {
+  try {
+    const clientId = req.body.id;
+    const clientStatus = req.body.status;
+    await User.update({ status: clientStatus }, { where: { id: clientId } });
+    const updatedClient = await User.findOne({ where: { id: clientId } });
+    if (updatedClient) {
+      res.status(200).json({
+        success: true,
+        message: "Client status updated.",
+        data: updatedClient
+      });
+    } else {
+      res.status(404).json({ success: false, message: "Client not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to client status" });
+  }
+};
+
+module.exports = { getAllClients, createClient, getClient, deleteClient, activeInactiveClient };
