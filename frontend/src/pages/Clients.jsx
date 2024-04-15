@@ -5,7 +5,8 @@ import { toast } from 'react-toastify';
 import DeleteModal from "../components/DeleteModal";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 const Clients = () => {
-
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredClients, setFilteredClients] = useState([]);
   const [clients, setClients] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState(null);
@@ -18,9 +19,22 @@ const Clients = () => {
     profile_photo: ''
   });
 
+  const [isActive, setIsActive] = useState(false);
+  const handleToggle = () => {
+    setIsActive(!isActive);
+  };
+
   useEffect(() => {
     getAllClientsData();
   }, [])
+
+  useEffect(() => {
+    const filtered = clients.filter(client =>
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.business_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredClients(filtered);
+  }, [searchTerm, clients]);
 
   const getAllClientsData = async () => {
     try {
@@ -139,6 +153,17 @@ const Clients = () => {
           <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
             <ul className="list-inline mb-0">
               <li>
+                <div className="search-button mr-2">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search clients..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </li>
+              <li>
                 <div className="form-group">
                   <button
                     type="button"
@@ -228,6 +253,17 @@ const Clients = () => {
                               {formData.id && <img src={`${formData.profile_photo ? `${IMAGE_URL}/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 mt-2" alt="Card image" />}
                             </div>
                           </div>
+                          <div className="text-right mr-2 mb-2">
+                            {isActive ? 'Active' : 'Inactive'}
+                            <label className="switch">
+                              <input
+                                type="checkbox"
+                                checked={isActive}
+                                onChange={handleToggle}
+                              />
+                              <span className="slider round"></span>
+                            </label>
+                          </div>
                           <div className="modal-footer">
                             <input
                               type="reset"
@@ -252,8 +288,8 @@ const Clients = () => {
           </div>
         </div>
         <div className="row">
-          {clients &&
-            clients.map((item) => (
+          {filteredClients &&
+            filteredClients.map((item) => (
               <div className="col-xl-3 col-md-6 col-12" key={item.id}>
                 <div className="card d-flex flex-column">
                   <div className="text-center">
