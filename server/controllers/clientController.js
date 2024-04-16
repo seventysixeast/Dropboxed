@@ -101,16 +101,24 @@ const getClient = async (req, res) => {
 const deleteClient = async (req, res) => {
   try {
     const clientId = req.body.id;
-    const deleted = await User.destroy({
-      where: { id: clientId }
-    });
-    if (deleted) {
-      // Update Redis cache
-      updateRedisCache();
-      res.status(200).json({ success: true, message: "Client deleted successfully" });
-    } else {
-      res.status(404).json({ success: false, message: "Client not found" });
+    const client = await User.findByPk(clientId);
+    if (!client) {
+      return res.status(404).json({ success: false, message: "Client not found" });
     }
+    
+    // Check if the client has been deactivated for at least 30 days
+    const deactivatedAt = new Date(client.deactivated_at);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    if (deactivatedAt && deactivatedAt > thirtyDaysAgo) {
+      return res.status(400).json({ success: false, message: "Client cannot be deleted yet" });
+    }
+    
+    await User.destroy({ where: { id: clientId } });
+    // Update Redis cache
+    updateRedisCache();
+    res.status(200).json({ success: true, message: "Client deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete client" });
   }
@@ -120,21 +128,27 @@ const activeInactiveClient = async (req, res) => {
   try {
     const clientId = req.body.id;
     const clientStatus = req.body.status;
-    await User.update({ status: clientStatus }, { where: { id: clientId } });
-    const updatedClient = await User.findOne({ where: { id: clientId } });
-    if (updatedClient) {
-      // Update Redis cache
-      updateRedisCache();
-      res.status(200).json({
-        success: true,
-        message: "Client status updated.",
-        data: updatedClient
-      });
-    } else {
-      res.status(404).json({ success: false, message: "Client not found" });
+    
+    let updateFields = { status: clientStatus };
+    if (clientStatus === 'Inactive') {
+      updateFields.deactivated_at = new Date(); // Set deactivation date
     }
+    
+    await User.update(updateFields, { where: { id: clientId } });
+    
+    const updatedClient = await User.findByPk(clientId);
+    if (!updatedClient) {
+      return res.status(404).json({ success: false, message: "Client not found" });
+    }
+    // Update Redis cache
+    updateRedisCache();
+    res.status(200).json({
+      success: true,
+      message: "Client status updated.",
+      data: updatedClient
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to client status" });
+    res.status(500).json({ error: "Failed to update client status" });
   }
 };
 

@@ -157,6 +157,10 @@ const Users = sequelize.define('User', {
     allowNull: true,
     defaultValue: ''
   },
+  deactivated_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   created: {
     type: DataTypes.DATE,
     allowNull: false,
