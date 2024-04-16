@@ -18,7 +18,7 @@ import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
 import TableCustom from "../components/Table";
-import { useGoogleLogin, } from '@react-oauth/google';
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/authContext";
 import API from "../api/baseApi";
 
@@ -46,7 +46,7 @@ export const BookingListComponent = () => {
     id: "",
     title: "",
     package: 1,
-    services: '',
+    services: "",
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -59,7 +59,7 @@ export const BookingListComponent = () => {
   const [bookingData, setBookingData] = useState({
     title: "",
     package: 1,
-    services: '',
+    services: "",
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -112,7 +112,8 @@ export const BookingListComponent = () => {
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
-      let [currentHours, currentMinutes, currentSeconds] = convertedTime.split(":");
+      let [currentHours, currentMinutes, currentSeconds] =
+        convertedTime.split(":");
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
       if (currentMinutes >= 60) {
@@ -143,7 +144,6 @@ export const BookingListComponent = () => {
         buttonRef.current.click();
       }
 
-      // Clear form data
       setBookingData({
         title: "",
         package: 1,
@@ -174,8 +174,6 @@ export const BookingListComponent = () => {
     }
   };
 
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     console.log(e.target.name);
@@ -185,7 +183,6 @@ export const BookingListComponent = () => {
       [name]: value,
     }));
   };
-
 
   useEffect(() => {
     getAllBookingsData();
@@ -212,20 +209,22 @@ export const BookingListComponent = () => {
     }
   };
   const handleDateClick = (arg) => {
+    console.log(arg);
     const selectedDate = new Date(arg.date);
-    const selectedTime = selectedDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    console.log(selectedDate);
 
-    setBookingData((prevData) => {
-      const newData = {
-        ...prevData,
-        prefferedDate: selectedDate,
-        fromTime: selectedTime,
-      };
-      return newData;
-    });
+    // Extracting time components and formatting time string
+    const hours = selectedDate.getHours();
+    const minutes = selectedDate.getMinutes();
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    const selectedTime = `${hours}:${formattedMinutes}`;
+    console.log(selectedTime);
+
+    setBookingData((prevData) => ({
+      ...prevData,
+      prefferedDate: selectedDate,
+      fromTime: selectedTime,
+    }));
 
     if (buttonRef.current) {
       buttonRef.current.click();
@@ -239,8 +238,8 @@ export const BookingListComponent = () => {
   const handleSelectedChange = (selectedOptions) => {
     setSelectedService(selectedOptions);
 
-    const selectedValues = selectedOptions.map(option => option.value);
-    const selectedValuesString = selectedValues.join(', ');
+    const selectedValues = selectedOptions.map((option) => option.value);
+    const selectedValuesString = selectedValues.join(", ");
 
     console.log(selectedValuesString);
     setBookingData((prevData) => ({
@@ -289,7 +288,7 @@ export const BookingListComponent = () => {
       provider: data.photographer_id,
       customer: data.user_id,
     });
-  }
+  };
 
   const deleteBookingData = async () => {
     try {
@@ -314,7 +313,9 @@ export const BookingListComponent = () => {
 
   const updateTimeData = async () => {
     try {
-      const booking = bookingsData.find((booking) => booking.id === parseInt(updateData.id));
+      const booking = bookingsData.find(
+        (booking) => booking.id === parseInt(updateData.id)
+      );
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
       formDataToSend.append("booking_date", booking.booking_date);
@@ -327,14 +328,13 @@ export const BookingListComponent = () => {
       formDataToSend.append("booking_status", 1);
       formDataToSend.append("comment", booking.comment);
 
-
       await newBooking(formDataToSend);
       getAllBookingsData();
 
       setUpdateData({
         title: "",
         package: 1,
-        services: '',
+        services: "",
         prefferedDate: new Date(),
         fromTime: "",
         toTime: "60",
@@ -380,13 +380,14 @@ export const BookingListComponent = () => {
     }));
     console.log(updateData);
 
-
     setShowConfirmModel(true);
   };
 
   const updateDateData = async () => {
     try {
-      const booking = bookingsData.find((booking) => booking.id === parseInt(updateData.id));
+      const booking = bookingsData.find(
+        (booking) => booking.id === parseInt(updateData.id)
+      );
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
       formDataToSend.append("booking_date", updateData.prefferedDate);
@@ -399,14 +400,13 @@ export const BookingListComponent = () => {
       formDataToSend.append("booking_status", 1);
       formDataToSend.append("comment", booking.comment);
 
-
       await newBooking(formDataToSend);
       getAllBookingsData();
 
       setUpdateData({
         title: "",
         package: 1,
-        services: '',
+        services: "",
         prefferedDate: new Date(),
         fromTime: "",
         toTime: "60",
@@ -459,7 +459,16 @@ export const BookingListComponent = () => {
       {
         Header: "Booking Date",
         accessor: "booking_date",
-        headerStyle: { width: '200px' },
+        Cell: ({ value }) => (
+          <div className="badge badge-pill badge-light-primary">
+            {new Date(value).toLocaleDateString("en-NZ", {
+              year: "2-digit",
+              month: "2-digit",
+              day: "2-digit",
+            })}
+          </div>
+        ),
+        headerStyle: { width: "200px" },
       },
       {
         Header: "Booking Time",
@@ -492,7 +501,6 @@ export const BookingListComponent = () => {
         Cell: (props) => (
           <div className="d-flex">
             <button
-              ref={buttonRef}
               type="button"
               className="btn btn-icon btn-outline-primary"
               onClick={() => getBookingData(props.row.original)}
@@ -530,35 +538,43 @@ export const BookingListComponent = () => {
 
   const subscribe = useGoogleLogin({
     onSuccess: (codeResponse) => {
-      axios.post(`${API_URL}/auth/google`, {
-        code: codeResponse.code,
-        id: userId
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(response => {
-          console.log('Backend response:', response.data);
+      axios
+        .post(
+          `${API_URL}/auth/google`,
+          {
+            code: codeResponse.code,
+            id: userId,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          console.log("Backend response:", response.data);
         })
-        .catch(error => {
-          console.error('Error:', error);
+        .catch((error) => {
+          console.error("Error:", error);
         });
     },
     onError: () => {
-      console.error('Google login failed');
+      console.error("Google login failed");
     },
-    scope: "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
-    flow: 'auth-code',
-    include_granted_scopes: true
+    scope:
+      "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
+    flow: "auth-code",
+    include_granted_scopes: true,
   });
+
+  console.log(bookingData.fromTime);
 
   return (
     <>
       <div className="app-content content">
         <div className={`content-overlay`}></div>
-        <div className="content-wrapper" >
-          <div className="content-header row" style={{paddingBottom: '5px'}}>
+        <div className="content-wrapper">
+          <div className="content-header row" style={{ paddingBottom: "5px" }}>
             <div className="content-header-left col-md-6 col-6">
               <h3 className="content-header-title mb-0">Booking List</h3>
               <div className="row breadcrumbs-top">
@@ -577,10 +593,19 @@ export const BookingListComponent = () => {
                 <li>
                   <div className="form-group">
                     <div className="">
-                      {calendarSub == null ? <></> :
-                        <button type="button"
-                          className="btn btn-outline-primary mx-1" disabled={calendarSub == 1} >{calendarSub == 1 ? 'Subsribed' : 'Subsribe to Calendar'}</button>
-                      }
+                      {calendarSub == null ? (
+                        <></>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary mx-1"
+                          disabled={calendarSub == 1}
+                        >
+                          {calendarSub == 1
+                            ? "Subsribed"
+                            : "Subsribe to Calendar"}
+                        </button>
+                      )}
                       <button
                         ref={buttonRef}
                         type="button"
@@ -675,10 +700,12 @@ export const BookingListComponent = () => {
                                               provider: e.value,
                                             });
                                           }}
-                                          options={providers.map((provider) => ({
-                                            label: provider.name,
-                                            value: provider.id,
-                                          }))}
+                                          options={providers.map(
+                                            (provider) => ({
+                                              label: provider.name,
+                                              value: provider.id,
+                                            })
+                                          )}
                                           isSearchable
                                           required
                                           components={{
@@ -690,10 +717,16 @@ export const BookingListComponent = () => {
                                               <div
                                                 ref={innerRef}
                                                 {...innerProps}
-                                                style={{ display: 'flex form-select', alignItems: 'center' }}
+                                                style={{
+                                                  display: "flex form-select",
+                                                  alignItems: "center",
+                                                }}
                                               >
                                                 <img
-                                                  src={data.profile_photo || avatar1}
+                                                  src={
+                                                    data.profile_photo ||
+                                                    avatar1
+                                                  }
                                                   className="mr-1 ml-1"
                                                   width={"14px"}
                                                   height={"14px"}
@@ -704,7 +737,6 @@ export const BookingListComponent = () => {
                                             ),
                                           }}
                                         />
-
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
@@ -736,7 +768,10 @@ export const BookingListComponent = () => {
                                               <div
                                                 ref={innerRef}
                                                 {...innerProps}
-                                                style={{ display: 'flex form-select ', alignItems: 'center' }}
+                                                style={{
+                                                  display: "flex form-select ",
+                                                  alignItems: "center",
+                                                }}
                                               >
                                                 <img
                                                   src={toolIcons}
@@ -757,12 +792,12 @@ export const BookingListComponent = () => {
                                         <input
                                           type="text"
                                           id="price"
-                                          className="form-control border-primary mr-1"
+                                          className="form-control border-primary"
                                           name="price"
                                           value={`$ ${selectedPackagePrice}`}
                                           disabled
                                         />
-                                        <div className="input-group">
+                                        <div className="input-group  ml-1">
                                           <select
                                             className="select2 form-control fa fa-caret-down"
                                             name="toTime"
@@ -786,7 +821,7 @@ export const BookingListComponent = () => {
                                         </div>
                                       </div>
 
-                                      <div className="modal-body d-flex px-4">
+                                      <div className="modal-body d-flex px-4 ">
                                         <label
                                           htmlFor="datetimepicker4"
                                           style={{ width: "11rem" }}
@@ -794,7 +829,7 @@ export const BookingListComponent = () => {
                                           Date/Time
                                         </label>
                                         <DatePicker
-                                          className="form-control custom-datepicker"
+                                          className="form-control custom-datepicker mr-1"
                                           id="datetimepicker4"
                                           name="prefferedDate"
                                           selected={bookingData.prefferedDate}
@@ -804,161 +839,23 @@ export const BookingListComponent = () => {
                                               prefferedDate: date,
                                             }))
                                           }
+                                          dateFormat="dd/MM/yyyy"
                                           required
                                         />
-                                        <select
-                                          className="select2 form-control w-50 ml-1"
-                                          name="fromTime"
+
+                                        <input
+                                          name="time form-control"
                                           value={bookingData.fromTime}
-                                          onChange={handleChange}
-                                          required
-                                        >
-                                          <option value="">Select Time</option>
-                                          <option value="12:00 AM">
-                                            12:00 AM
-                                          </option>
-                                          <option value="12:30 AM">
-                                            12:30 AM
-                                          </option>
-                                          <option value="01:00 AM">
-                                            01:00 AM
-                                          </option>
-                                          <option value="01:30 AM">
-                                            01:30 AM
-                                          </option>
-                                          <option value="02:00 AM">
-                                            02:00 AM
-                                          </option>
-                                          <option value="02:30 AM">
-                                            02:30 AM
-                                          </option>
-                                          <option value="03:00 AM">
-                                            03:00 AM
-                                          </option>
-                                          <option value="03:30 AM">
-                                            03:30 AM
-                                          </option>
-                                          <option value="04:00 AM">
-                                            04:00 AM
-                                          </option>
-                                          <option value="04:30 AM">
-                                            04:30 AM
-                                          </option>
-                                          <option value="05:00 AM">
-                                            05:00 AM
-                                          </option>
-                                          <option value="05:30 AM">
-                                            05:30 AM
-                                          </option>
-                                          <option value="06:00 AM">
-                                            06:00 AM
-                                          </option>
-                                          <option value="06:30 AM">
-                                            06:30 AM
-                                          </option>
-                                          <option value="07:00 AM">
-                                            07:00 AM
-                                          </option>
-                                          <option value="07:30 AM">
-                                            07:30 AM
-                                          </option>
-                                          <option value="08:00 AM">
-                                            08:00 AM
-                                          </option>
-                                          <option value="08:30 AM">
-                                            08:30 AM
-                                          </option>
-                                          <option value="09:00 AM">
-                                            09:00 AM
-                                          </option>
-                                          <option value="09:30 AM">
-                                            09:30 AM
-                                          </option>
-                                          <option value="10:00 AM">
-                                            10:00 AM
-                                          </option>
-                                          <option value="10:30 AM">
-                                            10:30 AM
-                                          </option>
-                                          <option value="11:00 AM">
-                                            11:00 AM
-                                          </option>
-                                          <option value="11:30 AM">
-                                            11:30 AM
-                                          </option>
-                                          <option value="12:00 PM">
-                                            12:00 PM
-                                          </option>
-                                          <option value="12:30 PM">
-                                            12:30 PM
-                                          </option>
-                                          <option value="01:00 PM">
-                                            01:00 PM
-                                          </option>
-                                          <option value="01:30 PM">
-                                            01:30 PM
-                                          </option>
-                                          <option value="02:00 PM">
-                                            02:00 PM
-                                          </option>
-                                          <option value="02:30 PM">
-                                            02:30 PM
-                                          </option>
-                                          <option value="03:00 PM">
-                                            03:00 PM
-                                          </option>
-                                          <option value="03:30 PM">
-                                            03:30 PM
-                                          </option>
-                                          <option value="04:00 PM">
-                                            04:00 PM
-                                          </option>
-                                          <option value="04:30 PM">
-                                            04:30 PM
-                                          </option>
-                                          <option value="05:00 PM">
-                                            05:00 PM
-                                          </option>
-                                          <option value="05:30 PM">
-                                            05:30 PM
-                                          </option>
-                                          <option value="06:00 PM">
-                                            06:00 PM
-                                          </option>
-                                          <option value="06:30 PM">
-                                            06:30 PM
-                                          </option>
-                                          <option value="07:00 PM">
-                                            07:00 PM
-                                          </option>
-                                          <option value="07:30 PM">
-                                            07:30 PM
-                                          </option>
-                                          <option value="08:00 PM">
-                                            08:00 PM
-                                          </option>
-                                          <option value="08:30 PM">
-                                            08:30 PM
-                                          </option>
-                                          <option value="09:00 PM">
-                                            09:00 PM
-                                          </option>
-                                          <option value="09:30 PM">
-                                            09:30 PM
-                                          </option>
-                                          <option value="10:00 PM">
-                                            10:00 PM
-                                          </option>
-                                          <option value="10:30 PM">
-                                            10:30 PM
-                                          </option>
-                                          <option value="11:00 PM">
-                                            11:00 PM
-                                          </option>
-                                          <option value="11:30 PM">
-                                            11:30 PM
-                                          </option>
-                                        </select>
+                                          
+                                          onChange={(e) =>
+                                            setBookingData((prevData) => ({
+                                              ...prevData,
+                                              fromTime: e.target.value,
+                                            }))
+                                          }
+                                          type="time"
+                                          className="form-control w-50 ml-1"
+                                        />
                                       </div>
 
                                       <div className="modal-body d-flex px-4">
@@ -991,23 +888,37 @@ export const BookingListComponent = () => {
                                                 client: e.value,
                                               });
                                             }}
-                                            options={clientList.map((client) => ({
-                                              label: (
-                                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                  <img
-                                                    src={client.profile_photo || avatar1}
-                                                    alt="Profile"
-                                                    style={{ marginRight: '10px', borderRadius: '50%', width: '30px', height: '30px' }}
-                                                  />
-                                                  <span>{client.name}</span>
-                                                </div>
-                                              ),
-                                              value: client.id,
-                                            }))}
+                                            options={clientList.map(
+                                              (client) => ({
+                                                label: (
+                                                  <div
+                                                    style={{
+                                                      display: "flex",
+                                                      alignItems: "center",
+                                                    }}
+                                                  >
+                                                    <img
+                                                      src={
+                                                        client.profile_photo ||
+                                                        avatar1
+                                                      }
+                                                      alt="Profile"
+                                                      style={{
+                                                        marginRight: "10px",
+                                                        borderRadius: "50%",
+                                                        width: "30px",
+                                                        height: "30px",
+                                                      }}
+                                                    />
+                                                    <span>{client.name}</span>
+                                                  </div>
+                                                ),
+                                                value: client.id,
+                                              })
+                                            )}
                                             isSearchable
                                             required
                                           />
-
                                         </div>
                                       )}
                                       {/* {showNewCustomer ? (
@@ -1225,6 +1136,15 @@ export const BookingListComponent = () => {
                           views={{
                             timeGridWeek: {
                               dayHeaderContent: ({ date }) => {
+                                const days = [
+                                  "Sunday",
+                                  "Monday",
+                                  "Tuesday",
+                                  "Wednesday",
+                                  "Thursday",
+                                  "Friday",
+                                  "Saturday",
+                                ];
                                 const day = date
                                   .getDate()
                                   .toString()
@@ -1232,7 +1152,40 @@ export const BookingListComponent = () => {
                                 const month = (date.getMonth() + 1)
                                   .toString()
                                   .padStart(2, "0");
-                                return `${day}/${month}`;
+                                const dayName = days[date.getDay()];
+                                return (
+                                  <div>
+                                    <div>{`${day}/${month}`}</div>
+                                    <div>{dayName}</div>
+                                  </div>
+                                );
+                              },
+                            },
+                            timeGridDay: {
+                              dayHeaderContent: ({ date }) => {
+                                const days = [
+                                  "Sunday",
+                                  "Monday",
+                                  "Tuesday",
+                                  "Wednesday",
+                                  "Thursday",
+                                  "Friday",
+                                  "Saturday",
+                                ];
+                                const day = date
+                                  .getDate()
+                                  .toString()
+                                  .padStart(2, "0");
+                                const month = (date.getMonth() + 1)
+                                  .toString()
+                                  .padStart(2, "0");
+                                const dayName = days[date.getDay()];
+                                return (
+                                  <div>
+                                    <div>{`${day}/${month}`}</div>
+                                    <div>{dayName}</div>
+                                  </div>
+                                );
                               },
                             },
                           }}
