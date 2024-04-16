@@ -72,11 +72,10 @@ app.get("/*", (req, res, next) => {
     req.url.includes("/collection/") ||
     //req.url.includes("/calender/") ||
     req.url.includes("/assets/")
-  ) {
-    return next();
-  } else {
+  )
+  return next();
+  else
     res.sendFile(path.join(__dirname, "build", "index.html"));
-  }
 });
 
 // Start the server

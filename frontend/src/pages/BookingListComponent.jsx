@@ -20,9 +20,10 @@ import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
 import TableCustom from "../components/Table";
-import { useGoogleLogin, } from '@react-oauth/google';
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/authContext";
 import API from "../api/baseApi";
+import ConfirmModal from "../components/ConfirmModal";
 
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
@@ -36,6 +37,9 @@ export const BookingListComponent = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
+  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
+
   const [clientList, setClientList] = useState([]);
   const [events, setEvents] = useState([]);
   const [bookingsData, setBookingsData] = useState([]);
@@ -43,12 +47,13 @@ export const BookingListComponent = () => {
   const userId = authData.user ? authData.user.id : null;
   const calendarSub = authData.user ? authData.user.calendarSub : null;
   const [showDateModel, setShowDateModel] = useState(false);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
 
   const [updateData, setUpdateData] = useState({
     id: "",
     title: "",
     package: 1,
-    services: '',
+    services: "",
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -61,7 +66,7 @@ export const BookingListComponent = () => {
   const [bookingData, setBookingData] = useState({
     title: "",
     package: 1,
-    services: '',
+    services: "",
     prefferedDate: new Date(),
     fromTime: "",
     toTime: "",
@@ -110,11 +115,12 @@ export const BookingListComponent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const convertedTime = convertTo24Hour(bookingData.fromTime);
+      const convertedTime = bookingData.fromTime;
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
-      let [currentHours, currentMinutes, currentSeconds] = convertedTime.split(":");
+      let [currentHours, currentMinutes, currentSeconds] =
+        convertedTime.split(":");
       currentHours = parseInt(currentHours, 10) + hoursToAdd;
       currentMinutes = parseInt(currentMinutes, 10) + minutesToAdd;
       if (currentMinutes >= 60) {
@@ -133,11 +139,12 @@ export const BookingListComponent = () => {
         package: 0,
         photographer_id: bookingData.provider,
         booking_date: bookingData.prefferedDate,
-        booking_time: convertedTime,
-        booking_time_to: newToTime,
+        booking_time: bookingData.fromTime,
+        booking_time_to: bookingData.toTime,
         booking_status: 1,
         comment: bookingData.comment,
       };
+      console.log(bookingDataToSend);
 
       await newBooking(bookingDataToSend);
       getAllBookingsData();
@@ -145,7 +152,6 @@ export const BookingListComponent = () => {
         buttonRef.current.click();
       }
 
-      // Clear form data
       setBookingData({
         title: "",
         package: 1,
@@ -176,8 +182,6 @@ export const BookingListComponent = () => {
     }
   };
 
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -186,7 +190,6 @@ export const BookingListComponent = () => {
       [name]: value,
     }));
   };
-
 
   useEffect(() => {
     getAllBookingsData();
@@ -213,20 +216,24 @@ export const BookingListComponent = () => {
     }
   };
   const handleDateClick = (arg) => {
+    console.log(arg);
     const selectedDate = new Date(arg.date);
-    const selectedTime = selectedDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    console.log(selectedDate);
 
-    setBookingData((prevData) => {
-      const newData = {
-        ...prevData,
-        prefferedDate: selectedDate,
-        fromTime: selectedTime,
-      };
-      return newData;
-    });
+    const hours = selectedDate.getHours();
+    const formattedHours = hours < 10 ? `0${hours}` : hours;
+    const minutes = selectedDate.getMinutes();
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    const ampm = hours < 12 ? "AM" : "PM";
+
+    const selectedTime = `${formattedHours}:${formattedMinutes}:00`;
+    console.log(selectedTime);
+
+    setBookingData((prevData) => ({
+      ...prevData,
+      prefferedDate: selectedDate,
+      fromTime: selectedTime,
+    }));
 
     if (buttonRef.current) {
       buttonRef.current.click();
@@ -239,14 +246,14 @@ export const BookingListComponent = () => {
 
   const handleSelectedChange = (selectedOptions) => {
     setSelectedService(selectedOptions);
+    console.log(selectedOptions);
 
-    const selectedValues = selectedOptions.map(option => option.value);
-    const selectedValuesString = selectedValues.join(', ');
+    const selectedValues = selectedOptions.map((option) => option.value);
+    const selectedValuesString = selectedValues.join(", ");
     setBookingData((prevData) => ({
       ...prevData,
       services: selectedValuesString,
     }));
-    // The rest of your code...
     const selectedPrices = selectedOptions.map((option) => {
       const price = packagePrice.find((pack) => pack.id === option.value);
       return price.price;
@@ -255,6 +262,31 @@ export const BookingListComponent = () => {
     const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
     setSelectedPackagePrice(totalPrice);
   };
+
+  const handleProviderChange = (selectedOptions) => {
+    setSelectedProvider(selectedOptions);
+    console.log(selectedOptions);
+
+    const selectedValues = selectedOptions.map((option) => option.value);
+    const selectedValuesString = selectedValues.join(", ");
+
+    console.log(selectedValuesString);
+    setBookingData((prevData) => ({
+      ...prevData,
+      provider: selectedValuesString,
+    }));
+  };
+
+  const handleClientChange = (selectedOptions) => {
+    console.log(selectedOptions);
+    setSelectedClient(selectedOptions);
+    setBookingData((prevData) => ({
+      ...prevData,
+      client: selectedOptions.value,
+    }));
+  };
+
+  console.log(bookingData);
 
   const getAllBookingsData = async () => {
     try {
@@ -272,8 +304,59 @@ export const BookingListComponent = () => {
       console.error("Failed to:", error.message);
     }
   };
-
   const getBookingData = (data) => {
+    let array = [];
+    data.package_ids.split(", ").forEach((element) => {
+      array.push(parseInt(element));
+    });
+    let SS = data.package_ids ? data.package_ids : [];
+    const selectedServices = SS.split(",").map((id) =>
+      packages.find((pack) => pack.id === parseInt(id))
+    );
+
+    const finalservice =
+      selectedServices &&
+      selectedServices.map((serv) => ({
+        label: serv.package_name,
+        value: serv.id,
+        package_price: serv.package_price,
+      }));
+
+    const selectedPrices = selectedServices.map((serv) => serv.package_price);
+    const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
+    setSelectedPackagePrice(totalPrice);
+    setSelectedService(finalservice);
+
+    let prvdr = [];
+    data.photographer_id.split(", ").forEach((element) => {
+      prvdr.push(parseInt(element));
+    });
+
+    const selectedProvider = prvdr.map((id) =>
+      providers.find((provider) => provider.id === parseInt(id))
+    );
+
+    const finalProvider =
+      selectedProvider &&
+      selectedProvider.map((prov) => ({
+        label: prov.name || "",
+        value: prov.id,
+      }));
+    console.log(finalProvider);
+    setSelectedProvider(finalProvider);
+
+    //  find data.user_id in clientList
+    const clint = clientList.find(
+      (client) => client.id === parseInt(data.user_id)
+    );
+    const finalClient = clint && [
+      {
+        label: clint.name,
+        value: clint.id,
+      },
+    ];
+    setSelectedClient(finalClient);
+
     setBookingData({
       title: data.booking_title,
       package: data.package,
@@ -286,7 +369,20 @@ export const BookingListComponent = () => {
       provider: data.photographer_id,
       customer: data.user_id,
     });
-  }
+  };
+
+  const handleEventClick = (event) => {
+    console.log(event);
+    let id = event.event._def.publicId;
+    console.log(id);
+
+    let data = bookingsData.find((booking) => booking.id === parseInt(id));
+    console.log(data);
+    getBookingData(data);
+    if (buttonRef.current) {
+      buttonRef.current.click();
+    }
+  };
 
   const deleteBookingData = async () => {
     try {
@@ -311,19 +407,20 @@ export const BookingListComponent = () => {
 
   const updateTimeData = async () => {
     try {
-      const booking = bookingsData.find((booking) => booking.id === parseInt(updateData.id));
+      const booking = bookingsData.find(
+        (booking) => booking.id === parseInt(updateData.id)
+      );
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
       formDataToSend.append("booking_date", booking.booking_date);
       formDataToSend.append("booking_time", updateData.startTime);
       formDataToSend.append("booking_time_to", updateData.endTime);
-      formDataToSend.append("user_id", userId);
+      formDataToSend.append("user_id", booking.user_id);
       formDataToSend.append("package_ids", booking.package_ids);
       formDataToSend.append("package", booking.package);
       formDataToSend.append("photographer_id", booking.photographer_id);
       formDataToSend.append("booking_status", 1);
       formDataToSend.append("comment", booking.comment);
-
 
       await newBooking(formDataToSend);
       getAllBookingsData();
@@ -331,7 +428,7 @@ export const BookingListComponent = () => {
       setUpdateData({
         title: "",
         package: 1,
-        services: '',
+        services: "",
         prefferedDate: new Date(),
         fromTime: "",
         toTime: "60",
@@ -349,6 +446,8 @@ export const BookingListComponent = () => {
   };
   const handleEventResize = (arg) => {
     let id = arg.event._def.publicId;
+    console.log(id);
+    // find
 
     let newDate = new Date(arg.event.start + "Z");
     let endDate = new Date(arg.event.end + "Z");
@@ -376,13 +475,14 @@ export const BookingListComponent = () => {
       endTime: newEndTime,
     }));
 
-
     setShowConfirmModel(true);
   };
 
   const updateDateData = async () => {
     try {
-      const booking = bookingsData.find((booking) => booking.id === parseInt(updateData.id));
+      const booking = bookingsData.find(
+        (booking) => booking.id === parseInt(updateData.id)
+      );
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
       formDataToSend.append("booking_date", updateData.prefferedDate);
@@ -395,14 +495,13 @@ export const BookingListComponent = () => {
       formDataToSend.append("booking_status", 1);
       formDataToSend.append("comment", booking.comment);
 
-
       await newBooking(formDataToSend);
       getAllBookingsData();
 
       setUpdateData({
         title: "",
         package: 1,
-        services: '',
+        services: "",
         prefferedDate: new Date(),
         fromTime: "",
         toTime: "60",
@@ -449,379 +548,204 @@ export const BookingListComponent = () => {
     setShowDateModel(true);
   };
 
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: "Booking Date",
-        accessor: "booking_date",
-        headerStyle: { width: '200px' },
+  const handleNotifyChange = (data) => {
+    console.log(data);
+    setUpdateData({
+      id: data.id,
+      booking_status: data.booking_status,
+    });
+
+    console.log(updateData);
+    setShowNotifyModal(true);
+    // };
+    // const updateBookingStatus = async () => {
+    //   try {
+    //     const formDataToSend = new FormData();
+    //     formDataToSend.append("id", updateData.id);
+    //     formDataToSend.append("booking_status", updateData.booking_status);
+    //     console.log(formDataToSend);
+
+    //     // await updateBooking(formDataToSend);
+    //     // getAllBookingsData();
+    //     // setUpdateData({
+    //     //   title: "",
+    //     //   package: 1,
+    //     //   services: "",
+    //     //   prefferedDate: new Date(),
+    //     //   fromTime: "",
+    //     //   toTime: "60",
+    //     //   client: "",
+    //     //   comment: "",
+    //     //   provider: "",
+    //     //   customer: "",
+    //     // });
+    //     setShowNotifyModal(false);
+    //     toast.success("Booking updated successfully");
+    //   } catch (error) {
+    //     toast.error(error);
+    //   }
+  };
+  const columns = [
+    {
+      Header: "Booking Date",
+      accessor: "booking_date",
+      Cell: ({ value }) => (
+        <div className="badge badge-pill badge-light-primary">
+          {new Date(value).toLocaleDateString("en-NZ", {
+            year: "2-digit",
+            month: "2-digit",
+            day: "2-digit",
+          })}
+        </div>
+      ),
+      headerStyle: { width: "200px" },
+    },
+    {
+      Header: "Booking Time",
+      accessor: "booking_time",
+      Cell: ({ value }) => {
+        const [hours, minutes, seconds] = value.split(":");
+
+        let formattedHours = parseInt(hours, 10);
+        const ampm = formattedHours >= 12 ? "PM" : "AM";
+        formattedHours = formattedHours % 12 || 12;
+
+        formattedHours =
+          formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+
+        const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
+
+        return <span>{formattedTime}</span>;
       },
-      {
-        Header: "Booking Time",
-        accessor: "booking_time",
+    },
+    {
+      Header: "To Time",
+      accessor: "booking_time_to",
+      Cell: ({ value }) => {
+        const [hours, minutes, seconds] = value.split(":");
+
+        let formattedHours = parseInt(hours, 10);
+        const ampm = formattedHours >= 12 ? "PM" : "AM";
+        formattedHours = formattedHours % 12 || 12;
+
+        formattedHours =
+          formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+
+        const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
+
+        return <span>{formattedTime}</span>;
       },
-      {
-        Header: "Client",
-        accessor: "client_name",
-      },
-      {
-        Header: "Address",
-        accessor: "client_address",
-      },
-      {
-        Header: "Comment",
-        accessor: "comment",
-      },
-      {
-        Header: "Status",
-        accessor: "booking_status",
-        Cell: ({ value }) => (
-          <div className="badge badge-pill badge-light-primary">
-            {value === 1 ? "Pending" : value === 2 ? "Notify" : "Booked"}
-          </div>
-        ),
-      },
-      {
-        Header: "Action",
-        accessor: "action",
-        Cell: (props) => (
-          <div className="d-flex">
+    },
+
+    {
+      Header: "Client",
+      accessor: "client_name",
+    },
+    {
+      Header: "Address",
+      accessor: "client_address",
+    },
+    {
+      Header: "Comment",
+      accessor: "comment",
+    },
+    {
+      Header: "Status",
+      accessor: "booking_status",
+      Cell: (props) => (
+        <div className="badge badge-pill badge-light-primary">
+          {props.row.original.booking_status === 1 ? (
             <button
-              ref={buttonRef}
               type="button"
               className="btn btn-icon btn-outline-primary"
-              onClick={() => getBookingData(props.row.original)}
+              onClick={() => handleNotifyChange(props.row.original)}
               data-toggle="modal"
-              data-target="#appointment"
+              data-target="#confirmModal"
             >
-              <i className="feather white icon-edit"></i>
+              Notify
             </button>
-
+          ) : (
             <button
-              className="btn btn-icon btn-outline-danger ml-1"
-              onClick={() => {
-                setBookingIdToDelete(props.row.original.id);
-                setShowDeleteModal(true);
-              }}
-              id="delete-row"
+              type="button"
+              className="btn btn-icon btn-outline-primary"
+              onClick={() => handleNotifyChange(props.row.original)}
               data-toggle="modal"
-              data-target="#deleteModal"
+              data-target="#confirmModal"
+              disabled
             >
-              <i className="feather white icon-trash"></i>
+              Booked
             </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      Header: "Action",
+      accessor: "action",
+      Cell: (props) => (
+        <div className="d-flex">
+          <button
+            type="button"
+            className="btn btn-icon btn-outline-primary"
+            onClick={() => getBookingData(props.row.original)}
+            data-toggle="modal"
+            data-target="#appointment"
+          >
+            <i className="feather white icon-edit"></i>
+          </button>
 
-            <button
-              className="btn btn-icon btn-outline-primary ml-1"
-              title="Create Gallery"
-              data-toggle="modal"
-              data-target="#create_gallery"
-            >
-              <i className="feather white icon-image"></i>
-            </button>
-            <div
-              className="modal fade text-left"
-              id="create_gallery"
-              tabIndex="-1"
-              role="dialog"
-              aria-labelledby="myModalLabel35"
-              aria-hidden="true"
-              style={{ display: "none" }}
-            >
-              <div className="modal-dialog modal-md " role="document">
-                <div className="modal-content">
-                  <div
-                    className="modal-header"
-                    style={{ backgroundColor: "#DEE6EE", color: "black" }}
-                  >
-                    <h3>Create Gallery</h3>
-                    <button
-                      type="button"
-                      className="close"
-                      data-dismiss="modal"
-                      aria-label="Close"
-                    >
-                      <span aria-hidden="true">×</span>
-                    </button>
-                  </div>
-                  <form onSubmit={handleSubmit}>
-                    <div className="modal-body d-flex px-4">
-                      <label
-                        htmlFor="provider"
-                        style={{ width: "10rem" }}
-                      >
-                        Client *
-                      </label>
-                      <Select
-                        className="select2 w-100"
-                        name="providers"
-                        defaultValue={bookingData.provider}
-                        onChange={(e) => {
-                          setBookingData({
-                            ...bookingData,
-                            provider: e.value,
-                          });
-                        }}
-                        options={providers.map((provider) => ({
-                          label: provider.name,
-                          value: provider.id,
-                        }))}
-                        isSearchable
-                        required
-                        components={{
-                          Option: ({
-                            data,
-                            innerRef,
-                            innerProps,
-                          }) => (
-                            <div
-                              ref={innerRef}
-                              {...innerProps}
-                              style={{ display: 'flex form-select', alignItems: 'center' }}
-                            >
-                              <img
-                                src={data.profile_photo || avatar1}
-                                className="mr-1 ml-1"
-                                width={"14px"}
-                                height={"14px"}
-                                alt=""
-                              />
-                              <span>{data.label}</span>
-                            </div>
-                          ),
-                        }}
-                      />
+          <button
+            className="btn btn-icon btn-outline-danger ml-1"
+            onClick={() => {
+              setBookingIdToDelete(props.row.original.id);
+              setShowDeleteModal(true);
+            }}
+            id="delete-row"
+            data-toggle="modal"
+            data-target="#deleteModal"
+          >
+            <i className="feather white icon-trash"></i>
+          </button>
 
-                    </div>
-                    <div className="modal-body d-flex px-4">
-                      <label
-                        htmlFor="services"
-                        style={{ width: "10rem" }}
-                      >
-                        Booking Title *
-                      </label>
-                      <Select
-                        className="select2 w-100"
-                        name="services"
-                        defaultValue={selectedService}
-                        onChange={handleSelectedChange}
-                        options={packages.map((pkg) => ({
-                          label: pkg.package_name,
-                          value: pkg.id,
-                          package_price: pkg.package_price,
-                        }))}
-                        isSearchable
-                        isMulti
-                        hideSelectedOptions
-                        required
-                        components={{
-                          Option: ({
-                            data,
-                            innerRef,
-                            innerProps,
-                          }) => (
-                            <div
-                              ref={innerRef}
-                              {...innerProps}
-                              style={{ display: 'flex form-select ', alignItems: 'center' }}
-                            >
-                              <img
-                                src={toolIcons}
-                                className="mr-1 ml-1"
-                                width={"14px"}
-                                height={"14px"}
-                                alt=""
-                              />
-                              <span>{data.label}</span>
-                            </div>
-                          ),
-                        }}
-                      />
-                    </div>
-                    <div className="modal-body d-flex px-4">
-                      <label
-                        htmlFor="services"
-                        style={{ width: "10rem" }}
-                      >
-                        Services
-                      </label>
-                      <Select
-                        className="select2 w-100"
-                        name="services"
-                        defaultValue={selectedService}
-                        onChange={handleSelectedChange}
-                        options={packages.map((pkg) => ({
-                          label: pkg.package_name,
-                          value: pkg.id,
-                          package_price: pkg.package_price,
-                        }))}
-                        isSearchable
-                        isMulti
-                        hideSelectedOptions
-                        required
-                        components={{
-                          Option: ({
-                            data,
-                            innerRef,
-                            innerProps,
-                          }) => (
-                            <div
-                              ref={innerRef}
-                              {...innerProps}
-                              style={{ display: 'flex form-select ', alignItems: 'center' }}
-                            >
-                              <img
-                                src={toolIcons}
-                                className="mr-1 ml-1"
-                                width={"14px"}
-                                height={"14px"}
-                                alt=""
-                              />
-                              <span>{data.label}</span>
-                            </div>
-                          ),
-                        }}
-                      />
-                    </div>
-                    <div className="modal-body d-flex px-4">
-                      <label
-                        htmlFor="services"
-                        style={{ width: "10rem" }}
-                      >
-                        Photographer
-                      </label>
-                      <Select
-                        className="select2 w-100"
-                        name="services"
-                        defaultValue={selectedService}
-                        onChange={handleSelectedChange}
-                        options={packages.map((pkg) => ({
-                          label: pkg.package_name,
-                          value: pkg.id,
-                          package_price: pkg.package_price,
-                        }))}
-                        isSearchable
-                        isMulti
-                        hideSelectedOptions
-                        required
-                        components={{
-                          Option: ({
-                            data,
-                            innerRef,
-                            innerProps,
-                          }) => (
-                            <div
-                              ref={innerRef}
-                              {...innerProps}
-                              style={{ display: 'flex form-select ', alignItems: 'center' }}
-                            >
-                              <img
-                                src={toolIcons}
-                                className="mr-1 ml-1"
-                                width={"14px"}
-                                height={"14px"}
-                                alt=""
-                              />
-                              <span>{data.label}</span>
-                            </div>
-                          ),
-                        }}
-                      />
-                    </div>
-                    <div className="modal-body d-flex px-4">
-                      <label
-                        htmlFor="provider"
-                        style={{ width: "10rem" }}
-                      >
-                        Gallery Title
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="gallery_title"
-                      />
-                    </div>
-                    <div className="modal-body d-flex px-4">
-                      <label
-                        htmlFor="provider"
-                        style={{ width: "10rem" }}
-                      >
-                        Dropbox Link
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="gallery_title"
-                      />
-                    </div>
-                    <div className="modal-body d-flex px-4">
-                      <label
-                        htmlFor="provider"
-                        style={{ width: "10rem" }}
-                      >
-                        Vimeo Video Link
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="gallery_title"
-                      />
-                    </div>
-                    <div className="px-4 text-primary">
-                      <Switch
-                        checked={true}
-                        inputProps={{ 'aria-label': 'controlled' }}
-                      />
-                      Lock Gallery
-                      <Checkbox defaultChecked color="primary" />
-                      Notify to Client
-                    </div>
-                    <div className="modal-footer">
-                      <input
-                        type="submit"
-                        className="btn btn-primary btn"
-                        value="Create"
-                      />
-                      <input
-                        type="reset"
-                        className="btn btn-secondary btn"
-                        data-dismiss="modal"
-                        value="Cancel"
-                      />
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
-
+          <button
+            className="btn btn-icon btn-outline-primary ml-1"
+            title="Turn into Gallery"
+          >
+            <i className="feather white icon-image"></i>
+          </button>
+        </div>
+      ),
+    },
+  ];
   const subscribe = useGoogleLogin({
     onSuccess: (codeResponse) => {
-      axios.post(`${API_URL}/auth/google`, {
-        code: codeResponse.code,
-        id: userId
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(response => {
-          console.log('Backend response:', response.data);
+      axios
+        .post(
+          `${API_URL}/auth/google`,
+          {
+            code: codeResponse.code,
+            id: userId,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          console.log("Backend response:", response.data);
         })
-        .catch(error => {
-          console.error('Error:', error);
+        .catch((error) => {
+          console.error("Error:", error);
         });
     },
     onError: () => {
-      console.error('Google login failed');
+      console.error("Google login failed");
     },
-    scope: "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
-    flow: 'auth-code',
-    include_granted_scopes: true
+    scope:
+      "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
+    flow: "auth-code",
+    include_granted_scopes: true,
   });
 
   return (
@@ -848,10 +772,20 @@ export const BookingListComponent = () => {
                 <li>
                   <div className="form-group">
                     <div className="">
-                      {calendarSub == null ? <></> :
-                        <button type="button"
-                          className="btn btn-outline-primary mx-1" disabled={calendarSub == 1} >{calendarSub == 1 ? 'Subsribed' : 'Subsribe to Calendar'}</button>
-                      }
+                      {calendarSub == null ? (
+                        <></>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary mx-1"
+                          disabled={calendarSub == 1}
+                          onClick={subscribe}
+                        >
+                          {calendarSub == 1
+                            ? "Subsribed"
+                            : "Subsribe to Calendar"}
+                        </button>
+                      )}
                       <button
                         ref={buttonRef}
                         type="button"
@@ -939,19 +873,17 @@ export const BookingListComponent = () => {
                                         <Select
                                           className="select2 w-100"
                                           name="providers"
-                                          defaultValue={bookingData.provider}
-                                          onChange={(e) => {
-                                            setBookingData({
-                                              ...bookingData,
-                                              provider: e.value,
-                                            });
-                                          }}
-                                          options={providers.map((provider) => ({
-                                            label: provider.name,
-                                            value: provider.id,
-                                          }))}
+                                          value={selectedProvider}
+                                          onChange={handleProviderChange}
+                                          options={providers.map(
+                                            (provider) => ({
+                                              label: provider.name,
+                                              value: provider.id,
+                                            })
+                                          )}
                                           isSearchable
                                           required
+                                          isMulti
                                           components={{
                                             Option: ({
                                               data,
@@ -961,21 +893,32 @@ export const BookingListComponent = () => {
                                               <div
                                                 ref={innerRef}
                                                 {...innerProps}
-                                                style={{ display: 'flex form-select', alignItems: 'center' }}
+                                                style={{
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  cursor: "pointer",
+                                                }}
+                                                className="customOptionClass"
                                               >
                                                 <img
-                                                  src={data.profile_photo || avatar1}
-                                                  className="mr-1 ml-1"
-                                                  width={"14px"}
-                                                  height={"14px"}
-                                                  alt=""
+                                                  src={
+                                                    data.profile_photo ||
+                                                    avatar1
+                                                  }
+                                                  alt="Profile"
+                                                  style={{
+                                                    marginRight: "10px",
+                                                    borderRadius: "50%",
+                                                    width: "30px",
+                                                    height: "30px",
+                                                    margin: "4px",
+                                                  }}
                                                 />
                                                 <span>{data.label}</span>
                                               </div>
                                             ),
                                           }}
                                         />
-
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
@@ -987,7 +930,7 @@ export const BookingListComponent = () => {
                                         <Select
                                           className="select2 w-100"
                                           name="services"
-                                          defaultValue={selectedService}
+                                          value={selectedService}
                                           onChange={handleSelectedChange}
                                           options={packages.map((pkg) => ({
                                             label: pkg.package_name,
@@ -1007,13 +950,26 @@ export const BookingListComponent = () => {
                                               <div
                                                 ref={innerRef}
                                                 {...innerProps}
-                                                style={{ display: 'flex form-select ', alignItems: 'center' }}
+                                                style={{
+                                                  display:
+                                                    "flex form-select w-fit",
+                                                  alignItems: "center",
+                                                  height: "30px",
+                                                  marginTop: "4px",
+                                                  marginBottom: "4px",
+                                                  cursor: "pointer",
+                                                }}
+                                                className="customOptionClass"
                                               >
                                                 <img
                                                   src={toolIcons}
-                                                  className="mr-1 ml-1"
-                                                  width={"14px"}
-                                                  height={"14px"}
+                                                  style={{
+                                                    marginRight: "10px",
+                                                    borderRadius: "50%",
+                                                    width: "10px",
+                                                    height: "10px",
+                                                    margin: "4px",
+                                                  }}
                                                   alt=""
                                                 />
                                                 <span>{data.label}</span>
@@ -1024,48 +980,26 @@ export const BookingListComponent = () => {
                                       </div>
 
                                       <div className="modal-body d-flex px-4">
-                                        <div style={{ width: "23rem" }}></div>
+                                        <div style={{ width: "10.5rem" }}></div>
                                         <input
                                           type="text"
                                           id="price"
-                                          className="form-control border-primary mr-1"
+                                          className="form-control"
                                           name="price"
                                           value={`$ ${selectedPackagePrice}`}
                                           disabled
                                         />
-                                        <div className="input-group">
-                                          <select
-                                            className="select2 form-control fa fa-caret-down"
-                                            name="toTime"
-                                            value={bookingData.toTime}
-                                            onChange={handleChange}
-                                            required
-                                          >
-                                            <option value="60">60 Mins</option>
-                                            <option value="75">75 Mins</option>
-                                            <option value="90">90 Mins</option>
-                                            <option value="120">
-                                              120 Mins
-                                            </option>
-                                            <option value="150">
-                                              150 Mins
-                                            </option>
-                                            <option value="180">
-                                              180 Mins
-                                            </option>
-                                          </select>
-                                        </div>
                                       </div>
 
-                                      <div className="modal-body d-flex px-4">
+                                      <div className="modal-body d-flex px-4 ">
                                         <label
                                           htmlFor="datetimepicker4"
-                                          style={{ width: "11rem" }}
+                                          style={{ width: "12rem" }}
                                         >
                                           Date/Time
                                         </label>
                                         <DatePicker
-                                          className="form-control custom-datepicker"
+                                          className="form-control custom-datepicker mr-1"
                                           id="datetimepicker4"
                                           name="prefferedDate"
                                           selected={bookingData.prefferedDate}
@@ -1075,158 +1009,323 @@ export const BookingListComponent = () => {
                                               prefferedDate: date,
                                             }))
                                           }
+                                          dateFormat="dd/MM/yyyy"
                                           required
                                         />
+
                                         <select
                                           className="select2 form-control w-50 ml-1"
                                           name="fromTime"
                                           value={bookingData.fromTime}
+                                          style={{ cursor: "pointer" }}
                                           onChange={handleChange}
                                           required
                                         >
-                                          <option value="">Select Time</option>
-                                          <option value="12:00 AM">
+                                          <option value="0">Select Time</option>
+                                          <option value="00:00:00">
                                             12:00 AM
                                           </option>
-                                          <option value="12:30 AM">
+                                          <option value="00:30:00">
                                             12:30 AM
                                           </option>
-                                          <option value="01:00 AM">
+                                          <option value="01:00:00">
                                             01:00 AM
                                           </option>
-                                          <option value="01:30 AM">
+                                          <option value="01:30:00">
                                             01:30 AM
                                           </option>
-                                          <option value="02:00 AM">
+                                          <option value="02:00:00">
                                             02:00 AM
                                           </option>
-                                          <option value="02:30 AM">
+                                          <option value="02:30:00">
                                             02:30 AM
                                           </option>
-                                          <option value="03:00 AM">
+                                          <option value="03:00:00">
                                             03:00 AM
                                           </option>
-                                          <option value="03:30 AM">
+                                          <option value="03:30:00">
                                             03:30 AM
                                           </option>
-                                          <option value="04:00 AM">
+                                          <option value="04:00:00">
                                             04:00 AM
                                           </option>
-                                          <option value="04:30 AM">
+                                          <option value="04:30:00">
                                             04:30 AM
                                           </option>
-                                          <option value="05:00 AM">
+                                          <option value="05:00:00">
                                             05:00 AM
                                           </option>
-                                          <option value="05:30 AM">
+                                          <option value="05:30:00">
                                             05:30 AM
                                           </option>
-                                          <option value="06:00 AM">
+                                          <option value="06:00:00">
                                             06:00 AM
                                           </option>
-                                          <option value="06:30 AM">
+                                          <option value="06:30:00">
                                             06:30 AM
                                           </option>
-                                          <option value="07:00 AM">
+                                          <option value="07:00:00">
                                             07:00 AM
                                           </option>
-                                          <option value="07:30 AM">
+                                          <option value="07:30:00">
                                             07:30 AM
                                           </option>
-                                          <option value="08:00 AM">
+                                          <option value="08:00:00">
                                             08:00 AM
                                           </option>
-                                          <option value="08:30 AM">
+                                          <option value="08:30:00">
                                             08:30 AM
                                           </option>
-                                          <option value="09:00 AM">
+                                          <option value="09:00:00">
                                             09:00 AM
                                           </option>
-                                          <option value="09:30 AM">
+                                          <option value="09:30:00">
                                             09:30 AM
                                           </option>
-                                          <option value="10:00 AM">
+                                          <option value="10:00:00">
                                             10:00 AM
                                           </option>
-                                          <option value="10:30 AM">
+                                          <option value="10:30:00">
                                             10:30 AM
                                           </option>
-                                          <option value="11:00 AM">
+                                          <option value="11:00:00">
                                             11:00 AM
                                           </option>
-                                          <option value="11:30 AM">
+                                          <option value="11:30:00">
                                             11:30 AM
                                           </option>
-                                          <option value="12:00 PM">
+                                          <option value="12:00:00">
                                             12:00 PM
                                           </option>
-                                          <option value="12:30 PM">
+                                          <option value="12:30:00">
                                             12:30 PM
                                           </option>
-                                          <option value="01:00 PM">
+                                          <option value="13:00:00">
                                             01:00 PM
                                           </option>
-                                          <option value="01:30 PM">
+                                          <option value="13:30:00">
                                             01:30 PM
                                           </option>
-                                          <option value="02:00 PM">
+                                          <option value="14:00:00">
                                             02:00 PM
                                           </option>
-                                          <option value="02:30 PM">
+                                          <option value="14:30:00">
                                             02:30 PM
                                           </option>
-                                          <option value="03:00 PM">
+                                          <option value="15:00:00">
                                             03:00 PM
                                           </option>
-                                          <option value="03:30 PM">
+                                          <option value="15:30:00">
                                             03:30 PM
                                           </option>
-                                          <option value="04:00 PM">
+                                          <option value="16:00:00">
                                             04:00 PM
                                           </option>
-                                          <option value="04:30 PM">
+                                          <option value="16:30:00">
                                             04:30 PM
                                           </option>
-                                          <option value="05:00 PM">
+                                          <option value="17:00:00">
                                             05:00 PM
                                           </option>
-                                          <option value="05:30 PM">
+                                          <option value="17:30:00">
                                             05:30 PM
                                           </option>
-                                          <option value="06:00 PM">
+                                          <option value="18:00:00">
                                             06:00 PM
                                           </option>
-                                          <option value="06:30 PM">
+                                          <option value="18:30:00">
                                             06:30 PM
                                           </option>
-                                          <option value="07:00 PM">
+                                          <option value="19:00:00">
                                             07:00 PM
                                           </option>
-                                          <option value="07:30 PM">
+                                          <option value="19:30:00">
                                             07:30 PM
                                           </option>
-                                          <option value="08:00 PM">
+                                          <option value="20:00:00">
                                             08:00 PM
                                           </option>
-                                          <option value="08:30 PM">
+                                          <option value="20:30:00">
                                             08:30 PM
                                           </option>
-                                          <option value="09:00 PM">
+                                          <option value="21:00:00">
                                             09:00 PM
                                           </option>
-                                          <option value="09:30 PM">
+                                          <option value="21:30:00">
                                             09:30 PM
                                           </option>
-                                          <option value="10:00 PM">
+                                          <option value="22:00:00">
                                             10:00 PM
                                           </option>
-                                          <option value="10:30 PM">
+                                          <option value="22:30:00">
                                             10:30 PM
                                           </option>
-                                          <option value="11:00 PM">
+                                          <option value="23:00:00">
                                             11:00 PM
                                           </option>
-                                          <option value="11:30 PM">
+                                          <option value="23:30:00">
+                                            11:30 PM
+                                          </option>
+                                        </select>
+                                      </div>
+                                      <div className="modal-body d-flex px-4 ">
+                                        <label
+                                          htmlFor="datetimepicker4"
+                                          style={{ width: "11rem" }}
+                                        >
+                                          To Time
+                                        </label>
+                                        <select
+                                          className="select2 form-control"
+                                          name="toTime"
+                                          value={bookingData.toTime}
+                                          onChange={handleChange}
+                                          style={{ cursor: "pointer" }}
+                                          required
+                                        >
+                                          <option value="0">Select Time</option>
+                                          <option value="00:00:00">
+                                            12:00 AM
+                                          </option>
+                                          <option value="00:30:00">
+                                            12:30 AM
+                                          </option>
+                                          <option value="01:00:00">
+                                            01:00 AM
+                                          </option>
+                                          <option value="01:30:00">
+                                            01:30 AM
+                                          </option>
+                                          <option value="02:00:00">
+                                            02:00 AM
+                                          </option>
+                                          <option value="02:30:00">
+                                            02:30 AM
+                                          </option>
+                                          <option value="03:00:00">
+                                            03:00 AM
+                                          </option>
+                                          <option value="03:30:00">
+                                            03:30 AM
+                                          </option>
+                                          <option value="04:00:00">
+                                            04:00 AM
+                                          </option>
+                                          <option value="04:30:00">
+                                            04:30 AM
+                                          </option>
+                                          <option value="05:00:00">
+                                            05:00 AM
+                                          </option>
+                                          <option value="05:30:00">
+                                            05:30 AM
+                                          </option>
+                                          <option value="06:00:00">
+                                            06:00 AM
+                                          </option>
+                                          <option value="06:30:00">
+                                            06:30 AM
+                                          </option>
+                                          <option value="07:00:00">
+                                            07:00 AM
+                                          </option>
+                                          <option value="07:30:00">
+                                            07:30 AM
+                                          </option>
+                                          <option value="08:00:00">
+                                            08:00 AM
+                                          </option>
+                                          <option value="08:30:00">
+                                            08:30 AM
+                                          </option>
+                                          <option value="09:00:00">
+                                            09:00 AM
+                                          </option>
+                                          <option value="09:30:00">
+                                            09:30 AM
+                                          </option>
+                                          <option value="10:00:00">
+                                            10:00 AM
+                                          </option>
+                                          <option value="10:30:00">
+                                            10:30 AM
+                                          </option>
+                                          <option value="11:00:00">
+                                            11:00 AM
+                                          </option>
+                                          <option value="11:30:00">
+                                            11:30 AM
+                                          </option>
+                                          <option value="12:00:00">
+                                            12:00 PM
+                                          </option>
+                                          <option value="12:30:00">
+                                            12:30 PM
+                                          </option>
+                                          <option value="13:00:00">
+                                            01:00 PM
+                                          </option>
+                                          <option value="13:30:00">
+                                            01:30 PM
+                                          </option>
+                                          <option value="14:00:00">
+                                            02:00 PM
+                                          </option>
+                                          <option value="14:30:00">
+                                            02:30 PM
+                                          </option>
+                                          <option value="15:00:00">
+                                            03:00 PM
+                                          </option>
+                                          <option value="15:30:00">
+                                            03:30 PM
+                                          </option>
+                                          <option value="16:00:00">
+                                            04:00 PM
+                                          </option>
+                                          <option value="16:30:00">
+                                            04:30 PM
+                                          </option>
+                                          <option value="17:00:00">
+                                            05:00 PM
+                                          </option>
+                                          <option value="17:30:00">
+                                            05:30 PM
+                                          </option>
+                                          <option value="18:00:00">
+                                            06:00 PM
+                                          </option>
+                                          <option value="18:30:00">
+                                            06:30 PM
+                                          </option>
+                                          <option value="19:00:00">
+                                            07:00 PM
+                                          </option>
+                                          <option value="19:30:00">
+                                            07:30 PM
+                                          </option>
+                                          <option value="20:00:00">
+                                            08:00 PM
+                                          </option>
+                                          <option value="20:30:00">
+                                            08:30 PM
+                                          </option>
+                                          <option value="21:00:00">
+                                            09:00 PM
+                                          </option>
+                                          <option value="21:30:00">
+                                            09:30 PM
+                                          </option>
+                                          <option value="22:00:00">
+                                            10:00 PM
+                                          </option>
+                                          <option value="22:30:00">
+                                            10:30 PM
+                                          </option>
+                                          <option value="23:00:00">
+                                            11:00 PM
+                                          </option>
+                                          <option value="23:30:00">
                                             11:30 PM
                                           </option>
                                         </select>
@@ -1242,9 +1341,25 @@ export const BookingListComponent = () => {
                                         <textarea
                                           type="text"
                                           id="comment"
+                                          value={bookingData.comment}
                                           className="form-control border-primary"
                                           placeholder="Notes for the customer."
                                           name="comment"
+                                        />
+                                      </div>
+                                      <div className="p-1 float-right">
+                                          <a
+                                            data-toggle="tab"
+                                            href="#tab2"
+                                            className=" nav-link btn btn-primary btn mx-1"
+                                          >
+                                            Save & Next
+                                          </a>
+                                        <input
+                                          type="reset"
+                                          className="btn btn-secondary btn"
+                                          data-dismiss="modal"
+                                          value="Close"
                                         />
                                       </div>
                                     </div>
@@ -1255,30 +1370,55 @@ export const BookingListComponent = () => {
                                           <Select
                                             className="select2 w-100"
                                             name="clients"
-                                            defaultValue={bookingData.client}
-                                            onChange={(e) => {
-                                              setBookingData({
-                                                ...bookingData,
-                                                client: e.value,
-                                              });
-                                            }}
-                                            options={clientList.map((client) => ({
-                                              label: (
-                                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                  <img
-                                                    src={client.profile_photo || avatar1}
-                                                    alt="Profile"
-                                                    style={{ marginRight: '10px', borderRadius: '50%', width: '30px', height: '30px' }}
-                                                  />
-                                                  <span>{client.name}</span>
-                                                </div>
-                                              ),
-                                              value: client.id,
-                                            }))}
+                                            value={selectedClient}
+                                            onChange={handleClientChange}
+                                            options={clientList.map(
+                                              (client) => ({
+                                                value: client.id,
+                                                label: client.name,
+                                                address: client.address,
+                                              })
+                                            )}
                                             isSearchable
                                             required
+                                            components={{
+                                              Option: ({
+                                                data,
+                                                innerRef,
+                                                innerProps,
+                                              }) => (
+                                                <div
+                                                  ref={innerRef}
+                                                  {...innerProps}
+                                                  style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    cursor: "pointer",
+                                                  }}
+                                                  className="customOptionClass"
+                                                >
+                                                  <img
+                                                    src={
+                                                      data.profile_photo ||
+                                                      avatar1
+                                                    }
+                                                    alt="Profile"
+                                                    style={{
+                                                      marginRight: "10px",
+                                                      borderRadius: "50%",
+                                                      width: "30px",
+                                                      height: "30px",
+                                                      margin: "4px",
+                                                    }}
+                                                  />
+                                                  <div>
+                                                    <p>{data.label}</p>
+                                                    <p>{data.address}</p>
+                                                  </div>
+                                                </div>
+                                              ),
+                                            }}
                                           />
-
                                         </div>
                                       )}
                                       {/* {showNewCustomer ? (
@@ -1452,24 +1592,25 @@ export const BookingListComponent = () => {
                                           readOnly
                                         />
                                       )} */}
+                                      <div className="p-1 flex float-right">
+                                        <input
+                                          type="submit"
+                                          className="btn btn-primary btn mx-1"
+                                          value={
+                                            bookingData.id ? "Update" : "Add"
+                                          }
+                                        />
+                                        <input
+                                          type="reset"
+                                          className="btn btn-secondary btn"
+                                          data-dismiss="modal"
+                                          value="Close"
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-
-                            <div className="modal-footer">
-                              <input
-                                type="submit"
-                                className="btn btn-primary btn"
-                                value={bookingData.id ? "Update" : "Save"}
-                              />
-                              <input
-                                type="reset"
-                                className="btn btn-secondary btn"
-                                data-dismiss="modal"
-                                value="Close"
-                              />
                             </div>
                           </form>
                         </div>
@@ -1496,6 +1637,15 @@ export const BookingListComponent = () => {
                           views={{
                             timeGridWeek: {
                               dayHeaderContent: ({ date }) => {
+                                const days = [
+                                  "Sunday",
+                                  "Monday",
+                                  "Tuesday",
+                                  "Wednesday",
+                                  "Thursday",
+                                  "Friday",
+                                  "Saturday",
+                                ];
                                 const day = date
                                   .getDate()
                                   .toString()
@@ -1503,7 +1653,40 @@ export const BookingListComponent = () => {
                                 const month = (date.getMonth() + 1)
                                   .toString()
                                   .padStart(2, "0");
-                                return `${day}/${month}`;
+                                const dayName = days[date.getDay()];
+                                return (
+                                  <div>
+                                    <div>{`${day}/${month}`}</div>
+                                    <div>{dayName}</div>
+                                  </div>
+                                );
+                              },
+                            },
+                            timeGridDay: {
+                              dayHeaderContent: ({ date }) => {
+                                const days = [
+                                  "Sunday",
+                                  "Monday",
+                                  "Tuesday",
+                                  "Wednesday",
+                                  "Thursday",
+                                  "Friday",
+                                  "Saturday",
+                                ];
+                                const day = date
+                                  .getDate()
+                                  .toString()
+                                  .padStart(2, "0");
+                                const month = (date.getMonth() + 1)
+                                  .toString()
+                                  .padStart(2, "0");
+                                const dayName = days[date.getDay()];
+                                return (
+                                  <div>
+                                    <div>{`${day}/${month}`}</div>
+                                    <div>{dayName}</div>
+                                  </div>
+                                );
                               },
                             },
                           }}
@@ -1511,6 +1694,7 @@ export const BookingListComponent = () => {
                           firstDay={1}
                           dateClick={handleDateClick}
                           initialView="timeGridWeek"
+                          eventClick={handleEventClick}
                           eventDrop={handleDateChange}
                           headerToolbar={{
                             left: "prev,next today",
@@ -1535,41 +1719,26 @@ export const BookingListComponent = () => {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={deleteBookingData}
-        message="Are you sure you want to delete this imageType?"
+        message="Are you sure you want to delete this appointment?"
       />
-      <DeleteModal
+      <ConfirmModal
         isOpen={showConfirmModel}
         onClose={() => setShowConfirmModel(false)}
         onConfirm={updateTimeData}
-        message={
-          <>
-            <div className="justify-items-center" role="alert">
-              <h3 className="text-center">Confirm Rechedule </h3>
-              <div className="p-2 text-center">
-                <p className="mb-0 ">
-                  Do you with to Reschedule the appointment?
-                </p>
-              </div>
-            </div>
-          </>
-        }
+        message="Do you wish to Reschedule the appointment?"
       />
-      <DeleteModal
+      <ConfirmModal
         isOpen={showDateModel}
         onClose={() => setShowDateModel(false)}
         onConfirm={updateDateData}
-        message={
-          <>
-            <div className="justify-items-center" role="alert">
-              <h3 className="text-center">Confirm Rechedule </h3>
-              <div className="p-2 text-center">
-                <p className="mb-0 ">
-                  Do you with to Reschedule the appointment?
-                </p>
-              </div>
-            </div>
-          </>
-        }
+        message="Do you wish to Reschedule the appointment?"
+      />
+
+      <ConfirmModal
+        isOpen={showNotifyModal}
+        onClose={() => setShowNotifyModal(false)}
+        // onConfirm={updateBookingStatus}
+        message="Do you wish to confirm the booking and notify?"
       />
 
       <div className="sidenav-overlay"></div>

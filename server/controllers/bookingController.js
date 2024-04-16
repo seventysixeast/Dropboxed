@@ -256,7 +256,7 @@ const providers = async (req, res) => {
     });
 
     const users = await User.findAll({
-      attributes: ["id", "name", "profile_photo"],
+      attributes: ["id", "name", "profile_photo", "address"],
     });
 
     const packages = await Package.findAll({
