@@ -888,6 +888,12 @@ html body .content .content-wrapper {
   padding: 0%;
   padding-left: 1.8rem !important;
   padding-right: 1.8rem !important;
+}
 
+.customOptionClass {
+}
 
+.customOptionClass:hover{
+  background-color: #00ced2;
+  color: white;
 }
