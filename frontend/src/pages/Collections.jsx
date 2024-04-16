@@ -203,7 +203,7 @@ const Collections = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table class="table table-striped table-bordered zero-configuration">
+                  <table class="table table-striped table-bordered zero-configuration table-inverse">
                     <thead>
                       <tr>
                         <th>S.No.</th>
@@ -238,7 +238,7 @@ const Collections = () => {
                           <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
                             <i className="feather white icon-copy"></i>
                           </button>
-                          <button class="btn btn-icon btn-outline-success mr-1 mb-1" title="Notify Client">
+                          <button class="btn btn-icon btn-outline-primary mr-1 mb-1" title="Notify Client">
                             <i className="feather white icon-check"></i>
                           </button>
                         </td>
@@ -268,7 +268,7 @@ const Collections = () => {
                           <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
                             <i className="feather white icon-copy"></i>
                           </button>
-                          <button class="btn btn-icon btn-outline-success mr-1 mb-1" title="Notify Client">
+                          <button class="btn btn-icon btn-outline-primary mr-1 mb-1" title="Notify Client">
                             <i className="feather white icon-check"></i>
                           </button>
                         </td>

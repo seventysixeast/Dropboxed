@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllClients } from "../api/clientApis";
 import { getAllServices } from "../api/serviceApis";
-import { addGallery } from "../api/galleryApis";
+import { addGallery } from "../api/collectionApis";
 import { toast } from 'react-toastify';
 import Select from "react-select";
 import toolIcons from "../assets/images/i.png";
@@ -11,13 +11,14 @@ export const Dashboard = () => {
 
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
 
   const [formData, setFormData] = useState({
     id: '',
     title: '',
-    client: '',
+    clientId: '',
     address: '',
-    services: [],
+    services: '',
     banner: '',
     status: ''
   });
@@ -51,7 +52,7 @@ export const Dashboard = () => {
     if (name === "title") {
       gallery.title = value;
     } else if (name === "client") {
-      gallery.client = value;
+      gallery.clientId = value;
     } else if (name === 'address') {
       gallery.address = value
     } else if (name === 'status') {
@@ -68,10 +69,14 @@ export const Dashboard = () => {
   };
 
   const handleSelectedChange = (selectedOptions) => {
-    setFormData({
-      ...formData,
-      services: selectedOptions
-    });
+    setSelectedService(selectedOptions);
+
+    const selectedValues = selectedOptions.map(option => option.value);
+    const selectedValuesString = selectedValues.join(', ');
+    setFormData((prevData) => ({
+      ...prevData,
+      services: selectedValuesString,
+    }));
   };
 
   const resetFormData = async () => {
@@ -89,16 +94,18 @@ export const Dashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("formData", formData);
       const formDataToSend = new FormData();
-      formDataToSend.append('id', formData.id);
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('client', formData.client);
-      formDataToSend.append('address', formData.address);
-      formDataToSend.append('services', formData.services);
-      formDataToSend.append('banner', formData.banner);
-      formDataToSend.append('status', formData.status);
+      formDataToSend.append('id', formData.id || '');
+      formDataToSend.append('title', formData.title || '');
+      formDataToSend.append('client', formData.clientId || '');
+      formDataToSend.append('address', formData.address || '');
+      formDataToSend.append('services', formData.services || '');
+      formDataToSend.append('banner', formData.banner || '');
+      formDataToSend.append('status', formData.status || '');
 
-      // let res = await addGallery(formDataToSend);
+      let res = await addGallery(formDataToSend);
+      console.log("res", res);
       // if (res.success) {
       //   toast.success(res.message);
       //   resetFormData();
@@ -271,19 +278,19 @@ export const Dashboard = () => {
                                     <select
                                       className="select2 form-control"
                                       name="client"
-                                      required
+                                      value={formData.clientId}
                                       onChange={handleInputChange}
-                                      value={formData.client}
+                                      required
                                     >
                                       {clients && clients.map(item => (
-                                        <option key={item.id} value={item.name}>
+                                        <option key={item.id} value={item.id}>
                                           {item.name}
                                         </option>
                                       ))}
                                     </select>
                                   </fieldset>
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="address">Address</label>
+                                    <label htmlFor="address">Address *</label>
                                     <input
                                       type="text"
                                       placeholder="Enter Address"
@@ -304,7 +311,7 @@ export const Dashboard = () => {
                                     <Select
                                       className="select2 w-100"
                                       name="services"
-                                      defaultValue={formData.services}
+                                      defaultValue={selectedService}
                                       onChange={handleSelectedChange}
                                       options={services && services.map((pkg) => ({
                                         label: pkg.package_name,
@@ -377,16 +384,15 @@ export const Dashboard = () => {
                                       </div>
                                     </div>
                                     <fieldset className="form-group floating-label-form-group">
-                                      <label>Status *</label>
+                                      <label>Status</label>
                                       <select
                                         className="select2 form-control"
                                         name="status"
-                                        required
                                         onChange={handleInputChange}
                                         value={formData.status}
                                       >
-                                        <option value="off">Off</option>
-                                        <option value="on">On</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
                                       </select>
                                     </fieldset>
                                   </div>

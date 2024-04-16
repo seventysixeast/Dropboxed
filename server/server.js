@@ -5,6 +5,7 @@ const clientRoutes = require('./routes/clientRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const imageTypeRoutes = require('./routes/imageTypeRoutes');
+const collectionRoutes = require('./routes/collectionRoutes');
 //const calenderRoutes = require('./routes/')
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
@@ -32,13 +33,19 @@ app.use(express.static(path.join(__dirname, "build")));
 // Serve static files from the '/public/clients' directory (for client images)
 app.use('/images/clients', express.static(path.join(__dirname, 'public', 'clients')));
 
-// Create directory if it doesn't exist
-const dir = ['./public/clients'];
-dir.forEach((item) => {
-  if (!fs.existsSync(item)) {
-    fs.mkdirSync(item);
-  }
-});
+// Serve static files from the '/public/gallery' directory (for gallery images)
+app.use('/images/gallery', express.static(path.join(__dirname, 'public', 'gallery')));
+
+// Directories to create
+const dirs = ['./public/clients', './public/gallery'];
+const createDirectories = (directories) => {
+  directories.forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  });
+};
+createDirectories(dirs);
 
 // Define routes
 app.use('/auth', authRoutes);
@@ -46,6 +53,7 @@ app.use('/client', clientRoutes);
 app.use('/service', serviceRoutes);
 app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
+app.use('/collection', collectionRoutes);
 //app.use('/calender', calenderRoutes);
 
 // Protected route
@@ -61,6 +69,7 @@ app.get("/*", (req, res, next) => {
     req.url.startsWith("/service/") ||
     req.url.startsWith("/booking/") ||
     req.url.includes("/imageType/") ||
+    req.url.includes("/collection/") ||
     //req.url.includes("/calender/") ||
     req.url.includes("/assets/")
   ) {

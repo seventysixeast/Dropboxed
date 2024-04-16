@@ -287,7 +287,6 @@ const ImageTypes = () => {
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
       <TableCustom data={data} columns={columns} />
-
     </>
   );
 };
