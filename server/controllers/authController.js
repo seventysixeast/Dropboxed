@@ -84,7 +84,7 @@ exports.login = async (req, res) => {
 exports.signup = async (req, res) => {
   const { studioName, email, password, country } = req.body;
   console.log("req.body", req.body);
-  return res.status(401).json({ success: false, message: 'Invalid email or password' });
+  // return res.status(401).json({ success: false, message: 'Invalid email or password' });
   try {
     // Check if the email is already registered
     const existingUser = await User.findOne({ where: { email } });
