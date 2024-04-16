@@ -152,7 +152,7 @@ const ImageTypes = () => {
       <div className="app-content content">
         <div className={`content-overlay`}></div>
         <div className="content-wrapper">
-          <div className="content-header row">
+          <div className="content-header row mt-2">
             <div className="content-header-left col-md-6 col-6">
               <h3 className="content-header-title mb-0">Image Types</h3>
               <div className="row breadcrumbs-top">
@@ -287,7 +287,6 @@ const ImageTypes = () => {
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
       <TableCustom data={data} columns={columns} />
-
     </>
   );
 };

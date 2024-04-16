@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
     const accessToken = generateAccessToken(user.id);
 
     // Return user information along with token
-    res.json({
+    return res.status(200).json({
       success: true,
       accessToken,
       user: {
@@ -278,7 +278,6 @@ exports.clientSignup = async (req, res) => {
       data: client,
     });
   } catch (error) {
-    console.log("Error:", error);
     res.status(500).json({ error: "Failed to register client" });
   }
 };

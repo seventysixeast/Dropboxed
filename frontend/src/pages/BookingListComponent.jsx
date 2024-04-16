@@ -21,6 +21,7 @@ import TableCustom from "../components/Table";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/authContext";
 import API from "../api/baseApi";
+import ConfirmModal from "../components/ConfirmModal";
 
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
@@ -44,6 +45,7 @@ export const BookingListComponent = () => {
   const userId = authData.user ? authData.user.id : null;
   const calendarSub = authData.user ? authData.user.calendarSub : null;
   const [showDateModel, setShowDateModel] = useState(false);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
 
   const [updateData, setUpdateData] = useState({
     id: "",
@@ -180,7 +182,6 @@ export const BookingListComponent = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(e.target.name);
 
     setBookingData((prevData) => ({
       ...prevData,
@@ -247,8 +248,6 @@ export const BookingListComponent = () => {
 
     const selectedValues = selectedOptions.map((option) => option.value);
     const selectedValuesString = selectedValues.join(", ");
-
-    console.log(selectedValuesString);
     setBookingData((prevData) => ({
       ...prevData,
       services: selectedValuesString,
@@ -299,7 +298,6 @@ export const BookingListComponent = () => {
       }));
 
       setEvents(events);
-      console.log(events);
     } catch (error) {
       console.error("Failed to:", error.message);
     }
@@ -415,7 +413,7 @@ export const BookingListComponent = () => {
       formDataToSend.append("booking_date", booking.booking_date);
       formDataToSend.append("booking_time", updateData.startTime);
       formDataToSend.append("booking_time_to", updateData.endTime);
-      formDataToSend.append("user_id", userId);
+      formDataToSend.append("user_id", booking.user_id);
       formDataToSend.append("package_ids", booking.package_ids);
       formDataToSend.append("package", booking.package);
       formDataToSend.append("photographer_id", booking.photographer_id);
@@ -446,6 +444,8 @@ export const BookingListComponent = () => {
   };
   const handleEventResize = (arg) => {
     let id = arg.event._def.publicId;
+    console.log(id);
+    // find
 
     let newDate = new Date(arg.event.start + "Z");
     let endDate = new Date(arg.event.end + "Z");
@@ -472,7 +472,6 @@ export const BookingListComponent = () => {
       startTime: newStartTime,
       endTime: newEndTime,
     }));
-    console.log(updateData);
 
     setShowConfirmModel(true);
   };
@@ -523,7 +522,6 @@ export const BookingListComponent = () => {
     let endDate = new Date(arg.event.end + "Z");
 
     let newDateString = newDate.toISOString().split("T")[0];
-    console.log(newDateString);
 
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
@@ -548,6 +546,43 @@ export const BookingListComponent = () => {
     setShowDateModel(true);
   };
 
+  const handleNotifyChange = (data) => {
+    console.log(data);
+    setUpdateData({
+      id: data.id,
+      booking_status: data.booking_status,
+    });
+
+    console.log(updateData);
+    setShowNotifyModal(true);
+    // };
+    // const updateBookingStatus = async () => {
+    //   try {
+    //     const formDataToSend = new FormData();
+    //     formDataToSend.append("id", updateData.id);
+    //     formDataToSend.append("booking_status", updateData.booking_status);
+    //     console.log(formDataToSend);
+
+    //     // await updateBooking(formDataToSend);
+    //     // getAllBookingsData();
+    //     // setUpdateData({
+    //     //   title: "",
+    //     //   package: 1,
+    //     //   services: "",
+    //     //   prefferedDate: new Date(),
+    //     //   fromTime: "",
+    //     //   toTime: "60",
+    //     //   client: "",
+    //     //   comment: "",
+    //     //   provider: "",
+    //     //   customer: "",
+    //     // });
+    //     setShowNotifyModal(false);
+    //     toast.success("Booking updated successfully");
+    //   } catch (error) {
+    //     toast.error(error);
+    //   }
+  };
   const columns = [
     {
       Header: "Booking Date",
@@ -566,7 +601,40 @@ export const BookingListComponent = () => {
     {
       Header: "Booking Time",
       accessor: "booking_time",
+      Cell: ({ value }) => {
+        const [hours, minutes, seconds] = value.split(":");
+
+        let formattedHours = parseInt(hours, 10);
+        const ampm = formattedHours >= 12 ? "PM" : "AM";
+        formattedHours = formattedHours % 12 || 12;
+
+        formattedHours =
+          formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+
+        const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
+
+        return <span>{formattedTime}</span>;
+      },
     },
+    {
+      Header: "To Time",
+      accessor: "booking_time_to",
+      Cell: ({ value }) => {
+        const [hours, minutes, seconds] = value.split(":");
+
+        let formattedHours = parseInt(hours, 10);
+        const ampm = formattedHours >= 12 ? "PM" : "AM";
+        formattedHours = formattedHours % 12 || 12;
+
+        formattedHours =
+          formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+
+        const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
+
+        return <span>{formattedTime}</span>;
+      },
+    },
+
     {
       Header: "Client",
       accessor: "client_name",
@@ -582,9 +650,30 @@ export const BookingListComponent = () => {
     {
       Header: "Status",
       accessor: "booking_status",
-      Cell: ({ value }) => (
+      Cell: (props) => (
         <div className="badge badge-pill badge-light-primary">
-          {value === 1 ? "Pending" : value === 2 ? "Notify" : "Booked"}
+          {props.row.original.booking_status === 1 ? (
+            <button
+              type="button"
+              className="btn btn-icon btn-outline-primary"
+              onClick={() => handleNotifyChange(props.row.original)}
+              data-toggle="modal"
+              data-target="#confirmModal"
+            >
+              Notify
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-icon btn-outline-primary"
+              onClick={() => handleNotifyChange(props.row.original)}
+              data-toggle="modal"
+              data-target="#confirmModal"
+              disabled
+            >
+              Booked
+            </button>
+          )}
         </div>
       ),
     },
@@ -656,12 +745,16 @@ export const BookingListComponent = () => {
     flow: "auth-code",
     include_granted_scopes: true,
   });
+
   return (
     <>
       <div className="app-content content">
         <div className={`content-overlay`}></div>
         <div className="content-wrapper">
-          <div className="content-header row" style={{ paddingBottom: "5px" }}>
+          <div
+            className="content-header row mt-1"
+            style={{ paddingBottom: "5px" }}
+          >
             <div className="content-header-left col-md-6 col-6">
               <h3 className="content-header-title mb-0">Booking List</h3>
               <div className="row breadcrumbs-top">
@@ -804,6 +897,7 @@ export const BookingListComponent = () => {
                                                 style={{
                                                   display: "flex",
                                                   alignItems: "center",
+                                                  cursor: "pointer",
                                                 }}
                                                 className="customOptionClass"
                                               >
@@ -864,6 +958,7 @@ export const BookingListComponent = () => {
                                                   height: "30px",
                                                   marginTop: "4px",
                                                   marginBottom: "4px",
+                                                  cursor: "pointer",
                                                 }}
                                                 className="customOptionClass"
                                               >
@@ -923,6 +1018,7 @@ export const BookingListComponent = () => {
                                           className="select2 form-control w-50 ml-1"
                                           name="fromTime"
                                           value={bookingData.fromTime}
+                                          style={{ cursor: "pointer" }}
                                           onChange={handleChange}
                                           required
                                         >
@@ -1085,6 +1181,7 @@ export const BookingListComponent = () => {
                                           name="toTime"
                                           value={bookingData.toTime}
                                           onChange={handleChange}
+                                          style={{ cursor: "pointer" }}
                                           required
                                         >
                                           <option value="0">Select Time</option>
@@ -1251,6 +1348,21 @@ export const BookingListComponent = () => {
                                           name="comment"
                                         />
                                       </div>
+                                      <div className="p-1 float-right">
+                                          <a
+                                            data-toggle="tab"
+                                            href="#tab2"
+                                            className=" nav-link btn btn-primary btn mx-1"
+                                          >
+                                            Save & Next
+                                          </a>
+                                        <input
+                                          type="reset"
+                                          className="btn btn-secondary btn"
+                                          data-dismiss="modal"
+                                          value="Close"
+                                        />
+                                      </div>
                                     </div>
 
                                     <div className="tab-pane fade" id="tab2">
@@ -1265,6 +1377,7 @@ export const BookingListComponent = () => {
                                               (client) => ({
                                                 value: client.id,
                                                 label: client.name,
+                                                address: client.address,
                                               })
                                             )}
                                             isSearchable
@@ -1281,6 +1394,7 @@ export const BookingListComponent = () => {
                                                   style={{
                                                     display: "flex",
                                                     alignItems: "center",
+                                                    cursor: "pointer",
                                                   }}
                                                   className="customOptionClass"
                                                 >
@@ -1298,7 +1412,10 @@ export const BookingListComponent = () => {
                                                       margin: "4px",
                                                     }}
                                                   />
-                                                  <span>{data.label}</span>
+                                                  <div>
+                                                    <p>{data.label}</p>
+                                                    <p>{data.address}</p>
+                                                  </div>
                                                 </div>
                                               ),
                                             }}
@@ -1476,24 +1593,25 @@ export const BookingListComponent = () => {
                                           readOnly
                                         />
                                       )} */}
+                                      <div className="p-1 flex float-right">
+                                        <input
+                                          type="submit"
+                                          className="btn btn-primary btn mx-1"
+                                          value={
+                                            bookingData.id ? "Update" : "Add"
+                                          }
+                                        />
+                                        <input
+                                          type="reset"
+                                          className="btn btn-secondary btn"
+                                          data-dismiss="modal"
+                                          value="Close"
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-
-                            <div className="modal-footer">
-                              <input
-                                type="submit"
-                                className="btn btn-primary btn"
-                                value={bookingData.id ? "Update" : "Save"}
-                              />
-                              <input
-                                type="reset"
-                                className="btn btn-secondary btn"
-                                data-dismiss="modal"
-                                value="Close"
-                              />
                             </div>
                           </form>
                         </div>
@@ -1602,41 +1720,26 @@ export const BookingListComponent = () => {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={deleteBookingData}
-        message="Are you sure you want to delete this imageType?"
+        message="Are you sure you want to delete this appointment?"
       />
-      <DeleteModal
+      <ConfirmModal
         isOpen={showConfirmModel}
         onClose={() => setShowConfirmModel(false)}
         onConfirm={updateTimeData}
-        message={
-          <>
-            <div className="justify-items-center" role="alert">
-              <h3 className="text-center">Confirm Rechedule </h3>
-              <div className="p-2 text-center">
-                <p className="mb-0 ">
-                  Do you with to Reschedule the appointment?
-                </p>
-              </div>
-            </div>
-          </>
-        }
+        message="Do you wish to Reschedule the appointment?"
       />
-      <DeleteModal
+      <ConfirmModal
         isOpen={showDateModel}
         onClose={() => setShowDateModel(false)}
         onConfirm={updateDateData}
-        message={
-          <>
-            <div className="justify-items-center" role="alert">
-              <h3 className="text-center">Confirm Rechedule </h3>
-              <div className="p-2 text-center">
-                <p className="mb-0 ">
-                  Do you with to Reschedule the appointment?
-                </p>
-              </div>
-            </div>
-          </>
-        }
+        message="Do you wish to Reschedule the appointment?"
+      />
+
+      <ConfirmModal
+        isOpen={showNotifyModal}
+        onClose={() => setShowNotifyModal(false)}
+        // onConfirm={updateBookingStatus}
+        message="Do you wish to confirm the booking and notify?"
       />
 
       <div className="sidenav-overlay"></div>

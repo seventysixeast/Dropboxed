@@ -19,7 +19,6 @@ export const AuthProvider = ({ children }) => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
         const storedToken = localStorage.getItem('accessToken');
         setAuthData({ isAuth: storedIsAuth, user: storedUser, token: storedToken });
-        console.log("document.cookie",document.cookie)
     }, []);
 
     const setAuthStatus = ({ user, token }) => {

@@ -6,7 +6,7 @@ export const AddGallery = () => {
       <div className="app-content content">
         <div className="content-overlay"></div>
         <div className="content-wrapper">
-        <div className="content-header row">
+        <div className="content-header row mt-2">
             <div className="content-header-left col-md-6 col-12 mb-2">
               <h3 className="content-header-title mb-0">Add Gallery</h3>
               <div className="row breadcrumbs-top">

@@ -103,6 +103,10 @@
   height: 95%;
 }
 
-.content-header.row {
-  margin-top: 20px;
+.css-byenzh-MuiButtonBase-root-MuiSwitch-switchBase.Mui-checked {
+  color: #00b5b8 !important;
+}
+
+.dull-card {
+  color: lightgray !important;
 }

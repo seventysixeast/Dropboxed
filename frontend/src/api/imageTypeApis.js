@@ -1,8 +1,8 @@
-import axios from 'axios';
+import API from "./baseApi";
 
 const getAllImageTypes = async () => {
   try {
-    const response = await axios.get('http://localhost:6977/imageType/getImageTypes', {
+    const response = await API.get('/imageType/getImageTypes', {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -18,7 +18,7 @@ const getAllImageTypes = async () => {
 
 const createImageType = async (imageTypeData) => {
   try {
-    const response = await axios.post('http://localhost:6977/imageType/createImageType', imageTypeData, {
+    const response = await API.post('/imageType/createImageType', imageTypeData, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -34,7 +34,7 @@ const createImageType = async (imageTypeData) => {
 
 const getImageType = async (data) => {
   try {
-    const response = await axios.post('http://localhost:6977/imageType/getImageType', data, {
+    const response = await API.post('/imageType/getImageType', data, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -50,7 +50,7 @@ const getImageType = async (data) => {
 
 const deleteImageType = async (data) => {
   try {
-    const response = await axios.post('http://localhost:6977/imageType/deleteImageType', data, {
+    const response = await API.post('/imageType/deleteImageType', data, {
       headers: {
         'Content-Type': 'application/json',
       },

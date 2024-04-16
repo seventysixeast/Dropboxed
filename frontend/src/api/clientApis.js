@@ -52,4 +52,16 @@ const deleteClient = async (data) => {
   }
 };
 
-export { getAllClients, createClient, getClient, deleteClient };
+const activeInactiveClient = async (data) => {
+  try {
+    const response = await API.post('/client/activeInactiveClient', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to client status');
+    }
+    return response.data;
+  } catch (error) {
+    return error.response.data.error;
+  }
+};
+
+export { getAllClients, createClient, getClient, deleteClient, activeInactiveClient };

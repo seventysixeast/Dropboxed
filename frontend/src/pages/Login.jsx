@@ -33,35 +33,33 @@ const Login = () => {
     e.preventDefault();
     try {
         await validationSchema.validate(userData, { abortEarly: false });
-        const BASE_URL = process.env.REACT_APP_BASE_URL;
-        const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL); //Check if current url is subdomain
-        const loginData = subdomain ? { ...userData, subdomain } : userData;  
-        const { success, message, accessToken, user } = await login(loginData);
+        // const BASE_URL = process.env.REACT_APP_BASE_URL;
+        // const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
+        // const loginData = subdomain ? { ...userData, subdomain } : userData;
+        // const { success, message, accessToken, user } = await login(loginData);
+        const { success, message, accessToken, user } = await login(userData);
         if(success){
           toast.success('Login successful');
         } else{
           toast.error(message);
         }
-        console.log("user>>>",user)
         
         // Save user data and access token in localStorage
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('isAuth', true);
         localStorage.setItem('user', JSON.stringify(user));
-        //console.log("tttttt",encryptedToken)
         const encryptedToken = encryptToken(accessToken);
-        console.log("encryptedToken",encryptedToken)
         // Set cookies with domain attribute
         document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
         document.cookie = `isAuth=true; domain=.localhost; path=/`;
         document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;
     
-        const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
+        // const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
         const currentSubdomain = window.location.hostname.split('.')[0];
         const baseUrl = window.location.protocol + "//" + window.location.hostname;
 
         // Check if the current URL already contains a subdomain
-        const redirectToSubdomain = currentSubdomain === "localhost" ? `${sd}.` : "";
+        // const redirectToSubdomain = currentSubdomain === "localhost" ? `${sd}.` : "";
 
         // Construct the redirection URL
         //const redirectUrl = `${window.location.protocol}//${redirectToSubdomain}${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
