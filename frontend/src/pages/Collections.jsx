@@ -1,4 +1,5 @@
 import React from "react";
+import Switch from '@mui/material/Switch';
 import banner1 from "../assets/images/Web-08428_1711059614.jpg";
 import banner2 from "../assets/images/DSC09293_1711016396.jpg";
 
@@ -208,10 +209,13 @@ const Collections = () => {
                       <tr>
                         <th>S.No.</th>
                         <th>Banner</th>
+                        <th>Gallery Title</th>
                         <th>Photographer</th>
-                        <th>Address</th>
-                        <th>Packages With Images</th>
-                        <th>Assign Client	</th>
+                        <th>Client</th>
+                        <th>Booking Title</th>
+                        <th>Services</th>
+                        <th>Lock/Unlock</th>
+                        <th>Notify</th>
                         <th>Action</th>
                         <th className="d-none">verified</th>
                       </tr>
@@ -220,13 +224,23 @@ const Collections = () => {
                       <tr>
                         <td>925</td>
                         <td><img src={banner1} style={{ width: "150px" }} /></td>
+                        <td>Pre Wedding</td>
                         <td>Pete</td>
-                        <td>6 Tara Downs, Lennox Head NSW, Australia</td>
-                        <td><b>Essential Package - $485.00</b></td>
                         <td>
                           Lois Bucket Real Estate <br />
                           <b>Username: </b>dylan@loisbuckett.com.au <br />
                           <b>22 Mar 2024 06:21 am</b>
+                        </td>
+                        <td>6 Tara Downs, Lennox Head NSW, Australia</td>
+                        <td><b>Essential Package - $485.00</b></td>
+                        <td>
+                          <Switch
+                            checked={true}
+                            inputProps={{ 'aria-label': 'controlled' }}
+                          />
+                        </td>
+                        <td>
+                        <div className="badge badge-pill badge-light-primary">Notify</div>
                         </td>
                         <td>
                           <button class="btn btn-icon btn-outline-secondary mr-1 mb-1" title="Edit">
@@ -238,15 +252,13 @@ const Collections = () => {
                           <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
                             <i className="feather white icon-copy"></i>
                           </button>
-                          <button class="btn btn-icon btn-outline-primary mr-1 mb-1" title="Notify Client">
-                            <i className="feather white icon-check"></i>
-                          </button>
                         </td>
                         <td className="d-none">No</td>
                       </tr>
                       <tr>
                         <td>924</td>
                         <td><img src={banner2} style={{ width: "150px" }} /></td>
+                        <td>Birthday Party</td>
                         <td>Josh</td>
                         <td>60 Kingsley Street, Byron Bay NSW, Australia</td>
                         <td>
@@ -259,6 +271,15 @@ const Collections = () => {
                           <b>21 Mar 2024 06:23 pm</b>
                         </td>
                         <td>
+                          <Switch
+                            checked={true}
+                            inputProps={{ 'aria-label': 'controlled' }}
+                          />
+                        </td>
+                        <td>
+                        <div className="badge badge-pill badge-light-primary">Notified</div>
+                        </td>
+                        <td>
                           <button class="btn btn-icon btn-outline-secondary mr-1 mb-1" title="Edit">
                             <i className="feather white icon-edit"></i>
                           </button>
@@ -267,9 +288,6 @@ const Collections = () => {
                           </button>
                           <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
                             <i className="feather white icon-copy"></i>
-                          </button>
-                          <button class="btn btn-icon btn-outline-primary mr-1 mb-1" title="Notify Client">
-                            <i className="feather white icon-check"></i>
                           </button>
                         </td>
                         <td className="d-none">No</td>

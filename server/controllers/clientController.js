@@ -1,15 +1,32 @@
 const User = require('../models/Users');
+const redis = require('ioredis');
+const redisClient = new redis();
+
+const updateRedisCache = async () => {
+  try {
+    const clients = await User.findAll({
+      where: { role_id: 3 },
+      order: [['created', 'DESC']]
+    });
+    await redisClient.set('clients', JSON.stringify(clients), 'EX', 3600);
+    console.log('Redis cache updated successfully.');
+  } catch (err) {
+    console.error('Error updating Redis cache:', err);
+  }
+}
 
 const getAllClients = async (req, res) => {
   try {
-    const clients = await User.findAll({
-      where: {
-        role_id: 3
-      },
-      order: [
-        ['created', 'DESC']
-      ]
-    });
+    let clients = await redisClient.get('clients');
+    if (!clients) {
+      clients = await User.findAll({
+        where: { role_id: 3 },
+        order: [['created', 'DESC']]
+      });
+      await redisClient.set('clients', JSON.stringify(clients), 'EX', 3600);
+    } else {
+      clients = JSON.parse(clients);
+    }
     res.status(200).json({ success: true, data: clients });
   } catch (error) {
     res.status(500).json({ error: "Failed to list clients" });
@@ -60,6 +77,8 @@ const createClient = async (req, res) => {
       }
       client = await User.create(clientData);
     }
+    // Update Redis cache
+    updateRedisCache();
     res.status(200).json({
       success: true,
       message: req.body.id ? "Client updated successfully" : "Client created successfully",
@@ -86,6 +105,8 @@ const deleteClient = async (req, res) => {
       where: { id: clientId }
     });
     if (deleted) {
+      // Update Redis cache
+      updateRedisCache();
       res.status(200).json({ success: true, message: "Client deleted successfully" });
     } else {
       res.status(404).json({ success: false, message: "Client not found" });
@@ -102,6 +123,8 @@ const activeInactiveClient = async (req, res) => {
     await User.update({ status: clientStatus }, { where: { id: clientId } });
     const updatedClient = await User.findOne({ where: { id: clientId } });
     if (updatedClient) {
+      // Update Redis cache
+      updateRedisCache();
       res.status(200).json({
         success: true,
         message: "Client status updated.",
@@ -115,4 +138,4 @@ const activeInactiveClient = async (req, res) => {
   }
 };
 
-module.exports = { getAllClients, createClient, getClient, deleteClient, activeInactiveClient };
+module.exports = { updateRedisCache, getAllClients, createClient, getClient, deleteClient, activeInactiveClient };

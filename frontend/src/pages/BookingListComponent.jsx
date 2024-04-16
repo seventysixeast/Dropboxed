@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Switch from '@mui/material/Switch';
+import Checkbox from '@mui/material/Checkbox';
 import axios from "axios";
 import {
   newBooking,
@@ -510,10 +512,286 @@ export const BookingListComponent = () => {
 
             <button
               className="btn btn-icon btn-outline-primary ml-1"
-              title="Turn into Gallery"
+              title="Create Gallery"
+              data-toggle="modal"
+              data-target="#create_gallery"
             >
               <i className="feather white icon-image"></i>
             </button>
+            <div
+              className="modal fade text-left"
+              id="create_gallery"
+              tabIndex="-1"
+              role="dialog"
+              aria-labelledby="myModalLabel35"
+              aria-hidden="true"
+              style={{ display: "none" }}
+            >
+              <div className="modal-dialog modal-md " role="document">
+                <div className="modal-content">
+                  <div
+                    className="modal-header"
+                    style={{ backgroundColor: "#DEE6EE", color: "black" }}
+                  >
+                    <h3>Create Gallery</h3>
+                    <button
+                      type="button"
+                      className="close"
+                      data-dismiss="modal"
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+                  <form onSubmit={handleSubmit}>
+                    <div className="modal-body d-flex px-4">
+                      <label
+                        htmlFor="provider"
+                        style={{ width: "10rem" }}
+                      >
+                        Client *
+                      </label>
+                      <Select
+                        className="select2 w-100"
+                        name="providers"
+                        defaultValue={bookingData.provider}
+                        onChange={(e) => {
+                          setBookingData({
+                            ...bookingData,
+                            provider: e.value,
+                          });
+                        }}
+                        options={providers.map((provider) => ({
+                          label: provider.name,
+                          value: provider.id,
+                        }))}
+                        isSearchable
+                        required
+                        components={{
+                          Option: ({
+                            data,
+                            innerRef,
+                            innerProps,
+                          }) => (
+                            <div
+                              ref={innerRef}
+                              {...innerProps}
+                              style={{ display: 'flex form-select', alignItems: 'center' }}
+                            >
+                              <img
+                                src={data.profile_photo || avatar1}
+                                className="mr-1 ml-1"
+                                width={"14px"}
+                                height={"14px"}
+                                alt=""
+                              />
+                              <span>{data.label}</span>
+                            </div>
+                          ),
+                        }}
+                      />
+
+                    </div>
+                    <div className="modal-body d-flex px-4">
+                      <label
+                        htmlFor="services"
+                        style={{ width: "10rem" }}
+                      >
+                        Booking Title *
+                      </label>
+                      <Select
+                        className="select2 w-100"
+                        name="services"
+                        defaultValue={selectedService}
+                        onChange={handleSelectedChange}
+                        options={packages.map((pkg) => ({
+                          label: pkg.package_name,
+                          value: pkg.id,
+                          package_price: pkg.package_price,
+                        }))}
+                        isSearchable
+                        isMulti
+                        hideSelectedOptions
+                        required
+                        components={{
+                          Option: ({
+                            data,
+                            innerRef,
+                            innerProps,
+                          }) => (
+                            <div
+                              ref={innerRef}
+                              {...innerProps}
+                              style={{ display: 'flex form-select ', alignItems: 'center' }}
+                            >
+                              <img
+                                src={toolIcons}
+                                className="mr-1 ml-1"
+                                width={"14px"}
+                                height={"14px"}
+                                alt=""
+                              />
+                              <span>{data.label}</span>
+                            </div>
+                          ),
+                        }}
+                      />
+                    </div>
+                    <div className="modal-body d-flex px-4">
+                      <label
+                        htmlFor="services"
+                        style={{ width: "10rem" }}
+                      >
+                        Services
+                      </label>
+                      <Select
+                        className="select2 w-100"
+                        name="services"
+                        defaultValue={selectedService}
+                        onChange={handleSelectedChange}
+                        options={packages.map((pkg) => ({
+                          label: pkg.package_name,
+                          value: pkg.id,
+                          package_price: pkg.package_price,
+                        }))}
+                        isSearchable
+                        isMulti
+                        hideSelectedOptions
+                        required
+                        components={{
+                          Option: ({
+                            data,
+                            innerRef,
+                            innerProps,
+                          }) => (
+                            <div
+                              ref={innerRef}
+                              {...innerProps}
+                              style={{ display: 'flex form-select ', alignItems: 'center' }}
+                            >
+                              <img
+                                src={toolIcons}
+                                className="mr-1 ml-1"
+                                width={"14px"}
+                                height={"14px"}
+                                alt=""
+                              />
+                              <span>{data.label}</span>
+                            </div>
+                          ),
+                        }}
+                      />
+                    </div>
+                    <div className="modal-body d-flex px-4">
+                      <label
+                        htmlFor="services"
+                        style={{ width: "10rem" }}
+                      >
+                        Photographer
+                      </label>
+                      <Select
+                        className="select2 w-100"
+                        name="services"
+                        defaultValue={selectedService}
+                        onChange={handleSelectedChange}
+                        options={packages.map((pkg) => ({
+                          label: pkg.package_name,
+                          value: pkg.id,
+                          package_price: pkg.package_price,
+                        }))}
+                        isSearchable
+                        isMulti
+                        hideSelectedOptions
+                        required
+                        components={{
+                          Option: ({
+                            data,
+                            innerRef,
+                            innerProps,
+                          }) => (
+                            <div
+                              ref={innerRef}
+                              {...innerProps}
+                              style={{ display: 'flex form-select ', alignItems: 'center' }}
+                            >
+                              <img
+                                src={toolIcons}
+                                className="mr-1 ml-1"
+                                width={"14px"}
+                                height={"14px"}
+                                alt=""
+                              />
+                              <span>{data.label}</span>
+                            </div>
+                          ),
+                        }}
+                      />
+                    </div>
+                    <div className="modal-body d-flex px-4">
+                      <label
+                        htmlFor="provider"
+                        style={{ width: "10rem" }}
+                      >
+                        Gallery Title
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="gallery_title"
+                      />
+                    </div>
+                    <div className="modal-body d-flex px-4">
+                      <label
+                        htmlFor="provider"
+                        style={{ width: "10rem" }}
+                      >
+                        Dropbox Link
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="gallery_title"
+                      />
+                    </div>
+                    <div className="modal-body d-flex px-4">
+                      <label
+                        htmlFor="provider"
+                        style={{ width: "10rem" }}
+                      >
+                        Vimeo Video Link
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="gallery_title"
+                      />
+                    </div>
+                    <div className="px-4 text-primary">
+                      <Switch
+                        checked={true}
+                        inputProps={{ 'aria-label': 'controlled' }}
+                      />
+                      Lock Gallery
+                      <Checkbox defaultChecked color="primary" />
+                      Notify to Client
+                    </div>
+                    <div className="modal-footer">
+                      <input
+                        type="submit"
+                        className="btn btn-primary btn"
+                        value="Create"
+                      />
+                      <input
+                        type="reset"
+                        className="btn btn-secondary btn"
+                        data-dismiss="modal"
+                        value="Cancel"
+                      />
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
         ),
       },
@@ -551,7 +829,7 @@ export const BookingListComponent = () => {
       <div className="app-content content">
         <div className={`content-overlay`}></div>
         <div className="content-wrapper" >
-          <div className="content-header row mt-2" style={{paddingBottom: '5px'}}>
+          <div className="content-header row mt-2" style={{ paddingBottom: '5px' }}>
             <div className="content-header-left col-md-6 col-6">
               <h3 className="content-header-title mb-0">Booking List</h3>
               <div className="row breadcrumbs-top">
