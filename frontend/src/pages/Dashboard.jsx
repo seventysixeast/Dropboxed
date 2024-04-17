@@ -5,6 +5,7 @@ import { addGallery } from "../api/collectionApis";
 import { toast } from 'react-toastify';
 import Select from "react-select";
 import toolIcons from "../assets/images/i.png";
+import { Switch, Checkbox } from '@mui/material';
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 export const Dashboard = () => {
@@ -15,12 +16,14 @@ export const Dashboard = () => {
 
   const [formData, setFormData] = useState({
     id: '',
-    title: '',
-    clientId: '',
-    address: '',
+    client: '',
+    booking_title: '',
     services: '',
-    banner: '',
-    status: ''
+    photographer: '',
+    gallery_title: '',
+    dropbox_link: '',
+    vimeo_video_link: '',
+    banner: ''
   });
 
   useEffect(() => {
@@ -49,14 +52,22 @@ export const Dashboard = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let gallery = { ...formData };
-    if (name === "title") {
-      gallery.title = value;
-    } else if (name === "client") {
-      gallery.clientId = value;
-    } else if (name === 'address') {
-      gallery.address = value
-    } else if (name === 'status') {
-      gallery.status = value
+    if (name === "client") {
+      gallery.client = value;
+    } else if (name === "booking_title") {
+      gallery.booking_title = value;
+    } else if (name === 'services') {
+      gallery.services = value
+    } else if (name === 'photographer') {
+      gallery.photographer = value
+    } else if (name === 'gallery_title') {
+      gallery.gallery_title = value
+    } else if (name === 'dropbox_link') {
+      gallery.dropbox_link = value
+    } else if (name === 'vimeo_video_link') {
+      gallery.vimeo_video_link = value
+    } else if (name === 'banner') {
+      gallery.banner = value
     }
     setFormData(gallery);
   };
@@ -82,12 +93,14 @@ export const Dashboard = () => {
   const resetFormData = async () => {
     setFormData({
       id: '',
-      title: '',
       client: '',
-      address: '',
-      services: [],
-      banner: '',
-      status: ''
+      booking_title: '',
+      services: '',
+      photographer: '',
+      gallery_title: '',
+      dropbox_link: '',
+      vimeo_video_link: '',
+      banner: ''
     });
   };
 
@@ -97,12 +110,14 @@ export const Dashboard = () => {
       console.log("formData", formData);
       const formDataToSend = new FormData();
       formDataToSend.append('id', formData.id || '');
-      formDataToSend.append('title', formData.title || '');
-      formDataToSend.append('client', formData.clientId || '');
-      formDataToSend.append('address', formData.address || '');
+      formDataToSend.append('client', formData.client || '');
+      formDataToSend.append('booking_title', formData.booking_title || '');
       formDataToSend.append('services', formData.services || '');
+      formDataToSend.append('photographer', formData.photographer || '');
+      formDataToSend.append('gallery_title', formData.gallery_title || '');
+      formDataToSend.append('dropbox_link', formData.dropbox_link || '');
+      formDataToSend.append('vimeo_video_link', formData.vimeo_video_link || '');
       formDataToSend.append('banner', formData.banner || '');
-      formDataToSend.append('status', formData.status || '');
 
       let res = await addGallery(formDataToSend);
       console.log("res", res);
@@ -262,23 +277,11 @@ export const Dashboard = () => {
                               <form onSubmit={handleSubmit}>
                                 <div className="modal-body">
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="title">Title *</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Title"
-                                      className="form-control"
-                                      name="title"
-                                      value={formData.title}
-                                      onChange={handleInputChange}
-                                      required
-                                    />
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label>Clients</label>
+                                    <label>Clients *</label>
                                     <select
                                       className="select2 form-control"
                                       name="client"
-                                      value={formData.clientId}
+                                      value={formData.client}
                                       onChange={handleInputChange}
                                       required
                                     >
@@ -290,24 +293,18 @@ export const Dashboard = () => {
                                     </select>
                                   </fieldset>
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="address">Address *</label>
+                                    <label>Booking Title</label>
                                     <input
                                       type="text"
-                                      placeholder="Enter Address"
+                                      placeholder="Enter Booking Title"
                                       className="form-control"
-                                      name="address"
-                                      value={formData.address}
+                                      name="booking_title"
+                                      value={formData.booking_title}
                                       onChange={handleInputChange}
-                                      required
                                     />
                                   </fieldset>
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label
-                                      htmlFor="services"
-                                      style={{ width: "10rem" }}
-                                    >
-                                      Services
-                                    </label>
+                                    <label style={{ width: "10rem" }}>Services</label>
                                     <Select
                                       className="select2 w-100"
                                       name="services"
@@ -321,7 +318,6 @@ export const Dashboard = () => {
                                       isSearchable
                                       isMulti
                                       hideSelectedOptions
-                                      required
                                       components={{
                                         Option: ({
                                           data,
@@ -346,27 +342,46 @@ export const Dashboard = () => {
                                       }}
                                     />
                                   </fieldset>
-
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="link">
-                                      Dropbox Link
-                                    </label>
+                                    <label>Photographer</label>
+                                    <input
+                                      type="text"
+                                      placeholder="Enter Photographer"
+                                      className="form-control"
+                                      name="photographer"
+                                      value={formData.photographer}
+                                      onChange={handleInputChange}
+                                    />
+                                  </fieldset>
+                                  <fieldset className="form-group floating-label-form-group">
+                                    <label>Gallery Title</label>
+                                    <input
+                                      type="text"
+                                      placeholder="Enter Gallery Title"
+                                      className="form-control"
+                                      name="gallery_title"
+                                      value={formData.gallery_title}
+                                      onChange={handleInputChange}
+                                      required
+                                    />
+                                  </fieldset>
+                                  <fieldset className="form-group floating-label-form-group">
+                                    <label>Dropbox Link *</label>
                                     <textarea
                                       className="form-control"
-                                      id="link"
+                                      id="dropbox_link"
                                       rows="1"
-                                      placeholder="Link"
+                                      placeholder="Enter Dropbox Link"
+                                      required
                                     ></textarea>
                                   </fieldset>
                                   <fieldset className="form-group floating-label-form-group">
-                                    <label htmlFor="link">
-                                      Vimeo Video Link
-                                    </label>
+                                    <label>Vimeo Video Link</label>
                                     <textarea
                                       className="form-control"
-                                      id="link"
+                                      id="vimeo_video_link"
                                       rows="1"
-                                      placeholder="Link"
+                                      placeholder="Enter Vimeo Video Link"
                                     ></textarea>
                                   </fieldset>
                                   <div className="row">
@@ -383,18 +398,15 @@ export const Dashboard = () => {
                                         {formData.id && <img src={`${formData.banner ? `${IMAGE_URL}/${formData.banner}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 mt-2" alt="Card image" />}
                                       </div>
                                     </div>
-                                    <fieldset className="form-group floating-label-form-group">
-                                      <label>Status</label>
-                                      <select
-                                        className="select2 form-control"
-                                        name="status"
-                                        onChange={handleInputChange}
-                                        value={formData.status}
-                                      >
-                                        <option value="Active">Active</option>
-                                        <option value="Inactive">Inactive</option>
-                                      </select>
-                                    </fieldset>
+                                    <div className="px-4 text-primary">
+                                      <Switch
+                                        checked={true}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                      />
+                                      Lock Gallery
+                                      <Checkbox defaultChecked color="primary" />
+                                      Notify to Client
+                                    </div>
                                   </div>
                                 </div>
                                 <div className="modal-footer">
