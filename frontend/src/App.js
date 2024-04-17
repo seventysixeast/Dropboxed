@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { toast } from 'react-toastify';
 import IndexRouter from "./routers/Index";
 import { AuthProvider } from "./context/authContext";
 import { decryptToken } from "./helpers/tokenUtils";
@@ -14,18 +15,31 @@ const App = () => {
         const handleTokenVerification = async (token) => {
             try {
                 const decryptedToken = decryptToken(token);
-                const { accessToken, user } = await verifyToken(decryptedToken);
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('isAuth', true);
-                localStorage.setItem('user', JSON.stringify(user));
-                document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
-                document.cookie = `isAuth=true; domain=.localhost; path=/`;
-
-                const url = new URL(window.location.href);
-                url.searchParams.delete('token');
-                window.history.replaceState({}, document.title, url);
+                const { success, accessToken, user, message } = await verifyToken(decryptedToken);
+                console.log("success", success)
+                if (success) {
+                    // Save user data and access token in localStorage
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('isAuth', true);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    
+                    // Show success toast
+                    // toast.success('Token verification successful');
+                    
+                    // Redirect to dashboard
+                    window.location.href = '/dashboard';
+                } else {
+                    // Show error toast
+                    toast.error(`Token verification failed: ${message}`);
+                    // Redirect to login page
+                    window.location.href = '/login';
+                }
             } catch (error) {
                 console.error("Token verification failed:", error.message);
+                // Show error toast
+                toast.error('Token verification failed');
+                // Redirect to login page
+                window.location.href = '/login';
             }
         };
 
