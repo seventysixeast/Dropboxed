@@ -897,3 +897,83 @@ html body .content .content-wrapper {
   background-color: #00ced2;
   color: white;
 }
+
+.css-b62m3t-container{
+  width: 100% !important;
+}
+
+
+.responsive-header {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .fc-toolbar-title {
+    font-size: 1.0rem !important;
+    
+  }
+  .fc-button-group .fc-button{
+    font-size: 1.0rem !important;
+  }
+  .fc-toolbar-chunk .fc-button{
+    font-size: 1.0rem !important;
+  }
+  .fc-event-main-frame {
+    font-size: 1.0rem !important;
+  }
+  .fc-scrollgrid-sync-inner {
+    font-size: 1.0rem !important;
+  }
+  .fc-timegrid-slots {
+    font-size: 1.0rem !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .fc-toolbar-title {
+    font-size: 0.8em !important;
+  }
+  .fc-button-group .fc-button{
+    font-size: 0.8em !important;
+  }
+  .fc-toolbar-chunk .fc-button{
+    font-size: 0.8em !important;
+  }
+  .fc-event-main-frame {
+    font-size: 0.8em !important;
+  }
+  .fc-scrollgrid-sync-inner {
+    font-size: 0.8em !important;
+  }
+  .fc-timegrid-slots {
+    font-size: 0.8em !important;
+  }
+
+}
+
+@media (max-width: 600px) {
+  .fc-toolbar-title {
+    font-size: 0.5rem !important;
+  }
+  .fc-button-group .fc-button{
+    font-size: 0.5rem !important;
+  }
+  .fc-toolbar-chunk .fc-button{
+    font-size: 0.5rem !important;
+  }
+  .fc-event-main-frame {
+    font-size: 0.5rem !important;
+  }
+  .fc-scrollgrid-sync-inner {
+    font-size: 0.5rem !important;
+  }
+  .fc-timegrid-slots {
+    font-size: 0.5rem !important;
+  }
+  .form-group .btn .btn-outline-primary{
+    font-size: 8px !important;
+  }
+}
+

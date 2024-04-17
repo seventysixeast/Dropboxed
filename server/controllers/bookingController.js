@@ -1,5 +1,3 @@
-// controllers/bookingController.js
-
 const Booking = require("../models/Booking");
 const User = require("../models/Users");
 const Package = require("../models/Packages");
@@ -8,15 +6,18 @@ const { OAuth2 } = google.auth;
 const axios = require("axios");
 const Users = require("../models/Users");
 
-const oAuth2Client = new OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_CLIENT_CALLBACK
-);
-
 const client_id = process.env.GOOGLE_CLIENT_ID;
 const client_secret = process.env.GOOGLE_CLIENT_SECRET;
+const callback_uri = process.env.GOOGLE_CLIENT_CALLBACK;
 const redirect_uri = "postmessage";
+
+const oAuth2Client = new OAuth2(
+  client_id,
+  client_secret,
+  callback_uri
+);
+
+
 
 async function getCalendarList() {
   try {
@@ -207,7 +208,6 @@ const createBooking = async (req, res) => {
     client_name = usersWithRoleId1[0].name || "";
     data.client_address = client_address;
     data.client_name = client_name;
-    data.booking_title = client_address;
 
     let booking;
     if (req.body.id) {
@@ -226,12 +226,10 @@ const createBooking = async (req, res) => {
     });
 
     if (theUser && theUser.calendar_sub == 1) {
-      // Use try-catch to handle the asynchronous addevent function
       try {
         await addevent(booking, userID);
       } catch (error) {
         console.error("Failed to add event:", error.message);
-        // Handle the error from addevent function
         return res.status(500).json({ error: "Failed to add event" });
       }
     }
@@ -337,6 +335,7 @@ const deleteBooking = async (req, res) => {
 const updateBooking = async (req, res) => {
   try {
     const bookingId = req.body.id;
+    console.log(req.body);
     const updated = await Booking.update(req.body, {
       where: { id: bookingId },
     });
