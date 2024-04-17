@@ -74,6 +74,7 @@ exports.login = async (req, res) => {
         subdomain: user.subdomain,
         calendarSub: user.calendar_sub,
       },
+      message: "Login successfull"
     });
   } catch (error) {
     console.error('Error logging in: ', error);
@@ -294,7 +295,7 @@ exports.verifyToken = async (req, res) => {
     // You may need to customize this part based on your user model
     const user = await User.findByPk(decodedToken.userId);
     if (!user) {
-      return res.status(401).json({ status: false, message: "User not found" });
+      return res.status(401).json({ success: false, message: "User not found" });
     }
     // Return user information along with token
     res.status(200).json({
@@ -306,12 +307,14 @@ exports.verifyToken = async (req, res) => {
         profilePhoto: user.profile_photo,
         subdomain: user.subdomain,
       },
+      success: true,
+      message: "Success"
     });
   } catch (error) {
     // Handle token verification errors
     console.error("Error verifying token: ", error);
     res
       .status(400)
-      .json({ status: false, message: "Token verification failed" });
+      .json({ success: false, message: "Token verification failed" });
   }
 };
