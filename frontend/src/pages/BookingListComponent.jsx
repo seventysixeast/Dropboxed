@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Switch from '@mui/material/Switch';
-import Checkbox from '@mui/material/Checkbox';
 import axios from "axios";
 import {
   newBooking,
@@ -24,9 +22,12 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/authContext";
 import API from "../api/baseApi";
 import ConfirmModal from "../components/ConfirmModal";
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+
 
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
+  const gApi = process.env.REACT_APP_GOOGLE_API_KEY;
   const { authData } = useAuth();
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
@@ -39,6 +40,8 @@ export const BookingListComponent = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [bookingAddress, setBookingAddress] = useState(null);
+  const [toTime, setToTime] = useState(null);
 
   const [clientList, setClientList] = useState([]);
   const [events, setEvents] = useState([]);
@@ -48,9 +51,11 @@ export const BookingListComponent = () => {
   const calendarSub = authData.user ? authData.user.calendarSub : null;
   const [showDateModel, setShowDateModel] = useState(false);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [notifyCheckbox, setNotifyCheckbox] = useState(false);
 
-  const [updateData, setUpdateData] = useState({
-    id: "",
+
+
+  const [bookingData, setBookingData] = useState({
     title: "",
     package: 1,
     services: "",
@@ -63,7 +68,8 @@ export const BookingListComponent = () => {
     customer: "",
   });
 
-  const [bookingData, setBookingData] = useState({
+  const [updateData, setUpdateData] = useState({
+    id: "",
     title: "",
     package: 1,
     services: "",
@@ -111,7 +117,6 @@ export const BookingListComponent = () => {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -140,11 +145,11 @@ export const BookingListComponent = () => {
         photographer_id: bookingData.provider,
         booking_date: bookingData.prefferedDate,
         booking_time: bookingData.fromTime,
-        booking_time_to: bookingData.toTime,
+        booking_time_to: newToTime,
         booking_status: 1,
         comment: bookingData.comment,
+        booking_title: bookingAddress.label
       };
-      console.log(bookingDataToSend);
 
       await newBooking(bookingDataToSend);
       getAllBookingsData();
@@ -216,9 +221,7 @@ export const BookingListComponent = () => {
     }
   };
   const handleDateClick = (arg) => {
-    console.log(arg);
     const selectedDate = new Date(arg.date);
-    console.log(selectedDate);
 
     const hours = selectedDate.getHours();
     const formattedHours = hours < 10 ? `0${hours}` : hours;
@@ -227,7 +230,6 @@ export const BookingListComponent = () => {
     const ampm = hours < 12 ? "AM" : "PM";
 
     const selectedTime = `${formattedHours}:${formattedMinutes}:00`;
-    console.log(selectedTime);
 
     setBookingData((prevData) => ({
       ...prevData,
@@ -246,7 +248,6 @@ export const BookingListComponent = () => {
 
   const handleSelectedChange = (selectedOptions) => {
     setSelectedService(selectedOptions);
-    console.log(selectedOptions);
 
     const selectedValues = selectedOptions.map((option) => option.value);
     const selectedValuesString = selectedValues.join(", ");
@@ -265,12 +266,10 @@ export const BookingListComponent = () => {
 
   const handleProviderChange = (selectedOptions) => {
     setSelectedProvider(selectedOptions);
-    console.log(selectedOptions);
 
     const selectedValues = selectedOptions.map((option) => option.value);
     const selectedValuesString = selectedValues.join(", ");
 
-    console.log(selectedValuesString);
     setBookingData((prevData) => ({
       ...prevData,
       provider: selectedValuesString,
@@ -278,15 +277,12 @@ export const BookingListComponent = () => {
   };
 
   const handleClientChange = (selectedOptions) => {
-    console.log(selectedOptions);
     setSelectedClient(selectedOptions);
     setBookingData((prevData) => ({
       ...prevData,
       client: selectedOptions.value,
     }));
   };
-
-  console.log(bookingData);
 
   const getAllBookingsData = async () => {
     try {
@@ -304,23 +300,33 @@ export const BookingListComponent = () => {
       console.error("Failed to:", error.message);
     }
   };
+
   const getBookingData = (data) => {
     let array = [];
-    data.package_ids.split(", ").forEach((element) => {
-      array.push(parseInt(element));
-    });
-    let SS = data.package_ids ? data.package_ids : [];
-    const selectedServices = SS.split(",").map((id) =>
-      packages.find((pack) => pack.id === parseInt(id))
-    );
-
-    const finalservice =
-      selectedServices &&
-      selectedServices.map((serv) => ({
+    if (data.package_ids) {
+        if (data.package_ids.includes(",")) {
+            // If there are multiple IDs separated by commas
+            data.package_ids.split(", ").forEach((element) => {
+                array.push(parseInt(element));
+            });
+        } else {
+            // If there is only a single ID
+            array.push(parseInt(data.package_ids));
+        }
+    }
+    
+    const selectedServices = array.map((id) =>
+        packages.find((pack) => pack.id === id)
+    ).filter(Boolean); // Filter out undefined values
+    
+    setBookingAddress({ label: data.booking_title, value: {} });
+    
+    const finalservice = selectedServices.map((serv) => ({
         label: serv.package_name,
         value: serv.id,
         package_price: serv.package_price,
-      }));
+    }));
+    
 
     const selectedPrices = selectedServices.map((serv) => serv.package_price);
     const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
@@ -342,7 +348,6 @@ export const BookingListComponent = () => {
         label: prov.name || "",
         value: prov.id,
       }));
-    console.log(finalProvider);
     setSelectedProvider(finalProvider);
 
     //  find data.user_id in clientList
@@ -372,12 +377,9 @@ export const BookingListComponent = () => {
   };
 
   const handleEventClick = (event) => {
-    console.log(event);
     let id = event.event._def.publicId;
-    console.log(id);
 
     let data = bookingsData.find((booking) => booking.id === parseInt(id));
-    console.log(data);
     getBookingData(data);
     if (buttonRef.current) {
       buttonRef.current.click();
@@ -446,9 +448,6 @@ export const BookingListComponent = () => {
   };
   const handleEventResize = (arg) => {
     let id = arg.event._def.publicId;
-    console.log(id);
-    // find
-
     let newDate = new Date(arg.event.start + "Z");
     let endDate = new Date(arg.event.end + "Z");
     newDate.setDate(newDate.getDate());
@@ -549,41 +548,38 @@ export const BookingListComponent = () => {
   };
 
   const handleNotifyChange = (data) => {
-    console.log(data);
     setUpdateData({
       id: data.id,
       booking_status: data.booking_status,
     });
 
-    console.log(updateData);
     setShowNotifyModal(true);
-    // };
-    // const updateBookingStatus = async () => {
-    //   try {
-    //     const formDataToSend = new FormData();
-    //     formDataToSend.append("id", updateData.id);
-    //     formDataToSend.append("booking_status", updateData.booking_status);
-    //     console.log(formDataToSend);
+  };
+  const updateBookingStatus = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", updateData.id);
+      formDataToSend.append("booking_status", 2);
 
-    //     // await updateBooking(formDataToSend);
-    //     // getAllBookingsData();
-    //     // setUpdateData({
-    //     //   title: "",
-    //     //   package: 1,
-    //     //   services: "",
-    //     //   prefferedDate: new Date(),
-    //     //   fromTime: "",
-    //     //   toTime: "60",
-    //     //   client: "",
-    //     //   comment: "",
-    //     //   provider: "",
-    //     //   customer: "",
-    //     // });
-    //     setShowNotifyModal(false);
-    //     toast.success("Booking updated successfully");
-    //   } catch (error) {
-    //     toast.error(error);
-    //   }
+      await updateBooking(formDataToSend);
+      getAllBookingsData();
+      setUpdateData({
+        title: "",
+        package: 1,
+        services: "",
+        prefferedDate: new Date(),
+        fromTime: "",
+        toTime: "60",
+        client: "",
+        comment: "",
+        provider: "",
+        customer: "",
+      });
+      setShowNotifyModal(false);
+      toast.success("Booking updated successfully");
+    } catch (error) {
+      toast.error(error);
+    }
   };
   const columns = [
     {
@@ -643,7 +639,7 @@ export const BookingListComponent = () => {
     },
     {
       Header: "Address",
-      accessor: "client_address",
+      accessor: "booking_title",
     },
     {
       Header: "Comment",
@@ -653,28 +649,26 @@ export const BookingListComponent = () => {
       Header: "Status",
       accessor: "booking_status",
       Cell: (props) => (
-        <div className="badge badge-pill badge-light-primary">
+        <div className="">
           {props.row.original.booking_status === 1 ? (
-            <button
+            <a
               type="button"
-              className="btn btn-icon btn-outline-primary"
+              className="badge"
               onClick={() => handleNotifyChange(props.row.original)}
               data-toggle="modal"
               data-target="#confirmModal"
+              title="Notify client"
             >
               Notify
-            </button>
+            </a>
           ) : (
-            <button
-              type="button"
-              className="btn btn-icon btn-outline-primary"
-              onClick={() => handleNotifyChange(props.row.original)}
-              data-toggle="modal"
-              data-target="#confirmModal"
+            <a
+              className="badge"
+              title="Booked"  
               disabled
             >
               Booked
-            </button>
+            </a>
           )}
         </div>
       ),
@@ -690,6 +684,7 @@ export const BookingListComponent = () => {
             onClick={() => getBookingData(props.row.original)}
             data-toggle="modal"
             data-target="#appointment"
+            title="Edit Booking"
           >
             <i className="feather white icon-edit"></i>
           </button>
@@ -703,6 +698,7 @@ export const BookingListComponent = () => {
             id="delete-row"
             data-toggle="modal"
             data-target="#deleteModal"
+            title="Delete Booking"
           >
             <i className="feather white icon-trash"></i>
           </button>
@@ -747,6 +743,164 @@ export const BookingListComponent = () => {
     flow: "auth-code",
     include_granted_scopes: true,
   });
+
+  const handleAddressChange = (address) => {
+    setBookingAddress(address);
+  };
+
+  const handleNotifyClose = () => {
+    setShowNotifyModal(false);
+    setUpdateData({
+      id: "",
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+    setBookingData({
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+  };
+  const handleDateModalClose = () => {
+    setShowDateModel(false);
+    setUpdateData({
+      id: "",
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+    setBookingData({
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+    getAllBookingsData();
+  };
+
+  const handleConfirmModalClose = () => {
+    setShowConfirmModel(false);
+    setUpdateData({
+      id: "",
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+    setBookingData({
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+    getAllBookingsData();
+  };
+
+  const handleDeleteModalClose = () => {
+    setShowDeleteModal(false);
+    setUpdateData({
+      id: "",
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+    setBookingData({
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+  };
+
+  const handleAppointmentModalClose = () => {
+    setUpdateData({
+      id: "",
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+    setBookingData({
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "60",
+      client: "",
+      comment: "",
+      provider: "",
+      customer: "",
+    })
+  };
+
+  const handleNotifyCheckbox = (event) => {
+    setNotifyCheckbox(event.target.checked);
+  };
+
+  const handleToTimeChange = (event) => {
+    setToTime(event.target.value);
+    setBookingData({ ...bookingData, toTime: event.target.value });
+  };
 
   return (
     <>
@@ -817,6 +971,7 @@ export const BookingListComponent = () => {
                               className="close"
                               data-dismiss="modal"
                               aria-label="Close"
+                              onClick={handleAppointmentModalClose}
                             >
                               <span aria-hidden="true">×</span>
                             </button>
@@ -922,6 +1077,22 @@ export const BookingListComponent = () => {
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
+                                          htmlFor="address"
+                                          style={{ width: "10rem" }}
+                                        >
+                                          Address
+                                        </label>
+                                        <GooglePlacesAutocomplete
+                                          apiKey="AIzaSyCQUMJXi-NEPTZ6kIPn8-Drxi0wQCJbuQ0"
+                                          selectProps={{
+                                            bookingAddress,
+                                            onChange: handleAddressChange,
+                                            value: bookingAddress 
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="modal-body d-flex px-4">
+                                        <label
                                           htmlFor="services"
                                           style={{ width: "10rem" }}
                                         >
@@ -932,11 +1103,14 @@ export const BookingListComponent = () => {
                                           name="services"
                                           value={selectedService}
                                           onChange={handleSelectedChange}
-                                          options={packages.map((pkg) => ({
-                                            label: pkg.package_name,
-                                            value: pkg.id,
-                                            package_price: pkg.package_price,
-                                          }))}
+                                          options={packages
+                                            .map((pkg) => ({
+                                              label: pkg.package_name,
+                                              value: pkg.id,
+                                              package_price: pkg.package_price,
+                                            }))
+                                            .sort((a, b) => (a.label < b.label ? -1 : 1))}
+
                                           isSearchable
                                           isMulti
                                           hideSelectedOptions
@@ -980,16 +1154,41 @@ export const BookingListComponent = () => {
                                       </div>
 
                                       <div className="modal-body d-flex px-4">
-                                        <div style={{ width: "10.5rem" }}></div>
+                                        <div style={{ width: "25rem", }}> Price/Duration</div>
                                         <input
                                           type="text"
                                           id="price"
-                                          className="form-control"
+                                          className="form-control mr-1"
                                           name="price"
                                           value={`$ ${selectedPackagePrice}`}
                                           disabled
                                         />
+                                        <select
+                                          className="select2 form-control"
+                                          name="toTime"
+                                          value={toTime}
+                                          onChange={handleToTimeChange}
+                                          style={{ cursor: "pointer" }}
+                                          required
+                                        >
+                                          <option value="00">Select Time</option>
+                                          <option value="30">30 Minutes</option>
+                                          <option value="60">60 Minutes</option>
+                                          <option value="90">90 Minutes</option>
+                                          <option value="120">120 Minutes</option>
+                                          <option value="150">150 Minutes</option>
+                                          <option value="180">180 Minutes</option>
+                                        </select>
                                       </div>
+                                      {/* <div className="modal-body d-flex px-4 ">
+                                        <label
+                                          htmlFor="datetimepicker4"
+                                          style={{ width: "11rem" }}
+                                        >
+                                          Duration
+                                        </label>
+                                        
+                                      </div> */}
 
                                       <div className="modal-body d-flex px-4 ">
                                         <label
@@ -1168,217 +1367,65 @@ export const BookingListComponent = () => {
                                           </option>
                                         </select>
                                       </div>
-                                      <div className="modal-body d-flex px-4 ">
-                                        <label
-                                          htmlFor="datetimepicker4"
-                                          style={{ width: "11rem" }}
-                                        >
-                                          To Time
-                                        </label>
-                                        <select
-                                          className="select2 form-control"
-                                          name="toTime"
-                                          value={bookingData.toTime}
-                                          onChange={handleChange}
-                                          style={{ cursor: "pointer" }}
-                                          required
-                                        >
-                                          <option value="0">Select Time</option>
-                                          <option value="00:00:00">
-                                            12:00 AM
-                                          </option>
-                                          <option value="00:30:00">
-                                            12:30 AM
-                                          </option>
-                                          <option value="01:00:00">
-                                            01:00 AM
-                                          </option>
-                                          <option value="01:30:00">
-                                            01:30 AM
-                                          </option>
-                                          <option value="02:00:00">
-                                            02:00 AM
-                                          </option>
-                                          <option value="02:30:00">
-                                            02:30 AM
-                                          </option>
-                                          <option value="03:00:00">
-                                            03:00 AM
-                                          </option>
-                                          <option value="03:30:00">
-                                            03:30 AM
-                                          </option>
-                                          <option value="04:00:00">
-                                            04:00 AM
-                                          </option>
-                                          <option value="04:30:00">
-                                            04:30 AM
-                                          </option>
-                                          <option value="05:00:00">
-                                            05:00 AM
-                                          </option>
-                                          <option value="05:30:00">
-                                            05:30 AM
-                                          </option>
-                                          <option value="06:00:00">
-                                            06:00 AM
-                                          </option>
-                                          <option value="06:30:00">
-                                            06:30 AM
-                                          </option>
-                                          <option value="07:00:00">
-                                            07:00 AM
-                                          </option>
-                                          <option value="07:30:00">
-                                            07:30 AM
-                                          </option>
-                                          <option value="08:00:00">
-                                            08:00 AM
-                                          </option>
-                                          <option value="08:30:00">
-                                            08:30 AM
-                                          </option>
-                                          <option value="09:00:00">
-                                            09:00 AM
-                                          </option>
-                                          <option value="09:30:00">
-                                            09:30 AM
-                                          </option>
-                                          <option value="10:00:00">
-                                            10:00 AM
-                                          </option>
-                                          <option value="10:30:00">
-                                            10:30 AM
-                                          </option>
-                                          <option value="11:00:00">
-                                            11:00 AM
-                                          </option>
-                                          <option value="11:30:00">
-                                            11:30 AM
-                                          </option>
-                                          <option value="12:00:00">
-                                            12:00 PM
-                                          </option>
-                                          <option value="12:30:00">
-                                            12:30 PM
-                                          </option>
-                                          <option value="13:00:00">
-                                            01:00 PM
-                                          </option>
-                                          <option value="13:30:00">
-                                            01:30 PM
-                                          </option>
-                                          <option value="14:00:00">
-                                            02:00 PM
-                                          </option>
-                                          <option value="14:30:00">
-                                            02:30 PM
-                                          </option>
-                                          <option value="15:00:00">
-                                            03:00 PM
-                                          </option>
-                                          <option value="15:30:00">
-                                            03:30 PM
-                                          </option>
-                                          <option value="16:00:00">
-                                            04:00 PM
-                                          </option>
-                                          <option value="16:30:00">
-                                            04:30 PM
-                                          </option>
-                                          <option value="17:00:00">
-                                            05:00 PM
-                                          </option>
-                                          <option value="17:30:00">
-                                            05:30 PM
-                                          </option>
-                                          <option value="18:00:00">
-                                            06:00 PM
-                                          </option>
-                                          <option value="18:30:00">
-                                            06:30 PM
-                                          </option>
-                                          <option value="19:00:00">
-                                            07:00 PM
-                                          </option>
-                                          <option value="19:30:00">
-                                            07:30 PM
-                                          </option>
-                                          <option value="20:00:00">
-                                            08:00 PM
-                                          </option>
-                                          <option value="20:30:00">
-                                            08:30 PM
-                                          </option>
-                                          <option value="21:00:00">
-                                            09:00 PM
-                                          </option>
-                                          <option value="21:30:00">
-                                            09:30 PM
-                                          </option>
-                                          <option value="22:00:00">
-                                            10:00 PM
-                                          </option>
-                                          <option value="22:30:00">
-                                            10:30 PM
-                                          </option>
-                                          <option value="23:00:00">
-                                            11:00 PM
-                                          </option>
-                                          <option value="23:30:00">
-                                            11:30 PM
-                                          </option>
-                                        </select>
-                                      </div>
 
                                       <div className="modal-body d-flex px-4">
                                         <label
-                                          htmlFor="comment"
-                                          style={{ width: "10rem" }}
+                                          htmlFor="notify"
+                                          style={{ width: "5rem" }}
                                         >
-                                          Comment
+                                          Notify
                                         </label>
-                                        <textarea
-                                          type="text"
-                                          id="comment"
-                                          value={bookingData.comment}
-                                          className="form-control border-primary"
-                                          placeholder="Notes for the customer."
-                                          name="comment"
+                                        <input
+                                          className="form-control h-25 w-25"
+                                          type="checkbox"
+                                          id="notify"
+                                          name="notify"
+                                          checked={notifyCheckbox}
+                                          onChange={handleNotifyCheckbox}
+                                          value={notifyCheckbox}
                                         />
                                       </div>
+
+
                                       <div className="p-1 float-right">
-                                          <a
-                                            data-toggle="tab"
-                                            href="#tab2"
-                                            className=" nav-link btn btn-primary btn mx-1"
-                                          >
-                                            Save & Next
-                                          </a>
+                                        <a
+                                          data-toggle="tab"
+                                          href="#tab2"
+                                          className=" nav-link btn btn-primary btn mx-1"
+                                        >
+                                          Save & Next
+                                        </a>
                                         <input
                                           type="reset"
                                           className="btn btn-secondary btn"
                                           data-dismiss="modal"
                                           value="Close"
+                                          onClick={handleAppointmentModalClose}
                                         />
                                       </div>
                                     </div>
 
                                     <div className="tab-pane fade" id="tab2">
                                       {showNewCustomer == false && (
-                                        <div className="modal-body d-flex px-4 justify-content-between ">
+                                        <div className="modal-body d-flex px-4">
+                                          <label
+                                            htmlFor="client"
+                                            style={{ width: "10rem" }}
+                                          >
+                                            Client
+                                          </label>
                                           <Select
                                             className="select2 w-100"
                                             name="clients"
                                             value={selectedClient}
                                             onChange={handleClientChange}
-                                            options={clientList.map(
-                                              (client) => ({
+                                            options={clientList
+                                              .sort((a, b) => a.name.localeCompare(b.name))
+                                              .map((client) => ({
                                                 value: client.id,
                                                 label: client.name,
-                                                address: client.address,
-                                              })
-                                            )}
+                                              }))
+                                            }
                                             isSearchable
                                             required
                                             components={{
@@ -1398,10 +1445,7 @@ export const BookingListComponent = () => {
                                                   className="customOptionClass"
                                                 >
                                                   <img
-                                                    src={
-                                                      data.profile_photo ||
-                                                      avatar1
-                                                    }
+                                                    src={data.profile_photo || avatar1}
                                                     alt="Profile"
                                                     style={{
                                                       marginRight: "10px",
@@ -1411,16 +1455,32 @@ export const BookingListComponent = () => {
                                                       margin: "4px",
                                                     }}
                                                   />
-                                                  <div>
-                                                    <p>{data.label}</p>
-                                                    <p>{data.address}</p>
-                                                  </div>
+                                                  <span>{data.label}</span>
                                                 </div>
                                               ),
                                             }}
                                           />
+
                                         </div>
                                       )}
+
+                                      <div className="modal-body d-flex px-4">
+                                        <label
+                                          htmlFor="comment"
+                                          style={{ width: "11rem" }}
+                                        >
+                                          Comment
+                                        </label>
+                                        <textarea
+                                          type="text"
+                                          id="comment"
+                                          value={bookingData.comment}
+                                          className="form-control"
+                                          placeholder="Notes for the customer."
+                                          name="comment"
+                                          onChange={handleChange}
+                                        />
+                                      </div>
                                       {/* {showNewCustomer ? (
                                         <>
                                           <div className="modal-body d-flex px-4 justify-content-between   ">
@@ -1593,18 +1653,35 @@ export const BookingListComponent = () => {
                                         />
                                       )} */}
                                       <div className="p-1 flex float-right">
-                                        <input
-                                          type="submit"
-                                          className="btn btn-primary btn mx-1"
-                                          value={
-                                            bookingData.id ? "Update" : "Add"
-                                          }
-                                        />
-                                        <input
+                                        {/* ternary based on notifyCheckbox */}
+                                        {notifyCheckbox ? (
+                                          <>
+                                            <input
+                                              type="checkbox"
+                                              className="mr-1"
+                                              checked={notifyCheckbox}
+                                              onChange={handleNotifyCheckbox}
+                                              name="notify"
+                                            />
+                                          </>
+                                        ) : (
+                                          <>
+                                            <input
+                                              type="submit"
+                                              className="btn btn-primary btn mx-1"
+                                              value={
+                                                bookingData.id ? "Update" : "Add"
+                                              }
+                                            />
+                                          </>
+
+                                        )}
+                                        < input
                                           type="reset"
                                           className="btn btn-secondary btn"
                                           data-dismiss="modal"
                                           value="Close"
+                                          onClick={handleAppointmentModalClose}
                                         />
                                       </div>
                                     </div>
@@ -1655,7 +1732,7 @@ export const BookingListComponent = () => {
                                   .padStart(2, "0");
                                 const dayName = days[date.getDay()];
                                 return (
-                                  <div>
+                                  <div className="responsive-header">
                                     <div>{`${day}/${month}`}</div>
                                     <div>{dayName}</div>
                                   </div>
@@ -1682,7 +1759,7 @@ export const BookingListComponent = () => {
                                   .padStart(2, "0");
                                 const dayName = days[date.getDay()];
                                 return (
-                                  <div>
+                                  <div className="responsive-header">
                                     <div>{`${day}/${month}`}</div>
                                     <div>{dayName}</div>
                                   </div>
@@ -1705,6 +1782,7 @@ export const BookingListComponent = () => {
                           selectable={true}
                           events={events}
                         />
+
                       </div>
                     </div>
                   </div>
@@ -1717,29 +1795,30 @@ export const BookingListComponent = () => {
       <TableCustom data={bookingsData} columns={columns} />
       <DeleteModal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={handleDeleteModalClose}
         onConfirm={deleteBookingData}
         message="Are you sure you want to delete this appointment?"
       />
       <ConfirmModal
         isOpen={showConfirmModel}
-        onClose={() => setShowConfirmModel(false)}
+        onClose={handleConfirmModalClose}
         onConfirm={updateTimeData}
         message="Do you wish to Reschedule the appointment?"
       />
       <ConfirmModal
         isOpen={showDateModel}
-        onClose={() => setShowDateModel(false)}
+        onClose={handleDateModalClose}
         onConfirm={updateDateData}
         message="Do you wish to Reschedule the appointment?"
       />
 
       <ConfirmModal
         isOpen={showNotifyModal}
-        onClose={() => setShowNotifyModal(false)}
-        // onConfirm={updateBookingStatus}
+        onClose={handleNotifyClose}
+        onConfirm={updateBookingStatus}
         message="Do you wish to confirm the booking and notify?"
       />
+
 
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
