@@ -24,10 +24,8 @@ import API from "../api/baseApi";
 import ConfirmModal from "../components/ConfirmModal";
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
-
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
-  const gApi = process.env.REACT_APP_GOOGLE_API_KEY;
   const { authData } = useAuth();
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
@@ -916,6 +914,7 @@ export const BookingListComponent = () => {
                     <li className="breadcrumb-item">
                       <a href="index.html">Home</a>
                     </li>
+
                     <li className="breadcrumb-item active">Bookings</li>
                   </ol>
                 </div>
@@ -1654,17 +1653,7 @@ export const BookingListComponent = () => {
                                       )} */}
                                       <div className="p-1 flex float-right">
                                         {/* ternary based on notifyCheckbox */}
-                                        {notifyCheckbox ? (
-                                          <>
-                                            <input
-                                              type="checkbox"
-                                              className="mr-1"
-                                              checked={notifyCheckbox}
-                                              onChange={handleNotifyCheckbox}
-                                              name="notify"
-                                            />
-                                          </>
-                                        ) : (
+
                                           <>
                                             <input
                                               type="submit"
@@ -1675,7 +1664,7 @@ export const BookingListComponent = () => {
                                             />
                                           </>
 
-                                        )}
+
                                         < input
                                           type="reset"
                                           className="btn btn-secondary btn"
