@@ -26,9 +26,15 @@ const createCalendar = async (calendarData) => {
   }
 };
 
-const getAllBookings = async () => {
+const getAllBookings = async (data) => {
+  console.log(data);
+  
   try {
-    const response = await API.get(`/booking/getAllBookings`);
+    const response = await API.post(`/booking/getAllBookings`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     if (response.status !== 200) {
       throw new Error('Failed to get all bookings');
     }

@@ -28,7 +28,9 @@ export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
   const { authData } = useAuth();
   const { user } = authData;
-  const roleId = user.roleId;
+  const roleId = user.role_id;
+  const subdomainId = user.subdomain_id;
+  console.log(subdomainId);
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
@@ -65,7 +67,7 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
-
+console.log(selectedClient);
   const [updateData, setUpdateData] = useState({
     id: "",
     title: "",
@@ -148,7 +150,8 @@ export const BookingListComponent = () => {
         booking_time_to: newToTime,
         booking_status: notifyCheckbox,
         comment: bookingData.comment,
-        booking_title: bookingAddress.label
+        booking_title: bookingAddress.label,
+        subdomain_id: subdomainId,
       };
       if (roleId == 3) {
         bookingDataToSend.user_id = userId;
@@ -214,11 +217,14 @@ export const BookingListComponent = () => {
   };
 
   useEffect(() => {
-    getAllBookingsData();
+    if (subdomainId != undefined && roleId != undefined ) {
+      getAllBookingsData(subdomainId);
 
-    fetchProviders();
-  }, []);
+      fetchProviders();
+    }
 
+  }, [subdomainId]);
+console.log(roleId);
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {
@@ -302,8 +308,12 @@ export const BookingListComponent = () => {
   };
 
   const getAllBookingsData = async () => {
+    const datatosend = {
+      subdomainId: subdomainId,
+      roleId: roleId,
+    };
     try {
-      let allBookingData = await getAllBookings(userId);
+      let allBookingData = await getAllBookings(datatosend);
       let altData = allBookingData
       if (roleId == 3) {
         allBookingData = {

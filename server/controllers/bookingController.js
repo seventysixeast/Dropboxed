@@ -197,6 +197,7 @@ async function deleteevent(bookingId, userId) {
 const createBooking = async (req, res) => {
   try {
     let data = req.body;
+    let subdomainId = req.body.subdomain_id;
     let userID = req.body.user_id;
     const usersWithRoleId1 = await User.findAll({
       where: { id: req.body.user_id },
@@ -208,6 +209,7 @@ const createBooking = async (req, res) => {
     client_name = usersWithRoleId1[0].name || "";
     data.client_address = client_address;
     data.client_name = client_name;
+    
 
     let booking;
     if (req.body.id) {
@@ -217,6 +219,7 @@ const createBooking = async (req, res) => {
       }
       await booking.update(data);
     } else {
+      data.subdomain_id = subdomainId;
       booking = await Booking.create(data);
     }
 
@@ -249,6 +252,7 @@ const createBooking = async (req, res) => {
 };
 
 const providers = async (req, res) => {
+  
   try {
     const usersWithRoleId1 = await User.findAll({
       where: { role_id: 2 },
@@ -274,6 +278,7 @@ const providers = async (req, res) => {
 const getAllBookings = async (req, res) => {
   try {
     let bookings = await Booking.findAll({
+      where: { subdomain_id: req.body.subdomainId },
       include: [{
         model: User,
         attributes: ['name', 'colorcode', 'address']
