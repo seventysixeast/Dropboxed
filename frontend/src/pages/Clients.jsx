@@ -357,9 +357,9 @@ const Clients = () => {
                           src={
                             item.profile_photo
                               ? `${IMAGE_URL}/${item.profile_photo}`
-                              : "../../../app-assets/images/portrait/medium/avatar-m-4.png"
+                              : "../../../app-assets/images/portrait/medium/dummy.png"
                           }
-                          className="rounded-circle height-150"
+                          className="rounded-circle height-150 width-150"
                           alt="Card image"
                         />
                       </div>

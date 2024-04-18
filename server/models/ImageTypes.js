@@ -22,6 +22,10 @@ const ImageTypes = sequelize.define('ImageTypes', {
   status: {
     type: DataTypes.ENUM('Active', 'Inactive'),
     allowNull: false
+  },
+  subdomain_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
   }
 }, {
   tableName: 'image_types',

@@ -18,7 +18,7 @@ const oAuth2Client = new OAuth2(
 
 exports.login = async (req, res) => {
   const { userName, password, subdomain } = req.body;
-
+  let subdomain_id = '';
   try {
     const user = await User.findOne({
       where: {
@@ -37,16 +37,17 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    // Check if the user's role is business owner (role = 5)
-    if (user.role === 5) {
+    // Check if the user's role is business owner (role_id = 5)
+    if (user.role_id === 5) {
       // Verify if the user's subdomain matches the provided subdomain
-      if (user.subdomain !== subdomain) {
+      if (subdomain && user.subdomain !== subdomain) {
         return res.status(401).json({ success: false, message: 'Unauthorized access' });
       }
+      subdomain_id = user.id;
     }
 
-    // Check if the user's role is client (role = 3)
-    if (user.role === 3) {
+    // Check if the user's role is client (role_id = 3)
+    if (user.role_id === 3) {
       // Check if the client is connected to the provided subdomain
       const businessClient = await BusinessClients.findOne({ where: { client_id: user.id } });
       if (!businessClient) {
@@ -57,6 +58,7 @@ exports.login = async (req, res) => {
       if (!businessOwner || businessOwner.subdomain !== subdomain) {
         return res.status(401).json({ success: false, message: 'Unauthorized access' });
       }
+      subdomain_id = businessOwner.id;
     }
 
     // Generate JWT token
@@ -72,9 +74,11 @@ exports.login = async (req, res) => {
         email: user.email,
         profilePhoto: user.profile_photo,
         subdomain: user.subdomain,
+        subdomain_id: subdomain_id,
         calendarSub: user.calendar_sub,
-        roleId: user.role_id
+        role_id: user.role_id
       },
+      message: "Login successfull"
     });
   } catch (error) {
     console.error('Error logging in: ', error);
@@ -111,6 +115,7 @@ exports.signup = async (req, res) => {
       country,
       role_id: 5,
       subdomain: studioName,
+      account_email: email
     });
 
     //SEND_EMAIL.replace('#studioName#', studioName);
@@ -295,7 +300,7 @@ exports.verifyToken = async (req, res) => {
     // You may need to customize this part based on your user model
     const user = await User.findByPk(decodedToken.userId);
     if (!user) {
-      return res.status(401).json({ status: false, message: "User not found" });
+      return res.status(401).json({ success: false, message: "User not found" });
     }
     // Return user information along with token
     res.status(200).json({
@@ -307,12 +312,70 @@ exports.verifyToken = async (req, res) => {
         profilePhoto: user.profile_photo,
         subdomain: user.subdomain,
       },
+      success: true,
+      message: "Success"
     });
   } catch (error) {
     // Handle token verification errors
     console.error("Error verifying token: ", error);
     res
       .status(400)
-      .json({ status: false, message: "Token verification failed" });
+      .json({ success: false, message: "Token verification failed" });
   }
 };
+
+exports.verifyToken = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Here you would implement your token verification logic
+    // For example, you could use JWT verify method
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+    // If verification is successful, you can return some data
+    // You may need to customize this part based on your user model
+    const user = await User.findByPk(decodedToken.userId);
+    if (!user) {
+      return res.status(401).json({ success: false, message: "User not found" });
+    }
+
+    let subdomain_id = ''; // Initialize subdomain_id
+
+    // Check user's role
+    if (user.role_id === 5) {
+      subdomain_id = user.id; // Set subdomain_id to the user's id if role is 5 (business owner)
+    } else if (user.role_id === 3) {
+      // Find the business owner associated with the client
+      const businessClient = await BusinessClients.findOne({ where: { client_id: user.id } });
+      if (businessClient) {
+        const businessOwner = await User.findByPk(businessClient.business_id);
+        if (businessOwner && businessOwner.role_id === 5) {
+          subdomain_id = businessOwner.id; // Set subdomain_id to the business owner's id if role is 3 (client)
+          user.subdomain = businessOwner.subdomain;
+        }
+      }
+    }
+
+    // Return user information along with token
+    res.status(200).json({
+      accessToken: token,
+      user: {
+        id: user.id,
+        userName: user.name,
+        email: user.email,
+        profilePhoto: user.profile_photo,
+        subdomain: user.subdomain,
+        subdomain_id: subdomain_id,
+        calendarSub: user.calendar_sub,
+        role_id: user.role_id
+      },
+      success: true,
+      message: "Success"
+    });
+  } catch (error) {
+    // Handle token verification errors
+    console.error("Error verifying token: ", error);
+    res.status(400).json({ success: false, message: "Token verification failed" });
+  }
+};
+

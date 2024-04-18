@@ -33,39 +33,47 @@ const Login = () => {
     e.preventDefault();
     try {
         await validationSchema.validate(userData, { abortEarly: false });
-        // const BASE_URL = process.env.REACT_APP_BASE_URL;
-        // const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
-        // const loginData = subdomain ? { ...userData, subdomain } : userData;
-        // const { success, message, accessToken, user } = await login(loginData);
-        const { success, message, accessToken, user } = await login(userData);
+        const BASE_URL = process.env.REACT_APP_BASE_URL;
+        const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
+        const loginData = subdomain ? { ...userData, subdomain } : userData;
+        const { success, message, accessToken, user } = await login(loginData);
+        //const { success, message, accessToken, user } = await login(userData);
         if(success){
           toast.success('Login successful');
         } else{
           toast.error(message);
         }
         
-        // Save user data and access token in localStorage
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('isAuth', true);
-        localStorage.setItem('user', JSON.stringify(user));
-        const encryptedToken = encryptToken(accessToken);
-        // Set cookies with domain attribute
-        document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
-        document.cookie = `isAuth=true; domain=.localhost; path=/`;
-        document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;
+       
     
-        // const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
+        const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
         const currentSubdomain = window.location.hostname.split('.')[0];
-        const baseUrl = window.location.protocol + "//" + window.location.hostname;
+        //const baseUrl = window.location.protocol + "//" + window.location.hostname;
 
+        const DOMAIN_NAME = process.env.REACT_APP_DOMAIN_NAME
         // Check if the current URL already contains a subdomain
-        // const redirectToSubdomain = currentSubdomain === "localhost" ? `${sd}.` : "";
+        const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${sd}.` : "";
+        //console.log("redirectToSubdomain",redirectToSubdomain, "<-->",currentSubdomain); return false
 
-        // Construct the redirection URL
-        //const redirectUrl = `${window.location.protocol}//${redirectToSubdomain}${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
-        const redirectUrl = `/dashboard`; //Comment this line and uncomment above line to redirect to subdomain
-        // Redirect to subdomain
-        window.location.href = redirectUrl;
+        
+        if(subdomain){
+           // Save user data and access token in localStorage
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('isAuth', true);
+          localStorage.setItem('user', JSON.stringify(user));
+          // Set cookies with domain attribute
+          /*document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
+          document.cookie = `isAuth=true; domain=.localhost; path=/`;
+          document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;*/
+          const redirectUrl = `/dashboard`;
+          window.location.href = redirectUrl;
+        } else {
+          const encryptedToken = encryptToken(accessToken);
+          // Construct the redirection URL
+          const redirectUrl = `${window.location.protocol}//${redirectToSubdomain}${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
+          window.location.href = redirectUrl; // Redirecting to subdomain
+        }
+        
     } catch (error) {
         if (error.name === "ValidationError") {
             const validationErrors = {};

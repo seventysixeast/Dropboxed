@@ -48,8 +48,8 @@ const SignUp = () => {
       }
       const subdomain = userData.studioName.toLowerCase().replace(/\s/g, '');
       // Redirect to subdomain
-      //window.location.href = `http://${subdomain}.${window.location.host}`;
-      window.location.href = `http://${window.location.host}/login`;
+      window.location.href = `http://${subdomain}.${window.location.host}/login`;
+      //window.location.href = `http://${window.location.host}/login`;
     } catch (error) {
       if (error.name === "ValidationError") {
         const validationErrors = {};
