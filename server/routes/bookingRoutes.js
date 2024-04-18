@@ -14,5 +14,7 @@ router.get('/getAllBookings', bookingController.getAllBookings)
 router.post('/getBooking', bookingController.getBooking);
 router.post('/deleteBooking', bookingController.deleteBooking);
 router.post('/updateBooking', bookingController.updateBooking);
+router.post('/getAllBookingTitles', bookingController.getAllBookingTitles);
+router.post('/getAllServices', bookingController.getAllServices);
 
 module.exports = router;

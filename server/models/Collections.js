@@ -106,6 +106,11 @@ const Collections = sequelize.define('Collections', {
     allowNull: false,
     defaultValue: false
   },
+  lock_gallery: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
   created: {
     type: DataTypes.DATE,
     allowNull: false,

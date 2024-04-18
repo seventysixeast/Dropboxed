@@ -4,12 +4,16 @@ const addGallery = async (req, res) => {
   try {
     let imageName = req.files && req.files.banner.name;
     let collectionData = {
-      name: req.body.title,
       client_id: req.body.client,
-      client_address: req.body.address,
+      client_address: req.body.booking_title,
       package_ids: req.body.services,
-      status: req.body.status,
-      banner: imageName || req.body.banner
+      photographer_id: req.body.photographer,
+      name: req.body.gallery_title,
+      dropbox_link: req.body.dropbox_link,
+      video_link: req.body.vimeo_video_link,
+      banner: imageName || req.body.banner,
+      lock_gallery: req.body.lock_gallery,
+      notify_client: req.body.notify_client,
     };
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.banner;

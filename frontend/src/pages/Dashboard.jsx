@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { getAllClients } from "../api/clientApis";
-import { getAllServices } from "../api/serviceApis";
+import { getAllBookingTitles, getAllServices } from "../api/bookingApis";
 import { addGallery } from "../api/collectionApis";
 import { toast } from 'react-toastify';
-import Select from "react-select";
-import toolIcons from "../assets/images/i.png";
-import { Switch, Checkbox } from '@mui/material';
-const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
+import AddGalleryModal from "../components/AddGalleryModal";
 
 export const Dashboard = () => {
-
   const [clients, setClients] = useState([]);
+  const [bookingTitles, setBookingTitles] = useState([]);
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
+  const [isGalleryLocked, setIsGalleryLocked] = useState(false);
+  const [isNotifyChecked, setIsNotifyChecked] = useState(false);
+  const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
 
   const [formData, setFormData] = useState({
     id: '',
@@ -23,13 +23,20 @@ export const Dashboard = () => {
     gallery_title: '',
     dropbox_link: '',
     vimeo_video_link: '',
-    banner: ''
+    banner: '',
+    lock_gallery: '',
+    notify_client: ''
   });
 
   useEffect(() => {
     getClients();
-    getServices();
   }, [])
+
+  useEffect(() => {
+    if (formData.client !== '' && formData.booking_title !== '') {
+      getServices(formData.client, formData.booking_title);
+    }
+  }, [formData.client, formData.booking_title])
 
   const getClients = async () => {
     try {
@@ -40,13 +47,30 @@ export const Dashboard = () => {
     }
   };
 
-  const getServices = async () => {
+  const getBookingTitles = async (client) => {
     try {
-      let services = await getAllServices();
+      let bookingTitles = await getAllBookingTitles({ clientId: client });
+      setBookingTitles(bookingTitles.data);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getServices = async (client, booking_title) => {
+    try {
+      let services = await getAllServices({ clientId: client, booking_title: booking_title });
       setServices(services.data);
     } catch (error) {
       toast.error(error);
     }
+  };
+
+  const handleGalleryLockChange = () => {
+    setIsGalleryLocked(!isGalleryLocked);
+  };
+
+  const handleNotifyChange = () => {
+    setIsNotifyChecked(!isNotifyChecked);
   };
 
   const handleInputChange = (e) => {
@@ -54,6 +78,7 @@ export const Dashboard = () => {
     let gallery = { ...formData };
     if (name === "client") {
       gallery.client = value;
+      getBookingTitles(value);
     } else if (name === "booking_title") {
       gallery.booking_title = value;
     } else if (name === 'services') {
@@ -68,6 +93,10 @@ export const Dashboard = () => {
       gallery.vimeo_video_link = value
     } else if (name === 'banner') {
       gallery.banner = value
+    } else if (name === 'lock_gallery') {
+      gallery.lock_gallery = value
+    } else if (name === 'notify_client') {
+      gallery.notify_client = value
     }
     setFormData(gallery);
   };
@@ -100,24 +129,27 @@ export const Dashboard = () => {
       gallery_title: '',
       dropbox_link: '',
       vimeo_video_link: '',
-      banner: ''
+      banner: '',
+      lock_gallery: '',
+      notify_client: ''
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("formData", formData);
       const formDataToSend = new FormData();
-      formDataToSend.append('id', formData.id || '');
-      formDataToSend.append('client', formData.client || '');
-      formDataToSend.append('booking_title', formData.booking_title || '');
-      formDataToSend.append('services', formData.services || '');
-      formDataToSend.append('photographer', formData.photographer || '');
-      formDataToSend.append('gallery_title', formData.gallery_title || '');
-      formDataToSend.append('dropbox_link', formData.dropbox_link || '');
-      formDataToSend.append('vimeo_video_link', formData.vimeo_video_link || '');
-      formDataToSend.append('banner', formData.banner || '');
+      formDataToSend.append('id', formData.id);
+      formDataToSend.append('client', formData.client);
+      formDataToSend.append('booking_title', formData.booking_title);
+      formDataToSend.append('services', formData.services);
+      formDataToSend.append('photographer', formData.photographer);
+      formDataToSend.append('gallery_title', formData.gallery_title);
+      formDataToSend.append('dropbox_link', formData.dropbox_link);
+      formDataToSend.append('vimeo_video_link', formData.vimeo_video_link);
+      formDataToSend.append('banner', formData.banner);
+      formDataToSend.append('lock_gallery', isGalleryLocked);
+      formDataToSend.append('notify_client', isNotifyChecked);
 
       let res = await addGallery(formDataToSend);
       console.log("res", res);
@@ -246,186 +278,12 @@ export const Dashboard = () => {
                         <button
                           type="button"
                           className="btn btn-outline-primary btn-block"
-                          data-toggle="modal"
-                          data-target="#bootstrap"
+                          onClick={() => {
+                            setShowAddGalleryModal(true);
+                          }}
                         >
                           Add Gallery
                         </button>
-
-                        <div
-                          className="modal fade text-left"
-                          id="bootstrap"
-                          tabIndex="-1"
-                          role="dialog"
-                          aria-labelledby="myModalLabel35"
-                          aria-hidden="true"
-                          style={{ display: "none" }}
-                        >
-                          <div className="modal-dialog modal-lg" role="document">
-                            <div className="modal-content">
-                              <div className="modal-header">
-                                <h3 className="card-title">Download from Dropbox & Add in Gallery</h3>
-                                <button
-                                  type="button"
-                                  className="close"
-                                  data-dismiss="modal"
-                                  aria-label="Close"
-                                >
-                                  <span aria-hidden="true">×</span>
-                                </button>
-                              </div>
-                              <form onSubmit={handleSubmit}>
-                                <div className="modal-body">
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label>Clients *</label>
-                                    <select
-                                      className="select2 form-control"
-                                      name="client"
-                                      value={formData.client}
-                                      onChange={handleInputChange}
-                                      required
-                                    >
-                                      {clients && clients.map(item => (
-                                        <option key={item.id} value={item.id}>
-                                          {item.name}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label>Booking Title</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Booking Title"
-                                      className="form-control"
-                                      name="booking_title"
-                                      value={formData.booking_title}
-                                      onChange={handleInputChange}
-                                    />
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label style={{ width: "10rem" }}>Services</label>
-                                    <Select
-                                      className="select2 w-100"
-                                      name="services"
-                                      defaultValue={selectedService}
-                                      onChange={handleSelectedChange}
-                                      options={services && services.map((pkg) => ({
-                                        label: pkg.package_name,
-                                        value: pkg.id,
-                                        package_price: pkg.package_price,
-                                      }))}
-                                      isSearchable
-                                      isMulti
-                                      hideSelectedOptions
-                                      components={{
-                                        Option: ({
-                                          data,
-                                          innerRef,
-                                          innerProps,
-                                        }) => (
-                                          <div
-                                            ref={innerRef}
-                                            {...innerProps}
-                                            style={{ display: 'flex form-select ', alignItems: 'center' }}
-                                          >
-                                            <img
-                                              src={toolIcons}
-                                              className="mr-1 ml-1"
-                                              width={"14px"}
-                                              height={"14px"}
-                                              alt=""
-                                            />
-                                            <span>{data.label}</span>
-                                          </div>
-                                        ),
-                                      }}
-                                    />
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label>Photographer</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Photographer"
-                                      className="form-control"
-                                      name="photographer"
-                                      value={formData.photographer}
-                                      onChange={handleInputChange}
-                                    />
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label>Gallery Title</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Gallery Title"
-                                      className="form-control"
-                                      name="gallery_title"
-                                      value={formData.gallery_title}
-                                      onChange={handleInputChange}
-                                      required
-                                    />
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label>Dropbox Link *</label>
-                                    <textarea
-                                      className="form-control"
-                                      id="dropbox_link"
-                                      rows="1"
-                                      placeholder="Enter Dropbox Link"
-                                      required
-                                    ></textarea>
-                                  </fieldset>
-                                  <fieldset className="form-group floating-label-form-group">
-                                    <label>Vimeo Video Link</label>
-                                    <textarea
-                                      className="form-control"
-                                      id="vimeo_video_link"
-                                      rows="1"
-                                      placeholder="Enter Vimeo Video Link"
-                                    ></textarea>
-                                  </fieldset>
-                                  <div className="row">
-                                    <div className="col-md-6">
-                                      <div className="form-group">
-                                        <label>Banner</label>
-                                        <input
-                                          type="file"
-                                          className="form-control-file"
-                                          name="banner"
-                                          onChange={handleBannerChange}
-                                          accept="image/*"
-                                        />
-                                        {formData.id && <img src={`${formData.banner ? `${IMAGE_URL}/${formData.banner}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 mt-2" alt="Card image" />}
-                                      </div>
-                                    </div>
-                                    <div className="px-4 text-primary">
-                                      <Switch
-                                        checked={true}
-                                        inputProps={{ 'aria-label': 'controlled' }}
-                                      />
-                                      Lock Gallery
-                                      <Checkbox defaultChecked color="primary" />
-                                      Notify to Client
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="modal-footer">
-                                  <input
-                                    type="submit"
-                                    className="btn btn-primary btn"
-                                    value="Download"
-                                  />
-                                  <input
-                                    type="reset"
-                                    className="btn btn-secondary btn"
-                                    data-dismiss="modal"
-                                    value="Close"
-                                  />
-                                </div>
-                              </form>
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </li>
                   </ul>
@@ -900,6 +758,24 @@ export const Dashboard = () => {
           </div>
         </div>
       </div>
+      <AddGalleryModal
+        isOpen={showAddGalleryModal}
+        onClose={() => setShowAddGalleryModal(false)}
+        handleSubmit={handleSubmit}
+        formData={formData}
+        handleInputChange={handleInputChange}
+        clients={clients}
+        bookingTitles={bookingTitles}
+        services={services}
+        selectedService={selectedService}
+        handleSelectedChange={handleSelectedChange}
+        handleBannerChange={handleBannerChange}
+        isGalleryLocked={isGalleryLocked}
+        handleGalleryLockChange={handleGalleryLockChange}
+        handleNotifyChange={handleNotifyChange}
+        isNotifyChecked={isNotifyChecked}
+        message="Add Gallery"
+      />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
     </>

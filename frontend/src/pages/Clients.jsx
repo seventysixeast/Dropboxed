@@ -421,9 +421,6 @@ const Clients = () => {
                 </div>
               ))}
         </div>
-
-
-
       </div>
       <DeleteModal
         isOpen={showDeleteModal}
