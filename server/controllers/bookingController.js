@@ -225,6 +225,8 @@ const createBooking = async (req, res) => {
       where: { id: userID },
     });
 
+    console.log(theUser);
+
     if (theUser && theUser.calendar_sub == 1) {
       try {
         await addevent(booking, userID);

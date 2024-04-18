@@ -27,6 +27,8 @@ import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
   const { authData } = useAuth();
+  const { user } = authData;
+  const roleId = user.roleId;
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
@@ -39,7 +41,7 @@ export const BookingListComponent = () => {
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
   const [bookingAddress, setBookingAddress] = useState(null);
-  const [toTime, setToTime] = useState(null);
+  const [toTime, setToTime] = useState("60");
 
   const [clientList, setClientList] = useState([]);
   const [events, setEvents] = useState([]);
@@ -50,8 +52,6 @@ export const BookingListComponent = () => {
   const [showDateModel, setShowDateModel] = useState(false);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [notifyCheckbox, setNotifyCheckbox] = useState(false);
-
-
 
   const [bookingData, setBookingData] = useState({
     title: "",
@@ -115,6 +115,7 @@ export const BookingListComponent = () => {
       [name]: value,
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -136,18 +137,24 @@ export const BookingListComponent = () => {
 
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
 
+
       const bookingDataToSend = {
-        user_id: bookingData.client,
+        id: bookingIdToDelete,
         package_ids: bookingData.services,
         package: 0,
         photographer_id: bookingData.provider,
         booking_date: bookingData.prefferedDate,
         booking_time: bookingData.fromTime,
         booking_time_to: newToTime,
-        booking_status: 1,
+        booking_status: notifyCheckbox,
         comment: bookingData.comment,
         booking_title: bookingAddress.label
       };
+      if (roleId == 3) {
+        bookingDataToSend.user_id = userId;
+      } else {
+        bookingDataToSend.user_id = bookingData.client;
+      }
 
       await newBooking(bookingDataToSend);
       getAllBookingsData();
@@ -166,6 +173,7 @@ export const BookingListComponent = () => {
         comment: "",
         provider: "",
       });
+      setBookingIdToDelete(null);
 
       setCustomerData({
         name: "",
@@ -178,8 +186,19 @@ export const BookingListComponent = () => {
         state: "",
         zip: "",
       });
+      setSelectedProvider(null);
+      setSelectedService(null);
+      setSelectedClient(null);
+      setBookingAddress(null);
+      setNotifyCheckbox(false);
+      setToTime("60");
+      setSelectedPackagePrice(0);
 
-      toast.success("Booking added successfully");
+      if (roleId == 3) {
+        toast.success("Booking request sent. Please await confirmation.");
+      } else {
+        toast.success("Booking added successfully");
+      } 
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
@@ -285,46 +304,76 @@ export const BookingListComponent = () => {
   const getAllBookingsData = async () => {
     try {
       let allBookingData = await getAllBookings(userId);
-      setBookingsData(allBookingData.data);
-      let events = allBookingData.data.map((booking) => ({
-        id: booking.id,
-        title: booking.booking_title,
-        start: `${booking.booking_date}T${booking.booking_time}`,
-        end: `${booking.booking_date}T${booking.booking_time_to}`,
-      }));
+      let altData = allBookingData
+      if (roleId == 3) {
+        allBookingData = {
+          data: allBookingData.data.filter((booking) => booking.user_id === userId),
+        };
+        setBookingsData(allBookingData.data);
+      } else {
+        setBookingsData(allBookingData.data);
 
+      }
+
+      let events = altData.data.map((booking) => {
+        let title = booking.booking_title;
+        let color = booking.color;
+        let editable = true;
+        let status = booking.booking_status;
+
+        if (roleId === 3) {
+          if (booking.user_id !== userId) {
+            title = "Limited Availability";
+            color = 'gray';
+            editable = false;
+          }
+          if (booking.booking_status > 0) {
+            editable = false;
+          }
+        }
+
+        return {
+          id: booking.id,
+          title: title,
+          start: `${booking.booking_date}T${booking.booking_time}`,
+          end: `${booking.booking_date}T${booking.booking_time_to}`,
+          color: color,
+          editable: editable,
+          status: status
+        };
+      });
       setEvents(events);
     } catch (error) {
       console.error("Failed to:", error.message);
     }
   };
 
+
   const getBookingData = (data) => {
     let array = [];
+    setBookingIdToDelete(data.id)
     if (data.package_ids) {
-        if (data.package_ids.includes(",")) {
-            // If there are multiple IDs separated by commas
-            data.package_ids.split(", ").forEach((element) => {
-                array.push(parseInt(element));
-            });
-        } else {
-            // If there is only a single ID
-            array.push(parseInt(data.package_ids));
-        }
+      if (data.package_ids.includes(",")) {
+        data.package_ids.split(", ").forEach((element) => {
+          array.push(parseInt(element));
+        });
+      } else {
+        array.push(parseInt(data.package_ids));
+      }
     }
-    
+
     const selectedServices = array.map((id) =>
-        packages.find((pack) => pack.id === id)
-    ).filter(Boolean); // Filter out undefined values
-    
+      packages.find((pack) => pack.id === id)
+    ).filter(Boolean);
+
     setBookingAddress({ label: data.booking_title, value: {} });
-    
+
+
     const finalservice = selectedServices.map((serv) => ({
-        label: serv.package_name,
-        value: serv.id,
-        package_price: serv.package_price,
+      label: serv.package_name,
+      value: serv.id,
+      package_price: serv.package_price,
     }));
-    
 
     const selectedPrices = selectedServices.map((serv) => serv.package_price);
     const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
@@ -332,9 +381,15 @@ export const BookingListComponent = () => {
     setSelectedService(finalservice);
 
     let prvdr = [];
-    data.photographer_id.split(", ").forEach((element) => {
-      prvdr.push(parseInt(element));
-    });
+    if (data.photographer_id) {
+      if (data.photographer_id.includes(", ")) {
+        data.photographer_id.split(", ").forEach((element) => {
+          prvdr.push(parseInt(element));
+        });
+      } else {
+        prvdr.push(parseInt(data.photographer_id));
+      }
+    }
 
     const selectedProvider = prvdr.map((id) =>
       providers.find((provider) => provider.id === parseInt(id))
@@ -346,12 +401,13 @@ export const BookingListComponent = () => {
         label: prov.name || "",
         value: prov.id,
       }));
+
     setSelectedProvider(finalProvider);
 
-    //  find data.user_id in clientList
     const clint = clientList.find(
       (client) => client.id === parseInt(data.user_id)
     );
+
     const finalClient = clint && [
       {
         label: clint.name,
@@ -359,6 +415,13 @@ export const BookingListComponent = () => {
       },
     ];
     setSelectedClient(finalClient);
+    // calculate booking time - booking time to
+    const bookingDate = new Date(data.booking_date);
+    const bookingTime = new Date(`${bookingDate.toISOString().split('T')[0]}T${data.booking_time}`);
+    const bookingTimeTo = new Date(`${bookingDate.toISOString().split('T')[0]}T${data.booking_time_to}`);
+    const bookingTimeDiff = bookingTimeTo - bookingTime;
+    const bookingTimeDiffMinutes = Math.floor(bookingTimeDiff / (1000 * 60));
+    setToTime(bookingTimeDiffMinutes);
 
     setBookingData({
       title: data.booking_title,
@@ -366,7 +429,7 @@ export const BookingListComponent = () => {
       services: data.package_ids,
       prefferedDate: data.booking_date,
       fromTime: data.booking_time,
-      toTime: data.booking_time_to,
+      toTime: `${bookingTimeDiffMinutes}`,
       client: data.user_id,
       comment: data.comment,
       provider: data.photographer_id,
@@ -419,7 +482,7 @@ export const BookingListComponent = () => {
       formDataToSend.append("package_ids", booking.package_ids);
       formDataToSend.append("package", booking.package);
       formDataToSend.append("photographer_id", booking.photographer_id);
-      formDataToSend.append("booking_status", 1);
+      formDataToSend.append("booking_status", notifyCheckbox);
       formDataToSend.append("comment", booking.comment);
 
       await newBooking(formDataToSend);
@@ -489,7 +552,7 @@ export const BookingListComponent = () => {
       formDataToSend.append("package_ids", booking.package_ids);
       formDataToSend.append("package", booking.package);
       formDataToSend.append("photographer_id", booking.photographer_id);
-      formDataToSend.append("booking_status", 1);
+      formDataToSend.append("booking_status", notifyCheckbox);
       formDataToSend.append("comment", booking.comment);
 
       await newBooking(formDataToSend);
@@ -557,22 +620,40 @@ export const BookingListComponent = () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
-      formDataToSend.append("booking_status", 2);
+      formDataToSend.append("booking_status", 1);
 
       await updateBooking(formDataToSend);
       getAllBookingsData();
-      setUpdateData({
+      setBookingData({
         title: "",
         package: 1,
         services: "",
         prefferedDate: new Date(),
         fromTime: "",
-        toTime: "60",
+        toTime: "",
         client: "",
         comment: "",
         provider: "",
-        customer: "",
       });
+      setBookingIdToDelete(null);
+
+      setCustomerData({
+        name: "",
+        email: "",
+        mobile: "",
+        office: "",
+        home: "",
+        address: "",
+        city: "",
+        state: "",
+        zip: "",
+      });
+      setSelectedProvider(null);
+      setSelectedService(null);
+      setSelectedClient(null);
+      setBookingAddress(null);
+      setNotifyCheckbox(false);
+      setToTime("60");
       setShowNotifyModal(false);
       toast.success("Booking updated successfully");
     } catch (error) {
@@ -648,7 +729,7 @@ export const BookingListComponent = () => {
       accessor: "booking_status",
       Cell: (props) => (
         <div className="">
-          {props.row.original.booking_status === 1 ? (
+          {props.row.original.booking_status === 0 ? (
             <a
               type="button"
               className="badge"
@@ -662,7 +743,7 @@ export const BookingListComponent = () => {
           ) : (
             <a
               className="badge"
-              title="Booked"  
+              title="Booked"
               disabled
             >
               Booked
@@ -748,147 +829,180 @@ export const BookingListComponent = () => {
 
   const handleNotifyClose = () => {
     setShowNotifyModal(false);
-    setUpdateData({
-      id: "",
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-      customer: "",
-    })
     setBookingData({
       title: "",
       package: 1,
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "60",
+      toTime: "",
       client: "",
       comment: "",
       provider: "",
-      customer: "",
-    })
+    });
+    setBookingIdToDelete(null);
+
+    setCustomerData({
+      name: "",
+      email: "",
+      mobile: "",
+      office: "",
+      home: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+    });
+    setSelectedProvider(null);
+    setSelectedService(null);
+    setSelectedClient(null);
+    setBookingAddress(null);
+    setNotifyCheckbox(false);
+    setToTime("60");
+    setSelectedPackagePrice(0);
   };
   const handleDateModalClose = () => {
     setShowDateModel(false);
-    setUpdateData({
-      id: "",
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-      customer: "",
-    })
     setBookingData({
       title: "",
       package: 1,
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "60",
+      toTime: "",
       client: "",
       comment: "",
       provider: "",
-      customer: "",
-    })
+    });
+    setBookingIdToDelete(null);
+
+    setCustomerData({
+      name: "",
+      email: "",
+      mobile: "",
+      office: "",
+      home: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+    });
+    setSelectedProvider(null);
+    setSelectedService(null);
+    setSelectedClient(null);
+    setBookingAddress(null);
+    setNotifyCheckbox(false);
+    setToTime("60");
+    setSelectedPackagePrice(0);
+
     getAllBookingsData();
   };
 
   const handleConfirmModalClose = () => {
     setShowConfirmModel(false);
-    setUpdateData({
-      id: "",
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-      customer: "",
-    })
     setBookingData({
       title: "",
       package: 1,
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "60",
+      toTime: "",
       client: "",
       comment: "",
       provider: "",
-      customer: "",
-    })
+    });
+    setBookingIdToDelete(null);
+
+    setCustomerData({
+      name: "",
+      email: "",
+      mobile: "",
+      office: "",
+      home: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+    });
+    setSelectedProvider(null);
+    setSelectedService(null);
+    setSelectedClient(null);
+    setBookingAddress(null);
+    setNotifyCheckbox(false);
+    setToTime("60");
+    setSelectedPackagePrice(0);
     getAllBookingsData();
   };
 
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);
-    setUpdateData({
-      id: "",
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-      customer: "",
-    })
     setBookingData({
       title: "",
       package: 1,
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "60",
+      toTime: "",
       client: "",
       comment: "",
       provider: "",
-      customer: "",
-    })
+    });
+    setBookingIdToDelete(null);
+
+    setCustomerData({
+      name: "",
+      email: "",
+      mobile: "",
+      office: "",
+      home: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+    });
+    setSelectedProvider(null);
+    setSelectedService(null);
+    setSelectedClient(null);
+    setBookingAddress(null);
+    setNotifyCheckbox(false);
+    setToTime("60");
+    setSelectedPackagePrice(0);
   };
 
   const handleAppointmentModalClose = () => {
-    setUpdateData({
-      id: "",
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-      customer: "",
-    })
-    setBookingData({
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-      customer: "",
-    })
+         setBookingData({
+        title: "",
+        package: 1,
+        services: "",
+        prefferedDate: new Date(),
+        fromTime: "",
+        toTime: "",
+        client: "",
+        comment: "",
+        provider: "",
+      });
+      setBookingIdToDelete(null);
+
+      setCustomerData({
+        name: "",
+        email: "",
+        mobile: "",
+        office: "",
+        home: "",
+        address: "",
+        city: "",
+        state: "",
+        zip: "",
+      });
+      setSelectedProvider(null);
+      setSelectedService(null);
+      setSelectedClient(null);
+      setBookingAddress(null);
+      setNotifyCheckbox(false);
+      setToTime("60");
+    setSelectedPackagePrice(0);
+
+
   };
 
   const handleNotifyCheckbox = (event) => {
@@ -914,7 +1028,6 @@ export const BookingListComponent = () => {
                     <li className="breadcrumb-item">
                       <a href="index.html">Home</a>
                     </li>
-
                     <li className="breadcrumb-item active">Bookings</li>
                   </ol>
                 </div>
@@ -994,18 +1107,20 @@ export const BookingListComponent = () => {
                                       Details
                                     </a>
                                   </li>
-                                  <li
-                                    className="nav-item"
-                                    style={{ width: "300px" }}
-                                  >
-                                    <a
-                                      className="nav-link"
-                                      data-toggle="tab"
-                                      href="#tab2"
+                                  {roleId !== 3 &&
+                                    <li
+                                      className="nav-item"
+                                      style={{ width: "300px" }}
                                     >
-                                      Customer
-                                    </a>
-                                  </li>
+                                      <a
+                                        className="nav-link"
+                                        data-toggle="tab"
+                                        href="#tab2"
+                                      >
+                                        Customer
+                                      </a>
+                                    </li>
+                                  }
                                 </ul>
 
                                 <div
@@ -1017,63 +1132,65 @@ export const BookingListComponent = () => {
                                       className="tab-pane fade show active"
                                       id="tab1"
                                     >
-                                      <div className="modal-body d-flex px-4">
-                                        <label
-                                          htmlFor="provider"
-                                          style={{ width: "10rem" }}
-                                        >
-                                          Providers
-                                        </label>
-                                        <Select
-                                          className="select2 w-100"
-                                          name="providers"
-                                          value={selectedProvider}
-                                          onChange={handleProviderChange}
-                                          options={providers.map(
-                                            (provider) => ({
-                                              label: provider.name,
-                                              value: provider.id,
-                                            })
-                                          )}
-                                          isSearchable
-                                          required
-                                          isMulti
-                                          components={{
-                                            Option: ({
-                                              data,
-                                              innerRef,
-                                              innerProps,
-                                            }) => (
-                                              <div
-                                                ref={innerRef}
-                                                {...innerProps}
-                                                style={{
-                                                  display: "flex",
-                                                  alignItems: "center",
-                                                  cursor: "pointer",
-                                                }}
-                                                className="customOptionClass"
-                                              >
-                                                <img
-                                                  src={
-                                                    data.profile_photo ||
-                                                    avatar1
-                                                  }
-                                                  alt="Profile"
+                                      {roleId !== 3 &&
+                                        <div className="modal-body d-flex px-4">
+
+                                          <label
+                                            htmlFor="provider"
+                                            style={{ width: "10rem" }}
+                                          >
+                                            Providers
+                                          </label>
+                                          <Select
+                                            className="select2 w-100"
+                                            name="providers"
+                                            value={selectedProvider}
+                                            onChange={handleProviderChange}
+                                            options={providers.map(
+                                              (provider) => ({
+                                                label: provider.name,
+                                                value: provider.id,
+                                              })
+                                            )}
+                                            isSearchable
+                                            isMulti
+                                            components={{
+                                              Option: ({
+                                                data,
+                                                innerRef,
+                                                innerProps,
+                                              }) => (
+                                                <div
+                                                  ref={innerRef}
+                                                  {...innerProps}
                                                   style={{
-                                                    marginRight: "10px",
-                                                    borderRadius: "50%",
-                                                    width: "30px",
-                                                    height: "30px",
-                                                    margin: "4px",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    cursor: "pointer",
                                                   }}
-                                                />
-                                                <span>{data.label}</span>
-                                              </div>
-                                            ),
-                                          }}
-                                        />
-                                      </div>
+                                                  className="customOptionClass"
+                                                >
+                                                  <img
+                                                    src={
+                                                      data.profile_photo ||
+                                                      avatar1
+                                                    }
+                                                    alt="Profile"
+                                                    style={{
+                                                      marginRight: "10px",
+                                                      borderRadius: "50%",
+                                                      width: "30px",
+                                                      height: "30px",
+                                                      margin: "4px",
+                                                    }}
+                                                  />
+                                                  <span>{data.label}</span>
+                                                </div>
+                                              ),
+                                            }}
+                                          />
+                                        </div>
+                                      }
                                       <div className="modal-body d-flex px-4">
                                         <label
                                           htmlFor="address"
@@ -1086,7 +1203,7 @@ export const BookingListComponent = () => {
                                           selectProps={{
                                             bookingAddress,
                                             onChange: handleAddressChange,
-                                            value: bookingAddress 
+                                            value: bookingAddress
                                           }}
                                         />
                                       </div>
@@ -1121,39 +1238,42 @@ export const BookingListComponent = () => {
                                               innerProps,
                                             }) => (
                                               <div
-                                                ref={innerRef}
-                                                {...innerProps}
+                                              ref={innerRef}
+                                              {...innerProps}
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                height: "30px",
+                                                marginTop: "4px",
+                                                marginBottom: "4px",
+                                                cursor: "pointer",
+                                              }}
+                                              className="customOptionClass"
+                                            >
+                                              <img
+                                                src={toolIcons}
                                                 style={{
-                                                  display:
-                                                    "flex form-select w-fit",
-                                                  alignItems: "center",
-                                                  height: "30px",
-                                                  marginTop: "4px",
-                                                  marginBottom: "4px",
-                                                  cursor: "pointer",
+                                                  marginRight: "10px",
+                                                  borderRadius: "50%",
+                                                  width: "10px",
+                                                  height: "10px",
+                                                  margin: "4px",
                                                 }}
-                                                className="customOptionClass"
-                                              >
-                                                <img
-                                                  src={toolIcons}
-                                                  style={{
-                                                    marginRight: "10px",
-                                                    borderRadius: "50%",
-                                                    width: "10px",
-                                                    height: "10px",
-                                                    margin: "4px",
-                                                  }}
-                                                  alt=""
-                                                />
-                                                <span>{data.label}</span>
-                                              </div>
+                                                alt=""
+                                              />
+                                              <span title={data.label} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                                {data.label}
+                                              </span>
+                                            </div>
                                             ),
                                           }}
                                         />
                                       </div>
 
                                       <div className="modal-body d-flex px-4">
-                                        <div style={{ width: "25rem", }}> Price/Duration</div>
+                                        {roleId !== 3 ?
+                                          <div style={{ width: "25rem", }}> Price/ Duration</div>
+                                          : <div style={{ width: "11rem", }}> Price</div>}
                                         <input
                                           type="text"
                                           id="price"
@@ -1162,39 +1282,32 @@ export const BookingListComponent = () => {
                                           value={`$ ${selectedPackagePrice}`}
                                           disabled
                                         />
-                                        <select
-                                          className="select2 form-control"
-                                          name="toTime"
-                                          value={toTime}
-                                          onChange={handleToTimeChange}
-                                          style={{ cursor: "pointer" }}
-                                          required
-                                        >
-                                          <option value="00">Select Time</option>
-                                          <option value="30">30 Minutes</option>
-                                          <option value="60">60 Minutes</option>
-                                          <option value="90">90 Minutes</option>
-                                          <option value="120">120 Minutes</option>
-                                          <option value="150">150 Minutes</option>
-                                          <option value="180">180 Minutes</option>
-                                        </select>
+                                        {roleId !== 3 &&
+                                          <select
+                                            className="select2 form-control"
+                                            name="toTime"
+                                            value={toTime}
+                                            onChange={handleToTimeChange}
+                                            style={{ cursor: "pointer" }}
+                                            required
+                                          >
+                                            <option value="00">Select Time</option>
+                                            <option value="30">30 Minutes</option>
+                                            <option value="60">60 Minutes</option>
+                                            <option value="90">90 Minutes</option>
+                                            <option value="120">120 Minutes</option>
+                                            <option value="150">150 Minutes</option>
+                                            <option value="180">180 Minutes</option>
+                                          </select>
+                                        }
                                       </div>
-                                      {/* <div className="modal-body d-flex px-4 ">
-                                        <label
-                                          htmlFor="datetimepicker4"
-                                          style={{ width: "11rem" }}
-                                        >
-                                          Duration
-                                        </label>
-                                        
-                                      </div> */}
 
                                       <div className="modal-body d-flex px-4 ">
                                         <label
                                           htmlFor="datetimepicker4"
                                           style={{ width: "12rem" }}
                                         >
-                                          Date/Time
+                                          Date / Time
                                         </label>
                                         <DatePicker
                                           className="form-control custom-datepicker mr-1"
@@ -1366,40 +1479,50 @@ export const BookingListComponent = () => {
                                           </option>
                                         </select>
                                       </div>
+                                      {roleId !== 3 &&
+                                        <div className="modal-body d-flex px-4">
 
-                                      <div className="modal-body d-flex px-4">
-                                        <label
-                                          htmlFor="notify"
-                                          style={{ width: "5rem" }}
-                                        >
-                                          Notify
-                                        </label>
-                                        <input
-                                          className="form-control h-25 w-25"
-                                          type="checkbox"
-                                          id="notify"
-                                          name="notify"
-                                          checked={notifyCheckbox}
-                                          onChange={handleNotifyCheckbox}
-                                          value={notifyCheckbox}
-                                        />
-                                      </div>
-
-
+                                          <input
+                                            className="form-control h-25 w-25"
+                                            type="checkbox"
+                                            id="notify"
+                                            name="notify"
+                                            checked={notifyCheckbox}
+                                            onChange={handleNotifyCheckbox}
+                                            value={notifyCheckbox}
+                                          />
+                                          <label
+                                            htmlFor="notify"
+                                            className="d-flex justify-content-center align-items-center"
+                                          >
+                                            Notify to Client
+                                          </label>
+                                        </div>
+                                      }
                                       <div className="p-1 float-right">
-                                        <a
-                                          data-toggle="tab"
-                                          href="#tab2"
-                                          className=" nav-link btn btn-primary btn mx-1"
-                                        >
-                                          Save & Next
-                                        </a>
+                                        {roleId !== 3 &&
+                                          <a
+                                            data-toggle="tab"
+                                            href="#tab2"
+                                            className=" nav-link btn btn-primary btn mx-1"
+                                          >
+                                            Save & Next
+                                          </a>
+                                        }
+                                        {roleId == 3 &&
+                                          <input
+                                            type="submit"
+                                            className="btn btn-primary btn mx-1"
+                                            value={
+                                              bookingData.id ? "Update" : "Add"
+                                            }
+                                          />}
                                         <input
+                                          onClick={handleAppointmentModalClose}
                                           type="reset"
                                           className="btn btn-secondary btn"
                                           data-dismiss="modal"
                                           value="Close"
-                                          onClick={handleAppointmentModalClose}
                                         />
                                       </div>
                                     </div>
@@ -1426,7 +1549,6 @@ export const BookingListComponent = () => {
                                               }))
                                             }
                                             isSearchable
-                                            required
                                             components={{
                                               Option: ({
                                                 data,
@@ -1654,15 +1776,15 @@ export const BookingListComponent = () => {
                                       <div className="p-1 flex float-right">
                                         {/* ternary based on notifyCheckbox */}
 
-                                          <>
-                                            <input
-                                              type="submit"
-                                              className="btn btn-primary btn mx-1"
-                                              value={
-                                                bookingData.id ? "Update" : "Add"
-                                              }
-                                            />
-                                          </>
+                                        <>
+                                          <input
+                                            type="submit"
+                                            className="btn btn-primary btn mx-1"
+                                            value={
+                                              bookingData.id ? "Update" : "Add"
+                                            }
+                                          />
+                                        </>
 
 
                                         < input
@@ -1757,19 +1879,28 @@ export const BookingListComponent = () => {
                             },
                           }}
                           eventResize={handleEventResize}
+
                           firstDay={1}
                           dateClick={handleDateClick}
                           initialView="timeGridWeek"
-                          eventClick={handleEventClick}
+                          eventClick={(info) => {
+                            if (info.event.backgroundColor === 'gray') {
+                              return;
+                            }
+                            handleEventClick(info);
+                          }}
                           eventDrop={handleDateChange}
                           headerToolbar={{
                             left: "prev,next today",
                             center: "title",
                             right: "dayGridMonth,timeGridWeek,timeGridDay",
                           }}
-                          editable={true}
                           selectable={true}
                           events={events}
+                          eventTimeFormat={{
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }}
                         />
 
                       </div>
@@ -1800,15 +1931,12 @@ export const BookingListComponent = () => {
         onConfirm={updateDateData}
         message="Do you wish to Reschedule the appointment?"
       />
-
       <ConfirmModal
         isOpen={showNotifyModal}
         onClose={handleNotifyClose}
         onConfirm={updateBookingStatus}
         message="Do you wish to confirm the booking and notify?"
       />
-
-
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
     </>

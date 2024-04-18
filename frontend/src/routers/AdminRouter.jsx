@@ -24,9 +24,13 @@ import Login from "../pages/Login";
 import ManagePhotographersSubdomains from "../pages/ManagePhotographersSubdomains";
 import EditProfile from "../pages/EditProfile";
 import SignUp from "../pages/SignUp";
-// Import other components/pages as needed
+import { useAuth } from "../context/authContext";
+
 
 const AdminRouter = () => {
+  const { authData } = useAuth();
+  const { user } = authData;
+  console.log(user.roleId);
   const route = useRoutes([
     { path: "/dashboard", element: <Dashboard /> },
     { path: "/booking-list-calendar", element: <BookingListComponent /> },

@@ -73,6 +73,7 @@ exports.login = async (req, res) => {
         profilePhoto: user.profile_photo,
         subdomain: user.subdomain,
         calendarSub: user.calendar_sub,
+        roleId: user.role_id
       },
     });
   } catch (error) {
