@@ -3,7 +3,7 @@ import { getAllClients } from "../api/clientApis";
 import { getAllBookingTitles, getAllServices } from "../api/bookingApis";
 import { addGallery } from "../api/collectionApis";
 import { toast } from 'react-toastify';
-import AddGalleryModal from "../components/AddGalleryModal";
+import AddGalleryModal from "../components/addGalleryModal";
 
 export const Dashboard = () => {
   const [clients, setClients] = useState([]);
