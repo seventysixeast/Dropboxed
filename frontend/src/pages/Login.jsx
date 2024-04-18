@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as Yup from "yup";
 import { toast } from 'react-toastify';
+import Cookies from "js-cookie";
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { login } from "../api/authApis";
 import { encryptToken } from "../helpers/tokenUtils";
@@ -10,6 +11,7 @@ const Login = () => {
   const [userData, setUserData] = useState({
     userName: "",
     password: "",
+    rememberMe: false
   });
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -21,11 +23,25 @@ const Login = () => {
       .min(6, "Password must be at least 6 characters"),
   });
 
+  useEffect(() => {
+    // Check if rememberMe cookie exists
+    const rememberMeCookie = Cookies.get("rememberMe");
+    if (rememberMeCookie) {
+      // Automatically populate username from cookie
+      setUserData(prevData => ({
+        ...prevData,
+        userName: rememberMeCookie,
+        rememberMe: true // Set rememberMe to true if cookie exists
+      }));
+    }
+  }, []);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
     setUserData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: newValue,
     }));
   };
 
@@ -40,6 +56,13 @@ const Login = () => {
         //const { success, message, accessToken, user } = await login(userData);
         if(success){
           toast.success('Login successful');
+          // Set rememberMe cookie if checked
+          if (userData.rememberMe) {
+            Cookies.set("rememberMe", userData.userName, { expires: 30 }); // Expires in 30 days
+          } else {
+            // Remove rememberMe cookie if not checked
+            Cookies.remove("rememberMe");
+          }
         } else{
           toast.error(message);
         }
@@ -155,6 +178,8 @@ const Login = () => {
                                   className="custom-control-input"
                                   name="rememberMe"
                                   id="rememberMe"
+                                  checked={userData.rememberMe}
+                                  onChange={handleChange}
                                 />
                                 <label
                                   className="custom-control-label"
