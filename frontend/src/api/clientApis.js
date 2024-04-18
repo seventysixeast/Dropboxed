@@ -1,10 +1,10 @@
 import API from "./baseApi";
 
-const getAllClients = async () => {
+const getAllClients = async (data) => {
   try {
-    const response = await API.get('/client/getAllClients');
+    const response = await API.post('/client/getAllClients', data);
     if (response.status !== 200) {
-      throw new Error('Failed to get all clients');
+      throw new Error('Failed to get client');
     }
     return response.data;
   } catch (error) {

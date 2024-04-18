@@ -55,6 +55,10 @@ const Booking = sequelize.define('Booking', {
     comment: {
         type: DataTypes.STRING(200)
     },
+    subdomain_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     created_at: {
         type: DataTypes.DATE,
         allowNull: false,

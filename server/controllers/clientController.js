@@ -20,7 +20,10 @@ const getAllClients = async (req, res) => {
     let clients = await redisClient.get('clients');
     if (!clients) {
       clients = await User.findAll({
-        where: { role_id: 3 },
+        where: { 
+          role_id: 3,
+          subdomain_id: req.body.subdomainId
+        },
         order: [['created', 'DESC']]
       });
       await redisClient.set('clients', JSON.stringify(clients), 'EX', 3600);

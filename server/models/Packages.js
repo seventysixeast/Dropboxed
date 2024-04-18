@@ -37,6 +37,10 @@ const Package = sequelize.define('Package', {
     type: DataTypes.BOOLEAN,
     allowNull: false
   },
+  subdomain_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   status: {
     type: DataTypes.ENUM('Active', 'Inactive'),
     allowNull: false,
