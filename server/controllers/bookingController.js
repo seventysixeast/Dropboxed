@@ -152,7 +152,7 @@ async function deleteevent(bookingId, userId) {
         redirect_uri,
         grant_type,
         scope:
-        "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
+          "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
         access_type: "offline",
         prompt: "consent",
         include_granted_scopes: "true",
@@ -162,37 +162,37 @@ async function deleteevent(bookingId, userId) {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       }
-      )
-      .then((response) => response.data)
-      .catch((error) => {
-        console.error("Refresh token exchange error:", error);
-        throw new Error("Refresh token exchange error");
-      });
+    )
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error("Refresh token exchange error:", error);
+      throw new Error("Refresh token exchange error");
+    });
 
-      const tokens = response;
-      oAuth2Client.setCredentials({
-        access_token: tokens.access_token,
-      });
-      const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
-      const id = "123" + bookingId;
-      //get event list
-      const events = await calendar.events.list({
-        calendarId: theuser.calendar_id,
-        singleEvents: true,
-        orderBy: "startTime",
-        showDeleted: true,
-      });
-      //find the event with the matching id
-      const existingEvent = events.data.items.find((event) => event.id === id);
-      if (!existingEvent) {
-        return;
-      }
-      const resp = await calendar.events.delete({
-        calendarId: theuser.calendar_id,
-        eventId: id,
-      });
-      return resp;
-    }
+  const tokens = response;
+  oAuth2Client.setCredentials({
+    access_token: tokens.access_token,
+  });
+  const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
+  const id = "123" + bookingId;
+  //get event list
+  const events = await calendar.events.list({
+    calendarId: theuser.calendar_id,
+    singleEvents: true,
+    orderBy: "startTime",
+    showDeleted: true,
+  });
+  //find the event with the matching id
+  const existingEvent = events.data.items.find((event) => event.id === id);
+  if (!existingEvent) {
+    return;
+  }
+  const resp = await calendar.events.delete({
+    calendarId: theuser.calendar_id,
+    eventId: id,
+  });
+  return resp;
+}
 
 const createBooking = async (req, res) => {
   try {
@@ -342,7 +342,6 @@ const deleteBooking = async (req, res) => {
 const updateBooking = async (req, res) => {
   try {
     const bookingId = req.body.id;
-    console.log(req.body);
     const updated = await Booking.update(req.body, {
       where: { id: bookingId },
     });
@@ -358,6 +357,42 @@ const updateBooking = async (req, res) => {
   }
 };
 
+const getAllBookingTitles = async (req, res) => {
+  try {
+    const bookingData = await Booking.findAll({ where: { user_id: req.body.clientId } });
+    res.status(200).json({ success: true, data: bookingData });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to data of booking" });
+  }
+};
+
+const getAllServices = async (req, res) => {
+  try {
+    const services = await Booking.findAll({
+      where: {
+        user_id: req.body.clientId,
+        client_address: req.body.booking_title,
+      }
+    });
+    // const servicesWithNames = [];
+    // for (const booking of services) {
+    //   const packageIds = booking.package_ids.split(',').map(id => parseInt(id.trim(), 10));
+    //   console.log("packageIds",packageIds);
+    //   const servicesForBooking = await Package.findAll({
+    //     where: {
+    //       id: packageIds
+    //     },
+    //     attributes: ['id', 'package_name']
+    //   });
+    //   servicesWithNames.push({ bookingId: booking.id, services: servicesForBooking });
+    // }
+    // console.log(servicesWithNames);
+    res.status(200).json({ success: true, data: services });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to data of booking" });
+  }
+};
+
 module.exports = {
   createBooking,
   getAllBookings,
@@ -366,4 +401,6 @@ module.exports = {
   getBooking,
   deleteBooking,
   updateBooking,
+  getAllBookingTitles,
+  getAllServices
 };

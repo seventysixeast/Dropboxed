@@ -4,9 +4,15 @@ import moment from "moment";
 import { getAllClients, createClient, getClient, deleteClient, activeInactiveClient } from "../api/clientApis";
 import { toast } from 'react-toastify';
 import DeleteModal from "../components/DeleteModal";
+import { useAuth } from "../context/authContext";
+
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const { authData } = useAuth();
+  const user = authData.user;
+  const subdomainId = user.subdomain_id
+
   const [filteredClients, setFilteredClients] = useState([]);
   const [clients, setClients] = useState([]);
   const [activeClients, setActiveClients] = useState();
@@ -39,7 +45,7 @@ const Clients = () => {
 
   const getAllClientsData = async () => {
     try {
-      let allClients = await getAllClients();
+      let allClients = await getAllClients({ subdomainId: subdomainId });
       setClients(allClients.data);
 
       let activeClients = [];
@@ -421,9 +427,6 @@ const Clients = () => {
                 </div>
               ))}
         </div>
-
-
-
       </div>
       <DeleteModal
         isOpen={showDeleteModal}

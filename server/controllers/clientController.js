@@ -20,7 +20,10 @@ const getAllClients = async (req, res) => {
     let clients = await redisClient.get('clients');
     if (!clients) {
       clients = await User.findAll({
-        where: { role_id: 3 },
+        where: { 
+          role_id: 3,
+          subdomain_id: req.body.subdomainId
+        },
         order: [['created', 'DESC']]
       });
       await redisClient.set('clients', JSON.stringify(clients), 'EX', 3600);
@@ -39,8 +42,8 @@ const createClient = async (req, res) => {
     let clientData = {
       name: req.body.name,
       email: req.body.email,
-      phone: req.body.phone || '',
-      business_name: req.body.business_name || '',
+      phone: req.body.phone,
+      business_name: req.body.business_name,
       role_id: req.body.role_id,
       profile_photo: imageName || req.body.profile_photo
     };
@@ -105,16 +108,16 @@ const deleteClient = async (req, res) => {
     if (!client) {
       return res.status(404).json({ success: false, message: "Client not found" });
     }
-    
+
     // Check if the client has been deactivated for at least 30 days
     const deactivatedAt = new Date(client.deactivated_at);
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     if (deactivatedAt && deactivatedAt > thirtyDaysAgo) {
       return res.status(400).json({ success: false, message: "Client cannot be deleted yet" });
     }
-    
+
     await User.destroy({ where: { id: clientId } });
     // Update Redis cache
     updateRedisCache();
@@ -128,14 +131,14 @@ const activeInactiveClient = async (req, res) => {
   try {
     const clientId = req.body.id;
     const clientStatus = req.body.status;
-    
+
     let updateFields = { status: clientStatus };
     if (clientStatus === 'Inactive') {
       updateFields.deactivated_at = new Date(); // Set deactivation date
     }
-    
+
     await User.update(updateFields, { where: { id: clientId } });
-    
+
     const updatedClient = await User.findByPk(clientId);
     if (!updatedClient) {
       return res.status(404).json({ success: false, message: "Client not found" });

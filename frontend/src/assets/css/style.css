@@ -110,3 +110,7 @@
 .dull-card {
   color: lightgray !important;
 }
+
+.css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.Mui-checked, .css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.MuiCheckbox-indeterminate {
+  color: #00b5b8 !important;
+}

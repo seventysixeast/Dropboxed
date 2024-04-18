@@ -84,4 +84,38 @@ const updateBooking = async (data) => {
   }
 };
 
-export { newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking };
+// Get All Booking titles using ClientId
+const getAllBookingTitles = async (data) => {
+  try {
+    const response = await API.post(`/booking/getAllBookingTitles`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Get All Services using ClientId & booking_title
+const getAllServices = async (data) => {
+  try {
+    const response = await API.post(`/booking/getAllServices`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to services');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles,getAllServices};
