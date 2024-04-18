@@ -5,7 +5,7 @@ import { useAuth } from "../context/authContext";
 const SideNav = () => {
   const { authData } = useAuth();
   const { user } = authData;
-  const roleId = user.roleId;
+  const roleId = user.role_id;
   return (
     <div
       className="main-menu menu-fixed menu-dark menu-accordion menu-shadow"
@@ -17,7 +17,7 @@ const SideNav = () => {
           id="main-menu-navigation"
           data-menu="menu-navigation"
         >
-          {roleId === 2 && <>
+          {(roleId === 2 || roleId === 5) && <>
             <li className=" navigation-header">
               <span>Photographers</span>
               <i
