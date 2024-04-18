@@ -86,6 +86,11 @@ const Collections = sequelize.define('Collections', {
     allowNull: false,
     defaultValue: 'Active'
   },
+  lock_gallery: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
   download_allow: {
     type: DataTypes.ENUM('0', '1'),
     allowNull: false,
@@ -105,6 +110,10 @@ const Collections = sequelize.define('Collections', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false
+  },
+  subdomain_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
   },
   created: {
     type: DataTypes.DATE,
