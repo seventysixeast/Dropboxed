@@ -278,6 +278,8 @@ export const Dashboard = () => {
                         <button
                           type="button"
                           className="btn btn-outline-primary btn-block"
+                          data-toggle="modal"
+                          data-target="#bootstrap"
                           onClick={() => {
                             setShowAddGalleryModal(true);
                           }}

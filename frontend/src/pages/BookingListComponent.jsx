@@ -30,7 +30,6 @@ export const BookingListComponent = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  console.log(subdomainId);
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
@@ -67,7 +66,7 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
-console.log(selectedClient);
+  
   const [updateData, setUpdateData] = useState({
     id: "",
     title: "",
@@ -144,7 +143,7 @@ console.log(selectedClient);
         id: bookingIdToDelete,
         package_ids: bookingData.services,
         package: 0,
-        photographer_id: bookingData.provider,
+        photographer_id: `${bookingData.provider}`,
         booking_date: bookingData.prefferedDate,
         booking_time: bookingData.fromTime,
         booking_time_to: newToTime,
@@ -196,12 +195,13 @@ console.log(selectedClient);
       setNotifyCheckbox(false);
       setToTime("60");
       setSelectedPackagePrice(0);
+      setBookingIdToDelete(null);
 
       if (roleId == 3) {
         toast.success("Booking request sent. Please await confirmation.");
       } else {
         toast.success("Booking added successfully");
-      } 
+      }
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
@@ -217,20 +217,20 @@ console.log(selectedClient);
   };
 
   useEffect(() => {
-    if (subdomainId != undefined && roleId != undefined ) {
+    if (subdomainId != undefined && roleId != undefined) {
       getAllBookingsData(subdomainId);
 
       fetchProviders();
     }
 
   }, [subdomainId]);
-console.log(roleId);
+
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {
-        const response = await API.get("/booking/providers");
+        const response = await API.post("/booking/providers", { subdomainId });
         const data = response.data;
-        setProviders(data.usersWithRoleId1);
+        setProviders(data.usersWithRoleId2);
         setClientList(data.users);
         setPackages(data.packages);
         const prices = data.packages.map((pack) => ({
@@ -243,6 +243,7 @@ console.log(roleId);
       }
     }
   };
+
   const handleDateClick = (arg) => {
     const selectedDate = new Date(arg.date);
 
@@ -328,16 +329,13 @@ console.log(roleId);
       let events = altData.data.map((booking) => {
         let title = booking.booking_title;
         let color = booking.color;
-        let editable = true;
+        let editable = roleId !== 3;
         let status = booking.booking_status;
 
         if (roleId === 3) {
           if (booking.user_id !== userId) {
             title = "Limited Availability";
             color = 'gray';
-            editable = false;
-          }
-          if (booking.booking_status > 0) {
             editable = false;
           }
         }
@@ -425,7 +423,6 @@ console.log(roleId);
       },
     ];
     setSelectedClient(finalClient);
-    // calculate booking time - booking time to
     const bookingDate = new Date(data.booking_date);
     const bookingTime = new Date(`${bookingDate.toISOString().split('T')[0]}T${data.booking_time}`);
     const bookingTimeTo = new Date(`${bookingDate.toISOString().split('T')[0]}T${data.booking_time_to}`);
@@ -486,8 +483,8 @@ console.log(roleId);
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
       formDataToSend.append("booking_date", booking.booking_date);
-      formDataToSend.append("booking_time", updateData.startTime);
-      formDataToSend.append("booking_time_to", updateData.endTime);
+      formDataToSend.append("booking_time", updateData.fromTime);
+      formDataToSend.append("booking_time_to", updateData.toTime);
       formDataToSend.append("user_id", booking.user_id);
       formDataToSend.append("package_ids", booking.package_ids);
       formDataToSend.append("package", booking.package);
@@ -537,13 +534,21 @@ console.log(roleId);
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
 
-    setUpdateData((prevData) => ({
-      ...prevData,
+    let booking = bookingsData.find((booking) => booking.id === parseInt(id));
+
+    setUpdateData({
       id: id,
-      prefferedDate: newDate,
-      startTime: newStartTime,
-      endTime: newEndTime,
-    }));
+      title: booking.booking_title,
+      package: booking.package,
+      services: booking.package_ids,
+      prefferedDate: booking.booking_date,
+      fromTime: newStartTime,
+      toTime: newEndTime,
+      client: booking.user_id,
+      comment: booking.comment,
+      provider: booking.photographer_id,
+      customer: booking.user_id,
+    });
 
     setShowConfirmModel(true);
   };
@@ -556,9 +561,9 @@ console.log(roleId);
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
       formDataToSend.append("booking_date", updateData.prefferedDate);
-      formDataToSend.append("booking_time", updateData.startTime);
-      formDataToSend.append("booking_time_to", updateData.endTime);
-      formDataToSend.append("user_id", userId);
+      formDataToSend.append("booking_time", updateData.fromTime);
+      formDataToSend.append("booking_time_to", updateData.toTime);
+      formDataToSend.append("user_id", booking.user_id);
       formDataToSend.append("package_ids", booking.package_ids);
       formDataToSend.append("package", booking.package);
       formDataToSend.append("photographer_id", booking.photographer_id);
@@ -593,7 +598,7 @@ console.log(roleId);
     let newDate = new Date(arg.event.start + "Z");
     let endDate = new Date(arg.event.end + "Z");
 
-    let newDateString = newDate.toISOString().split("T")[0];
+    const newDateString = newDate.toISOString().split("T")[0];
 
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
@@ -608,11 +613,20 @@ console.log(roleId);
 
     const newStartTime = convertTo24Hour(startTime);
     const newEndTime = convertTo24Hour(endTime);
+    let booking = bookingsData.find((booking) => booking.id === parseInt(id));
+
     setUpdateData({
       id: id,
-      prefferedDate: newDate,
-      startTime: newStartTime,
-      endTime: newEndTime,
+      title: booking.booking_title,
+      package: booking.package,
+      services: booking.package_ids,
+      prefferedDate: newDateString,
+      fromTime: newStartTime,
+      toTime: newEndTime,
+      client: booking.user_id,
+      comment: booking.comment,
+      provider: booking.photographer_id,
+      customer: booking.user_id,
     });
 
     setShowDateModel(true);
@@ -664,6 +678,8 @@ console.log(roleId);
       setBookingAddress(null);
       setNotifyCheckbox(false);
       setToTime("60");
+      setSelectedPackagePrice(0);
+      setBookingIdToDelete(null);
       setShowNotifyModal(false);
       toast.success("Booking updated successfully");
     } catch (error) {
@@ -980,41 +996,39 @@ console.log(roleId);
   };
 
   const handleAppointmentModalClose = () => {
-         setBookingData({
-        title: "",
-        package: 1,
-        services: "",
-        prefferedDate: new Date(),
-        fromTime: "",
-        toTime: "",
-        client: "",
-        comment: "",
-        provider: "",
-      });
-      setBookingIdToDelete(null);
+    setBookingData({
+      title: "",
+      package: 1,
+      services: "",
+      prefferedDate: new Date(),
+      fromTime: "",
+      toTime: "",
+      client: "",
+      comment: "",
+      provider: "",
+    });
+    setBookingIdToDelete(null);
 
-      setCustomerData({
-        name: "",
-        email: "",
-        mobile: "",
-        office: "",
-        home: "",
-        address: "",
-        city: "",
-        state: "",
-        zip: "",
-      });
-      setSelectedProvider(null);
-      setSelectedService(null);
-      setSelectedClient(null);
-      setBookingAddress(null);
-      setNotifyCheckbox(false);
-      setToTime("60");
+    setCustomerData({
+      name: "",
+      email: "",
+      mobile: "",
+      office: "",
+      home: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+    });
+    setSelectedProvider(null);
+    setSelectedService(null);
+    setSelectedClient(null);
+    setBookingAddress(null);
+    setNotifyCheckbox(false);
+    setToTime("60");
     setSelectedPackagePrice(0);
-
-
+    setBookingIdToDelete(null);
   };
-
   const handleNotifyCheckbox = (event) => {
     setNotifyCheckbox(event.target.checked);
   };
@@ -1248,33 +1262,33 @@ console.log(roleId);
                                               innerProps,
                                             }) => (
                                               <div
-                                              ref={innerRef}
-                                              {...innerProps}
-                                              style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                height: "30px",
-                                                marginTop: "4px",
-                                                marginBottom: "4px",
-                                                cursor: "pointer",
-                                              }}
-                                              className="customOptionClass"
-                                            >
-                                              <img
-                                                src={toolIcons}
+                                                ref={innerRef}
+                                                {...innerProps}
                                                 style={{
-                                                  marginRight: "10px",
-                                                  borderRadius: "50%",
-                                                  width: "10px",
-                                                  height: "10px",
-                                                  margin: "4px",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  height: "30px",
+                                                  marginTop: "4px",
+                                                  marginBottom: "4px",
+                                                  cursor: "pointer",
                                                 }}
-                                                alt=""
-                                              />
-                                              <span title={data.label} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                                {data.label}
-                                              </span>
-                                            </div>
+                                                className="customOptionClass"
+                                              >
+                                                <img
+                                                  src={toolIcons}
+                                                  style={{
+                                                    marginRight: "10px",
+                                                    borderRadius: "50%",
+                                                    width: "10px",
+                                                    height: "10px",
+                                                    margin: "4px",
+                                                  }}
+                                                  alt=""
+                                                />
+                                                <span title={data.label} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                                  {data.label}
+                                                </span>
+                                              </div>
                                             ),
                                           }}
                                         />
@@ -1889,7 +1903,6 @@ console.log(roleId);
                             },
                           }}
                           eventResize={handleEventResize}
-
                           firstDay={1}
                           dateClick={handleDateClick}
                           initialView="timeGridWeek"
