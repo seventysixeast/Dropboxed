@@ -334,16 +334,13 @@ export const BookingListComponent = () => {
       let events = altData.data.map((booking) => {
         let title = booking.booking_title;
         let color = booking.color;
-        let editable = true;
+        let editable = roleId !== 3;
         let status = booking.booking_status;
 
         if (roleId === 3) {
           if (booking.user_id !== userId) {
             title = "Limited Availability";
             color = 'gray';
-            editable = false;
-          }
-          if (booking.booking_status > 0) {
             editable = false;
           }
         }
@@ -1038,7 +1035,6 @@ export const BookingListComponent = () => {
     setSelectedPackagePrice(0);
     setBookingIdToDelete(null);
   };
-  console.log(bookingIdToDelete);
   const handleNotifyCheckbox = (event) => {
     setNotifyCheckbox(event.target.checked);
   };
