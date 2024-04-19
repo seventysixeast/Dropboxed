@@ -30,7 +30,6 @@ export const BookingListComponent = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  console.log(subdomainId);
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
@@ -67,7 +66,6 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
-console.log(selectedClient);
   const [updateData, setUpdateData] = useState({
     id: "",
     title: "",
@@ -224,7 +222,6 @@ console.log(selectedClient);
     }
 
   }, [subdomainId]);
-console.log(roleId);
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {

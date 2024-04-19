@@ -27,8 +27,6 @@ const createCalendar = async (calendarData) => {
 };
 
 const getAllBookings = async (data) => {
-  console.log(data);
-  
   try {
     const response = await API.post(`/booking/getAllBookings`, data, {
       headers: {
