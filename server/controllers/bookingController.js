@@ -230,8 +230,6 @@ const createBooking = async (req, res) => {
       where: { id: userID },
     });
 
-    console.log(theUser);
-
     if (theUser && theUser.calendar_sub == 1) {
       try {
         await addevent(booking, userID);
@@ -255,7 +253,6 @@ const createBooking = async (req, res) => {
 
 const providers = async (req, res) => {
   const { subdomainId } = req.body;
-    console.log(subdomainId);
   try {
     const businessClients = await BusinessClients.findAll({
       attributes: ['client_id'],
