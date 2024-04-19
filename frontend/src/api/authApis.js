@@ -29,6 +29,7 @@ const clientSignup = async (userData) => {
 const login = async (userData) => {
     try {
         const response = await API.post("/auth/login", userData);
+        console.log(response.data);
         if (response.status !== 200) {
             throw new Error("Login failed");
         }

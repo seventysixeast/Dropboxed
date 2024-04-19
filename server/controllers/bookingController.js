@@ -5,6 +5,8 @@ const { google } = require("googleapis");
 const { OAuth2 } = google.auth;
 const axios = require("axios");
 const Users = require("../models/Users");
+const BusinessClients = require("../models/BusinessClients");
+const { Op } = require("sequelize");
 
 const client_id = process.env.GOOGLE_CLIENT_ID;
 const client_secret = process.env.GOOGLE_CLIENT_SECRET;
@@ -252,29 +254,46 @@ const createBooking = async (req, res) => {
 };
 
 const providers = async (req, res) => {
-  
+  const { subdomainId } = req.body;
+    console.log(subdomainId);
   try {
-    const usersWithRoleId1 = await User.findAll({
-      where: { role_id: 2 },
-      attributes: ["id", "name", "profile_photo"],
+    const businessClients = await BusinessClients.findAll({
+      attributes: ['client_id'],
+      where: {
+        business_id: subdomainId
+      },
+      include: {
+        model: User,
+        as: 'client',
+      }
     });
 
+    const usersWithRoleId2 = await User.findAll({
+      attributes: ["id", "name", "profile_photo"],
+      where: {
+        id: { [Op.in]: businessClients.map(client => client.client_id) }, role_id : 2
+      }
+    });
     const users = await User.findAll({
       attributes: ["id", "name", "profile_photo", "address"],
+      where: {
+        id: { [Op.in]: businessClients.map(client => client.client_id) }, role_id : 3
+      }
     });
 
     const packages = await Package.findAll({
       attributes: ["id", "package_name", "package_price", "package_type"],
-      where: { status: "Active" },
+      where: {
+        subdomain_id: subdomainId
+      }
     });
 
-    res.json({ usersWithRoleId1, packages, users });
+    res.json({ usersWithRoleId2, packages, users });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 const getAllBookings = async (req, res) => {
   try {
     let bookings = await Booking.findAll({

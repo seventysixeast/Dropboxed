@@ -67,8 +67,6 @@ const Login = () => {
           toast.error(message);
         }
         
-       
-    
         const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
         const currentSubdomain = window.location.hostname.split('.')[0];
         //const baseUrl = window.location.protocol + "//" + window.location.hostname;
