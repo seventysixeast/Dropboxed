@@ -211,7 +211,7 @@ const createBooking = async (req, res) => {
     client_name = usersWithRoleId1[0].name || "";
     data.client_address = client_address;
     data.client_name = client_name;
-    
+
 
     let booking;
     if (req.body.id) {
@@ -390,22 +390,14 @@ const getAllServices = async (req, res) => {
     const services = await Booking.findAll({
       where: {
         user_id: req.body.clientId,
-        client_address: req.body.booking_title,
-      }
+        client_address: req.body.booking_title
+      },
+      include: [{
+        model: Package,
+        attributes: ['id', 'package_name']
+      }]
     });
-    // const servicesWithNames = [];
-    // for (const booking of services) {
-    //   const packageIds = booking.package_ids.split(',').map(id => parseInt(id.trim(), 10));
-    //   console.log("packageIds",packageIds);
-    //   const servicesForBooking = await Package.findAll({
-    //     where: {
-    //       id: packageIds
-    //     },
-    //     attributes: ['id', 'package_name']
-    //   });
-    //   servicesWithNames.push({ bookingId: booking.id, services: servicesForBooking });
-    // }
-    // console.log(servicesWithNames);
+    console.log("services", services);
     res.status(200).json({ success: true, data: services });
   } catch (error) {
     res.status(500).json({ error: "Failed to data of booking" });

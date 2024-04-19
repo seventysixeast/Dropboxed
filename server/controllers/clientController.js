@@ -1,15 +1,26 @@
 const User = require('../models/Users');
+const BusinessClients = require('../models/BusinessClients');
 const redis = require('ioredis');
 const redisClient = new redis();
 
-const updateRedisCache = async () => {
+const updateRedisCache = async (subdomain_id) => {
+  console.log("subdomain_id", subdomain_id);
   try {
-    const clients = await User.findAll({
-      where: { role_id: 3 },
+    const clients = await BusinessClients.findAll({
+      where: {
+        business_id: subdomain_id
+      },
+      attributes: ['client_id']
+    });
+    const clientIds = clients.map(client => client.client_id);
+    const clientsData = await User.findAll({
+      where: {
+        role_id: 3,
+        id: clientIds
+      },
       order: [['created', 'DESC']]
     });
-    await redisClient.set('clients', JSON.stringify(clients), 'EX', 3600);
-    console.log('Redis cache updated successfully.');
+    await redisClient.set('clientsData', JSON.stringify(clientsData), 'EX', 3600);
   } catch (err) {
     console.error('Error updating Redis cache:', err);
   }
@@ -17,20 +28,27 @@ const updateRedisCache = async () => {
 
 const getAllClients = async (req, res) => {
   try {
-    let clients = await redisClient.get('clients');
-    if (!clients) {
-      clients = await User.findAll({
-        where: { 
+    let clientsData = await redisClient.get('clientsData');
+    if (!clientsData) {
+      const clients = await BusinessClients.findAll({
+        where: {
+          business_id: req.body.subdomainId
+        },
+        attributes: ['client_id']
+      });
+      const clientIds = clients.map(client => client.client_id);
+      clientsData = await User.findAll({
+        where: {
           role_id: 3,
-          subdomain_id: req.body.subdomainId
+          id: clientIds
         },
         order: [['created', 'DESC']]
       });
-      await redisClient.set('clients', JSON.stringify(clients), 'EX', 3600);
+      await redisClient.set('clientsData', JSON.stringify(clientsData), 'EX', 3600);
     } else {
-      clients = JSON.parse(clients);
+      clientsData = JSON.parse(clientsData);
     }
-    res.status(200).json({ success: true, data: clients });
+    res.status(200).json({ success: true, data: clientsData });
   } catch (error) {
     res.status(500).json({ error: "Failed to list clients" });
   }
@@ -50,7 +68,6 @@ const createClient = async (req, res) => {
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
       let fileUrl = `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
-
       file.mv(fileUrl, async function (err) {
         if (err) {
           console.log("in image move error...", fileUrl, err);
@@ -78,10 +95,17 @@ const createClient = async (req, res) => {
           return res.status(400).json({ error: 'Phone number already exists' });
         }
       }
+      // Create the client
       client = await User.create(clientData);
+      // Link the client to the subdomain
+      await BusinessClients.create({
+        business_id: req.body.subdomainId,
+        client_id: client.id,
+        status: 1,
+      });
     }
     // Update Redis cache
-    updateRedisCache();
+    await updateRedisCache(req.body.subdomainId);
     res.status(200).json({
       success: true,
       message: req.body.id ? "Client updated successfully" : "Client created successfully",
@@ -108,19 +132,16 @@ const deleteClient = async (req, res) => {
     if (!client) {
       return res.status(404).json({ success: false, message: "Client not found" });
     }
-
     // Check if the client has been deactivated for at least 30 days
     const deactivatedAt = new Date(client.deactivated_at);
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
     if (deactivatedAt && deactivatedAt > thirtyDaysAgo) {
       return res.status(400).json({ success: false, message: "Client cannot be deleted yet" });
     }
-
     await User.destroy({ where: { id: clientId } });
     // Update Redis cache
-    updateRedisCache();
+    await updateRedisCache(req.body.subdomainId);
     res.status(200).json({ success: true, message: "Client deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete client" });
@@ -131,20 +152,17 @@ const activeInactiveClient = async (req, res) => {
   try {
     const clientId = req.body.id;
     const clientStatus = req.body.status;
-
     let updateFields = { status: clientStatus };
     if (clientStatus === 'Inactive') {
       updateFields.deactivated_at = new Date(); // Set deactivation date
     }
-
     await User.update(updateFields, { where: { id: clientId } });
-
     const updatedClient = await User.findByPk(clientId);
     if (!updatedClient) {
       return res.status(404).json({ success: false, message: "Client not found" });
     }
     // Update Redis cache
-    updateRedisCache();
+    await updateRedisCache(req.body.subdomainId);
     res.status(200).json({
       success: true,
       message: "Client status updated.",
