@@ -16,7 +16,10 @@ const SignUp = () => {
   const [validationErrors, setValidationErrors] = useState({});
 
   const validationSchema = Yup.object().shape({
-    studioName: Yup.string().required("Studio Name is required"),
+    studioName: Yup.string()
+      .required("Studio Name is required")
+      .max(63, "Studio Name must be at most 63 characters")
+    .matches(/^[a-zA-Z0-9\s-]+$/, "Invalid Studio Name format"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
       .required("Password is required")
@@ -40,15 +43,18 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await validationSchema.validate(userData, { abortEarly: false });
-      const response = await signup(userData);
+      const subdomainValue = userData.studioName.replace(/\s/g, '');
+
+      // Create a new object with studioName replaced
+      const updatedUserData = { ...userData, studioName: subdomainValue };
+      const response = await signup(updatedUserData);
       if(response.success){
         toast.success(response.message);
       } else {
         toast.error(response.message);
       }
-      const subdomain = userData.studioName.toLowerCase().replace(/\s/g, '');
       // Redirect to subdomain
-      window.location.href = `http://${subdomain}.${window.location.host}/login`;
+      window.location.href = `http://${subdomainValue}.${window.location.host}/login`;
       //window.location.href = `http://${window.location.host}/login`;
     } catch (error) {
       if (error.name === "ValidationError") {
