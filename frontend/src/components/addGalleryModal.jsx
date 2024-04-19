@@ -4,7 +4,7 @@ import toolIcons from "../assets/images/i.png";
 import { Switch, Checkbox } from '@mui/material';
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
-const AddGalleryModal = ({ isOpen, onClose, handleSubmit, formData, handleInputChange, clients, bookingTitles, selectedService, handleSelectedChange, services, handleBannerChange, isGalleryLocked, handleGalleryLockChange, isNotifyChecked, handleNotifyChange, message }) => {
+const AddGalleryModal = ({ message, isOpen, formData, clients, bookingTitles, services, photographers, isGalleryLocked, isNotifyChecked, loading, handleInputChange, handleBannerChange, handleGalleryLockChange, handleNotifyChange, handleSubmit, onClose }) => {
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -46,6 +46,7 @@ const AddGalleryModal = ({ isOpen, onClose, handleSubmit, formData, handleInputC
                       onChange={handleInputChange}
                       required
                     >
+                      <option value="">----Select----</option>
                       {clients && clients.map(item => (
                         <option key={item.id} value={item.id}>
                           {item.name}
@@ -54,35 +55,42 @@ const AddGalleryModal = ({ isOpen, onClose, handleSubmit, formData, handleInputC
                     </select>
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Booking Title *</label>
+                    <label htmlFor="booking_title">Booking Title *</label>
                     <select
+                      id="booking_title"
                       className="select2 form-control"
                       name="booking_title"
                       value={formData.booking_title}
                       onChange={handleInputChange}
+                      disabled={loading}
                       required
                     >
-                      <option value="">Select Booking Title</option>
-                      {bookingTitles && bookingTitles.map(item => (
-                        <option key={item.id} value={item.client_address}>
-                          {item.client_address}
+                      <option value="">----Select----</option>
+                      {bookingTitles.map(item => (
+                        <option key={item.id} value={item.booking_title}>
+                          {item.booking_title}
                         </option>
                       ))}
                     </select>
+                    {loading && (
+                      <div style={{ position: 'absolute', right: '22px', transform: 'translateY(-111%)' }}>
+                        <div className="spinner-border text-primary" role="status">
+                          <span className="sr-only">Loading...</span>
+                        </div>
+                      </div>
+                    )}
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
                     <label style={{ width: "10rem" }}>Services</label>
                     <Select
                       className="select2 w-100"
                       name="services"
-                      defaultValue={selectedService}
-                      onChange={handleSelectedChange}
+                      value={services}
+                      onChange={handleInputChange}
                       options={services && services.map((pkg) => ({
-                        label: pkg.package_name,
-                        value: pkg.id,
-                        package_price: pkg.package_price,
+                        label: pkg.label,
+                        value: pkg.value
                       }))}
-                      isSearchable
                       isMulti
                       hideSelectedOptions
                       components={{
@@ -110,7 +118,7 @@ const AddGalleryModal = ({ isOpen, onClose, handleSubmit, formData, handleInputC
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Photographer</label>
+                    <label>Photographer *</label>
                     <select
                       className="select2 form-control"
                       name="photographer"
@@ -118,7 +126,8 @@ const AddGalleryModal = ({ isOpen, onClose, handleSubmit, formData, handleInputC
                       onChange={handleInputChange}
                       required
                     >
-                      {clients && clients.map(item => (
+                      <option value="">----Select----</option>
+                      {photographers && photographers.map(item => (
                         <option key={item.id} value={item.id}>
                           {item.name}
                         </option>

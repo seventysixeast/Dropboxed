@@ -12,7 +12,7 @@ const Clients = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id
-
+  const [previewImage, setPreviewImage] = useState(null);
   const [filteredClients, setFilteredClients] = useState([]);
   const [clients, setClients] = useState([]);
   const [activeClients, setActiveClients] = useState();
@@ -82,11 +82,25 @@ const Clients = () => {
     setFormData(client);
   };
 
-  const handlePhotoChange = (e) => {
-    setFormData({
-      ...formData,
-      profile_photo: e.target.files[0]
-    });
+  const handlePhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setFormData({
+          ...formData,
+          profile_photo: file
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+      setFormData({
+        ...formData,
+        profile_photo: ''
+      });
+    }
   };
 
   const resetFormData = async () => {
@@ -98,6 +112,7 @@ const Clients = () => {
       business_name: '',
       profile_photo: null
     });
+    setPreviewImage(null);
   };
 
   const handleSubmit = async (e) => {
@@ -132,6 +147,13 @@ const Clients = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('id', id);
       let clientData = await getClient(formDataToSend);
+      console.log("clientData",clientData);
+      if (clientData.data.profile_photo !== "") {
+        let path = `${IMAGE_URL}/${clientData.data.profile_photo}`
+        setPreviewImage(path)
+      } else {
+        setPreviewImage(null)
+      }
       if (clientData.data.status === "Active") {
         setChecked(true)
       } else {
@@ -306,7 +328,13 @@ const Clients = () => {
                                 onChange={handlePhotoChange}
                                 accept="image/*"
                               />
-                              {formData.id && <img src={`${formData.profile_photo ? `${IMAGE_URL}/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/dummy.png'}`} className="rounded-circle height-150 width-150 mt-2" alt="Card image" />}
+                              {previewImage && (
+                                <img
+                                  src={previewImage}
+                                  className="rounded-circle height-150 width-150 mt-2"
+                                  alt="Preview"
+                                />
+                              )}
                             </div>
                           </div>
                           <div className={"text-right mr-2 mb-2" + (checked ? ' text-primary' : '')}>
@@ -369,7 +397,7 @@ const Clients = () => {
                               : "../../../app-assets/images/portrait/medium/dummy.png"
                           }
                           className="rounded-circle width-150"
-                          alt="Card image"
+                          alt="Client image"
                         />
                       </div>
                       <div className="card-body">
