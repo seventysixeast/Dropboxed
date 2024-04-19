@@ -1909,7 +1909,6 @@ export const BookingListComponent = () => {
                             },
                           }}
                           eventResize={handleEventResize}
-
                           firstDay={1}
                           dateClick={handleDateClick}
                           initialView="timeGridWeek"
