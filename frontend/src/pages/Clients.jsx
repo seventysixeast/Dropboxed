@@ -36,7 +36,7 @@ const Clients = () => {
   }, [])
 
   useEffect(() => {
-    const filtered = clients.filter(client =>
+    const filtered = clients && clients.filter(client =>
       client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.business_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -104,6 +104,7 @@ const Clients = () => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
+      formDataToSend.append('subdomainId', subdomainId);
       formDataToSend.append('id', formData.id);
       formDataToSend.append('name', formData.name);
       formDataToSend.append('email', formData.email);
@@ -146,6 +147,7 @@ const Clients = () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('id', clientIdToDelete);
+      formDataToSend.append('subdomainId', subdomainId);
       let res = await deleteClient(formDataToSend);
       if (res.success) {
         toast.success(res.message);
@@ -163,6 +165,7 @@ const Clients = () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('id', formData.id);
+      formDataToSend.append('subdomainId', subdomainId);
       const newStatus = checked ? 'Inactive' : 'Active';
       formDataToSend.append('status', newStatus);
       let res = await activeInactiveClient(formDataToSend);
@@ -303,7 +306,7 @@ const Clients = () => {
                                 onChange={handlePhotoChange}
                                 accept="image/*"
                               />
-                              {formData.id && <img src={`${formData.profile_photo ? `${IMAGE_URL}/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 width-150 mt-2" alt="Card image" />}
+                              {formData.id && <img src={`${formData.profile_photo ? `${IMAGE_URL}/${formData.profile_photo}` : '../../../app-assets/images/portrait/medium/dummy.png'}`} className="rounded-circle height-150 width-150 mt-2" alt="Card image" />}
                             </div>
                           </div>
                           <div className={"text-right mr-2 mb-2" + (checked ? ' text-primary' : '')}>
@@ -365,7 +368,7 @@ const Clients = () => {
                               ? `${IMAGE_URL}/${item.profile_photo}`
                               : "../../../app-assets/images/portrait/medium/dummy.png"
                           }
-                          className="rounded-circle height-150 width-150"
+                          className="rounded-circle width-150"
                           alt="Card image"
                         />
                       </div>
