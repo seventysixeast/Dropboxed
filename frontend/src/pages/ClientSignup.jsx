@@ -49,12 +49,12 @@ const ClientSignup = () => {
         try {
             await validationSchema.validate(userData, { abortEarly: false });
             const response = await clientSignup(userData);
-            if (response && response.status === 200) {
+            if (response && response.success) {
                 toast.success('Registration successful');
                 navigate("/login");
             } else {
-                toast.error('Registration failed');
-                console.error("Registration failed:", response.data.error);
+                toast.error(response.error);
+                console.error("Registration failed:", response.error);
             }
         } catch (error) {
             if (error.name === "ValidationError") {

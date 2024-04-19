@@ -43,7 +43,7 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await validationSchema.validate(userData, { abortEarly: false });
-      const subdomainValue = userData.studioName.replace(/\s/g, '');
+      const subdomainValue = userData.studioName.toLowerCase().replace(/\s/g, '');
 
       // Create a new object with studioName replaced
       const updatedUserData = { ...userData, studioName: subdomainValue };
