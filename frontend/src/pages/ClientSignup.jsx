@@ -3,6 +3,8 @@ import * as Yup from "yup";
 import { clientSignup } from "../api/authApis";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
+import logoLight from "../assets/images/dropboxed-logo.png";
+
 
 const ClientSignup = () => {
     const navigate = useNavigate();
@@ -71,20 +73,25 @@ const ClientSignup = () => {
     };
 
     return (
-        <div className="bg-full-screen-image" style={{ height: "110vh" }}>
-            <div className="content-overlay"></div>
-            <div className="content-wrapper">
-                <div className="content-header row"></div>
-                <div className="content-body">
-                    <section className=" flexbox-container">
-                        <div className="col-12 d-flex align-items-center justify-content-center">
-                            <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-1 mb-1">
-                                <div className="card border-grey border-lighten-3 m-0">
-                                    <div className="card-header border-0">
-                                        <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
-                                            <span>Sign Up with Dropboxed</span>
-                                        </h6>
-                                    </div>
+        <div className="bg-full-screen-image" style={{ height: "130vh" }}>
+        <div className="content-overlay"></div>
+        <div className="content-wrapper">
+          <div className="content-header row"></div>
+          <div className="content-body">
+            <section className=" flexbox-container">
+              <div className="col-12 d-flex align-items-center justify-content-center">
+                <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-1 mb-1">
+                  <div className="card border-grey border-lighten-3 m-0">
+                    <div className="card-header border-0">
+                      <div className="card-title text-center">
+                        <div className="p-1 logo black-logo">
+                          <img src={logoLight} alt="branding logo" />
+                        </div>
+                      </div>
+                      <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
+                        <span>Sign Up with Dropboxed</span>
+                      </h6>
+                    </div>
 
                                     <div className="card-content">
                                         <div className="card-body">

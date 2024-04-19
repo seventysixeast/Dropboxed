@@ -17,7 +17,7 @@ const Login = () => {
   const [validationErrors, setValidationErrors] = useState({});
 
   const validationSchema = Yup.object().shape({
-    userName: Yup.string().required("Username is required"),
+    userName: Yup.string().required("Email is required"),
     password: Yup.string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters"),
@@ -51,6 +51,7 @@ const Login = () => {
         await validationSchema.validate(userData, { abortEarly: false });
         const BASE_URL = process.env.REACT_APP_BASE_URL;
         const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
+        console.log("subdomain1>>>",subdomain)
         const loginData = subdomain ? { ...userData, subdomain } : userData;
         const { success, message, accessToken, user } = await login(loginData);
         //const { success, message, accessToken, user } = await login(userData);
@@ -67,15 +68,15 @@ const Login = () => {
           toast.error(message);
         }
         
-        const sd = user.subdomain.toLowerCase().replace(/\s/g, '');
-        const currentSubdomain = window.location.hostname.split('.')[0];
+        const userSubdomain = user.subdomain.toLowerCase().replace(/\s/g, '');
+         const currentSubdomain = window.location.hostname.split('.')[0];
         //const baseUrl = window.location.protocol + "//" + window.location.hostname;
 
-        const DOMAIN_NAME = process.env.REACT_APP_DOMAIN_NAME
+        //const DOMAIN_NAME = process.env.REACT_APP_DOMAIN_NAME
         // Check if the current URL already contains a subdomain
-        const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${sd}.` : "";
+        //const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${userSubdomain}.` : "";
         //console.log("redirectToSubdomain",redirectToSubdomain, "<-->",currentSubdomain); return false
-
+        //console.log("redirectToSubdomain",redirectToSubdomain)
         
         if(subdomain){
            // Save user data and access token in localStorage
@@ -91,7 +92,9 @@ const Login = () => {
         } else {
           const encryptedToken = encryptToken(accessToken);
           // Construct the redirection URL
-          const redirectUrl = `${window.location.protocol}//${redirectToSubdomain}${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
+         
+          const redirectUrl = `${window.location.protocol}//${userSubdomain}.${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
+          //console.log("redirectUrl",redirectUrl)
           window.location.href = redirectUrl; // Redirecting to subdomain
         }
         
@@ -112,7 +115,7 @@ const Login = () => {
   
 
   return (
-    <div className="bg-full-screen-image" style={{ height: "100vh" }}>
+    <div className="bg-full-screen-image" style={{ height: "110vh" }}>
       <div className="content-overlay" />
       <div className="content-wrapper">
         <div className="content-header row"></div>
@@ -145,7 +148,7 @@ const Login = () => {
                             name="userName"
                             value={userData.userName}
                             onChange={handleChange}
-                            placeholder="Your Username"
+                            placeholder="Your Email"
                           />
                           <div className="form-control-position">
                             <i className="feather icon-user" />

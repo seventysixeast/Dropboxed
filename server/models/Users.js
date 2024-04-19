@@ -133,7 +133,7 @@ const Users = sequelize.define('User', {
     defaultValue: ''
   },
   status: {
-    type: DataTypes.ENUM('Active', 'Inactive'),
+    type: DataTypes.ENUM('Active', 'Inactive', 'Deleted'),
     allowNull: false,
     defaultValue: 'Active'
   },
@@ -157,7 +157,7 @@ const Users = sequelize.define('User', {
     allowNull: true,
     defaultValue: ''
   },
-  deactivated_at: {
+  deleted_at: {
     type: DataTypes.DATE,
     allowNull: true
   },
