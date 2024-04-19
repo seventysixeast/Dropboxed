@@ -19,6 +19,7 @@ const oAuth2Client = new OAuth2(
 exports.login = async (req, res) => {
   const { userName, password, subdomain } = req.body;
   let subdomain_id = '';
+  let user_subdmain = '';
   try {
     const user = await User.findOne({
       where: {
@@ -43,22 +44,27 @@ exports.login = async (req, res) => {
       if (subdomain && user.subdomain !== subdomain) {
         return res.status(401).json({ success: false, message: 'Unauthorized access' });
       }
+      user_subdmain = user.subdomain;
       subdomain_id = user.id;
     }
 
     // Check if the user's role is client (role_id = 3)
     if (user.role_id === 3) {
+      console.log(">>>>>>>");
       // Check if the client is connected to the provided subdomain
       const businessClient = await BusinessClients.findOne({ where: { client_id: user.id } });
+      console.log("businessClient>>",businessClient)
       if (!businessClient) {
         return res.status(401).json({ success: false, message: 'Unauthorized access' });
       }
 
       const businessOwner = await User.findByPk(businessClient.business_id);
+      console.log("businessOwner",businessOwner, '----',subdomain)
       if (!businessOwner || businessOwner.subdomain !== subdomain) {
         return res.status(401).json({ success: false, message: 'Unauthorized access' });
       }
       subdomain_id = businessOwner.id;
+      user_subdmain = businessOwner.subdomain;
     }
 
     // Generate JWT token
@@ -73,7 +79,7 @@ exports.login = async (req, res) => {
         userName: user.name,
         email: user.email,
         profilePhoto: user.profile_photo,
-        subdomain: user.subdomain,
+        subdomain: user_subdmain,
         subdomain_id: subdomain_id,
         calendarSub: user.calendar_sub,
         role_id: user.role_id

@@ -224,7 +224,7 @@ export const BookingListComponent = () => {
     }
 
   }, [subdomainId]);
-
+  
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {
