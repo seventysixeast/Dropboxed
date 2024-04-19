@@ -255,7 +255,7 @@ const createBooking = async (req, res) => {
 
 const providers = async (req, res) => {
   const { subdomainId } = req.body;
-    console.log(subdomainId);
+  console.log(subdomainId);
   try {
     const businessClients = await BusinessClients.findAll({
       attributes: ['client_id'],
@@ -271,13 +271,13 @@ const providers = async (req, res) => {
     const usersWithRoleId2 = await User.findAll({
       attributes: ["id", "name", "profile_photo"],
       where: {
-        id: { [Op.in]: businessClients.map(client => client.client_id) }, role_id : 2
+        id: { [Op.in]: businessClients.map(client => client.client_id) }, role_id: 2
       }
     });
     const users = await User.findAll({
       attributes: ["id", "name", "profile_photo", "address"],
       where: {
-        id: { [Op.in]: businessClients.map(client => client.client_id) }, role_id : 3
+        id: { [Op.in]: businessClients.map(client => client.client_id) }, role_id: 3
       }
     });
 
@@ -390,15 +390,19 @@ const getAllServices = async (req, res) => {
     const services = await Booking.findAll({
       where: {
         user_id: req.body.clientId,
-        client_address: req.body.booking_title
+        booking_title: req.body.booking_title
       },
-      include: [{
-        model: Package,
-        attributes: ['id', 'package_name']
-      }]
+      attributes: ['package_ids']
     });
-    console.log("services", services);
-    res.status(200).json({ success: true, data: services });
+    let serviceIds = services.map(service => service.package_ids);
+    const idsAsIntegers = serviceIds[0].split(',').map(id => parseInt(id.trim(), 10));
+    const servicesData = await Package.findAll({
+      where: {
+        id: idsAsIntegers
+      }
+    });
+    console.log("servicesData", servicesData);
+    res.status(200).json({ success: true, data: servicesData });
   } catch (error) {
     res.status(500).json({ error: "Failed to data of booking" });
   }

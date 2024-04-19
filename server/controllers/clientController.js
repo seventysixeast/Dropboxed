@@ -173,4 +173,25 @@ const activeInactiveClient = async (req, res) => {
   }
 };
 
-module.exports = { updateRedisCache, getAllClients, createClient, getClient, deleteClient, activeInactiveClient };
+const getAllPhotographers = async (req, res) => {
+  try {
+    const photographers = await BusinessClients.findAll({
+      where: {
+        business_id: req.body.subdomainId
+      },
+      attributes: ['client_id']
+    });
+    const photographerIds = photographers.map(photographer => photographer.client_id);
+    let photographersData = await User.findAll({
+      where: {
+        role_id: 2,
+        id: photographerIds
+      }
+    });
+    res.status(200).json({ success: true, data: photographersData });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to list clients" });
+  }
+};
+
+module.exports = { updateRedisCache, getAllClients, createClient, getClient, deleteClient, activeInactiveClient, getAllPhotographers };

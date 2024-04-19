@@ -14,6 +14,7 @@ const addGallery = async (req, res) => {
       banner: imageName || req.body.banner,
       lock_gallery: req.body.lock_gallery,
       notify_client: req.body.notify_client,
+      subdomain_id: req.body.subdomainId,
     };
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.banner;
