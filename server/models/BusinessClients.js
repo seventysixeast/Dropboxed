@@ -31,7 +31,6 @@ const BusinessClients = sequelize.define('BusinessClients', {
     timestamps: false
 });
 
-//BusinessClients.belongsTo(User, { foreignKey: 'business_id', as: 'business' });
-//BusinessClients.belongsTo(User, { foreignKey: 'client_id', as: 'client' });
+BusinessClients.belongsTo(User, { foreignKey: 'client_id', as: 'client' });
 
 module.exports = BusinessClients;

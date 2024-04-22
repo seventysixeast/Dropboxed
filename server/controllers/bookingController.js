@@ -5,6 +5,8 @@ const { google } = require("googleapis");
 const { OAuth2 } = google.auth;
 const axios = require("axios");
 const Users = require("../models/Users");
+const BusinessClients = require("../models/BusinessClients");
+const { Op } = require("sequelize");
 
 const client_id = process.env.GOOGLE_CLIENT_ID;
 const client_secret = process.env.GOOGLE_CLIENT_SECRET;
@@ -228,8 +230,6 @@ const createBooking = async (req, res) => {
       where: { id: userID },
     });
 
-    console.log(theUser);
-
     if (theUser && theUser.calendar_sub == 1) {
       try {
         await addevent(booking, userID);
@@ -252,29 +252,46 @@ const createBooking = async (req, res) => {
 };
 
 const providers = async (req, res) => {
-
+  const { subdomainId } = req.body;
+  // console.log(subdomainId);
   try {
-    const usersWithRoleId1 = await User.findAll({
-      where: { role_id: 2 },
-      attributes: ["id", "name", "profile_photo"],
+    const businessClients = await BusinessClients.findAll({
+      attributes: ['client_id'],
+      where: {
+        business_id: subdomainId
+      },
+      include: {
+        model: User,
+        as: 'client',
+      }
     });
 
+    const usersWithRoleId2 = await User.findAll({
+      attributes: ["id", "name", "profile_photo"],
+      where: {
+        id: { [Op.in]: businessClients.map(client => client.client_id) }, role_id: 2
+      }
+    });
     const users = await User.findAll({
       attributes: ["id", "name", "profile_photo", "address"],
+      where: {
+        id: { [Op.in]: businessClients.map(client => client.client_id) }, role_id: 3
+      }
     });
 
     const packages = await Package.findAll({
       attributes: ["id", "package_name", "package_price", "package_type"],
-      where: { status: "Active" },
+      where: {
+        subdomain_id: subdomainId
+      }
     });
 
-    res.json({ usersWithRoleId1, packages, users });
+    res.json({ usersWithRoleId2, packages, users });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 const getAllBookings = async (req, res) => {
   try {
     let bookings = await Booking.findAll({
@@ -371,15 +388,19 @@ const getAllServices = async (req, res) => {
     const services = await Booking.findAll({
       where: {
         user_id: req.body.clientId,
-        client_address: req.body.booking_title
+        booking_title: req.body.booking_title
       },
-      include: [{
-        model: Package,
-        attributes: ['id', 'package_name']
-      }]
+      attributes: ['package_ids']
     });
-    console.log("services", services);
-    res.status(200).json({ success: true, data: services });
+    let serviceIds = services.map(service => service.package_ids);
+    const idsAsIntegers = serviceIds[0].split(',').map(id => parseInt(id.trim(), 10));
+    const servicesData = await Package.findAll({
+      where: {
+        id: idsAsIntegers
+      }
+    });
+    console.log("servicesData", servicesData);
+    res.status(200).json({ success: true, data: servicesData });
   } catch (error) {
     res.status(500).json({ error: "Failed to data of booking" });
   }

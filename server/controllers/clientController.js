@@ -129,40 +129,41 @@ const deleteClient = async (req, res) => {
   try {
     const clientId = req.body.id;
     const client = await User.findByPk(clientId);
+    
+    // Check if the client exists
     if (!client) {
       return res.status(404).json({ success: false, message: "Client not found" });
     }
-    // Check if the client has been deactivated for at least 30 days
-    const deactivatedAt = new Date(client.deactivated_at);
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    if (deactivatedAt && deactivatedAt > thirtyDaysAgo) {
-      return res.status(400).json({ success: false, message: "Client cannot be deleted yet" });
-    }
-    await User.destroy({ where: { id: clientId } });
+
+    // Update the status to 'Deleted' and set the deletedAt date
+    await User.update({ status: 'Deleted', deleted_at: new Date() }, { where: { id: clientId } });
+
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
-    res.status(200).json({ success: true, message: "Client deleted successfully" });
+    
+    res.status(200).json({ success: true, message: "Action successful. Record will be removed permanently after 30 days." });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete client" });
+    res.status(500).json({ error: "Failed to update client status" });
   }
 };
+
 
 const activeInactiveClient = async (req, res) => {
   try {
     const clientId = req.body.id;
     const clientStatus = req.body.status;
     let updateFields = { status: clientStatus };
-    if (clientStatus === 'Inactive') {
-      updateFields.deactivated_at = new Date(); // Set deactivation date
-    }
+    
     await User.update(updateFields, { where: { id: clientId } });
     const updatedClient = await User.findByPk(clientId);
+    
     if (!updatedClient) {
       return res.status(404).json({ success: false, message: "Client not found" });
     }
+    
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
+    
     res.status(200).json({
       success: true,
       message: "Client status updated.",
@@ -173,4 +174,25 @@ const activeInactiveClient = async (req, res) => {
   }
 };
 
-module.exports = { updateRedisCache, getAllClients, createClient, getClient, deleteClient, activeInactiveClient };
+const getAllPhotographers = async (req, res) => {
+  try {
+    const photographers = await BusinessClients.findAll({
+      where: {
+        business_id: req.body.subdomainId
+      },
+      attributes: ['client_id']
+    });
+    const photographerIds = photographers.map(photographer => photographer.client_id);
+    let photographersData = await User.findAll({
+      where: {
+        role_id: 2,
+        id: photographerIds
+      }
+    });
+    res.status(200).json({ success: true, data: photographersData });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to list clients" });
+  }
+};
+
+module.exports = { updateRedisCache, getAllClients, createClient, getClient, deleteClient, activeInactiveClient, getAllPhotographers };

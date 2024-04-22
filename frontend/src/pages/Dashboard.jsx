@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { getAllClients } from "../api/clientApis";
+import { getAllClients, getAllPhotographers } from "../api/clientApis";
 import { getAllBookingTitles, getAllServices } from "../api/bookingApis";
 import { addGallery } from "../api/collectionApis";
 import { toast } from 'react-toastify';
 import AddGalleryModal from "../components/addGalleryModal";
+import { useAuth } from "../context/authContext";
 
 export const Dashboard = () => {
+  const { authData } = useAuth();
+  const user = authData.user;
+  const subdomainId = user.subdomain_id
+  const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [bookingTitles, setBookingTitles] = useState([]);
   const [services, setServices] = useState([]);
-  const [selectedService, setSelectedService] = useState(null);
+  const [photographers, setPhotographers] = useState([]);
   const [isGalleryLocked, setIsGalleryLocked] = useState(false);
   const [isNotifyChecked, setIsNotifyChecked] = useState(false);
   const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
@@ -30,6 +35,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     getClients();
+    getPhotographers();
   }, [])
 
   useEffect(() => {
@@ -40,7 +46,7 @@ export const Dashboard = () => {
 
   const getClients = async () => {
     try {
-      let clients = await getAllClients();
+      let clients = await getAllClients({ subdomainId: subdomainId });
       setClients(clients.data);
     } catch (error) {
       toast.error(error);
@@ -48,18 +54,33 @@ export const Dashboard = () => {
   };
 
   const getBookingTitles = async (client) => {
+    setLoading(true)
     try {
       let bookingTitles = await getAllBookingTitles({ clientId: client });
       setBookingTitles(bookingTitles.data);
     } catch (error) {
       toast.error(error);
     }
+    setLoading(false)
   };
 
   const getServices = async (client, booking_title) => {
     try {
       let services = await getAllServices({ clientId: client, booking_title: booking_title });
-      setServices(services.data);
+      let servicesData = services && services.data.map((pkg) => ({
+        label: pkg.package_name,
+        value: pkg.id
+      }))
+      setServices(servicesData);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getPhotographers = async () => {
+    try {
+      let photographers = await getAllPhotographers({ subdomainId: subdomainId });
+      setPhotographers(photographers.data);
     } catch (error) {
       toast.error(error);
     }
@@ -81,6 +102,7 @@ export const Dashboard = () => {
       getBookingTitles(value);
     } else if (name === "booking_title") {
       gallery.booking_title = value;
+      gallery.gallery_title = value;
     } else if (name === 'services') {
       gallery.services = value
     } else if (name === 'photographer') {
@@ -108,17 +130,6 @@ export const Dashboard = () => {
     });
   };
 
-  const handleSelectedChange = (selectedOptions) => {
-    setSelectedService(selectedOptions);
-
-    const selectedValues = selectedOptions.map(option => option.value);
-    const selectedValuesString = selectedValues.join(', ');
-    setFormData((prevData) => ({
-      ...prevData,
-      services: selectedValuesString,
-    }));
-  };
-
   const resetFormData = async () => {
     setFormData({
       id: '',
@@ -138,11 +149,12 @@ export const Dashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let serviceIds = services && services.map(item => item.value)
       const formDataToSend = new FormData();
       formDataToSend.append('id', formData.id);
       formDataToSend.append('client', formData.client);
       formDataToSend.append('booking_title', formData.booking_title);
-      formDataToSend.append('services', formData.services);
+      formDataToSend.append('services', serviceIds);
       formDataToSend.append('photographer', formData.photographer);
       formDataToSend.append('gallery_title', formData.gallery_title);
       formDataToSend.append('dropbox_link', formData.dropbox_link);
@@ -150,17 +162,17 @@ export const Dashboard = () => {
       formDataToSend.append('banner', formData.banner);
       formDataToSend.append('lock_gallery', isGalleryLocked);
       formDataToSend.append('notify_client', isNotifyChecked);
+      formDataToSend.append('subdomainId', subdomainId);
 
       let res = await addGallery(formDataToSend);
-      console.log("res", res);
-      // if (res.success) {
-      //   toast.success(res.message);
-      //   resetFormData();
-      //   document.getElementById('closeModal').click();
-      //   getAllClientsData();
-      // } else {
-      //   toast.error(res);
-      // }
+      if (res.success) {
+        toast.success(res.message);
+        resetFormData();
+        setShowAddGalleryModal(false)
+        // getAllCollectionsData();
+      } else {
+        toast.error(res);
+      }
     } catch (error) {
       toast.error(error);
     }
@@ -278,6 +290,8 @@ export const Dashboard = () => {
                         <button
                           type="button"
                           className="btn btn-outline-primary btn-block"
+                          data-toggle="modal"
+                          data-target="#bootstrap"
                           onClick={() => {
                             setShowAddGalleryModal(true);
                           }}
@@ -759,22 +773,22 @@ export const Dashboard = () => {
         </div>
       </div>
       <AddGalleryModal
+        message="Add Gallery"
         isOpen={showAddGalleryModal}
-        onClose={() => setShowAddGalleryModal(false)}
-        handleSubmit={handleSubmit}
         formData={formData}
-        handleInputChange={handleInputChange}
         clients={clients}
         bookingTitles={bookingTitles}
         services={services}
-        selectedService={selectedService}
-        handleSelectedChange={handleSelectedChange}
-        handleBannerChange={handleBannerChange}
+        photographers={photographers}
         isGalleryLocked={isGalleryLocked}
+        isNotifyChecked={isNotifyChecked}
+        loading={loading}
+        handleInputChange={handleInputChange}
+        handleBannerChange={handleBannerChange}
         handleGalleryLockChange={handleGalleryLockChange}
         handleNotifyChange={handleNotifyChange}
-        isNotifyChecked={isNotifyChecked}
-        message="Add Gallery"
+        handleSubmit={handleSubmit}
+        onClose={() => setShowAddGalleryModal(false)}
       />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>

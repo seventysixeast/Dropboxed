@@ -235,7 +235,7 @@ exports.clientSignup = async (req, res) => {
       where: { role_id: 5, subdomain: req.body.subdomain },
     });
     if (!subdomainUser) {
-      return res.status(400).json({ error: "Subdomain does not exist" });
+      return res.status(400).json({ success: false, error: "Subdomain does not exist" });
     }
 
     /*if (req.files && Object.keys(req.files).length) {
@@ -261,7 +261,7 @@ exports.clientSignup = async (req, res) => {
         where: { email: req.body.email },
       });
       if (existingEmail) {
-        return res.status(400).json({ error: "Email already exists" });
+        return res.status(400).json({ success: false, error: "Email already exists" });
       }
     }
     if (req.body.phone !== "") {
@@ -269,7 +269,7 @@ exports.clientSignup = async (req, res) => {
         where: { phone: req.body.phone },
       });
       if (existingPhone) {
-        return res.status(400).json({ error: "Phone number already exists" });
+        return res.status(400).json({ success: false, error: "Phone number already exists" });
       }
     }
 
@@ -283,13 +283,13 @@ exports.clientSignup = async (req, res) => {
       status: 1,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Client registered successfully",
-      data: client,
+      data: client.id,
     });
   } catch (error) {
-    res.status(500).json({ error: "Failed to register client" });
+    res.status(500).json({ success: false, error: "Failed to register client" });
   }
 };
 
