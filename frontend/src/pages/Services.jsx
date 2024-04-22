@@ -1,6 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { getAllServices } from "../api/serviceApis";
+import { useAuth } from "../context/authContext";
 
 const Services = () => {
+  const { authData } = useAuth();
+  const { user } = authData;
+  const roleId = user.role_id;
+  const subdomainId = user.subdomain_id;
+
+  const [servicesData, setServicesData] = useState([]);
+
+
+  useEffect(() => {
+    getServices()
+  }, []);
+
+  const getServices = async () => {
+    const services = await getAllServices(subdomainId);
+    setServicesData(services);
+  }
+
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>

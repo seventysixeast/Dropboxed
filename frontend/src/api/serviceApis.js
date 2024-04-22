@@ -1,15 +1,20 @@
 import API from "./baseApi";
 
-const getAllServices = async () => {
+const getAllServices = async (data) => {
+  console.log(data);
+
   try {
-    const response = await API.get('/service/getAllServices');
-    if (response.status !== 200) {
-      throw new Error('Failed to get all services');
+    const response = await API.post('/service/getAllservices', data);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error('Failed to get services');
     }
-    return response.data;
   } catch (error) {
-    return error.response.data.error;
+    console.error('Error fetching services:', error);
+    throw error; // Rethrow the error to be handled by the caller
   }
 };
+
 
 export { getAllServices };

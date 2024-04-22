@@ -25,7 +25,7 @@ import ManagePhotographersSubdomains from "../pages/ManagePhotographersSubdomain
 import EditProfile from "../pages/EditProfile";
 import SignUp from "../pages/SignUp";
 import { useAuth } from "../context/authContext";
-
+import AddService from "../pages/AddService";
 
 const AdminRouter = () => {
   const { authData } = useAuth();
@@ -54,6 +54,7 @@ const AdminRouter = () => {
     // { path: "/download", element: <Download /> },
     // { path: "/users", element: <Users /> },
     // { path: "/*", element: <Navigate to="/dashboard" /> },
+    { path: "/add-service", element: <AddService /> }
   ]);
 
   return (

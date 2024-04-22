@@ -177,14 +177,12 @@ async function deleteevent(bookingId, userId) {
   });
   const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
   const id = "123" + bookingId;
-  //get event list
   const events = await calendar.events.list({
     calendarId: theuser.calendar_id,
     singleEvents: true,
     orderBy: "startTime",
     showDeleted: true,
   });
-  //find the event with the matching id
   const existingEvent = events.data.items.find((event) => event.id === id);
   if (!existingEvent) {
     return;
@@ -258,7 +256,8 @@ const providers = async (req, res) => {
     const businessClients = await BusinessClients.findAll({
       attributes: ['client_id'],
       where: {
-        business_id: subdomainId
+        business_id: subdomainId,
+        status: 1
       },
       include: {
         model: User,
