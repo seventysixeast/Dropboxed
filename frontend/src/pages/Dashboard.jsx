@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { getAllClients, getAllPhotographers } from "../api/clientApis";
 import { getAllBookingTitles, getAllServices } from "../api/bookingApis";
-import { addGallery } from "../api/collectionApis";
+import { addGallery, getAllCollections } from "../api/collectionApis";
 import { toast } from 'react-toastify';
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
+import { useNavigate } from "react-router-dom";
 
+const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 export const Dashboard = () => {
   const { authData } = useAuth();
   const user = authData.user;
@@ -18,6 +20,8 @@ export const Dashboard = () => {
   const [isGalleryLocked, setIsGalleryLocked] = useState(false);
   const [isNotifyChecked, setIsNotifyChecked] = useState(false);
   const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
+  const [collections, setCollections] = useState([]);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     id: '',
@@ -36,6 +40,7 @@ export const Dashboard = () => {
   useEffect(() => {
     getClients();
     getPhotographers();
+    getAllCollectionsData();
   }, [])
 
   useEffect(() => {
@@ -169,9 +174,22 @@ export const Dashboard = () => {
         toast.success(res.message);
         resetFormData();
         setShowAddGalleryModal(false)
-        // getAllCollectionsData();
+        getAllCollectionsData();
       } else {
         toast.error(res);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getAllCollectionsData = async () => {
+    try {
+      let allCollections = await getAllCollections({ subdomainId: subdomainId });
+      if (allCollections && allCollections.success) {
+        setCollections(allCollections.data);
+      } else {
+        setCollections([]);
       }
     } catch (error) {
       toast.error(error);
@@ -310,386 +328,29 @@ export const Dashboard = () => {
                   itemType="http://schema.org/ImageGallery"
                 >
                   <div className="card-deck-wrapper">
-                    <div className="card-deck">
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/1.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/1.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 1</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/2.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/2.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 2</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/3.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/3.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 3</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/4.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/4.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 4</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                    </div>
-                  </div>
-
-                  <div className="card-deck-wrapper">
-                    <div className="card-deck mt-1">
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/5.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/5.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 5</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/6.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/6.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 6</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/7.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/7.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 7</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/8.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/8.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 4</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                    </div>
-                  </div>
-
-                  <div className="card-deck-wrapper">
-                    <div className="card-deck mt-1">
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/9.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/9.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 9</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/10.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/10.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 10</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/11.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/11.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 11</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                      <figure
-                        className="card card-img-top border-grey border-lighten-2"
-                        itemProp="associatedMedia"
-                        itemScope
-                        itemType="http://schema.org/ImageObject"
-                      >
-                        <a
-                          href="../../../app-assets/images/gallery/12.jpg"
-                          itemProp="contentUrl"
-                          data-size="480x360"
-                        >
-                          <img
-                            className="gallery-thumbnail card-img-top"
-                            src="../../../app-assets/images/gallery/12.jpg"
-                            itemProp="thumbnail"
-                            alt="Image description"
-                          />
-                        </a>
-                        <div className="card-body px-0">
-                          <h4 className="card-title">Card title 12</h4>
-                          <p className="card-text">
-                            This is a longer card with supporting text below.
-                          </p>
-                        </div>
-                      </figure>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="pswp"
-                  tabIndex="-1"
-                  role="dialog"
-                  aria-hidden="true"
-                >
-                  <div className="pswp__bg"></div>
-
-                  <div className="pswp__scroll-wrap">
-                    <div className="pswp__container">
-                      <div className="pswp__item"></div>
-                      <div className="pswp__item"></div>
-                      <div className="pswp__item"></div>
-                    </div>
-
-                    <div className="pswp__ui pswp__ui--hidden">
-                      <div className="pswp__top-bar">
-                        <div className="pswp__counter"></div>
-
-                        <button
-                          className="pswp__button pswp__button--close"
-                          title="Close (Esc)"
-                        ></button>
-
-                        <button
-                          className="pswp__button pswp__button--share"
-                          title="Share"
-                        ></button>
-
-                        <button
-                          className="pswp__button pswp__button--fs"
-                          title="Toggle fullscreen"
-                        ></button>
-
-                        <button
-                          className="pswp__button pswp__button--zoom"
-                          title="Zoom in/out"
-                        ></button>
-
-                        <div className="pswp__preloader">
-                          <div className="pswp__preloader__icn">
-                            <div className="pswp__preloader__cut">
-                              <div className="pswp__preloader__donut"></div>
+                    <div className="row">
+                      {collections && collections.map(item => (
+                        <div className="col-md-3 mb-3">
+                          <a
+                            onClick={() => navigate(`/view-gallery/${item.id}`)}
+                            className="gallery-link"
+                          >
+                            <img
+                              className="gallery-thumbnail card-img-top"
+                              src={
+                                item.banner
+                                  ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
+                                  : "../../../app-assets/images/gallery/9.jpg"
+                              }
+                              itemProp="thumbnail"
+                              alt="Image description"
+                            />
+                            <div className="card-body px-0">
+                              <h4 className="card-title">{item.name}</h4>
                             </div>
-                          </div>
+                          </a>
                         </div>
-                      </div>
-
-                      <div className="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                        <div className="pswp__share-tooltip"></div>
-                      </div>
-
-                      <button
-                        className="pswp__button pswp__button--arrow--left"
-                        title="Previous (arrow left)"
-                      ></button>
-
-                      <button
-                        className="pswp__button pswp__button--arrow--right"
-                        title="Next (arrow right)"
-                      ></button>
-
-                      <div className="pswp__caption">
-                        <div className="pswp__caption__center"></div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>

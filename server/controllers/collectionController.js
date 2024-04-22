@@ -48,4 +48,18 @@ const addGallery = async (req, res) => {
   }
 };
 
-module.exports = { addGallery };
+const getAllCollections = async (req, res) => {
+  try {
+    let collectionsData = await Collection.findAll({
+      where: {
+        subdomain_id: req.body.subdomainId
+      },
+      order: [['created', 'DESC']]
+    });
+    res.status(200).json({ success: true, data: collectionsData });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to list collections" });
+  }
+};
+
+module.exports = { addGallery, getAllCollections };

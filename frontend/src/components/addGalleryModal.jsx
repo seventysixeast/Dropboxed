@@ -207,6 +207,8 @@ const AddGalleryModal = ({ message, isOpen, formData, clients, bookingTitles, se
                   <input
                     type="reset"
                     className="btn btn-secondary btn"
+                    data-dismiss="modal"
+                    aria-label="Close"
                     onClick={onClose}
                     value="Close"
                   />

@@ -16,4 +16,16 @@ const addGallery = async (galleryData) => {
   }
 };
 
-export { addGallery };
+const getAllCollections = async (data) => {
+  try {
+    const response = await API.post('/collection/getAllCollections', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to get collections');
+    }
+    return response.data;
+  } catch (error) {
+    return error.response.data.error;
+  }
+};
+
+export { addGallery, getAllCollections };

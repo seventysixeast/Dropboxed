@@ -11,7 +11,7 @@ import Clients from "../pages/Clients";
 import Invoice from "../pages/Invoice";
 import CardsPackages from "../pages/CardsPackages";
 import ImageTypes from "../pages/ImageTypes";
-import AddGallery from "../pages/AddGallery";
+import { ViewGallery } from "../pages/ViewGallery";
 import { AddBooking } from "../pages/AddBooking";
 import Services from "../pages/Services";
 import { NotificationComponent } from "../pages/NotificationComponent";
@@ -26,11 +26,9 @@ import EditProfile from "../pages/EditProfile";
 import SignUp from "../pages/SignUp";
 import { useAuth } from "../context/authContext";
 
-
 const AdminRouter = () => {
   const { authData } = useAuth();
   const { user } = authData;
-  console.log(user.role_id);
   const route = useRoutes([
     { path: "/dashboard", element: <Dashboard /> },
     { path: "/booking-list-calendar", element: <BookingListComponent /> },
@@ -40,7 +38,8 @@ const AdminRouter = () => {
     { path: "/invoice", element: <Invoice /> },
     { path: "/cards-packages", element: <CardsPackages /> },
     { path: "/image-types", element: <ImageTypes /> },
-    { path: "/add-gallery", element: <AddGallery /> },
+    { path: "/view-gallery/:id", element: <ViewGallery /> },
+    { path: "/view-gallery", element: <ViewGallery /> },
 
     { path: "/booking-for-photography", element: <AddBooking /> },
     { path: "/services", element: <Services /> },
