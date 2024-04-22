@@ -9,6 +9,7 @@ const { google } = require("googleapis");
 const { OAuth2 } = google.auth;
 const axios = require("axios");
 const BusinessClients = require("../models/BusinessClients");
+const clientController = require("../controllers/clientController");
 
 const oAuth2Client = new OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -282,6 +283,9 @@ exports.clientSignup = async (req, res) => {
       client_id: client.id,
       status: 1,
     });
+
+    // update redis
+    clientController.updateRedisCache(subdomainUser.id);
 
     res.status(201).json({
       success: true,
