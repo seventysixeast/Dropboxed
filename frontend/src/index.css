@@ -977,3 +977,55 @@ html body .content .content-wrapper {
   }
 }
 
+a:not([href]) {
+  /* color: inherit; */
+  text-decoration: none;
+}
+
+.fc-event .fc-event-draggable .fc-event-resizable .fc-event-start .fc-event-end .fc-event-future .fc-daygrid-event .fc-daygrid-dot-event{
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.fc-direction-ltr .fc-daygrid-event.fc-event-end, .fc-direction-rtl .fc-daygrid-event.fc-event-start {
+  margin-right: 0 !important;
+}
+.fc-direction-ltr .fc-daygrid-event.fc-event-start, .fc-direction-rtl .fc-daygrid-event.fc-event-end {
+  margin-left: 0 !important;
+}
+
+.fc-daygrid-dot-event {
+  align-items: center;
+  display: flex;
+  padding: 0px 0px !important;
+  /* padding-top: 2px; */
+  /* padding-right: 0px; */
+  /* padding-bottom: 2px; */
+  /* padding-left: 0px; */
+}
+.fc-daygrid-dot-event:hover {
+  align-items: center;
+  display: flex;
+  padding: 0px 0px !important;
+  /* padding-top: 2px; */
+  /* padding-right: 0px; */
+  /* padding-bottom: 2px; */
+  /* padding-left: 0px; */
+}
+
+.fc-event {
+  border: 1px solid #00b5b8 !important;
+  border-radius: 3px;
+  color: white !important;
+
+}
+
+.fc-event:hover {
+  border: 0.1px solid #00b5b8 !important;
+  border-radius: 3px;
+  color: white !important;
+}
+
+.fc .fc-timegrid-slot-minor {
+  border-top-style: none !important;
+}
