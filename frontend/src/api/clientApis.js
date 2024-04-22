@@ -64,4 +64,16 @@ const activeInactiveClient = async (data) => {
   }
 };
 
-export { getAllClients, createClient, getClient, deleteClient, activeInactiveClient };
+const getAllPhotographers = async (data) => {
+  try {
+    const response = await API.post('/client/getAllPhotographers', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to get photographers');
+    }
+    return response.data;
+  } catch (error) {
+    return error.response.data.error;
+  }
+};
+
+export { getAllClients, createClient, getClient, deleteClient, activeInactiveClient, getAllPhotographers };
