@@ -29,10 +29,7 @@ import { useAuth } from "../context/authContext";
 const AdminRouter = () => {
   const { authData } = useAuth();
   const { user } = authData;
-<<<<<<< HEAD
-=======
   
->>>>>>> stage
   const route = useRoutes([
     { path: "/dashboard", element: <Dashboard /> },
     { path: "/booking-list-calendar", element: <BookingListComponent /> },
