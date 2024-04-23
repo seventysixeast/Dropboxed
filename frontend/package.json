@@ -24,7 +24,6 @@
     "bootstrap-icons": "^1.11.3",
     "crypto": "^1.0.1",
     "crypto-js": "^4.2.0",
-    "ical.js": "^2.0.0",
     "install": "^0.13.0",
     "js-cookie": "^3.0.5",
     "moment": "^2.30.1",

@@ -9,7 +9,7 @@ import ToDo from "../pages/ToDo";
 import Orders from "../pages/Orders";
 import Clients from "../pages/Clients";
 import Invoice from "../pages/Invoice";
-import CardsPackages from "../pages/CardsPackages";
+import CardsPackages from "../pages/Services";
 import ImageTypes from "../pages/ImageTypes";
 import AddGallery from "../pages/AddGallery";
 import { AddBooking } from "../pages/AddBooking";
@@ -38,7 +38,6 @@ const AdminRouter = () => {
     // { path: "/orders", element: <Orders /> },
     { path: "/clients", element: <Clients /> },
     { path: "/invoice", element: <Invoice /> },
-    { path: "/cards-packages", element: <CardsPackages /> },
     { path: "/image-types", element: <ImageTypes /> },
     { path: "/add-gallery", element: <AddGallery /> },
 
