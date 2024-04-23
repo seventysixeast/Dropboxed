@@ -1,6 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { getAllServices } from "../api/serviceApis";
+import { useAuth } from "../context/authContext";
+import { toast } from "react-toastify";
 
 const CardsPackages = () => {
+  const { authData } = useAuth();
+  const { user } = authData;
+  const roleId = user.role_id;
+  const subdomainId = user.subdomain_id;
+
+  const [servicesData, setServicesData] = useState([]);
+
+
+  useEffect(() => {
+    getServices()
+  }, []);
+
+  const getServices = async () => {
+    const formData = new FormData();
+    formData.append("subdomain_id", subdomainId);
+    formData.append("role_id", roleId);
+    const response = await getAllServices(formData);
+    if (response.success) {
+      const servicesWithParsedImages = response.data.map(service => ({
+        ...service,
+        image_type_details: JSON.parse(service.image_type_details)
+      }));
+      setServicesData(servicesWithParsedImages);
+    } else {
+      toast.error("Failed to get services!")
+    }
+  }
+  
+
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -129,102 +161,28 @@ const CardsPackages = () => {
             </ul>
           </div>
         </div>
-        <div class="row">
-          <div class="col-xl-3 col-md-6 col-sm-12 ">
-            <div class="card d-flex flex-column ">
-              <div class="card-content flex-grow-1">
-                <div class="card-body text-center package-card">
-                  <h4 class="card-title">Studio Package</h4>
-                  <h1 class="card-title">$385.00</h1>
-                  <ul class="list-unstyled mt-2 mb-2">
-                    <li>12 High resolution images</li>
-                    <li>3 Aerial photos</li>
-                    <li>1 Studio Floor plan</li>
-                  </ul>
+        <div className="row">
+          {servicesData.map((service) => (
+            <div className="col-xl-3 col-md-6 col-sm-12" key={service.id}>
+              <div className="card d-flex flex-column">
+                <div className="card-content flex-grow-1">
+                  <div className="card-body text-center package-card">
+                    <h4 className="card-title">{service.package_name}</h4>
+                    <h1 className="card-title">${service.package_price.toFixed(2)}</h1>
+                    <ul className="list-unstyled mt-2 mb-2">
+                      {service.image_type_details.map((imageType) => (
+                        <li key={imageType.image_type}>{imageType.image_type_count} {imageType.image_type_label}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div className="card-footer d-flex justify-content-between">
+                  <button className="btn btn-primary">Edit</button>
+                  <button className="btn btn-primary">Delete</button>
                 </div>
               </div>
-              <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-primary">Edit</button>
-                <button class="btn btn-primary">Delete</button>
-              </div>
             </div>
-          </div>
-          <div class="col-xl-3 col-md-6 col-sm-12 ">
-            <div class="card d-flex flex-column ">
-              <div class="card-content flex-grow-1">
-                <div class="card-body text-center package-card">
-                  <h4 class="card-title">Premium Package</h4>
-                  <h1 class="card-title">$900.00</h1>
-                  <ul class="list-unstyled mt-2 mb-2">
-                    <li>20 High resolution images</li>
-                    <li>1 Standard Floor and Site Plan</li>
-                    <li>8 High Resolution Aerial Photos</li>
-                    <li>1 Property Video</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-primary">Edit</button>
-                <button class="btn btn-primary">Delete</button>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-3 col-md-6 col-sm-12 ">
-            <div class="card d-flex flex-column ">
-              <div class="card-content flex-grow-1">
-                <div class="card-body text-center package-card">
-                  <h4 class="card-title">Essential Package</h4>
-                  <h1 class="card-title">$485.00</h1>
-                  <ul class="list-unstyled mt-2 mb-2">
-                    <li>20 High resolution images</li>
-                    <li>5 Aerials</li>
-                    <li>1 Floor plan and site plan</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-primary">Edit</button>
-                <button class="btn btn-primary">Delete</button>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-3 col-md-6 col-sm-12 ">
-            <div class="card d-flex flex-column ">
-              <div class="card-content flex-grow-1">
-                <div class="card-body text-center package-card">
-                  <h4 class="card-title">Builders architectural shoot</h4>
-                  <h1 class="card-title">$350.00</h1>
-                  <ul class="list-unstyled mt-2 mb-2">
-                    <li>30 architectural images</li>
-                    <li>10 Aerial Images</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-primary">Edit</button>
-                <button class="btn btn-primary">Delete</button>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-3 col-md-6 col-sm-12 ">
-            <div class="card d-flex flex-column ">
-              <div class="card-content flex-grow-1">
-                <div class="card-body text-center package-card">
-                  <h4 class="card-title">Rental Package</h4>
-                  <h1 class="card-title">$350.00</h1>
-                  <ul class="list-unstyled mt-2 mb-2">
-                    <li>12 High resolution images</li>
-                    <li>3 Aerial photos</li>
-                    <li>1 60 Sec (3 CLIPS) Continuous Video</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-primary">Edit</button>
-                <button class="btn btn-primary">Delete</button>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

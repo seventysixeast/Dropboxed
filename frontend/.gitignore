@@ -6,3 +6,5 @@ build/
 /build
 ./env
 .env
+build.zip
+/build.zip

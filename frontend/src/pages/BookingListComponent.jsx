@@ -171,7 +171,7 @@ export const BookingListComponent = () => {
         services: "",
         prefferedDate: new Date(),
         fromTime: "",
-        toTime: "",
+        toTime: "60",
         client: "",
         comment: "",
         provider: "",
@@ -664,7 +664,7 @@ export const BookingListComponent = () => {
         services: "",
         prefferedDate: new Date(),
         fromTime: "",
-        toTime: "",
+        toTime: "60",
         client: "",
         comment: "",
         provider: "",
@@ -702,7 +702,7 @@ export const BookingListComponent = () => {
       accessor: "booking_date",
       Cell: ({ value }) => (
         <div className="badge badge-pill badge-light-primary">
-          {new Date(value).toLocaleDateString("en-NZ", {
+          {new Date(value).toLocaleDateString("UTC", {
             year: "2-digit",
             month: "2-digit",
             day: "2-digit",
@@ -731,25 +731,6 @@ export const BookingListComponent = () => {
         return <span>{formattedTime} - {formattedToTime}</span>;
       },
     },
-    // {
-    //   Header: "To Time",
-    //   accessor: "booking_time_to",
-    //   Cell: ({ value }) => {
-    //     const [hours, minutes, seconds] = value.split(":");
-
-    //     let formattedHours = parseInt(hours, 10);
-    //     const ampm = formattedHours >= 12 ? "PM" : "AM";
-    //     formattedHours = formattedHours % 12 || 12;
-
-    //     formattedHours =
-    //       formattedHours < 10 ? `0${formattedHours}` : formattedHours;
-
-    //     const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
-
-    //     return <span>{formattedTime}</span>;
-    //   },
-    // },
-
     {
       Header: "Client",
       accessor: "client_name",
@@ -843,9 +824,6 @@ export const BookingListComponent = () => {
               type="button"
               className="badge"
               style={{ backgroundColor: '#ff748c' }}
-              onClick={() => handleNotifyChange(props.row.original)}
-              data-toggle="modal"
-              data-target="#confirmModal"
               title={roleId !== 3 ? "Notify client" : "Pending"}
             >
               {roleId !== 3 && props.row.original.photographer_id === "" ? "New Request" : roleId === 3 ? "Pending" : "Notify"}
@@ -930,7 +908,9 @@ export const BookingListComponent = () => {
   const handleAddressChange = (address) => {
     setBookingAddress(address);
   };
-
+  const resetAddress = () => {
+    setBookingAddress(null);
+  };
 
 
   const handleNotifyClose = () => {
@@ -941,7 +921,7 @@ export const BookingListComponent = () => {
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "",
+      toTime: "60",
       client: "",
       comment: "",
       provider: "",
@@ -975,7 +955,7 @@ export const BookingListComponent = () => {
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "",
+      toTime: "60",
       client: "",
       comment: "",
       provider: "",
@@ -1012,7 +992,7 @@ export const BookingListComponent = () => {
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "",
+      toTime: "60",
       client: "",
       comment: "",
       provider: "",
@@ -1048,7 +1028,7 @@ export const BookingListComponent = () => {
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "",
+      toTime: "60",
       client: "",
       comment: "",
       provider: "",
@@ -1082,7 +1062,7 @@ export const BookingListComponent = () => {
       services: "",
       prefferedDate: new Date(),
       fromTime: "",
-      toTime: "",
+      toTime: "60",
       client: "",
       comment: "",
       provider: "",
@@ -1304,14 +1284,34 @@ export const BookingListComponent = () => {
                                         >
                                           Address
                                         </label>
-                                        <GooglePlacesAutocomplete
-                                          apiKey="AIzaSyCQUMJXi-NEPTZ6kIPn8-Drxi0wQCJbuQ0"
-                                          selectProps={{
-                                            bookingAddress,
-                                            onChange: handleAddressChange,
-                                            value: bookingAddress
-                                          }}
-                                        />
+                                        <div className="d-flex w-100">
+                                          <GooglePlacesAutocomplete
+                                            apiKey="AIzaSyCQUMJXi-NEPTZ6kIPn8-Drxi0wQCJbuQ0"
+                                            selectProps={{
+                                              bookingAddress,
+                                              onChange: handleAddressChange,
+                                              value: bookingAddress,
+                                            }}
+                                          />
+                                          <p
+                                            style={{
+                                              marginLeft: '-4rem',
+                                              paddingTop: '5px',
+                                              position: 'relative',
+                                              fontWeight: 'bold',
+                                              cursor: "pointer",
+                                              color: "gray",
+                                              opacity: '50%',
+                                            }}
+                                            onClick={resetAddress}
+                                            onMouseOver={(e) => e.target.style.opacity = '80%'}
+                                            onMouseOut={(e) => e.target.style.opacity = '50%'}
+                                            readOnly
+                                          >
+                                            X
+                                          </p>
+
+                                        </div>
                                       </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
@@ -1606,22 +1606,24 @@ export const BookingListComponent = () => {
                                         </div>
                                       }
                                       <div className="p-1 float-right">
-                                        {roleId !== 3 ?
-                                          <a
-                                            data-toggle="tab"
-                                            href="#tab2"
-                                            className=" nav-link btn btn-primary btn mx-1"
-                                          >
-                                            Save & Next
-                                          </a>
-                                          :
-                                          <input
-                                            type="submit"
-                                            className="btn btn-primary btn mx-1"
-                                            value={
-                                              bookingIdToDelete ? "Update" : "Add"
-                                            }
-                                          />}
+                                        {
+                                          roleId !== 3 ?
+                                            <a
+                                              data-toggle="tab"
+                                              href="#tab2"
+                                              className="btn btn-primary btn mx-1"
+                                            >
+                                              Save & Next
+                                            </a>
+                                            :
+                                            <input
+                                              type="submit"
+                                              className="btn btn-primary btn mx-1"
+                                              value={
+                                                bookingIdToDelete ? "Update" : "Add"
+                                              }
+                                            />
+                                        }
                                         <input
                                           onClick={handleAppointmentModalClose}
                                           type="reset"
