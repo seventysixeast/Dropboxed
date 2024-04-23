@@ -22,7 +22,8 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/authContext";
 import API from "../api/baseApi";
 import ConfirmModal from "../components/ConfirmModal";
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import { getDocumentElement } from "@floating-ui/utils/dom";
 
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
@@ -35,6 +36,7 @@ export const BookingListComponent = () => {
   const [packagePrice, setPackagePrices] = useState([]);
   const [selectedPackagePrice, setSelectedPackagePrice] = useState(0);
   const buttonRef = useRef(null);
+  const tabRef = useRef(null);
   const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
@@ -93,22 +95,6 @@ export const BookingListComponent = () => {
     zip: "",
   });
 
-  const convertTo24Hour = (time12h) => {
-    const [time, modifier] = time12h.split(" ");
-
-    let [hours, minutes] = time.split(":");
-
-    if (hours === "12") {
-      hours = "00";
-    }
-
-    if (modifier === "PM") {
-      hours = parseInt(hours, 10) + 12;
-    }
-
-    return `${hours}:${minutes}:00`;
-  };
-
   const handleCustomerDataChange = (e) => {
     const { name, value } = e.target;
     setCustomerData((prevData) => ({
@@ -138,7 +124,6 @@ export const BookingListComponent = () => {
       currentMinutes = ("0" + currentMinutes).slice(-2);
 
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
-
 
       const bookingDataToSend = {
         id: bookingIdToDelete,
@@ -206,6 +191,7 @@ export const BookingListComponent = () => {
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
+    tabChange2()
   };
 
   const handleChange = (e) => {
@@ -223,7 +209,6 @@ export const BookingListComponent = () => {
 
       fetchProviders();
     }
-
   }, [subdomainId]);
 
   const fetchProviders = async () => {
@@ -316,37 +301,38 @@ export const BookingListComponent = () => {
     };
     try {
       let allBookingData = await getAllBookings(datatosend);
-      let altData = allBookingData
+      let altData = allBookingData;
       if (roleId == 3) {
         allBookingData = {
-          data: allBookingData.data.filter((booking) => booking.user_id === userId),
+          data: allBookingData.data.filter(
+            (booking) => booking.user_id === userId
+          ),
         };
         setBookingsData(allBookingData.data);
       } else {
         setBookingsData(allBookingData.data);
-
       }
 
       let events = altData.data.map((booking) => {
         let title = booking.booking_title;
-        let color = '#ff748c';
-        let borderColor = '#ff748c';
+        let color = "#ff748c";
+        let borderColor = "#ff748c";
         let editable = true;
         let status = booking.booking_status;
 
         if (roleId === 3) {
           if (booking.user_id !== userId) {
             title = "Limited Availability";
-            color = 'gray';
-            borderColor = 'gray';
+            color = "gray";
+            borderColor = "gray";
             editable = false;
           } else {
             if (status === 0) {
-              color = '#ff748c';
-              borderColor = '#ff748c';
+              color = "#ff748c";
+              borderColor = "#ff748c";
             } else {
-              color = '#00b5b8'
-              borderColor = '#00b5b8';
+              color = "#00b5b8";
+              borderColor = "#00b5b8";
             }
           }
         }
@@ -369,7 +355,7 @@ export const BookingListComponent = () => {
 
   const getBookingData = (data) => {
     let array = [];
-    setBookingIdToDelete(data.id)
+    setBookingIdToDelete(data.id);
     if (data.package_ids) {
       if (data.package_ids.includes(",")) {
         data.package_ids.split(", ").forEach((element) => {
@@ -380,12 +366,11 @@ export const BookingListComponent = () => {
       }
     }
 
-    const selectedServices = array.map((id) =>
-      packages.find((pack) => pack.id === id)
-    ).filter(Boolean);
+    const selectedServices = array
+      .map((id) => packages.find((pack) => pack.id === id))
+      .filter(Boolean);
 
     setBookingAddress({ label: data.booking_title, value: {} });
-
 
     const finalservice = selectedServices.map((serv) => ({
       label: serv.package_name,
@@ -434,8 +419,12 @@ export const BookingListComponent = () => {
     ];
     setSelectedClient(finalClient);
     const bookingDate = new Date(data.booking_date);
-    const bookingTime = new Date(`${bookingDate.toISOString().split('T')[0]}T${data.booking_time}`);
-    const bookingTimeTo = new Date(`${bookingDate.toISOString().split('T')[0]}T${data.booking_time_to}`);
+    const bookingTime = new Date(
+      `${bookingDate.toISOString().split("T")[0]}T${data.booking_time}`
+    );
+    const bookingTimeTo = new Date(
+      `${bookingDate.toISOString().split("T")[0]}T${data.booking_time_to}`
+    );
     const bookingTimeDiff = bookingTimeTo - bookingTime;
     const bookingTimeDiffMinutes = Math.floor(bookingTimeDiff / (1000 * 60));
     setToTime(bookingTimeDiffMinutes);
@@ -533,16 +522,15 @@ export const BookingListComponent = () => {
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      second: "2-digit",
       timeZone: "UTC",
     });
     let endTime = endDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      second: "2-digit",
       timeZone: "UTC",
     });
-
-    const newStartTime = convertTo24Hour(startTime);
-    const newEndTime = convertTo24Hour(endTime);
 
     let booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
@@ -552,8 +540,8 @@ export const BookingListComponent = () => {
       package: booking.package,
       services: booking.package_ids,
       prefferedDate: booking.booking_date,
-      fromTime: newStartTime,
-      toTime: newEndTime,
+      fromTime: startTime,
+      toTime: endTime,
       client: booking.user_id,
       comment: booking.comment,
       provider: booking.photographer_id,
@@ -613,17 +601,18 @@ export const BookingListComponent = () => {
     let startTime = newDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      second: "2-digit",
       timeZone: "UTC",
     });
     let endTime = endDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      second: "2-digit",
       timeZone: "UTC",
     });
 
-    const newStartTime = convertTo24Hour(startTime);
-    const newEndTime = convertTo24Hour(endTime);
-    let booking = bookingsData.find((booking) => booking.id === parseInt(id));
+    console.log(startTime, endTime);
+    const booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
     setUpdateData({
       id: id,
@@ -631,8 +620,8 @@ export const BookingListComponent = () => {
       package: booking.package,
       services: booking.package_ids,
       prefferedDate: newDateString,
-      fromTime: newStartTime,
-      toTime: newEndTime,
+      fromTime: startTime,
+      toTime: endTime,
       client: booking.user_id,
       comment: booking.comment,
       provider: booking.photographer_id,
@@ -641,6 +630,8 @@ export const BookingListComponent = () => {
 
     setShowDateModel(true);
   };
+
+  console.log(updateData);
 
   const handleNotifyChange = (data) => {
     setUpdateData({
@@ -721,14 +712,19 @@ export const BookingListComponent = () => {
           const [hours, minutes] = time.split(":");
           let formattedHours = parseInt(hours, 10) % 12 || 12;
           const ampm = parseInt(hours, 10) >= 12 ? "PM" : "AM";
-          formattedHours = formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+          formattedHours =
+            formattedHours < 10 ? `0${formattedHours}` : formattedHours;
           return `${formattedHours}:${minutes} ${ampm}`;
         };
 
         const formattedTime = formatTime(value);
         const formattedToTime = formatTime(row.original.booking_time_to);
 
-        return <span>{formattedTime} - {formattedToTime}</span>;
+        return (
+          <span>
+            {formattedTime} - {formattedToTime}
+          </span>
+        );
       },
     },
     {
@@ -757,15 +753,17 @@ export const BookingListComponent = () => {
             array.push(parseInt(value));
           }
         }
-        const selectedServices = array.map((id) =>
-          packages.find((pack) => pack.id === id)
-        ).filter(Boolean);
+        const selectedServices = array
+          .map((id) => packages.find((pack) => pack.id === id))
+          .filter(Boolean);
 
         const finalservice = selectedServices.map((serv) => ({
           value: serv.package_name,
           key: serv.id,
         }));
-        return <span>{finalservice.map((service) => service.value).join(", ")}</span>;
+        return (
+          <span>{finalservice.map((service) => service.value).join(", ")}</span>
+        );
       },
     },
     {
@@ -805,14 +803,17 @@ export const BookingListComponent = () => {
         const finalProvider =
           selectedProvider &&
           selectedProvider.map((prov) => ({
-            value: prov ? (prov.name || "") : "",
+            value: prov ? prov.name || "" : "",
             key: prov ? prov.id : null,
           }));
 
         // comma separate values
-        return <span>{finalProvider.map((provider) => provider.value).join(", ")}</span>;
+        return (
+          <span>
+            {finalProvider.map((provider) => provider.value).join(", ")}
+          </span>
+        );
       },
-
     },
     {
       Header: "Status",
@@ -823,21 +824,20 @@ export const BookingListComponent = () => {
             <a
               type="button"
               className="badge"
-              style={{ backgroundColor: '#ff748c' }}
+              style={{ backgroundColor: "#ff748c" }}
               title={roleId !== 3 ? "Notify client" : "Pending"}
             >
-              {roleId !== 3 && props.row.original.photographer_id === "" ? "New Request" : roleId === 3 ? "Pending" : "Notify"}
+              {roleId !== 3 && props.row.original.photographer_id === ""
+                ? "New Request"
+                : roleId === 3
+                ? "Pending"
+                : "Notify"}
             </a>
           ) : (
-            <a
-              className="badge"
-              title="Booked"
-              disabled
-            >
+            <a className="badge" title="Booked" disabled>
               Booked
             </a>
           )}
-
         </div>
       ),
     },
@@ -911,7 +911,6 @@ export const BookingListComponent = () => {
   const resetAddress = () => {
     setBookingAddress(null);
   };
-
 
   const handleNotifyClose = () => {
     setShowNotifyModal(false);
@@ -1088,7 +1087,9 @@ export const BookingListComponent = () => {
     setToTime("60");
     setSelectedPackagePrice(0);
     setBookingIdToDelete(null);
+    tabChange2();
   };
+
   const handleNotifyCheckbox = (event) => {
     setNotifyCheckbox(event.target.checked);
   };
@@ -1098,12 +1099,39 @@ export const BookingListComponent = () => {
     setBookingData({ ...bookingData, toTime: event.target.value });
   };
 
+  const tabChange = () => {
+    const tabb2 = document.getElementById("tabb2");
+    const tabb1 = document.getElementById("tabb1");
+    const tab1 = document.getElementById("tab1");
+    const tab2 = document.getElementById("tab2");
+
+    tab1.classList.remove("active");
+    tabb1.classList.remove("active");
+    tab2.classList.add("active");
+    tabb2.classList.add("active");
+  };
+
+  const tabChange2 = () => {
+    const tabb2 = document.getElementById('tabb2');
+    const tabb1 = document.getElementById('tabb1');
+    const tab1 = document.getElementById('tab1');
+    const tab2 = document.getElementById('tab2');
+
+    tab2.classList.remove('active');
+    tabb2.classList.remove('active');
+    tab1.classList.add('active');
+    tabb1.classList.add('active');
+}
+
   return (
     <>
       <div className="app-content content">
         <div className={`content-overlay`}></div>
-        <div className="content-wrapper" >
-          <div className="content-header row mt-2" style={{ paddingBottom: '5px' }}>
+        <div className="content-wrapper">
+          <div
+            className="content-header row mt-2"
+            style={{ paddingBottom: "5px" }}
+          >
             <div className="content-header-left col-md-6 col-6">
               <h3 className="content-header-title mb-0">Booking List</h3>
               <div className="row breadcrumbs-top">
@@ -1172,7 +1200,7 @@ export const BookingListComponent = () => {
                               <span aria-hidden="true">×</span>
                             </button>
                           </div>
-                          <form onSubmit={handleSubmit}>
+                          <form onSubmit={handleSubmit} id="booking-form">
                             <div>
                               <div className="">
                                 <ul
@@ -1183,30 +1211,32 @@ export const BookingListComponent = () => {
                                     className="nav-item"
                                     style={{ width: "300px" }}
                                   >
-                                    {roleId !== 3 &&
+                                    {roleId !== 3 && (
                                       <a
                                         className="nav-link active"
                                         data-toggle="tab"
                                         href="#tab1"
+                                        id="tabb1"
                                       >
                                         Details
                                       </a>
-                                    }
+                                    )}
                                   </li>
-                                  {roleId !== 3 &&
+                                  {roleId !== 3 && (
                                     <li
                                       className="nav-item"
                                       style={{ width: "300px" }}
                                     >
                                       <a
                                         className="nav-link"
+                                        id="tabb2"
                                         data-toggle="tab"
                                         href="#tab2"
                                       >
                                         Customer
                                       </a>
                                     </li>
-                                  }
+                                  )}
                                 </ul>
 
                                 <div
@@ -1218,9 +1248,8 @@ export const BookingListComponent = () => {
                                       className="tab-pane fade show active"
                                       id="tab1"
                                     >
-                                      {roleId !== 3 &&
+                                      {roleId !== 3 && (
                                         <div className="modal-body d-flex px-4">
-
                                           <label
                                             htmlFor="provider"
                                             style={{ width: "10rem" }}
@@ -1276,7 +1305,7 @@ export const BookingListComponent = () => {
                                             }}
                                           />
                                         </div>
-                                      }
+                                      )}
                                       <div className="modal-body d-flex px-4">
                                         <label
                                           htmlFor="address"
@@ -1295,22 +1324,25 @@ export const BookingListComponent = () => {
                                           />
                                           <p
                                             style={{
-                                              marginLeft: '-4rem',
-                                              paddingTop: '5px',
-                                              position: 'relative',
-                                              fontWeight: 'bold',
+                                              marginLeft: "-4rem",
+                                              paddingTop: "5px",
+                                              position: "relative",
+                                              fontWeight: "bold",
                                               cursor: "pointer",
                                               color: "gray",
-                                              opacity: '50%',
+                                              opacity: "50%",
                                             }}
                                             onClick={resetAddress}
-                                            onMouseOver={(e) => e.target.style.opacity = '80%'}
-                                            onMouseOut={(e) => e.target.style.opacity = '50%'}
+                                            onMouseOver={(e) =>
+                                              (e.target.style.opacity = "80%")
+                                            }
+                                            onMouseOut={(e) =>
+                                              (e.target.style.opacity = "50%")
+                                            }
                                             readOnly
                                           >
                                             X
                                           </p>
-
                                         </div>
                                       </div>
                                       <div className="modal-body d-flex px-4">
@@ -1331,8 +1363,9 @@ export const BookingListComponent = () => {
                                               value: pkg.id,
                                               package_price: pkg.package_price,
                                             }))
-                                            .sort((a, b) => (a.label < b.label ? -1 : 1))}
-
+                                            .sort((a, b) =>
+                                              a.label < b.label ? -1 : 1
+                                            )}
                                           isSearchable
                                           isMulti
                                           hideSelectedOptions
@@ -1367,7 +1400,14 @@ export const BookingListComponent = () => {
                                                   }}
                                                   alt=""
                                                 />
-                                                <span title={data.label} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                                <span
+                                                  title={data.label}
+                                                  style={{
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    whiteSpace: "nowrap",
+                                                  }}
+                                                >
                                                   {data.label}
                                                 </span>
                                               </div>
@@ -1377,9 +1417,17 @@ export const BookingListComponent = () => {
                                       </div>
 
                                       <div className="modal-body d-flex px-4">
-                                        {roleId !== 3 ?
-                                          <div style={{ width: "25rem", }}> Price/ Duration</div>
-                                          : <div style={{ width: "11rem", }}> Price</div>}
+                                        {roleId !== 3 ? (
+                                          <div style={{ width: "25rem" }}>
+                                            {" "}
+                                            Price/ Duration
+                                          </div>
+                                        ) : (
+                                          <div style={{ width: "11rem" }}>
+                                            {" "}
+                                            Price
+                                          </div>
+                                        )}
                                         <input
                                           type="text"
                                           id="price"
@@ -1388,7 +1436,7 @@ export const BookingListComponent = () => {
                                           value={`$ ${selectedPackagePrice}`}
                                           disabled
                                         />
-                                        {roleId !== 3 &&
+                                        {roleId !== 3 && (
                                           <select
                                             className="select2 form-control"
                                             name="toTime"
@@ -1397,15 +1445,29 @@ export const BookingListComponent = () => {
                                             style={{ cursor: "pointer" }}
                                             required
                                           >
-                                            <option value="00">Select Time</option>
-                                            <option value="30">30 Minutes</option>
-                                            <option value="60">60 Minutes</option>
-                                            <option value="90">90 Minutes</option>
-                                            <option value="120">120 Minutes</option>
-                                            <option value="150">150 Minutes</option>
-                                            <option value="180">180 Minutes</option>
+                                            <option value="00">
+                                              Select Time
+                                            </option>
+                                            <option value="30">
+                                              30 Minutes
+                                            </option>
+                                            <option value="60">
+                                              60 Minutes
+                                            </option>
+                                            <option value="90">
+                                              90 Minutes
+                                            </option>
+                                            <option value="120">
+                                              120 Minutes
+                                            </option>
+                                            <option value="150">
+                                              150 Minutes
+                                            </option>
+                                            <option value="180">
+                                              180 Minutes
+                                            </option>
                                           </select>
-                                        }
+                                        )}
                                       </div>
 
                                       <div className="modal-body d-flex px-4 ">
@@ -1585,11 +1647,21 @@ export const BookingListComponent = () => {
                                           </option>
                                         </select>
                                       </div>
-                                      {roleId !== 3 &&
-                                        <div className="modal-body d-flex px-4">
-
+                                      {roleId !== 3 && (
+                                        <div className="modal-body d-flex px-4 align-items-center">
+                                          <label
+                                            htmlFor="notify"
+                                            className="d-flex justify-content-center align-items-center"
+                                            style={{ marginLeft: "8rem" }}
+                                          >
+                                            Notify to Client
+                                          </label>
                                           <input
-                                            className="form-control h-25 w-25"
+                                            className="form-control h-25"
+                                            style={{
+                                              width: "3rem",
+                                              marginBottom: "0.5rem",
+                                            }}
                                             type="checkbox"
                                             id="notify"
                                             name="notify"
@@ -1597,33 +1669,29 @@ export const BookingListComponent = () => {
                                             onChange={handleNotifyCheckbox}
                                             value={notifyCheckbox}
                                           />
-                                          <label
-                                            htmlFor="notify"
-                                            className="d-flex justify-content-center align-items-center"
-                                          >
-                                            Notify to Client
-                                          </label>
                                         </div>
-                                      }
+                                      )}
                                       <div className="p-1 float-right">
-                                        {
-                                          roleId !== 3 ?
-                                            <a
-                                              data-toggle="tab"
-                                              href="#tab2"
-                                              className="btn btn-primary btn mx-1"
-                                            >
-                                              Save & Next
-                                            </a>
-                                            :
-                                            <input
-                                              type="submit"
-                                              className="btn btn-primary btn mx-1"
-                                              value={
-                                                bookingIdToDelete ? "Update" : "Add"
-                                              }
-                                            />
-                                        }
+                                        {roleId !== 3 ? (
+                                          <a
+                                            data-toggle="tab"
+                                            href="#tab2"
+                                            className="btn btn-primary btn mx-1"
+                                            onClick={tabChange}
+                                          >
+                                            Save & Next
+                                          </a>
+                                        ) : (
+                                          <input
+                                            type="submit"
+                                            className="btn btn-primary btn mx-1"
+                                            value={
+                                              bookingIdToDelete
+                                                ? "Update"
+                                                : "Add"
+                                            }
+                                          />
+                                        )}
                                         <input
                                           onClick={handleAppointmentModalClose}
                                           type="reset"
@@ -1649,12 +1717,13 @@ export const BookingListComponent = () => {
                                             value={selectedClient}
                                             onChange={handleClientChange}
                                             options={clientList
-                                              .sort((a, b) => a.name.localeCompare(b.name))
+                                              .sort((a, b) =>
+                                                a.name.localeCompare(b.name)
+                                              )
                                               .map((client) => ({
                                                 value: client.id,
                                                 label: client.name,
-                                              }))
-                                            }
+                                              }))}
                                             isSearchable
                                             components={{
                                               Option: ({
@@ -1673,7 +1742,10 @@ export const BookingListComponent = () => {
                                                   className="customOptionClass"
                                                 >
                                                   <img
-                                                    src={data.profile_photo || avatar1}
+                                                    src={
+                                                      data.profile_photo ||
+                                                      avatar1
+                                                    }
                                                     alt="Profile"
                                                     style={{
                                                       marginRight: "10px",
@@ -1688,7 +1760,6 @@ export const BookingListComponent = () => {
                                               ),
                                             }}
                                           />
-
                                         </div>
                                       )}
 
@@ -1881,8 +1952,6 @@ export const BookingListComponent = () => {
                                         />
                                       )} */}
                                       <div className="p-1 flex float-right">
-                                        {/* ternary based on notifyCheckbox */}
-
                                         <>
                                           <input
                                             type="submit"
@@ -1893,8 +1962,7 @@ export const BookingListComponent = () => {
                                           />
                                         </>
 
-
-                                        < input
+                                        <input
                                           type="reset"
                                           className="btn btn-secondary btn"
                                           data-dismiss="modal"
@@ -1990,7 +2058,7 @@ export const BookingListComponent = () => {
                           dateClick={handleDateClick}
                           initialView="timeGridWeek"
                           eventClick={(info) => {
-                            if (info.event.backgroundColor === 'gray') {
+                            if (info.event.backgroundColor === "gray") {
                               return;
                             }
                             handleEventClick(info);
@@ -2014,15 +2082,34 @@ export const BookingListComponent = () => {
                                   borderColor: arg.event.borderColor,
                                   backgroundColor: arg.event.backgroundColor,
                                   color: arg.event.textColor,
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  maxHeight: '100%',
-                                  width: '100%',
-                                  height: '100%',
-                                  maxWidth: '100%',
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  maxHeight: "100%",
+                                  width: "100%",
+                                  height: "100%",
+                                  maxWidth: "100%",
                                 }}
                               >
-                                <span style={{ fontSize: '10px', fontWeight: '' }}>{arg.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()} - {arg.event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()}</span><br />
+                                <span
+                                  style={{ fontSize: "10px", fontWeight: "" }}
+                                >
+                                  {arg.event.start
+                                    .toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: true,
+                                    })
+                                    .toUpperCase()}{" "}
+                                  -{" "}
+                                  {arg.event.end
+                                    .toLocaleTimeString([], {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: true,
+                                    })
+                                    .toUpperCase()}
+                                </span>
+                                <br />
                                 <b>{arg.event.title}</b>
                               </div>
                             );
