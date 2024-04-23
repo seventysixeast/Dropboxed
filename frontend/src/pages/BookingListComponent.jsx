@@ -60,13 +60,13 @@ export const BookingListComponent = () => {
     services: "",
     prefferedDate: new Date(),
     fromTime: "",
-    toTime: "",
+    toTime: "60",
     client: "",
     comment: "",
     provider: "",
     customer: "",
   });
-  
+
   const [updateData, setUpdateData] = useState({
     id: "",
     title: "",
@@ -74,7 +74,7 @@ export const BookingListComponent = () => {
     services: "",
     prefferedDate: new Date(),
     fromTime: "",
-    toTime: "",
+    toTime: "60",
     client: "",
     comment: "",
     provider: "",
@@ -121,6 +121,7 @@ export const BookingListComponent = () => {
     e.preventDefault();
     try {
       const convertedTime = bookingData.fromTime;
+      console.log(bookingData.toTime);
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
@@ -328,15 +329,25 @@ export const BookingListComponent = () => {
 
       let events = altData.data.map((booking) => {
         let title = booking.booking_title;
-        let color = booking.color;
-        let editable = roleId !== 3;
+        let color = '#ff748c';
+        let borderColor = '#ff748c';
+        let editable = true;
         let status = booking.booking_status;
 
         if (roleId === 3) {
           if (booking.user_id !== userId) {
             title = "Limited Availability";
             color = 'gray';
+            borderColor = 'gray';
             editable = false;
+          } else {
+            if (status === 0) {
+              color = '#ff748c';
+              borderColor = '#ff748c';
+            } else {
+              color = '#00b5b8'
+              borderColor = '#00b5b8';
+            }
           }
         }
 
@@ -347,7 +358,7 @@ export const BookingListComponent = () => {
           end: `${booking.booking_date}T${booking.booking_time_to}`,
           color: color,
           editable: editable,
-          status: status
+          status: status,
         };
       });
       setEvents(events);
@@ -355,7 +366,6 @@ export const BookingListComponent = () => {
       console.error("Failed to:", error.message);
     }
   };
-
 
   const getBookingData = (data) => {
     let array = [];
@@ -704,39 +714,41 @@ export const BookingListComponent = () => {
     {
       Header: "Booking Time",
       accessor: "booking_time",
-      Cell: ({ value }) => {
-        const [hours, minutes, seconds] = value.split(":");
+      Cell: ({ value, row }) => {
+        if (!value || !row.original.booking_time_to) return null;
 
-        let formattedHours = parseInt(hours, 10);
-        const ampm = formattedHours >= 12 ? "PM" : "AM";
-        formattedHours = formattedHours % 12 || 12;
+        const formatTime = (time) => {
+          const [hours, minutes] = time.split(":");
+          let formattedHours = parseInt(hours, 10) % 12 || 12;
+          const ampm = parseInt(hours, 10) >= 12 ? "PM" : "AM";
+          formattedHours = formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+          return `${formattedHours}:${minutes} ${ampm}`;
+        };
 
-        formattedHours =
-          formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+        const formattedTime = formatTime(value);
+        const formattedToTime = formatTime(row.original.booking_time_to);
 
-        const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
-
-        return <span>{formattedTime}</span>;
+        return <span>{formattedTime} - {formattedToTime}</span>;
       },
     },
-    {
-      Header: "To Time",
-      accessor: "booking_time_to",
-      Cell: ({ value }) => {
-        const [hours, minutes, seconds] = value.split(":");
+    // {
+    //   Header: "To Time",
+    //   accessor: "booking_time_to",
+    //   Cell: ({ value }) => {
+    //     const [hours, minutes, seconds] = value.split(":");
 
-        let formattedHours = parseInt(hours, 10);
-        const ampm = formattedHours >= 12 ? "PM" : "AM";
-        formattedHours = formattedHours % 12 || 12;
+    //     let formattedHours = parseInt(hours, 10);
+    //     const ampm = formattedHours >= 12 ? "PM" : "AM";
+    //     formattedHours = formattedHours % 12 || 12;
 
-        formattedHours =
-          formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+    //     formattedHours =
+    //       formattedHours < 10 ? `0${formattedHours}` : formattedHours;
 
-        const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
+    //     const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
 
-        return <span>{formattedTime}</span>;
-      },
-    },
+    //     return <span>{formattedTime}</span>;
+    //   },
+    // },
 
     {
       Header: "Client",
@@ -751,6 +763,77 @@ export const BookingListComponent = () => {
       accessor: "comment",
     },
     {
+      Header: "Services",
+      accessor: "package_ids",
+      Cell: ({ value }) => {
+        let array = [];
+        if (value) {
+          if (value.includes(",")) {
+            value.split(", ").forEach((element) => {
+              array.push(parseInt(element));
+            });
+          } else {
+            array.push(parseInt(value));
+          }
+        }
+        const selectedServices = array.map((id) =>
+          packages.find((pack) => pack.id === id)
+        ).filter(Boolean);
+
+        const finalservice = selectedServices.map((serv) => ({
+          value: serv.package_name,
+          key: serv.id,
+        }));
+        return <span>{finalservice.map((service) => service.value).join(", ")}</span>;
+      },
+    },
+    {
+      Header: "Photographer",
+      accessor: "photographer_id",
+      Cell: ({ value }) => {
+        let prvdr = [];
+        if (value) {
+          if (typeof value === "string") {
+            if (value.includes(", ")) {
+              value.split(", ").forEach((element) => {
+                const parsedInt = parseInt(element);
+                if (!isNaN(parsedInt)) {
+                  prvdr.push(parsedInt);
+                }
+              });
+            } else {
+              const parsedInt = parseInt(value);
+              if (!isNaN(parsedInt)) {
+                prvdr.push(parsedInt);
+              }
+            }
+          } else if (Array.isArray(value)) {
+            value.forEach((element) => {
+              const parsedInt = parseInt(element);
+              if (!isNaN(parsedInt)) {
+                prvdr.push(parsedInt);
+              }
+            });
+          }
+        }
+
+        const selectedProvider = prvdr.map((id) =>
+          providers.find((provider) => provider.id === parseInt(id))
+        );
+
+        const finalProvider =
+          selectedProvider &&
+          selectedProvider.map((prov) => ({
+            value: prov ? (prov.name || "") : "",
+            key: prov ? prov.id : null,
+          }));
+
+        // comma separate values
+        return <span>{finalProvider.map((provider) => provider.value).join(", ")}</span>;
+      },
+
+    },
+    {
       Header: "Status",
       accessor: "booking_status",
       Cell: (props) => (
@@ -759,12 +842,13 @@ export const BookingListComponent = () => {
             <a
               type="button"
               className="badge"
+              style={{ backgroundColor: '#ff748c' }}
               onClick={() => handleNotifyChange(props.row.original)}
               data-toggle="modal"
               data-target="#confirmModal"
-              title="Notify client"
+              title={roleId !== 3 ? "Notify client" : "Pending"}
             >
-              Notify
+              {roleId !== 3 && props.row.original.photographer_id === "" ? "New Request" : roleId === 3 ? "Pending" : "Notify"}
             </a>
           ) : (
             <a
@@ -775,6 +859,7 @@ export const BookingListComponent = () => {
               Booked
             </a>
           )}
+
         </div>
       ),
     },
@@ -806,13 +891,6 @@ export const BookingListComponent = () => {
             title="Delete Booking"
           >
             <i className="feather white icon-trash"></i>
-          </button>
-
-          <button
-            className="btn btn-icon btn-outline-primary ml-1"
-            title="Turn into Gallery"
-          >
-            <i className="feather white icon-image"></i>
           </button>
         </div>
       ),
@@ -852,6 +930,8 @@ export const BookingListComponent = () => {
   const handleAddressChange = (address) => {
     setBookingAddress(address);
   };
+
+
 
   const handleNotifyClose = () => {
     setShowNotifyModal(false);
@@ -1123,13 +1203,15 @@ export const BookingListComponent = () => {
                                     className="nav-item"
                                     style={{ width: "300px" }}
                                   >
-                                    <a
-                                      className="nav-link active"
-                                      data-toggle="tab"
-                                      href="#tab1"
-                                    >
-                                      Details
-                                    </a>
+                                    {roleId !== 3 &&
+                                      <a
+                                        className="nav-link active"
+                                        data-toggle="tab"
+                                        href="#tab1"
+                                      >
+                                        Details
+                                      </a>
+                                    }
                                   </li>
                                   {roleId !== 3 &&
                                     <li
@@ -1524,7 +1606,7 @@ export const BookingListComponent = () => {
                                         </div>
                                       }
                                       <div className="p-1 float-right">
-                                        {roleId !== 3 &&
+                                        {roleId !== 3 ?
                                           <a
                                             data-toggle="tab"
                                             href="#tab2"
@@ -1532,13 +1614,12 @@ export const BookingListComponent = () => {
                                           >
                                             Save & Next
                                           </a>
-                                        }
-                                        {roleId == 3 &&
+                                          :
                                           <input
                                             type="submit"
                                             className="btn btn-primary btn mx-1"
                                             value={
-                                              bookingData.id ? "Update" : "Add"
+                                              bookingIdToDelete ? "Update" : "Add"
                                             }
                                           />}
                                         <input
@@ -1924,8 +2005,27 @@ export const BookingListComponent = () => {
                             hour: "2-digit",
                             minute: "2-digit",
                           }}
+                          eventContent={(arg, createElement) => {
+                            return (
+                              <div
+                                style={{
+                                  borderColor: arg.event.borderColor,
+                                  backgroundColor: arg.event.backgroundColor,
+                                  color: arg.event.textColor,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  maxHeight: '100%',
+                                  width: '100%',
+                                  height: '100%',
+                                  maxWidth: '100%',
+                                }}
+                              >
+                                <span style={{ fontSize: '10px', fontWeight: '' }}>{arg.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()} - {arg.event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()}</span><br />
+                                <b>{arg.event.title}</b>
+                              </div>
+                            );
+                          }}
                         />
-
                       </div>
                     </div>
                   </div>
