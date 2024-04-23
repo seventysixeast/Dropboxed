@@ -12,7 +12,21 @@ const getAllServices = async (data) => {
     }
   } catch (error) {
     console.error('Error fetching services:', error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error;
+  }
+};
+
+const deleteService = async (data) => {
+  try {
+    const response = await API.post('/service/deleteService', data);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error('Failed to delete service');
+    }
+  } catch (error) {
+    console.error('Error deleting service:', error);
+    throw error;
   }
 };
 
