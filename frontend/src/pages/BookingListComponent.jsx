@@ -731,25 +731,6 @@ export const BookingListComponent = () => {
         return <span>{formattedTime} - {formattedToTime}</span>;
       },
     },
-    // {
-    //   Header: "To Time",
-    //   accessor: "booking_time_to",
-    //   Cell: ({ value }) => {
-    //     const [hours, minutes, seconds] = value.split(":");
-
-    //     let formattedHours = parseInt(hours, 10);
-    //     const ampm = formattedHours >= 12 ? "PM" : "AM";
-    //     formattedHours = formattedHours % 12 || 12;
-
-    //     formattedHours =
-    //       formattedHours < 10 ? `0${formattedHours}` : formattedHours;
-
-    //     const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
-
-    //     return <span>{formattedTime}</span>;
-    //   },
-    // },
-
     {
       Header: "Client",
       accessor: "client_name",
