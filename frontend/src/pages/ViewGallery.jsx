@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-const accessToken = process.env.REACT_APP_DROPBOX_SECRET_KEY;
+const accessToken = process.env.REACT_APP_DROPBOX_KEY;
 
 export const ViewGallery = () => {
   const [imageUrls, setImageUrls] = useState([]);
@@ -8,7 +8,6 @@ export const ViewGallery = () => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const accessToken = 'sl.Bz4gXfbOxcsANhbSDwQrS2_uLqLE3j6_kgSSwQGikAwqpHTlf3Dkkc_sO9C8fdJU-WkU384ii1t50EDYy4nswLH0OydnB6m5XRpHNHPW5ZI5EvGgEmoBZVGdU0tcjTFNII-jL47uEP0UFgcnsbFeJXQ';
         const folderPath = '/web';
         const listResponse = await axios.post(
           'https://api.dropboxapi.com/2/files/list_folder',
