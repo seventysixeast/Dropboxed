@@ -116,4 +116,21 @@ const getAllServices = async (data) => {
   }
 };
 
-export { newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles,getAllServices};
+// Get All Photographers using ClientId & booking_title
+const getAllPhotographers = async (data) => {
+  try {
+    const response = await API.post(`/booking/getAllPhotographers`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to photographers');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles, getAllServices, getAllPhotographers };

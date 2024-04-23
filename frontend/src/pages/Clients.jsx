@@ -66,7 +66,6 @@ const Clients = () => {
     }
   };
 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let client = { ...formData };

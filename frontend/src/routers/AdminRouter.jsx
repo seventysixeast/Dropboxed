@@ -11,7 +11,7 @@ import Clients from "../pages/Clients";
 import Invoice from "../pages/Invoice";
 import CardsPackages from "../pages/Services";
 import ImageTypes from "../pages/ImageTypes";
-import AddGallery from "../pages/AddGallery";
+import { ViewGallery } from "../pages/ViewGallery";
 import { AddBooking } from "../pages/AddBooking";
 import Services from "../pages/Services";
 import { NotificationComponent } from "../pages/NotificationComponent";
@@ -39,7 +39,8 @@ const AdminRouter = () => {
     { path: "/clients", element: <Clients /> },
     { path: "/invoice", element: <Invoice /> },
     { path: "/image-types", element: <ImageTypes /> },
-    { path: "/add-gallery", element: <AddGallery /> },
+    { path: "/view-gallery/:id", element: <ViewGallery /> },
+    { path: "/view-gallery", element: <ViewGallery /> },
 
     { path: "/booking-for-photography", element: <AddBooking /> },
     { path: "/services", element: <Services /> },
@@ -53,7 +54,7 @@ const AdminRouter = () => {
     // { path: "/download", element: <Download /> },
     // { path: "/users", element: <Users /> },
     // { path: "/*", element: <Navigate to="/dashboard" /> },
-    { path: "/add-service", element: <AddService /> }
+    // { path: "/add-service", element: <AddService /> }
   ]);
 
   return (
