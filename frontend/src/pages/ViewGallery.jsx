@@ -8,6 +8,7 @@ export const ViewGallery = () => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
+        const accessToken = 'sl.Bz4gXfbOxcsANhbSDwQrS2_uLqLE3j6_kgSSwQGikAwqpHTlf3Dkkc_sO9C8fdJU-WkU384ii1t50EDYy4nswLH0OydnB6m5XRpHNHPW5ZI5EvGgEmoBZVGdU0tcjTFNII-jL47uEP0UFgcnsbFeJXQ';
         const folderPath = '/web';
         const listResponse = await axios.post(
           'https://api.dropboxapi.com/2/files/list_folder',

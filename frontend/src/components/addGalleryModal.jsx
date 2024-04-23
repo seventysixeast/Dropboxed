@@ -118,21 +118,41 @@ const AddGalleryModal = ({ message, isOpen, formData, clients, bookingTitles, se
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Photographer *</label>
-                    <select
-                      className="select2 form-control"
-                      name="photographer"
-                      value={formData.photographer}
+                    <label style={{ width: "10rem" }}>Photographers</label>
+                    <Select
+                      className="select2 w-100"
+                      name="photographers"
+                      value={photographers}
                       onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">----Select----</option>
-                      {photographers && photographers.map(item => (
-                        <option key={item.id} value={item.id}>
-                          {item.name}
-                        </option>
-                      ))}
-                    </select>
+                      options={photographers && photographers.map((photographer) => ({
+                        label: photographer.label,
+                        value: photographer.value
+                      }))}
+                      isMulti
+                      hideSelectedOptions
+                      components={{
+                        Option: ({
+                          data,
+                          innerRef,
+                          innerProps,
+                        }) => (
+                          <div
+                            ref={innerRef}
+                            {...innerProps}
+                            style={{ display: 'flex form-select ', alignItems: 'center' }}
+                          >
+                            <img
+                              src={toolIcons}
+                              className="mr-1 ml-1"
+                              width={"14px"}
+                              height={"14px"}
+                              alt=""
+                            />
+                            <span>{data.label}</span>
+                          </div>
+                        ),
+                      }}
+                    />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
                     <label>Gallery Title</label>

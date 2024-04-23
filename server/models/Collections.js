@@ -22,10 +22,10 @@ const Collections = sequelize.define('Collections', {
     allowNull: false,
     defaultValue: 0
   },
-  photographer_id: {
-    type: DataTypes.INTEGER,
+  photographer_ids: {
+    type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 0
+    defaultValue: ''
   },
   editor_image_types: {
     type: DataTypes.STRING,

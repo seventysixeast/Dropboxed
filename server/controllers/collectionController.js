@@ -1,4 +1,5 @@
 const Collection = require('../models/Collections');
+const User = require('../models/Users');
 
 const addGallery = async (req, res) => {
   try {
@@ -7,7 +8,7 @@ const addGallery = async (req, res) => {
       client_id: req.body.client,
       client_address: req.body.booking_title,
       package_ids: req.body.services,
-      photographer_id: req.body.photographer,
+      photographer_ids: req.body.photographers,
       name: req.body.gallery_title,
       dropbox_link: req.body.dropbox_link,
       video_link: req.body.vimeo_video_link,
@@ -55,6 +56,25 @@ const getAllCollections = async (req, res) => {
         subdomain_id: req.body.subdomainId
       },
       order: [['created', 'DESC']]
+    });
+    let clientIds = collectionsData.map(collection => collection.client_id);
+    let idsAsIntegers = clientIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
+    let clientData = await User.findAll({
+      where: {
+        id: idsAsIntegers.flat()
+      }
+    });
+    let clientNamesAndIds = clientData.map(client => ({
+      id: client.id,
+      name: client.name
+    }));
+    collectionsData.forEach(collection => {
+      let clientNames = collection.client_id.split(',').map(id => {
+        let clientId = parseInt(id.trim(), 10);
+        let client = clientNamesAndIds.find(client => client.id === clientId);
+        return client ? client.name : '';
+      });
+      collection.dataValues.client_name = clientNames.join(', ');
     });
     res.status(200).json({ success: true, data: collectionsData });
   } catch (error) {

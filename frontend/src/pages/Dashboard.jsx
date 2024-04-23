@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getAllClients, getAllPhotographers } from "../api/clientApis";
-import { getAllBookingTitles, getAllServices } from "../api/bookingApis";
+import { getAllClients } from "../api/clientApis";
+import { getAllBookingTitles, getAllServices, getAllPhotographers } from "../api/bookingApis";
 import { addGallery, getAllCollections } from "../api/collectionApis";
 import { toast } from 'react-toastify';
 import AddGalleryModal from "../components/addGalleryModal";
@@ -28,7 +28,7 @@ export const Dashboard = () => {
     client: '',
     booking_title: '',
     services: '',
-    photographer: '',
+    photographers: '',
     gallery_title: '',
     dropbox_link: '',
     vimeo_video_link: '',
@@ -39,13 +39,13 @@ export const Dashboard = () => {
 
   useEffect(() => {
     getClients();
-    getPhotographers();
     getAllCollectionsData();
   }, [])
 
   useEffect(() => {
     if (formData.client !== '' && formData.booking_title !== '') {
       getServices(formData.client, formData.booking_title);
+      getPhotographers(formData.client, formData.booking_title);
     }
   }, [formData.client, formData.booking_title])
 
@@ -82,10 +82,14 @@ export const Dashboard = () => {
     }
   };
 
-  const getPhotographers = async () => {
+  const getPhotographers = async (client, booking_title) => {
     try {
-      let photographers = await getAllPhotographers({ subdomainId: subdomainId });
-      setPhotographers(photographers.data);
+      let photographers = await getAllPhotographers({ clientId: client, booking_title: booking_title });
+      let photographersData = photographers && photographers.data.map((photographer) => ({
+        label: photographer.name,
+        value: photographer.id
+      }))
+      setPhotographers(photographersData);
     } catch (error) {
       toast.error(error);
     }
@@ -110,8 +114,8 @@ export const Dashboard = () => {
       gallery.gallery_title = value;
     } else if (name === 'services') {
       gallery.services = value
-    } else if (name === 'photographer') {
-      gallery.photographer = value
+    } else if (name === 'photographers') {
+      gallery.photographers = value
     } else if (name === 'gallery_title') {
       gallery.gallery_title = value
     } else if (name === 'dropbox_link') {
@@ -141,7 +145,7 @@ export const Dashboard = () => {
       client: '',
       booking_title: '',
       services: '',
-      photographer: '',
+      photographers: '',
       gallery_title: '',
       dropbox_link: '',
       vimeo_video_link: '',
@@ -155,12 +159,13 @@ export const Dashboard = () => {
     e.preventDefault();
     try {
       let serviceIds = services && services.map(item => item.value)
+      let photographerIds = photographers && photographers.map(item => item.value)
       const formDataToSend = new FormData();
       formDataToSend.append('id', formData.id);
       formDataToSend.append('client', formData.client);
       formDataToSend.append('booking_title', formData.booking_title);
       formDataToSend.append('services', serviceIds);
-      formDataToSend.append('photographer', formData.photographer);
+      formDataToSend.append('photographers', photographerIds);
       formDataToSend.append('gallery_title', formData.gallery_title);
       formDataToSend.append('dropbox_link', formData.dropbox_link);
       formDataToSend.append('vimeo_video_link', formData.vimeo_video_link);
@@ -175,6 +180,7 @@ export const Dashboard = () => {
         resetFormData();
         setShowAddGalleryModal(false)
         getAllCollectionsData();
+        setShowAddGalleryModal(false)
       } else {
         toast.error(res);
       }
@@ -347,6 +353,7 @@ export const Dashboard = () => {
                             />
                             <div className="card-body px-0">
                               <h4 className="card-title">{item.name}</h4>
+                              <h6>{item.client_name}</h6>
                             </div>
                           </a>
                         </div>
