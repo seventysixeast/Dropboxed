@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-export const ViewGallery = () => {
 const accessToken = process.env.REACT_APP_DROPBOX_SECRET_KEY;
 
+export const ViewGallery = () => {
   const [imageUrls, setImageUrls] = useState([]);
 
   useEffect(() => {
