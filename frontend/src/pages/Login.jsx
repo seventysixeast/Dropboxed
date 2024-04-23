@@ -8,6 +8,8 @@ import { encryptToken } from "../helpers/tokenUtils";
 import { getSubdomainFromUrl } from "../helpers/utils";
 
 const Login = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+  const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
   const [userData, setUserData] = useState({
     userName: "",
     password: "",
@@ -49,8 +51,6 @@ const Login = () => {
     e.preventDefault();
     try {
         await validationSchema.validate(userData, { abortEarly: false });
-        const BASE_URL = process.env.REACT_APP_BASE_URL;
-        const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
         console.log("subdomain1>>>",subdomain)
         const loginData = subdomain ? { ...userData, subdomain } : userData;
         const { success, message, accessToken, user } = await login(loginData);
@@ -213,7 +213,7 @@ const Login = () => {
                     </p>
                     <div className="card-body">
                       <a
-                        href="/signup"
+                        href={subdomain ? "/client-signup" : "/signup"}
                         className="btn btn-outline-danger btn-block"
                       >
                         <i className="feather icon-user" /> Register

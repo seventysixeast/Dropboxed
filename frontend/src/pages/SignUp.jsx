@@ -14,7 +14,7 @@ const SignUp = () => {
   });
 
   const [validationErrors, setValidationErrors] = useState({});
-
+  const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
   const validationSchema = Yup.object().shape({
     studioName: Yup.string()
       .required("Studio Name is required")
@@ -22,8 +22,8 @@ const SignUp = () => {
     .matches(/^[a-zA-Z0-9\s-]+$/, "Invalid Studio Name format"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
-      .required("Password is required")
-      .min(6, "Password must be at least 6 characters"),
+    .required("Password is required")
+    .matches(passwordRegex, "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"),
     country: Yup.string().required("Country is required"),
     agreedToTerms: Yup.boolean().oneOf(
       [true],

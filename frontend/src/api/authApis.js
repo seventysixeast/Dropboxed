@@ -3,7 +3,7 @@ import API from "./baseApi";
 const signup = async (userData) => {
     try {
         const response = await API.post("/auth/signup", userData);
-        if (response.status !== 201) {
+        if (response.status !== 200) {
             throw new Error("Signup failed");
         }
         const data = response.data;
@@ -16,7 +16,7 @@ const signup = async (userData) => {
 const clientSignup = async (userData) => {
     try {
         const response = await API.post("/auth/client-signup", userData);
-        if (response.status !== 201) {
+        if (response.status !== 200) {
             throw new Error("Signup failed");
         }
         const data = response.data;

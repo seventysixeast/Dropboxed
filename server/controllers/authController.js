@@ -31,19 +31,19 @@ exports.login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return res.status(200).json({ success: false, message: 'Invalid email or password' });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return res.status(200).json({ success: false, message: 'Invalid email or password' });
     }
 
     // Check if the user's role is business owner (role_id = 5)
     if (user.role_id === 5) {
       // Verify if the user's subdomain matches the provided subdomain
       if (subdomain && user.subdomain !== subdomain) {
-        return res.status(401).json({ success: false, message: 'Unauthorized access' });
+        return res.status(200).json({ success: false, message: 'Unauthorized access' });
       }
       user_subdmain = user.subdomain;
       subdomain_id = user.id;
@@ -56,13 +56,13 @@ exports.login = async (req, res) => {
       const businessClient = await BusinessClients.findOne({ where: { client_id: user.id } });
       console.log("businessClient>>",businessClient)
       if (!businessClient) {
-        return res.status(401).json({ success: false, message: 'Unauthorized access' });
+        return res.status(200).json({ success: false, message: 'Unauthorized access' });
       }
 
       const businessOwner = await User.findByPk(businessClient.business_id);
       console.log("businessOwner",businessOwner, '----',subdomain)
       if (!businessOwner || businessOwner.subdomain !== subdomain) {
-        return res.status(401).json({ success: false, message: 'Unauthorized access' });
+        return res.status(200).json({ success: false, message: 'Unauthorized access' });
       }
       subdomain_id = businessOwner.id;
       user_subdmain = businessOwner.subdomain;
@@ -95,19 +95,19 @@ exports.login = async (req, res) => {
 
 exports.signup = async (req, res) => {
   const { studioName, email, password, country } = req.body;
-  // return res.status(401).json({ success: false, message: 'Invalid email or password' });
+  // return res.status(200).json({ success: false, message: 'Invalid email or password' });
   try {
     // Check if the email is already registered
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ success: false, message: 'Email already exists' });
+      return res.status(200).json({ success: false, message: 'Email already exists' });
     }
 
     const existingDomain = await User.findOne({
       where: { subdomain: studioName },
     });
     if (existingDomain) {
-      return res.status(400).json({ success: false, message: 'Studio name already exists' });
+      return res.status(200).json({ success: false, message: 'Studio name already exists' });
     }
 
     // Hash the password
@@ -128,7 +128,7 @@ exports.signup = async (req, res) => {
     // Send email notification
     await sendEmail(email, "Welcome to Our App", SEND_EMAIL);
 
-    res.status(201).json({ success: true, message: 'Registration successfull', user: newUser });
+    res.status(200).json({ success: true, message: 'Registration successfull', user: newUser });
   } catch (error) {
     console.error('Error signing up: ', error);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
@@ -236,7 +236,7 @@ exports.clientSignup = async (req, res) => {
       where: { role_id: 5, subdomain: req.body.subdomain },
     });
     if (!subdomainUser) {
-      return res.status(400).json({ success: false, error: "Subdomain does not exist" });
+      return res.status(200).json({ success: false, error: "Subdomain does not exist" });
     }
 
     /*if (req.files && Object.keys(req.files).length) {
@@ -262,7 +262,7 @@ exports.clientSignup = async (req, res) => {
         where: { email: req.body.email },
       });
       if (existingEmail) {
-        return res.status(400).json({ success: false, error: "Email already exists" });
+        return res.status(200).json({ success: false, error: "Already registerd with this Email id." });
       }
     }
     if (req.body.phone !== "") {
@@ -270,7 +270,7 @@ exports.clientSignup = async (req, res) => {
         where: { phone: req.body.phone },
       });
       if (existingPhone) {
-        return res.status(400).json({ success: false, error: "Phone number already exists" });
+        return res.status(200).json({ success: false, error: "Phone number already exists" });
       }
     }
 
@@ -287,7 +287,7 @@ exports.clientSignup = async (req, res) => {
     // update redis
     clientController.updateRedisCache(subdomainUser.id);
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "Client registered successfully",
       data: client.id,
@@ -309,7 +309,7 @@ exports.verifyToken = async (req, res) => {
     // You may need to customize this part based on your user model
     const user = await User.findByPk(decodedToken.userId);
     if (!user) {
-      return res.status(401).json({ success: false, message: "User not found" });
+      return res.status(200).json({ success: false, message: "User not found" });
     }
     // Return user information along with token
     res.status(200).json({
@@ -328,7 +328,7 @@ exports.verifyToken = async (req, res) => {
     // Handle token verification errors
     console.error("Error verifying token: ", error);
     res
-      .status(400)
+      .status(200)
       .json({ success: false, message: "Token verification failed" });
   }
 };
@@ -345,7 +345,7 @@ exports.verifyToken = async (req, res) => {
     // You may need to customize this part based on your user model
     const user = await User.findByPk(decodedToken.userId);
     if (!user) {
-      return res.status(401).json({ success: false, message: "User not found" });
+      return res.status(200).json({ success: false, message: "User not found" });
     }
 
     let subdomain_id = ''; // Initialize subdomain_id
@@ -384,7 +384,7 @@ exports.verifyToken = async (req, res) => {
   } catch (error) {
     // Handle token verification errors
     console.error("Error verifying token: ", error);
-    res.status(400).json({ success: false, message: "Token verification failed" });
+    res.status(200).json({ success: false, message: "Token verification failed" });
   }
 };
 

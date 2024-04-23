@@ -29,12 +29,15 @@ const ClientSignup = () => {
         }));
     }, []);
 
+    const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
     const validationSchema = Yup.object().shape({
         name: Yup.string().required("Name is required"),
         email: Yup.string().email("Invalid email").required("Email is required"),
         phone: Yup.string().required("Phone is required"),
         business_name: Yup.string().required("Business Name is required"),
-        password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+        password: Yup.string()
+        .required("Password is required")
+        .matches(passwordRegex, "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"),
         confirm_password: Yup.string().oneOf([Yup.ref('password'), null], "Passwords must match").required("Confirm Password is required"),
     });
 
@@ -68,7 +71,7 @@ const ClientSignup = () => {
             } else {
                 console.error("Signup failed:", error.message);
             }
-            toast.error('Signup failed');
+            //toast.error(error.message);
         }
     };
 
