@@ -7,7 +7,10 @@ import avatar3 from "../app-assets/images/portrait/small/avatar-s-3.png";
 import avatar4 from "../app-assets/images/portrait/small/avatar-s-6.png";
 
 const Header = () => {
+  const { authData } = useAuth();
   const { logout } = useAuth();
+  const { user } = authData;
+  console.log(user);
 
   const handleLogout = (e) => {
       e.preventDefault();
@@ -105,7 +108,7 @@ const Header = () => {
                     <img src={avatar1} alt="avatar" />
                     <i></i>
                   </div>
-                  <span className="user-name">John Doe</span>
+                  <span className="user-name">{user.userName}</span>
                 </a>
                 <div className="dropdown-menu dropdown-menu-right">
                   <a className="dropdown-item" href="/edit-profile">

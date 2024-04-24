@@ -3,17 +3,21 @@ import { getAllServices } from "../api/serviceApis";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
+import { useNavigate } from 'react-router-dom';
+import AddService from "./AddService";
 
 const CardsPackages = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
+  const [modalShow, setModalShow] = useState(false);
 
   const [servicesData, setServicesData] = useState([]);
   const [serviceId, setServiceId] = useState(null);
   const [serviceData, setServiceData] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getServices();
@@ -36,11 +40,10 @@ const CardsPackages = () => {
   };
 
   const handleEditService = (service) => {
-    setServiceData(service);
+    navigate(`/services/${service.id}`);
   };
 
   const handleDeleteService = (service) => {
-    console.log(service);
     setServiceId(service.id);
     setShowDeleteModal(true);
   };
@@ -92,7 +95,7 @@ const CardsPackages = () => {
                     <a
                       type="button"
                       className="btn btn-outline-primary btn-block"
-                      href="/add-service"
+                      onClick={() => setModalShow(true)}
                     >
                       Add Service
                     </a>

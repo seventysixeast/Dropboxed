@@ -4,31 +4,59 @@ const getAllServices = async (data) => {
   console.log(data);
 
   try {
-    const response = await API.post('/service/getAllservices', data);
+    const response = await API.post("/service/getAllservices", data);
     if (response.status === 200) {
       return response.data;
     } else {
-      throw new Error('Failed to get services');
+      throw new Error("Failed to get services");
     }
   } catch (error) {
-    console.error('Error fetching services:', error);
+    console.error("Error fetching services:", error);
+    throw error;
+  }
+};
+
+const getService = async (data) => {
+  console.log(data);
+  try {
+    const response = await API.post("/service/getService", data);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Failed to get services");
+    }
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    throw error;
+  }
+};
+
+const createService = async (data) => {
+  try {
+    const response = await API.post("/service/createService", data);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Failed to create service");
+    }
+  } catch (error) {
+    console.error("Error creating service:", error);
     throw error;
   }
 };
 
 const deleteService = async (data) => {
   try {
-    const response = await API.post('/service/deleteService', data);
+    const response = await API.post("/service/deleteService", data);
     if (response.status === 200) {
       return response.data;
     } else {
-      throw new Error('Failed to delete service');
+      throw new Error("Failed to delete service");
     }
   } catch (error) {
-    console.error('Error deleting service:', error);
+    console.error("Error deleting service:", error);
     throw error;
   }
 };
 
-
-export { getAllServices };
+export { getAllServices, getService, createService, deleteService };

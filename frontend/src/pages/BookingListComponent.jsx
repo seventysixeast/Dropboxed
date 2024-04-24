@@ -24,6 +24,7 @@ import API from "../api/baseApi";
 import ConfirmModal from "../components/ConfirmModal";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { getDocumentElement } from "@floating-ui/utils/dom";
+import { Switch } from "@mui/material";
 
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
@@ -191,7 +192,7 @@ export const BookingListComponent = () => {
     } catch (error) {
       console.error("Failed to add booking:", error.message);
     }
-    tabChange2()
+    tabChange2();
   };
 
   const handleChange = (e) => {
@@ -375,7 +376,7 @@ export const BookingListComponent = () => {
       }
     }
 
-    setNotifyCheckbox(data.booking_status)
+    setNotifyCheckbox(data.booking_status);
 
     const selectedServices = array
       .map((id) => packages.find((pack) => pack.id === id))
@@ -837,8 +838,12 @@ export const BookingListComponent = () => {
               className="badge"
               style={{ backgroundColor: "#ff748c" }}
               title={roleId !== 3 ? "Notify client" : "Pending"}
-              onClick={roleId !== 3 && props.row.original.photographer_id === "" ? null :  () => handleNotifyChange(props.row.original)}
-              >
+              onClick={
+                roleId !== 3 && props.row.original.photographer_id !== ""
+                  ? () => handleNotifyChange(props.row.original)
+                  : null
+              }
+            >
               {roleId !== 3 && props.row.original.photographer_id === ""
                 ? "New Request"
                 : roleId === 3
@@ -1119,23 +1124,41 @@ export const BookingListComponent = () => {
     const tab1 = document.getElementById("tab1");
     const tab2 = document.getElementById("tab2");
 
-    tab1.classList.remove("active");
-    tabb1.classList.remove("active");
-    tab2.classList.add("active");
-    tabb2.classList.add("active");
+    if (tab1 && tabb1 && tab2 && tabb2) {
+      if (
+        tab1.classList.contains("active") &&
+        tabb1.classList.contains("active")
+      ) {
+        return; // No need to do anything, already in desired state
+      }
+
+      tab1.classList.remove("active");
+      tabb1.classList.remove("active");
+      tab2.classList.add("active");
+      tabb2.classList.add("active");
+    }
   };
 
   const tabChange2 = () => {
-    const tabb2 = document.getElementById('tabb2');
-    const tabb1 = document.getElementById('tabb1');
-    const tab1 = document.getElementById('tab1');
-    const tab2 = document.getElementById('tab2');
+    const tabb2 = document.getElementById("tabb2");
+    const tabb1 = document.getElementById("tabb1");
+    const tab1 = document.getElementById("tab1");
+    const tab2 = document.getElementById("tab2");
 
-    tab2.classList.remove('active');
-    tabb2.classList.remove('active');
-    tab1.classList.add('active');
-    tabb1.classList.add('active');
-}
+    if (tab1 && tabb1 && tab2 && tabb2) {
+      if (
+        tab2.classList.contains("active") &&
+        tabb2.classList.contains("active")
+      ) {
+        return; // No need to do anything, already in desired state
+      }
+
+      tab2.classList.remove("active");
+      tabb2.classList.remove("active");
+      tab1.classList.add("active");
+      tabb1.classList.add("active");
+    }
+  };
 
   return (
     <>
@@ -1662,28 +1685,19 @@ export const BookingListComponent = () => {
                                         </select>
                                       </div>
                                       {roleId !== 3 && (
-                                        <div className="modal-body d-flex px-4 align-items-center">
-                                          <label
-                                            htmlFor="notify"
-                                            className="d-flex justify-content-center align-items-center"
-                                            style={{ marginLeft: "8rem" }}
-                                          >
-                                            Notify to Client
-                                          </label>
-                                          <input
-                                            className="form-control h-25"
-                                            style={{
-                                              width: "3rem",
-                                              marginBottom: "0.5rem",
-                                            }}
-                                            type="checkbox"
-                                            id="notify"
-                                            name="notify"
-                                            checked={notifyCheckbox}
-                                            onChange={handleNotifyCheckbox}
-                                            value={notifyCheckbox}
-                                          />
-                                        </div>
+                                        <div className="modal-body d-flex align-items-center px-4">
+                                        <label htmlFor="notify" style={{ marginLeft: "8rem", marginBottom: 0 }}>
+                                          Notify to Client
+                                        </label>
+                                        <Switch
+                                          checked={notifyCheckbox}
+                                          onChange={handleNotifyCheckbox}
+                                          inputProps={{
+                                            "aria-label": "controlled",
+                                          }}
+                                        />
+                                      </div>
+                                      
                                       )}
                                       <div className="p-1 float-right">
                                         {roleId !== 3 ? (
