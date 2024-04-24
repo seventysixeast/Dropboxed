@@ -9,10 +9,13 @@ import { getAllImageTypes } from "../api/imageTypeApis";
 const AddService = () => {
   const [serviceData, setServiceData] = useState({
     serviceName: "",
-    imageTypeDetails: [{ type: { label: "", price: "", value: "" }, label: "", count: "" }],
+    imageTypeDetails: [
+      { type: { label: "", price: "", value: "" }, label: "", count: "" },
+    ],
     status: "INACTIVE",
-    totalPrice: 0
+    totalPrice: 0,
   });
+
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
@@ -24,7 +27,10 @@ const AddService = () => {
     setCloneIndex(cloneIndex + 1);
     setServiceData({
       ...serviceData,
-      imageTypeDetails: [...serviceData.imageTypeDetails, { type: "", label: "", count: "" }]
+      imageTypeDetails: [
+        ...serviceData.imageTypeDetails,
+        { type: "", label: "", count: "" },
+      ],
     });
   };
 
@@ -57,15 +63,16 @@ const AddService = () => {
 
   const handleSubmit = () => {
     console.log("Service Data:", serviceData);
-    // Perform submit actions
+    toast.success("Service added successfully!");
   };
 
   const handleImageTypeChange = (index, selectedOption) => {
+    console.log(selectedOption);
     const updatedImageTypeDetails = [...serviceData.imageTypeDetails];
     updatedImageTypeDetails[index].type = selectedOption;
     setServiceData({
       ...serviceData,
-      imageTypeDetails: updatedImageTypeDetails
+      imageTypeDetails: updatedImageTypeDetails,
     });
     let sum = 0;
     updatedImageTypeDetails.forEach(({ type }) => {
@@ -73,7 +80,7 @@ const AddService = () => {
     });
     setServiceData({
       ...serviceData,
-      totalPrice: sum
+      totalPrice: sum,
     });
   };
 
@@ -82,7 +89,7 @@ const AddService = () => {
     updatedImageTypeDetails[index].label = newValue;
     setServiceData({
       ...serviceData,
-      imageTypeDetails: updatedImageTypeDetails
+      imageTypeDetails: updatedImageTypeDetails,
     });
   };
 
@@ -91,7 +98,7 @@ const AddService = () => {
     updatedImageTypeDetails[index].count = newValue;
     setServiceData({
       ...serviceData,
-      imageTypeDetails: updatedImageTypeDetails
+      imageTypeDetails: updatedImageTypeDetails,
     });
   };
 
@@ -103,7 +110,7 @@ const AddService = () => {
   const handleStatusChange = (selectedOption) => {
     setServiceData({
       ...serviceData,
-      status: selectedOption.value
+      status: selectedOption.value,
     });
   };
 
@@ -137,6 +144,7 @@ const AddService = () => {
                         <Tabs
                           selectedIndex={tabIndex}
                           onSelect={handleTabSelect}
+                          style={{ minHeight: "20rem" }}
                         >
                           <TabList
                             style={{
@@ -174,7 +182,7 @@ const AddService = () => {
                                   onChange={(e) =>
                                     setServiceData({
                                       ...serviceData,
-                                      serviceName: e.target.value
+                                      serviceName: e.target.value,
                                     })
                                   }
                                 />
@@ -201,7 +209,10 @@ const AddService = () => {
                                           style
                                           name={`imageType${index}`}
                                           id={`imageType${index}`}
-                                          value={serviceData.imageTypeDetails[index].type}
+                                          value={
+                                            serviceData.imageTypeDetails[index]
+                                              .type
+                                          }
                                           onChange={(selectedOption) =>
                                             handleImageTypeChange(
                                               index,
@@ -225,7 +236,10 @@ const AddService = () => {
                                         className="form-control w-25 mr-1"
                                         id={`imageTypeLabel${index}`}
                                         name={`imageTypeLabel${index}`}
-                                        value={serviceData.imageTypeDetails[index].label}
+                                        value={
+                                          serviceData.imageTypeDetails[index]
+                                            .label
+                                        }
                                         placeholder="Enter Image Count"
                                         onChange={(e) =>
                                           handleImageTypeLabelChange(
@@ -239,7 +253,10 @@ const AddService = () => {
                                         className="form-control w-25"
                                         id={`imageCount${index}`}
                                         name={`imageCount${index}`}
-                                        value={serviceData.imageTypeDetails[index].count}
+                                        value={
+                                          serviceData.imageTypeDetails[index]
+                                            .count
+                                        }
                                         placeholder="Enter Image Type Label"
                                         onChange={(e) =>
                                           handleImageCountChange(
@@ -252,13 +269,15 @@ const AddService = () => {
                                   </div>
                                 )
                               )}
-                              <button
-                                className="badge-primary border-primary"
-                                type="button"
-                                onClick={handleAddInstance}
-                              >
-                                +
-                              </button>
+                              <div className="my-3 ml-3">
+                                <button
+                                  className="badge-primary border-primary"
+                                  type="button"
+                                  onClick={handleAddInstance}
+                                >
+                                  +
+                                </button>
+                              </div>
                             </TabPanel>
 
                             <TabPanel>
@@ -274,7 +293,8 @@ const AddService = () => {
                                   className="select2"
                                   name="status"
                                   value={statusOptions.find(
-                                    (option) => option.value === serviceData.status
+                                    (option) =>
+                                      option.value === serviceData.status
                                   )}
                                   onChange={handleStatusChange}
                                   options={statusOptions}
