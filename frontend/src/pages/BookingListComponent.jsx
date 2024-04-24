@@ -335,6 +335,14 @@ export const BookingListComponent = () => {
               borderColor = "#00b5b8";
             }
           }
+        } else {
+          if (status === 0) {
+            color = "#ff748c";
+            borderColor = "#ff748c";
+          } else {
+            color = "#00b5b8";
+            borderColor = "#00b5b8";
+          }
         }
 
         return {
@@ -354,6 +362,7 @@ export const BookingListComponent = () => {
   };
 
   const getBookingData = (data) => {
+    console.log(data);
     let array = [];
     setBookingIdToDelete(data.id);
     if (data.package_ids) {
@@ -365,6 +374,8 @@ export const BookingListComponent = () => {
         array.push(parseInt(data.package_ids));
       }
     }
+
+    setNotifyCheckbox(data.booking_status)
 
     const selectedServices = array
       .map((id) => packages.find((pack) => pack.id === id))
@@ -826,7 +837,8 @@ export const BookingListComponent = () => {
               className="badge"
               style={{ backgroundColor: "#ff748c" }}
               title={roleId !== 3 ? "Notify client" : "Pending"}
-            >
+              onClick={roleId !== 3 && props.row.original.photographer_id === "" ? null :  () => handleNotifyChange(props.row.original)}
+              >
               {roleId !== 3 && props.row.original.photographer_id === ""
                 ? "New Request"
                 : roleId === 3
@@ -874,6 +886,7 @@ export const BookingListComponent = () => {
       ),
     },
   ];
+
   const subscribe = useGoogleLogin({
     onSuccess: (codeResponse) => {
       axios
@@ -946,6 +959,7 @@ export const BookingListComponent = () => {
     setToTime("60");
     setSelectedPackagePrice(0);
   };
+
   const handleDateModalClose = () => {
     setShowDateModel(false);
     setBookingData({
