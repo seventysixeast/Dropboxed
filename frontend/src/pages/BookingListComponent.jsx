@@ -335,6 +335,14 @@ export const BookingListComponent = () => {
               borderColor = "#00b5b8";
             }
           }
+        } else {
+          if (status === 0) {
+            color = "#ff748c";
+            borderColor = "#ff748c";
+          } else {
+            color = "#00b5b8";
+            borderColor = "#00b5b8";
+          }
         }
 
         return {

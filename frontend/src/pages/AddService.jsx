@@ -7,6 +7,14 @@ import Select from "react-select";
 import { getAllImageTypes } from "../api/imageTypeApis";
 
 const AddService = () => {
+  const { authData } = useAuth();
+  const { user } = authData;
+  const roleId = user.role_id;
+  const subdomainId = user.subdomain_id;
+  const [imageTypes, setImageTypes] = useState([]);
+  const [cloneIndex, setCloneIndex] = useState(1);
+  const [tabIndex, setTabIndex] = useState(0);
+  
   const [serviceData, setServiceData] = useState({
     serviceName: "",
     imageTypeDetails: [
@@ -15,13 +23,6 @@ const AddService = () => {
     status: "INACTIVE",
     totalPrice: 0,
   });
-
-  const { authData } = useAuth();
-  const { user } = authData;
-  const roleId = user.role_id;
-  const subdomainId = user.subdomain_id;
-  const [imageTypes, setImageTypes] = useState([]);
-  const [cloneIndex, setCloneIndex] = useState(1);
 
   const handleAddInstance = () => {
     setCloneIndex(cloneIndex + 1);
@@ -46,8 +47,6 @@ const AddService = () => {
   useEffect(() => {
     getAllImageTypesData();
   }, []);
-
-  const [tabIndex, setTabIndex] = useState(0);
 
   const handleTabSelect = (index) => {
     setTabIndex(index);
