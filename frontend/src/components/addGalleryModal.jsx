@@ -2,9 +2,9 @@ import React from "react";
 import Select from "react-select";
 import toolIcons from "../assets/images/i.png";
 import { Switch, Checkbox } from '@mui/material';
-const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
-const AddGalleryModal = ({ message, isOpen, formData, clients, bookingTitles, services, photographers, isGalleryLocked, isNotifyChecked, loading, handleInputChange, handleBannerChange, handleGalleryLockChange, handleNotifyChange, handleSubmit, onClose }) => {
+const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clients, bookingTitles, services, photographers, isGalleryLocked, isNotifyChecked, loading, handleInputChange, handleBannerChange, handleGalleryLockChange, handleNotifyChange, handleSubmit, onClose }) => {
+  { console.log("formData", formData) }
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -28,6 +28,7 @@ const AddGalleryModal = ({ message, isOpen, formData, clients, bookingTitles, se
                 <button
                   type="button"
                   className="close"
+                  id="closeModalButton"
                   data-dismiss="modal"
                   aria-label="Close"
                   onClick={onClose}
@@ -197,7 +198,14 @@ const AddGalleryModal = ({ message, isOpen, formData, clients, bookingTitles, se
                           onChange={handleBannerChange}
                           accept="image/*"
                         />
-                        {formData.id && <img src={`${formData.banner ? `${IMAGE_URL}/${formData.banner}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 mt-2" alt="Card image" />}
+                        {/* {formData.id && <img src={`${formData.banner ? `${IMAGE_URL}/${formData.banner}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 mt-2" alt="Card image" />} */}
+                        {previewImage && (
+                          <img
+                            src={previewImage}
+                            className="height-100 width-100 mt-2"
+                            alt="banner"
+                          />
+                        )}
                       </div>
                     </div>
                     <div>
@@ -222,7 +230,7 @@ const AddGalleryModal = ({ message, isOpen, formData, clients, bookingTitles, se
                   <input
                     type="submit"
                     className="btn btn-primary btn"
-                    value="Download"
+                    value={button}
                   />
                   <input
                     type="reset"

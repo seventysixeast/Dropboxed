@@ -5,8 +5,8 @@ import { getAllClients, createClient, getClient, deleteClient, activeInactiveCli
 import { toast } from 'react-toastify';
 import DeleteModal from "../components/DeleteModal";
 import { useAuth } from "../context/authContext";
-
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
+
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { authData } = useAuth();
@@ -146,7 +146,6 @@ const Clients = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('id', id);
       let clientData = await getClient(formDataToSend);
-      console.log("clientData",clientData);
       if (clientData.data.profile_photo !== "") {
         let path = `${IMAGE_URL}/${clientData.data.profile_photo}`
         setPreviewImage(path)

@@ -28,4 +28,36 @@ const getAllCollections = async (data) => {
   }
 };
 
-export { addGallery, getAllCollections };
+const getCollection = async (data) => {
+  try {
+    const response = await API.post('/collection/getCollection', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to get collection');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const deleteCollection = async (data) => {
+  try {
+    const response = await API.post('/collection/deleteCollection', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to delete collection');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { addGallery, getAllCollections, getCollection, deleteCollection };

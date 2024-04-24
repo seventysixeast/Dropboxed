@@ -1,5 +1,6 @@
 const Collection = require('../models/Collections');
 const User = require('../models/Users');
+const Package = require('../models/Packages');
 
 const addGallery = async (req, res) => {
   try {
@@ -17,6 +18,7 @@ const addGallery = async (req, res) => {
       notify_client: req.body.notify_client,
       subdomain_id: req.body.subdomainId,
     };
+
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.banner;
       let fileUrl = `${process.cwd()}/public/gallery/` + req.files.banner.name;
@@ -34,10 +36,11 @@ const addGallery = async (req, res) => {
       if (!collection) {
         return res.status(404).json({ error: 'Collection not found' });
       }
-      await Collection.update(collectionData);
+      await collection.update(collectionData);
     } else {
       collection = await Collection.create(collectionData);
     }
+
     res.status(200).json({
       success: true,
       message: req.body.id ? "Gallery updated successfully" : "Gallery created successfully",
@@ -68,6 +71,28 @@ const getAllCollections = async (req, res) => {
       id: client.id,
       name: client.name
     }));
+    let photographerIds = collectionsData.map(collection => collection.photographer_ids);
+    let photographerIdsAsIntegers = photographerIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
+    let photographerData = await User.findAll({
+      where: {
+        id: photographerIdsAsIntegers.flat()
+      }
+    });
+    let photographerNamesAndIds = photographerData.map(photographer => ({
+      id: photographer.id,
+      name: photographer.name
+    }));
+    let packageIds = collectionsData.map(collection => collection.package_ids);
+    let packageIdsAsIntegers = packageIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
+    let packageData = await Package.findAll({
+      where: {
+        id: packageIdsAsIntegers.flat()
+      }
+    });
+    let packageNamesAndIds = packageData.map(pkg => ({
+      id: pkg.id,
+      name: pkg.package_name
+    }));
     collectionsData.forEach(collection => {
       let clientNames = collection.client_id.split(',').map(id => {
         let clientId = parseInt(id.trim(), 10);
@@ -75,6 +100,18 @@ const getAllCollections = async (req, res) => {
         return client ? client.name : '';
       });
       collection.dataValues.client_name = clientNames.join(', ');
+      let photographerNames = collection.photographer_ids.split(',').map(id => {
+        let photographerId = parseInt(id.trim(), 10);
+        let photographer = photographerNamesAndIds.find(photographer => photographer.id === photographerId);
+        return photographer ? photographer.name : '';
+      });
+      collection.dataValues.photographers_name = photographerNames.join(', ');
+      let packageNames = collection.package_ids.split(',').map(id => {
+        let packageId = parseInt(id.trim(), 10);
+        let pkg = packageNamesAndIds.find(pkg => pkg.id === packageId);
+        return pkg ? pkg.name : '';
+      });
+      collection.dataValues.packages_name = packageNames.join(', ');
     });
     res.status(200).json({ success: true, data: collectionsData });
   } catch (error) {
@@ -82,4 +119,34 @@ const getAllCollections = async (req, res) => {
   }
 };
 
-module.exports = { addGallery, getAllCollections };
+const getCollection = async (req, res) => {
+  try {
+    let collectionData = await Collection.findOne({
+      where: {
+        id: req.body.id
+      },
+      order: [['created', 'DESC']]
+    });
+    res.status(200).json({ success: true, data: collectionData });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to list collection" });
+  }
+};
+
+const deleteCollection = async (req, res) => {
+  try {
+    const collectionId = req.body.id;
+    const deleted = await Collection.destroy({
+      where: { id: collectionId }
+    });
+    if (deleted) {
+      res.status(200).json({ success: true, message: "Collection deleted successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "Collection not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete Collection" });
+  }
+};
+
+module.exports = { addGallery, getAllCollections, getCollection, deleteCollection };

@@ -1,306 +1,420 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Switch from '@mui/material/Switch';
-import banner1 from "../assets/images/Web-08428_1711059614.jpg";
-import banner2 from "../assets/images/DSC09293_1711016396.jpg";
+import { getAllClients } from "../api/clientApis";
+import { getAllBookingTitles, getAllServices, getAllPhotographers } from "../api/bookingApis";
+import { addGallery, getAllCollections, getCollection, deleteCollection } from "../api/collectionApis";
+import { toast } from 'react-toastify';
+import AddGalleryModal from "../components/addGalleryModal";
+import { useAuth } from "../context/authContext";
+import TableCustom from "../components/Table";
+import DeleteModal from "../components/DeleteModal";
+const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 
 const Collections = () => {
+  const { authData } = useAuth();
+  const user = authData.user;
+  const subdomainId = user.subdomain_id
+  const [loading, setLoading] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [bookingTitles, setBookingTitles] = useState([]);
+  const [services, setServices] = useState([]);
+  const [photographers, setPhotographers] = useState([]);
+  const [isGalleryLocked, setIsGalleryLocked] = useState(false);
+  const [isNotifyChecked, setIsNotifyChecked] = useState(false);
+  const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
+  const [collections, setCollections] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [formData, setFormData] = useState({
+    id: '',
+    client: '',
+    booking_title: '',
+    services: '',
+    photographers: '',
+    gallery_title: '',
+    dropbox_link: '',
+    vimeo_video_link: '',
+    banner: null,
+    lock_gallery: '',
+    notify_client: ''
+  });
+
+  useEffect(() => {
+    getClients();
+    getAllCollectionsData();
+  }, [])
+
+  useEffect(() => {
+    if (formData.client !== '' && formData.booking_title !== '') {
+      getServices(formData.client, formData.booking_title);
+      getPhotographers(formData.client, formData.booking_title);
+      getBookingTitles(formData.client);
+    }
+  }, [formData.client, formData.booking_title])
+
+  const getClients = async () => {
+    try {
+      let clients = await getAllClients({ subdomainId: subdomainId });
+      setClients(clients.data);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getBookingTitles = async (client) => {
+    setLoading(true)
+    try {
+      let bookingTitles = await getAllBookingTitles({ clientId: client });
+      setBookingTitles(bookingTitles.data);
+    } catch (error) {
+      toast.error(error);
+    }
+    setLoading(false)
+  };
+
+  const getServices = async (client, booking_title) => {
+    try {
+      let services = await getAllServices({ clientId: client, booking_title: booking_title });
+      let servicesData = services && services.data.map((pkg) => ({
+        label: pkg.package_name,
+        value: pkg.id
+      }))
+      setServices(servicesData);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getPhotographers = async (client, booking_title) => {
+    try {
+      let photographers = await getAllPhotographers({ clientId: client, booking_title: booking_title });
+      let photographersData = photographers && photographers.data.map((photographer) => ({
+        label: photographer.name,
+        value: photographer.id
+      }))
+      setPhotographers(photographersData);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const handleGalleryLockChange = () => {
+    setIsGalleryLocked(!isGalleryLocked);
+  };
+
+  const handleNotifyChange = () => {
+    setIsNotifyChecked(!isNotifyChecked);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let gallery = { ...formData };
+    if (name === "client") {
+      gallery.client = value;
+      getBookingTitles(value);
+    } else if (name === "booking_title") {
+      gallery.booking_title = value;
+      gallery.gallery_title = value;
+    } else if (name === 'services') {
+      gallery.services = value
+    } else if (name === 'photographers') {
+      gallery.photographers = value
+    } else if (name === 'gallery_title') {
+      gallery.gallery_title = value
+    } else if (name === 'dropbox_link') {
+      gallery.dropbox_link = value
+    } else if (name === 'vimeo_video_link') {
+      gallery.vimeo_video_link = value
+    } else if (name === 'banner') {
+      gallery.banner = value
+    } else if (name === 'lock_gallery') {
+      gallery.lock_gallery = value
+    } else if (name === 'notify_client') {
+      gallery.notify_client = value
+    }
+    setFormData(gallery);
+  };
+
+  const handleBannerChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setFormData({
+          ...formData,
+          banner: file
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+      setFormData({
+        ...formData,
+        banner: ''
+      });
+    }
+  };
+
+  const resetFormData = async () => {
+    setFormData({
+      id: '',
+      client: '',
+      booking_title: '',
+      services: '',
+      photographers: '',
+      gallery_title: '',
+      dropbox_link: '',
+      vimeo_video_link: '',
+      banner: null,
+      lock_gallery: '',
+      notify_client: '',
+    });
+    setServices([]);
+    setPhotographers([]);
+    setPreviewImage(null);
+    setIsGalleryLocked(false);
+    setIsNotifyChecked(false);
+    setShowAddGalleryModal(false);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      let serviceIds = services && services.map(item => item.value)
+      let photographerIds = photographers && photographers.map(item => item.value)
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', formData.id);
+      formDataToSend.append('client', formData.client);
+      formDataToSend.append('booking_title', formData.booking_title);
+      formDataToSend.append('services', serviceIds);
+      formDataToSend.append('photographers', photographerIds);
+      formDataToSend.append('gallery_title', formData.gallery_title);
+      formDataToSend.append('dropbox_link', formData.dropbox_link);
+      formDataToSend.append('vimeo_video_link', formData.vimeo_video_link);
+      formDataToSend.append('banner', formData.banner);
+      formDataToSend.append('lock_gallery', isGalleryLocked);
+      formDataToSend.append('notify_client', isNotifyChecked);
+      formDataToSend.append('subdomainId', subdomainId);
+
+      let res = await addGallery(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        document.getElementById('closeModalButton').click();
+        resetFormData();
+        getAllCollectionsData();
+      } else {
+        toast.error(res);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getAllCollectionsData = async () => {
+    try {
+      let allCollections = await getAllCollections({ subdomainId: subdomainId });
+      if (allCollections && allCollections.success) {
+        setCollections(allCollections.data);
+      } else {
+        setCollections([]);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const getCollectionData = async (id) => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", id);
+      let collectionData = await getCollection(formDataToSend);
+      if (collectionData.data.banner !== "") {
+        let path = `${IMAGE_URL}/${collectionData.data.banner}`
+        setPreviewImage(path)
+      } else {
+        setPreviewImage(null)
+      }
+      const initialFormData = {
+        id: collectionData.data.id,
+        client: collectionData.data.client_id,
+        booking_title: collectionData.data.client_address,
+        serviceIds: collectionData.data.services,
+        photographerIds: collectionData.data.photographers,
+        gallery_title: collectionData.data.name,
+        dropbox_link: collectionData.data.dropbox_link,
+        vimeo_video_link: collectionData.data.video_link,
+        banner: collectionData.data.banner
+      };
+      setFormData(initialFormData);
+      setIsGalleryLocked(collectionData.data.lock_gallery);
+      setIsNotifyChecked(collectionData.data.notify_client);
+      getAllCollectionsData();
+    } catch (error) {
+      console.error("Failed to get ImageTypes:", error.message);
+    }
+  };
+
+  const deleteCollectionData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", collectionIdToDelete);
+      let res = await deleteCollection(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        getAllCollectionsData();
+        setShowDeleteModal(false);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const columns = React.useMemo(
+    () => [
+      { Header: "S.No.", accessor: "id" },
+      {
+        Header: "Banner",
+        Cell: ({ row }) => (
+          <img
+            src={
+              row.original.banner && `${IMAGE_URL}/${row.original.banner}`
+            }
+            className="width-100"
+            alt="Banner"
+          />
+        ),
+      },
+      { Header: "Gallery Title", accessor: "name" },
+      { Header: "Photographers", accessor: "photographers_name" },
+      { Header: "Client", accessor: "client_name" },
+      { Header: "Booking Title", accessor: "client_address" },
+      { Header: "Services", accessor: "packages_name" },
+      {
+        Header: "Lock/Unlock",
+        Cell: ({ row }) => (
+          <Switch
+            checked={row.original.lock_gallery}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />
+        ),
+      },
+      {
+        Header: "Notify",
+        Cell: ({ row }) => (
+          row.original.notify_client ? (
+            <div className="badge badge-pill badge-light-primary">Notify</div>
+          ) : null
+        ),
+      },
+      {
+        Header: "Action",
+        Cell: ({ row }) => (
+          <div className="btnsrow">
+            <button
+              className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+              title="Edit"
+              onClick={() => getCollectionData(row.original.id)}
+              data-toggle="modal"
+              data-target="#bootstrap"
+            >
+              <i className="feather white icon-edit"></i>
+            </button>
+            <button
+              className="btn btn-icon btn-outline-danger mr-1 mb-1"
+              title="Delete"
+              onClick={() => {
+                setShowDeleteModal(true);
+                setCollectionIdToDelete(row.original.id);
+              }}
+            >
+              <i className="feather white icon-trash"></i>
+            </button>
+            <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
+              <i className="feather white icon-copy"></i>
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
+  const data = React.useMemo(() => collections, [collections]);
+
   return (
-    <div className="app-content content">
-      <div className="content-overlay"></div>
-      <div className="content-wrapper">
-        <div className="content-header row mt-2">
-          <div className="content-header-left col-md-6 col-6 mb-2">
-            <h3 className="content-header-title mb-0">Collection List</h3>
-            <div className="row breadcrumbs-top">
-              <div className="breadcrumb-wrapper col-12">
-                <ol className="breadcrumb">
-                  <li className="breadcrumb-item">
-                    <a href="/dashboard">Home</a>
-                  </li>
-                  <li className="breadcrumb-item">Collection List</li>
-                </ol>
+    <>
+      <div className="app-content content">
+        <div className="content-overlay"></div>
+        <div className="content-wrapper">
+          <div className="content-header row mt-2">
+            <div className="content-header-left col-md-6 col-6 mb-2">
+              <h3 className="content-header-title mb-0">Collection List</h3>
+              <div className="row breadcrumbs-top">
+                <div className="breadcrumb-wrapper col-12">
+                  <ol className="breadcrumb">
+                    <li className="breadcrumb-item">
+                      <a href="/dashboard">Home</a>
+                    </li>
+                    <li className="breadcrumb-item">Collection List</li>
+                  </ol>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
-            <ul className="list-inline mb-0">
-              <li>
-                <div className="form-group">
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary btn-block"
-                    data-toggle="modal"
-                    data-target="#bootstrap"
-                  >
-                    Add Gallery
-                  </button>
-
-                  <div
-                    className="modal fade text-left"
-                    id="bootstrap"
-                    tabIndex="-1"
-                    role="dialog"
-                    aria-labelledby="myModalLabel35"
-                    aria-hidden="true"
-                    style={{ display: "none" }}
-                  >
-                    <div className="modal-dialog modal-lg" role="document">
-                      <div className="modal-content">
-                        <div className="modal-header">
-                          <h3 className="card-title">Download from Dropbox & Add in Gallery</h3>
-                          <button
-                            type="button"
-                            className="close"
-                            data-dismiss="modal"
-                            aria-label="Close"
-                          >
-                            <span aria-hidden="true">×</span>
-                          </button>
-                        </div>
-                        <form>
-                          <div className="modal-body">
-                            <fieldset className="form-group floating-label-form-group">
-                              <label htmlFor="title">
-                                Title *
-                              </label>
-                              <textarea
-                                className="form-control"
-                                id="title"
-                                rows="1"
-                                placeholder="Title"
-                              ></textarea>
-                            </fieldset>
-                            <fieldset className="form-group floating-label-form-group">
-                              <label>Clients</label>
-                              <select
-                                className="select2 form-control"
-                                required
-                              >
-                                <option value="client1">Client 1</option>
-                                <option value="client2">Client 2</option>
-                                <option value="client3">Client 3</option>
-                              </select>
-                            </fieldset>
-                            <fieldset className="form-group floating-label-form-group">
-                              <label htmlFor="address">
-                                Address
-                              </label>
-                              <textarea
-                                className="form-control"
-                                id="address"
-                                rows="1"
-                                placeholder="Address"
-                              ></textarea>
-                            </fieldset>
-                            <fieldset className="form-group floating-label-form-group">
-                              <label htmlFor="package">Package</label>
-                              <select
-                                className="select2 form-control"
-                                required
-                              >
-                                <option value="Studio">
-                                  Studio Package
-                                </option>
-                                <option value="Essential">
-                                  Essential Package
-                                </option>
-                                <option value="Premium">
-                                  Premium Package
-                                </option>
-                              </select>
-                            </fieldset>
-                            <fieldset className="form-group floating-label-form-group">
-                              <label htmlFor="services">Services</label>
-                              <select
-                                className="select2 form-control"
-                                required
-                              >
-                                <option value="Studio">
-                                  Studio Photography
-                                </option>
-                                <option value="Essential">
-                                  Essential Photography
-                                </option>
-                                <option value="Premium">
-                                  Premium Photography
-                                </option>
-                                <option value="Studio">
-                                  Studio Floor Plan
-                                </option>
-                                <option value="Essential">
-                                  Essential Floor Plan
-                                </option>
-                                <option value="Premium">
-                                  Premium Floor Plan
-                                </option>
-                              </select>
-                            </fieldset>
-                            <fieldset className="form-group floating-label-form-group">
-                              <label htmlFor="link">
-                                Dropbox Link
-                              </label>
-                              <textarea
-                                className="form-control"
-                                id="link"
-                                rows="1"
-                                placeholder="Link"
-                              ></textarea>
-                            </fieldset>
-                            <fieldset className="form-group floating-label-form-group">
-                              <label htmlFor="link">
-                                Vimeo Video Link
-                              </label>
-                              <textarea
-                                className="form-control"
-                                id="link"
-                                rows="1"
-                                placeholder="Link"
-                              ></textarea>
-                            </fieldset>
-                            <div className="row">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label htmlFor="projectinput2">Banner</label><br />
-                                  <input type="file" name="banner" id="banner" />
-                                  <input type="hidden" name="bannerimage" value="" />
-                                </div>
-                              </div>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Status *</label>
-                                <select
-                                  className="select2 form-control"
-                                  required
-                                >
-                                  <option value="on">On</option>
-                                  <option value="off">Off</option>
-                                </select>
-                              </fieldset>
-                            </div>
-                          </div>
-                          <div className="modal-footer">
-                            <input
-                              type="submit"
-                              className="btn btn-primary btn"
-                              value="Download"
-                            />
-                            <input
-                              type="reset"
-                              className="btn btn-secondary btn"
-                              data-dismiss="modal"
-                              value="Close"
-                            />
-                          </div>
-                        </form>
-                      </div>
-                    </div>
+            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
+              <ul className="list-inline mb-0">
+                <li>
+                  <div className="form-group">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-block"
+                      data-toggle="modal"
+                      data-target="#bootstrap"
+                      onClick={() => {
+                        setShowAddGalleryModal(true);
+                      }}
+                    >
+                      Add Gallery
+                    </button>
                   </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="users-list-table">
-          <div className="card">
-            <div className="card-content">
-              <div className="card-body">
-                <div className="table-responsive">
-                  <table class="table table-striped table-bordered zero-configuration table-inverse">
-                    <thead>
-                      <tr>
-                        <th>S.No.</th>
-                        <th>Banner</th>
-                        <th>Gallery Title</th>
-                        <th>Photographer</th>
-                        <th>Client</th>
-                        <th>Booking Title</th>
-                        <th>Services</th>
-                        <th>Lock/Unlock</th>
-                        <th>Notify</th>
-                        <th>Action</th>
-                        <th className="d-none">verified</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>925</td>
-                        <td><img src={banner1} style={{ width: "150px" }} /></td>
-                        <td>Pre Wedding</td>
-                        <td>Pete</td>
-                        <td>
-                          Lois Bucket Real Estate <br />
-                          <b>Username: </b>dylan@loisbuckett.com.au <br />
-                          <b>22 Mar 2024 06:21 am</b>
-                        </td>
-                        <td>6 Tara Downs, Lennox Head NSW, Australia</td>
-                        <td><b>Essential Package - $485.00</b></td>
-                        <td>
-                          <Switch
-                            checked={true}
-                            inputProps={{ 'aria-label': 'controlled' }}
-                          />
-                        </td>
-                        <td>
-                        <div className="badge badge-pill badge-light-primary">Notify</div>
-                        </td>
-                        <td>
-                          <button class="btn btn-icon btn-outline-secondary mr-1 mb-1" title="Edit">
-                            <i className="feather white icon-edit"></i>
-                          </button>
-                          <button class="btn btn-icon btn-outline-danger mr-1 mb-1" title="Delete">
-                            <i className="feather white icon-trash"></i>
-                          </button>
-                          <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
-                            <i className="feather white icon-copy"></i>
-                          </button>
-                        </td>
-                        <td className="d-none">No</td>
-                      </tr>
-                      <tr>
-                        <td>924</td>
-                        <td><img src={banner2} style={{ width: "150px" }} /></td>
-                        <td>Birthday Party</td>
-                        <td>Josh</td>
-                        <td>60 Kingsley Street, Byron Bay NSW, Australia</td>
-                        <td>
-                          <b>Virtual 360 Tour - $275.00</b> <br />
-                          <b>Premium Package - $900.00</b>
-                        </td>
-                        <td>
-                          Mcgrath Real Estate <br />
-                          <b>Username: </b>Mcgrath Real Estate <br />
-                          <b>21 Mar 2024 06:23 pm</b>
-                        </td>
-                        <td>
-                          <Switch
-                            checked={true}
-                            inputProps={{ 'aria-label': 'controlled' }}
-                          />
-                        </td>
-                        <td>
-                        <div className="badge badge-pill badge-light-primary">Notified</div>
-                        </td>
-                        <td>
-                          <button class="btn btn-icon btn-outline-secondary mr-1 mb-1" title="Edit">
-                            <i className="feather white icon-edit"></i>
-                          </button>
-                          <button class="btn btn-icon btn-outline-danger mr-1 mb-1" title="Delete">
-                            <i className="feather white icon-trash"></i>
-                          </button>
-                          <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
-                            <i className="feather white icon-copy"></i>
-                          </button>
-                        </td>
-                        <td className="d-none">No</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      <AddGalleryModal
+        message={formData.id ? "Update Gallery" : "Add Gallery"}
+        button={formData.id ? "Update" : "Add"}
+        isOpen={showAddGalleryModal}
+        formData={formData}
+        previewImage={previewImage}
+        clients={clients}
+        bookingTitles={bookingTitles}
+        services={services}
+        photographers={photographers}
+        isGalleryLocked={isGalleryLocked}
+        isNotifyChecked={isNotifyChecked}
+        loading={loading}
+        handleInputChange={handleInputChange}
+        handleBannerChange={handleBannerChange}
+        handleGalleryLockChange={handleGalleryLockChange}
+        handleNotifyChange={handleNotifyChange}
+        handleSubmit={handleSubmit}
+        onClose={resetFormData}
+      />
+      <TableCustom data={data} columns={columns} />
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={deleteCollectionData}
+        message="Are you sure you want to delete this collection?"
+      />
+    </>
   );
 };
 

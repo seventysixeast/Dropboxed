@@ -111,6 +111,12 @@
   color: lightgray !important;
 }
 
-.css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.Mui-checked, .css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.MuiCheckbox-indeterminate {
+.css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.Mui-checked,
+.css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.MuiCheckbox-indeterminate {
   color: #00b5b8 !important;
+}
+
+.pb-4,
+.py-4 {
+  padding-bottom: 5.5rem !important;
 }

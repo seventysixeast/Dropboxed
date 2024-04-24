@@ -18,7 +18,6 @@ import { NotificationComponent } from "../pages/NotificationComponent";
 
 import Collections from "../pages/Collections";
 import Download from "../pages/Download";
-import { AddCollection } from "../pages/AddCollection";
 import Users from "../pages/Users";
 import Login from "../pages/Login";
 import ManagePhotographersSubdomains from "../pages/ManagePhotographersSubdomains";
@@ -49,7 +48,6 @@ const AdminRouter = () => {
     { path: "/edit-profile", element: <EditProfile /> },
     //{ path: "/login", element: <Login /> },
     //{ path: "/signup", element: <SignUp /> },
-    // { path: "/add-collection", element: <AddCollection /> },
     { path: "/collections", element: <Collections /> },
     // { path: "/download", element: <Download /> },
     // { path: "/users", element: <Users /> },
