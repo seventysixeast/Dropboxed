@@ -52,7 +52,11 @@ const AdminRouter = () => {
     // { path: "/download", element: <Download /> },
     // { path: "/users", element: <Users /> },
     // { path: "/*", element: <Navigate to="/dashboard" /> },
-    // { path: "/add-service", element: <AddService /> }
+    { path: "/add-service", element: <AddService /> },
+    { path: "/services/:id", element: <AddService /> },
+    { path: "/services/*", element: <AddService /> },
+
+
   ]);
 
   return (
