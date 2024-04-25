@@ -19,8 +19,6 @@ const oAuth2Client = new OAuth2(
   callback_uri
 );
 
-
-
 async function getCalendarList() {
   try {
     const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
@@ -251,7 +249,6 @@ const createBooking = async (req, res) => {
 
 const providers = async (req, res) => {
   const { subdomainId } = req.body;
-  // console.log(subdomainId);
   try {
     const businessClients = await BusinessClients.findAll({
       attributes: ['client_id'],
@@ -291,6 +288,7 @@ const providers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const getAllBookings = async (req, res) => {
   try {
     let bookings = await Booking.findAll({

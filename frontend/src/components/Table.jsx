@@ -1,7 +1,7 @@
 import React from "react";
 import { useTable, useFilters, useGlobalFilter, useSortBy, usePagination } from "react-table";
 
-const TableCustom = ({ data, columns }) => {
+const TableCustom = ({ data, columns }) => { 
   const {
     getTableProps,
     getTableBodyProps,
@@ -32,6 +32,7 @@ const TableCustom = ({ data, columns }) => {
     usePagination,
 
   );
+
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>

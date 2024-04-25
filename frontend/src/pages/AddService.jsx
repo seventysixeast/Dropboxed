@@ -2,44 +2,36 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import "react-tabs/style/react-tabs.css";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import Select from "react-select";
 import { getAllImageTypes } from "../api/imageTypeApis";
 import { createService, getService } from "../api/serviceApis";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import { useParams } from "react-router-dom";
+import LoadingOverlay from "../components/Loader";
 
 const AddService = () => {
   const { id } = useParams();
   const { authData } = useAuth();
   const { user } = authData;
-  const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
+  const [loading, setLoading] = useState(false);
   const [imageTypes, setImageTypes] = useState([]);
   const [cloneIndex, setCloneIndex] = useState(1);
-  const [tabIndex, setTabIndex] = useState(0);
-  console.log(id);
   const [serviceData, setServiceData] = useState({
     serviceName: "",
-    imageTypeDetails: [
-      { type: { label: "", price: "", value: "" }, label: "", count: "" },
-    ],
+    imageTypeDetails: [{ type: "", label: "", count: "" }],
     status: "INACTIVE",
     totalPrice: 0,
     subdomainId: user.subdomain_id,
   });
 
-  const handleAddInstance = () => {
-    setCloneIndex(cloneIndex + 1);
-    setServiceData({
-      ...serviceData,
-      imageTypeDetails: [
-        ...serviceData.imageTypeDetails,
-        { type: "", label: "", count: "" },
-      ],
-    });
-  };
+  useEffect(() => {
+    getAllImageTypesData();
+    if (id) {
+      getServiceById();
+    }
+  }, [id]);
 
   const getAllImageTypesData = async () => {
     try {
@@ -50,23 +42,15 @@ const AddService = () => {
     }
   };
 
-  useEffect(() => {
-    getAllImageTypesData();
-    if (id) {
-      getServiceById();
-    }
-  }, [id]);
-
-  const handleTabSelect = (index) => {
-    setTabIndex(index);
-  };
-
-  const handleNext = () => {
-    setTabIndex((prevIndex) => prevIndex + 1);
-  };
-
-  const handlePrevious = () => {
-    setTabIndex((prevIndex) => prevIndex - 1);
+  const handleAddInstance = () => {
+    setCloneIndex(cloneIndex + 1);
+    setServiceData({
+      ...serviceData,
+      imageTypeDetails: [
+        ...serviceData.imageTypeDetails,
+        { type: "", label: "", count: "" },
+      ],
+    });
   };
 
   const handleSubmit = async () => {
@@ -92,13 +76,7 @@ const AddService = () => {
     );
 
     let package_slug = serviceData.serviceName.replace(/ /g, "-");
-    console.log(
-      package_slug,
-      "package_slug",
-      serviceData,
-      imageTypeDetails,
-      isVideo
-    );
+
     formData.append("package_type", "SERVICE");
     formData.append("package_name", serviceData.serviceName);
     formData.append("package_slug", package_slug);
@@ -108,6 +86,9 @@ const AddService = () => {
     formData.append("subdomain_id", subdomainId);
     formData.append("status", serviceData.status);
     formData.append("package_order", "0");
+    if (id != undefined) {
+      formData.append("id", id);
+    }
 
     try {
       const response = await createService(formData);
@@ -120,8 +101,8 @@ const AddService = () => {
           totalPrice: 0,
           subdomainId: user.subdomain_id,
         });
-        setCloneIndex(1)
-        setTabIndex(0);
+        setCloneIndex(1);
+        window.location.href = "/services";
       } else {
         toast.error("Failed to add service!");
       }
@@ -132,25 +113,27 @@ const AddService = () => {
   };
 
   const getServiceById = async () => {
+    setLoading(true);
     const formData = new FormData();
     formData.append("id", id);
     try {
       let service = await getService(formData);
       const data = service.data;
-  
-      // data.image_type_details parsejson
+
       data.image_type_details = JSON.parse(data.image_type_details);
       let typedata = await getAllImageTypes();
       console.log(typedata);
-      const updatedImageTypeDetails = data.image_type_details.map(detail => {
-        const imageType = typedata.data.find(type => type.id === parseInt(detail.image_type));
+      const updatedImageTypeDetails = data.image_type_details.map((detail) => {
+        const imageType = typedata.data.find(
+          (type) => type.id === parseInt(detail.image_type)
+        );
         console.log(imageType);
         return {
           type: {
             value: detail.image_type,
-            label: imageType ? imageType.type : '', // Check if imageType is found
-            price: imageType ? imageType.price : 0, // Default to 0 if not found
-            isVideo: imageType ? imageType.gallery_status : false, // Default to false if not found
+            label: imageType ? imageType.type : "",
+            price: imageType ? imageType.price : 0,
+            isVideo: imageType ? imageType.gallery_status : false,
           },
           label: detail.image_type_label,
           count: detail.image_type_count,
@@ -161,7 +144,7 @@ const AddService = () => {
       } else {
         data.status = "INACTIVE";
       }
-  
+
       setServiceData({
         serviceName: data.package_name,
         imageTypeDetails: updatedImageTypeDetails,
@@ -170,16 +153,13 @@ const AddService = () => {
         subdomainId: data.subdomain_id,
       });
       setCloneIndex(updatedImageTypeDetails.length);
-      setTabIndex(0);
-
-      console.log(data);
-
     } catch (error) {
+      toast.error("Failed to get service!");
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
-
-  console.log(serviceData);
 
   const handleImageTypeChange = (index, selectedOption) => {
     console.log(selectedOption);
@@ -297,6 +277,7 @@ const AddService = () => {
 
   return (
     <>
+      <LoadingOverlay loading={loading} />
       <div className="app-content content">
         <div className="content-overlay" />
         <div className="content-wrapper">
@@ -316,211 +297,159 @@ const AddService = () => {
             </div>
           </div>
           <div className="content-body">
-            <section id="number-tabs">
-              <div className="row">
-                <div className="col-12">
-                  <div className="card">
-                    <div className="card-content collapse show">
-                      <div className="card-body">
-                        <Tabs
-                          selectedIndex={tabIndex}
-                          onSelect={handleTabSelect}
-                          style={{ minHeight: "20rem" }}
-                        >
-                          <TabList
-                            style={{
-                              backgroundColor: "#DEE6EE",
-                              border: "1px transparent",
-                              borderRadius: "0.5rem 0.5rem 0 0 ",
-                            }}
-                          >
-                            <Tab
-                              style={{
-                                borderRadius: "0.5rem 0.5rem 0 0 ",
-                              }}
-                            >
-                              Basic
-                            </Tab>
-                            <Tab>Details</Tab>
-                            <Tab>Status</Tab>
-                          </TabList>
-                          <form onSubmit={handleSubmit}>
-                            <TabPanel>
-                              <div className="col-6 my-3 d-flex">
-                                <label
-                                  htmlFor="serviceName"
-                                  className="form-label align-self-center"
-                                  style={{ width: "10rem" }}
-                                >
-                                  Service Name
-                                </label>
+            <div className="row">
+              <div className="col-12">
+                <div className="card">
+                  <div className="card-content collapse show">
+                    <div className="card-body">
+                      <form onSubmit={handleSubmit}>
+                        <div>
+                          <div className="col-md-12 my-1">
+                            <div className="row">
+                              <label
+                                htmlFor="serviceName"
+                                className="form-label col-md-2 col-sm-3"
+                              >
+                                Service Name
+                              </label>
+                              <input
+                                type="text"
+                                className="form-control col-md-3 col-sm-3 mr-1 mb-1"
+                                id="serviceName"
+                                name="serviceName"
+                                value={serviceData.serviceName}
+                                placeholder="Enter Service Name"
+                                onChange={(e) =>
+                                  setServiceData({
+                                    ...serviceData,
+                                    serviceName: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <p className="form-label col-md-3 col-sm-3 mr-1 mb-1">
+                          Image Type Details
+                        </p>
+                        {Array.from({ length: cloneIndex }).map((_, index) => (
+                          <div key={index}>
+                            <div className="col-md-12 my-3 ">
+                              <div className="row">
+                                <div className="col-md-2 col-sm-3"></div>
+
+                                <Select
+                                  className="select2 col-md-3 col-sm-3 mr-1 mb-1  p-0"
+                                  styles={{ padding: "none !important" }}
+                                  name={`imageType${index}`}
+                                  id={`imageType${index}`}
+                                  value={
+                                    serviceData.imageTypeDetails[index].type
+                                  }
+                                  onChange={(selectedOption) =>
+                                    handleImageTypeChange(index, selectedOption)
+                                  }
+                                  options={imageTypes
+                                    .sort((a, b) =>
+                                      a.type.localeCompare(b.type)
+                                    )
+                                    .map((imageType) => ({
+                                      value: imageType.id,
+                                      label: imageType.type,
+                                      price: imageType.price,
+                                      isVideo: imageType.gallery_status,
+                                    }))}
+                                  isSearchable
+                                  components={{
+                                    Option: CustomOption,
+                                  }}
+                                />
                                 <input
                                   type="text"
-                                  className="form-control"
-                                  id="serviceName"
-                                  name="serviceName"
-                                  value={serviceData.serviceName}
-                                  placeholder="Enter Service Name"
+                                  className="form-control col-md-3 col-sm-3 mr-1 mb-1"
+                                  id={`imageTypeLabel${index}`}
+                                  name={`imageTypeLabel${index}`}
+                                  value={
+                                    serviceData.imageTypeDetails[index].label
+                                  }
+                                  placeholder="Enter Image Type Label"
                                   onChange={(e) =>
-                                    setServiceData({
-                                      ...serviceData,
-                                      serviceName: e.target.value,
-                                    })
+                                    handleImageTypeLabelChange(
+                                      index,
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                <input
+                                  type="number"
+                                  className="form-control col-md-3 col-sm-3 mr-1 mb-1"
+                                  id={`imageCount${index}`}
+                                  name={`imageCount${index}`}
+                                  value={
+                                    serviceData.imageTypeDetails[index].count
+                                  }
+                                  placeholder="Enter Image Count"
+                                  onChange={(e) =>
+                                    handleImageCountChange(
+                                      index,
+                                      e.target.value
+                                    )
                                   }
                                 />
                               </div>
-                            </TabPanel>
-                            <TabPanel>
-                              {Array.from({ length: cloneIndex }).map(
-                                (_, index) => (
-                                  <div key={index}>
-                                    <div className="col-12 my-3 d-flex">
-                                      <p
-                                        className="form-label align-self-center"
-                                        style={{ width: "10rem" }}
-                                      >
-                                        Image Type Details
-                                      </p>
-                                      <div className="w-25 mr-1">
-                                        <Select
-                                          className="select2"
-                                          name={`imageType${index}`}
-                                          id={`imageType${index}`}
-                                          value={
-                                            serviceData.imageTypeDetails[index]
-                                              .type
-                                          }
-                                          onChange={(selectedOption) =>
-                                            handleImageTypeChange(
-                                              index,
-                                              selectedOption
-                                            )
-                                          }
-                                          options={imageTypes
-                                            .sort((a, b) =>
-                                              a.type.localeCompare(b.type)
-                                            )
-                                            .map((imageType) => ({
-                                              value: imageType.id,
-                                              label: imageType.type,
-                                              price: imageType.price,
-                                              isVideo: imageType.gallery_status,
-                                            }))}
-                                          isSearchable
-                                          components={{
-                                            Option: CustomOption,
-                                          }}
-                                        />
-                                      </div>
-                                      <i class="bi bi-eye"></i>
-                                      <input
-                                        type="text"
-                                        className="form-control w-25 mr-1"
-                                        id={`imageTypeLabel${index}`}
-                                        name={`imageTypeLabel${index}`}
-                                        value={
-                                          serviceData.imageTypeDetails[index]
-                                            .label
-                                        }
-                                        placeholder="Enter Image Count"
-                                        onChange={(e) =>
-                                          handleImageTypeLabelChange(
-                                            index,
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                      <input
-                                        type="number"
-                                        className="form-control w-25"
-                                        id={`imageCount${index}`}
-                                        name={`imageCount${index}`}
-                                        value={
-                                          serviceData.imageTypeDetails[index]
-                                            .count
-                                        }
-                                        placeholder="Enter Image Type Label"
-                                        onChange={(e) =>
-                                          handleImageCountChange(
-                                            index,
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                    </div>
-                                  </div>
-                                )
-                              )}
-                              <div className="my-3 ml-3">
-                                <button
-                                  className="badge-primary border-primary"
-                                  type="button"
-                                  onClick={handleAddInstance}
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </TabPanel>
-
-                            <TabPanel>
-                              <div className="col-6 my-3 d-flex">
-                                <label
-                                  htmlFor="status"
-                                  className="form-label align-self-center"
-                                  style={{ width: "10rem" }}
-                                >
-                                  Status
-                                </label>
-                                <Select
-                                  className="select2"
-                                  name="status"
-                                  value={statusOptions.find(
-                                    (option) =>
-                                      option.value === serviceData.status
-                                  )}
-                                  onChange={handleStatusChange}
-                                  options={statusOptions}
-                                  isSearchable
-                                />
-                              </div>
-                            </TabPanel>
-                          </form>
-                        </Tabs>
-                        <div className="buttons d-flex">
-                          {tabIndex > 0 && (
-                            <button
-                              type="button"
-                              className="btn btn-outline-secondary mr-1"
-                              onClick={handlePrevious}
-                            >
-                              Previous
-                            </button>
-                          )}
-                          {tabIndex < 2 && (
-                            <button
-                              type="button"
-                              className="btn btn-outline-secondary mr-1"
-                              onClick={handleNext}
-                            >
-                              Next
-                            </button>
-                          )}
-                          {tabIndex === 2 && (
-                            <button
-                              type="submit"
-                              onClick={handleSubmit}
-                              className="btn btn-outline-primary"
-                            >
-                              Submit
-                            </button>
-                          )}
+                            </div>
+                          </div>
+                        ))}
+                        <div className="col-md-12 my-3 ">
+                          <div className="row">
+                            <div className="col-md-2 col-sm-3"></div>
+                            <div className="col-md-2 col-sm-3">
+                              <button
+                                className="badge-primary border-primary"
+                                type="button"
+                                onClick={handleAddInstance}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
                         </div>
+
+                        <div className="col-md-12 my-3 ">
+                          <div className="row">
+                            <label
+                              htmlFor="status"
+                              className="form-label col-md-2 col-sm-3"
+                            >
+                              Status
+                            </label>
+                            <Select
+                              className="select2 col-md-3 col-sm-3 mr-1 mb-1  p-0"
+                              name="status"
+                              value={statusOptions.find(
+                                (option) => option.value === serviceData.status
+                              )}
+                              onChange={handleStatusChange}
+                              options={statusOptions}
+                              isSearchable
+                            />
+                          </div>
+                        </div>
+                      </form>
+                      <div className="buttons d-flex justify-content-end mr-4">
+                        <button
+                          type="submit"
+                          onClick={handleSubmit}
+                          className="btn btn-outline-primary"
+                        >
+                          Submit
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </section>
+            </div>
           </div>
         </div>
       </div>

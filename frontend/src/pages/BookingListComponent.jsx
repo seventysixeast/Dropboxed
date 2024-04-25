@@ -23,8 +23,8 @@ import { useAuth } from "../context/authContext";
 import API from "../api/baseApi";
 import ConfirmModal from "../components/ConfirmModal";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-import { getDocumentElement } from "@floating-ui/utils/dom";
 import { Switch } from "@mui/material";
+import LoadingOverlay from "../components/Loader";
 
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
@@ -46,7 +46,7 @@ export const BookingListComponent = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [bookingAddress, setBookingAddress] = useState(null);
   const [toTime, setToTime] = useState("60");
-
+  const [loading, setLoading] = useState(false);
   const [clientList, setClientList] = useState([]);
   const [events, setEvents] = useState([]);
   const [bookingsData, setBookingsData] = useState([]);
@@ -56,7 +56,7 @@ export const BookingListComponent = () => {
   const [showDateModel, setShowDateModel] = useState(false);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [notifyCheckbox, setNotifyCheckbox] = useState(false);
-
+  const [notifyDisabled, setNotifyDisabled] = useState(false);
   const [bookingData, setBookingData] = useState({
     title: "",
     package: 1,
@@ -106,6 +106,7 @@ export const BookingListComponent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const convertedTime = bookingData.fromTime;
       console.log(bookingData.toTime);
@@ -126,12 +127,20 @@ export const BookingListComponent = () => {
 
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
 
+      // convert bookingData.prefferedDate to "yyyy-mm-dd" format
+      const date = new Date(bookingData.prefferedDate);
+      const year = date.getFullYear();
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const day = ("0" + date.getDate()).slice(-2);
+      const formattedDate = `${year}-${month}-${day}`;
+      console.log(formattedDate);
+
       const bookingDataToSend = {
         id: bookingIdToDelete,
         package_ids: bookingData.services,
         package: 0,
         photographer_id: `${bookingData.provider}`,
-        booking_date: bookingData.prefferedDate,
+        booking_date: formattedDate,
         booking_time: bookingData.fromTime,
         booking_time_to: newToTime,
         booking_status: notifyCheckbox,
@@ -139,6 +148,7 @@ export const BookingListComponent = () => {
         booking_title: bookingAddress.label,
         subdomain_id: subdomainId,
       };
+      console.log(bookingDataToSend);
       if (roleId == 3) {
         bookingDataToSend.user_id = userId;
       } else {
@@ -162,7 +172,6 @@ export const BookingListComponent = () => {
         comment: "",
         provider: "",
       });
-      setBookingIdToDelete(null);
 
       setCustomerData({
         name: "",
@@ -175,11 +184,13 @@ export const BookingListComponent = () => {
         state: "",
         zip: "",
       });
+
       setSelectedProvider(null);
       setSelectedService(null);
       setSelectedClient(null);
       setBookingAddress(null);
       setNotifyCheckbox(false);
+      setNotifyDisabled(false);
       setToTime("60");
       setSelectedPackagePrice(0);
       setBookingIdToDelete(null);
@@ -191,8 +202,10 @@ export const BookingListComponent = () => {
       }
     } catch (error) {
       console.error("Failed to add booking:", error.message);
+    } finally {
+      setLoading(false);
+      tabChange2();
     }
-    tabChange2();
   };
 
   const handleChange = (e) => {
@@ -233,13 +246,10 @@ export const BookingListComponent = () => {
 
   const handleDateClick = (arg) => {
     const selectedDate = new Date(arg.date);
-
     const hours = selectedDate.getHours();
-    const formattedHours = hours < 10 ? `0${hours}` : hours;
     const minutes = selectedDate.getMinutes();
+    const formattedHours = hours < 10 ? `0${hours}` : hours;
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-    const ampm = hours < 12 ? "AM" : "PM";
-
     const selectedTime = `${formattedHours}:${formattedMinutes}:00`;
 
     setBookingData((prevData) => ({
@@ -377,7 +387,7 @@ export const BookingListComponent = () => {
     }
 
     setNotifyCheckbox(data.booking_status);
-
+    setNotifyDisabled(data.booking_status);
     const selectedServices = array
       .map((id) => packages.find((pack) => pack.id === id))
       .filter(Boolean);
@@ -466,6 +476,7 @@ export const BookingListComponent = () => {
   };
 
   const deleteBookingData = async () => {
+    setLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", bookingIdToDelete);
@@ -483,10 +494,14 @@ export const BookingListComponent = () => {
       }
     } catch (error) {
       toast.error(error);
+    } finally {
+      setLoading(false);
+      setBookingIdToDelete(null);
     }
   };
 
   const updateTimeData = async () => {
+    setLoading(true);
     try {
       const booking = bookingsData.find(
         (booking) => booking.id === parseInt(updateData.id)
@@ -523,6 +538,8 @@ export const BookingListComponent = () => {
     } catch (error) {
       toast.error(error);
       console.error("Failed to add booking:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
   const handleEventResize = (arg) => {
@@ -564,6 +581,7 @@ export const BookingListComponent = () => {
   };
 
   const updateDateData = async () => {
+    setLoading(true);
     try {
       const booking = bookingsData.find(
         (booking) => booking.id === parseInt(updateData.id)
@@ -595,13 +613,16 @@ export const BookingListComponent = () => {
         provider: "",
         customer: "",
       });
-      setShowDateModel(false);
       toast.success("Booking updated successfully");
     } catch (error) {
       toast.error(error);
       console.error("Failed to add booking:", error.message);
+    } finally {
+      setLoading(false);
+      setShowDateModel(false);
     }
   };
+
   const handleDateChange = (arg) => {
     let id = arg.event._def.publicId;
 
@@ -643,8 +664,6 @@ export const BookingListComponent = () => {
     setShowDateModel(true);
   };
 
-  console.log(updateData);
-
   const handleNotifyChange = (data) => {
     setUpdateData({
       id: data.id,
@@ -653,7 +672,9 @@ export const BookingListComponent = () => {
 
     setShowNotifyModal(true);
   };
+
   const updateBookingStatus = async () => {
+    setLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", updateData.id);
@@ -690,6 +711,7 @@ export const BookingListComponent = () => {
       setSelectedClient(null);
       setBookingAddress(null);
       setNotifyCheckbox(false);
+      setNotifyDisabled(false);
       setToTime("60");
       setSelectedPackagePrice(0);
       setBookingIdToDelete(null);
@@ -697,21 +719,31 @@ export const BookingListComponent = () => {
       toast.success("Booking updated successfully");
     } catch (error) {
       toast.error(error);
+    } finally {
+      setLoading(false);
     }
   };
+
   const columns = [
     {
       Header: "Booking Date",
       accessor: "booking_date",
-      Cell: ({ value }) => (
-        <div className="badge badge-pill badge-light-primary">
-          {new Date(value).toLocaleDateString("UTC", {
-            year: "2-digit",
-            month: "2-digit",
-            day: "2-digit",
-          })}
-        </div>
-      ),
+      Cell: ({ value }) => {
+        let parts = value.split("-");
+        let date = new Date(parts[0], parts[1] - 1, parts[2]);
+        let day = date.getDate();
+        if (day < 10) day = "0" + day;
+        let month = date.getMonth() + 1;
+        if (month < 10) month = "0" + month;
+        let year = date.getFullYear();
+        let formattedDate = `${day}/${month}/${year}`;
+
+        return (
+          <div className="badge badge-pill badge-light-primary">
+            {formattedDate}
+          </div>
+        );
+      },
       headerStyle: { width: "200px" },
     },
     {
@@ -833,27 +865,39 @@ export const BookingListComponent = () => {
       Cell: (props) => (
         <div className="">
           {props.row.original.booking_status === 0 ? (
-            <a
-              type="button"
-              className="badge"
-              style={{ backgroundColor: "#ff748c" }}
-              title={roleId !== 3 ? "Notify client" : "Pending"}
-              onClick={
-                roleId !== 3 && props.row.original.photographer_id !== ""
-                  ? () => handleNotifyChange(props.row.original)
-                  : null
-              }
-            >
-              {roleId !== 3 && props.row.original.photographer_id === ""
-                ? "New Request"
-                : roleId === 3
-                ? "Pending"
-                : "Notify"}
-            </a>
+            roleId !== 3 ? (
+              props.row.original.photographer_id !== "" ? (
+                <a
+                  type="button"
+                  className="badge"
+                  style={{ backgroundColor: "#ff748c" }}
+                  title="Notify client"
+                  onClick={() => handleNotifyChange(props.row.original)}
+                >
+                  Notify
+                </a>
+              ) : (
+                <p
+                  className="badge"
+                  title="New Request"
+                  style={{ backgroundColor: "#ff748c" }}
+                >
+                  New Request
+                </p>
+              )
+            ) : (
+              <p
+                className="badge"
+                title="Pening"
+                style={{ backgroundColor: "#ff748c" }}
+              >
+                Pending
+              </p>
+            )
           ) : (
-            <a className="badge" title="Booked" disabled>
+            <p className="badge" title="Booked" disabled>
               Booked
-            </a>
+            </p>
           )}
         </div>
       ),
@@ -891,6 +935,13 @@ export const BookingListComponent = () => {
       ),
     },
   ];
+
+  const filteredColumns = columns.filter((column) => {
+    if (column.accessor === "client_name") {
+      return roleId !== 3;
+    }
+    return true;
+  });
 
   const subscribe = useGoogleLogin({
     onSuccess: (codeResponse) => {
@@ -932,148 +983,33 @@ export const BookingListComponent = () => {
 
   const handleNotifyClose = () => {
     setShowNotifyModal(false);
-    setBookingData({
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-    });
-    setBookingIdToDelete(null);
-
-    setCustomerData({
-      name: "",
-      email: "",
-      mobile: "",
-      office: "",
-      home: "",
-      address: "",
-      city: "",
-      state: "",
-      zip: "",
-    });
-    setSelectedProvider(null);
-    setSelectedService(null);
-    setSelectedClient(null);
-    setBookingAddress(null);
-    setNotifyCheckbox(false);
-    setToTime("60");
-    setSelectedPackagePrice(0);
+    resetData();
   };
 
   const handleDateModalClose = () => {
     setShowDateModel(false);
-    setBookingData({
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-    });
-    setBookingIdToDelete(null);
-
-    setCustomerData({
-      name: "",
-      email: "",
-      mobile: "",
-      office: "",
-      home: "",
-      address: "",
-      city: "",
-      state: "",
-      zip: "",
-    });
-    setSelectedProvider(null);
-    setSelectedService(null);
-    setSelectedClient(null);
-    setBookingAddress(null);
-    setNotifyCheckbox(false);
-    setToTime("60");
-    setSelectedPackagePrice(0);
-
+    resetData();
     getAllBookingsData();
   };
 
   const handleConfirmModalClose = () => {
     setShowConfirmModel(false);
-    setBookingData({
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-    });
-    setBookingIdToDelete(null);
-
-    setCustomerData({
-      name: "",
-      email: "",
-      mobile: "",
-      office: "",
-      home: "",
-      address: "",
-      city: "",
-      state: "",
-      zip: "",
-    });
-    setSelectedProvider(null);
-    setSelectedService(null);
-    setSelectedClient(null);
-    setBookingAddress(null);
-    setNotifyCheckbox(false);
-    setToTime("60");
-    setSelectedPackagePrice(0);
+    resetData();
     getAllBookingsData();
   };
 
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);
-    setBookingData({
-      title: "",
-      package: 1,
-      services: "",
-      prefferedDate: new Date(),
-      fromTime: "",
-      toTime: "60",
-      client: "",
-      comment: "",
-      provider: "",
-    });
-    setBookingIdToDelete(null);
-
-    setCustomerData({
-      name: "",
-      email: "",
-      mobile: "",
-      office: "",
-      home: "",
-      address: "",
-      city: "",
-      state: "",
-      zip: "",
-    });
-    setSelectedProvider(null);
-    setSelectedService(null);
-    setSelectedClient(null);
-    setBookingAddress(null);
-    setNotifyCheckbox(false);
-    setToTime("60");
-    setSelectedPackagePrice(0);
+    resetData();
   };
 
   const handleAppointmentModalClose = () => {
+    resetData();
+    setBookingIdToDelete(null);
+    tabChange2();
+  };
+
+  const resetData = () => {
     setBookingData({
       title: "",
       package: 1,
@@ -1103,10 +1039,9 @@ export const BookingListComponent = () => {
     setSelectedClient(null);
     setBookingAddress(null);
     setNotifyCheckbox(false);
+    setNotifyDisabled(false);
     setToTime("60");
     setSelectedPackagePrice(0);
-    setBookingIdToDelete(null);
-    tabChange2();
   };
 
   const handleNotifyCheckbox = (event) => {
@@ -1123,20 +1058,11 @@ export const BookingListComponent = () => {
     const tabb1 = document.getElementById("tabb1");
     const tab1 = document.getElementById("tab1");
     const tab2 = document.getElementById("tab2");
-
-    if (tab1 && tabb1 && tab2 && tabb2) {
-      if (
-        tab1.classList.contains("active") &&
-        tabb1.classList.contains("active")
-      ) {
-        return; // No need to do anything, already in desired state
-      }
-
-      tab1.classList.remove("active");
-      tabb1.classList.remove("active");
-      tab2.classList.add("active");
-      tabb2.classList.add("active");
-    }
+    tab1.classList.remove("active");
+    tabb1.classList.remove("active");
+    tab2.classList.add("active");
+    tab2.classList.add("show");
+    tabb2.classList.add("active");
   };
 
   const tabChange2 = () => {
@@ -1145,23 +1071,22 @@ export const BookingListComponent = () => {
     const tab1 = document.getElementById("tab1");
     const tab2 = document.getElementById("tab2");
 
-    if (tab1 && tabb1 && tab2 && tabb2) {
-      if (
-        tab2.classList.contains("active") &&
-        tabb2.classList.contains("active")
-      ) {
-        return; // No need to do anything, already in desired state
-      }
-
+    if (tabb2 && tab2) {
       tab2.classList.remove("active");
       tabb2.classList.remove("active");
+    }
+
+    if (tab1 && tabb1) {
       tab1.classList.add("active");
+      tab1.classList.add("show");
       tabb1.classList.add("active");
     }
   };
 
   return (
     <>
+      <LoadingOverlay loading={loading} />
+
       <div className="app-content content">
         <div className={`content-overlay`}></div>
         <div className="content-wrapper">
@@ -1686,18 +1611,24 @@ export const BookingListComponent = () => {
                                       </div>
                                       {roleId !== 3 && (
                                         <div className="modal-body d-flex align-items-center px-4">
-                                        <label htmlFor="notify" style={{ marginLeft: "8rem", marginBottom: 0 }}>
-                                          Notify to Client
-                                        </label>
-                                        <Switch
-                                          checked={notifyCheckbox}
-                                          onChange={handleNotifyCheckbox}
-                                          inputProps={{
-                                            "aria-label": "controlled",
-                                          }}
-                                        />
-                                      </div>
-                                      
+                                          <label
+                                            htmlFor="notify"
+                                            style={{
+                                              marginLeft: "8rem",
+                                              marginBottom: 0,
+                                            }}
+                                          >
+                                            Notify to Client
+                                          </label>
+                                          <Switch
+                                            checked={notifyCheckbox}
+                                            onChange={handleNotifyCheckbox}
+                                            inputProps={{
+                                              "aria-label": "controlled",
+                                            }}
+                                            disabled={notifyDisabled}
+                                          />
+                                        </div>
                                       )}
                                       <div className="p-1 float-right">
                                         {roleId !== 3 ? (
@@ -2103,7 +2034,7 @@ export const BookingListComponent = () => {
                             hour: "2-digit",
                             minute: "2-digit",
                           }}
-                          eventContent={(arg, createElement) => {
+                          eventContent={(arg) => {
                             return (
                               <div
                                 style={{
@@ -2152,7 +2083,7 @@ export const BookingListComponent = () => {
           </div>
         </div>
       </div>
-      <TableCustom data={bookingsData} columns={columns} />
+      <TableCustom data={bookingsData} columns={filteredColumns} />
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={handleDeleteModalClose}
