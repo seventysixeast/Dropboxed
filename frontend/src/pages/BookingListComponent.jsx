@@ -37,7 +37,6 @@ export const BookingListComponent = () => {
   const [packagePrice, setPackagePrices] = useState([]);
   const [selectedPackagePrice, setSelectedPackagePrice] = useState(0);
   const buttonRef = useRef(null);
-  const tabRef = useRef(null);
   const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
@@ -127,7 +126,6 @@ export const BookingListComponent = () => {
 
       let newToTime = `${currentHours}:${currentMinutes}:${currentSeconds}`;
 
-      // convert bookingData.prefferedDate to "yyyy-mm-dd" format
       const date = new Date(bookingData.prefferedDate);
       const year = date.getFullYear();
       const month = ("0" + (date.getMonth() + 1)).slice(-2);
