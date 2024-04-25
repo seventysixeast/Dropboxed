@@ -120,3 +120,16 @@
 .py-4 {
   padding-bottom: 5.5rem !important;
 }
+
+figure.effect-ruby p {
+  border: none;
+}
+
+.grid-hover figure {
+  margin: 10px 0px;
+  background: unset;
+}
+
+i.feather {
+  cursor: pointer;
+}

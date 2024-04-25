@@ -327,39 +327,34 @@ export const Dashboard = () => {
                   </ul>
                 </div>
               </div>
-              <div className="card-content collapse show">
-                <div
-                  className="card-body my-gallery"
-                  itemScope
-                  itemType="http://schema.org/ImageGallery"
-                >
-                  <div className="card-deck-wrapper">
-                    <div className="row">
-                      {collections && collections.map(item => (
-                        <div className="col-md-3 mb-3">
-                          <a
-                            onClick={() => navigate(`/view-gallery/${item.id}`)}
-                            className="gallery-link"
-                          >
-                            <img
-                              className="gallery-thumbnail card-img-top"
-                              src={
-                                item.banner
-                                  ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
-                                  : "../../../app-assets/images/gallery/9.jpg"
-                              }
-                              itemProp="thumbnail"
-                              alt="Image description"
-                            />
-                            <div className="card-body px-0">
-                              <h4 className="card-title">{item.name}</h4>
-                              <h6>{item.client_name}</h6>
-                            </div>
-                          </a>
-                        </div>
-                      ))}
+              <div className="card-deck-wrapper">
+                <div class="grid-hover row">
+                  {collections && collections.map(item => (
+                    <div className="col-md-3 mb-3">
+                      <a
+                        onClick={() => navigate(`/view-gallery/${item.id}`)}
+                        className="gallery-link"
+                      >
+                        <figure class="effect-zoe">
+                          <img
+                            className="gallery-thumbnail"
+                            src={
+                              item.banner
+                                ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
+                                : "../../../app-assets/images/gallery/9.jpg"
+                            }
+                          />
+                          <figcaption>
+                            <h2><span>{item.client_name}</span></h2>
+                            <p class="icon-links">
+                              <a onClick={() => navigate(`/view-gallery/${item.id}`)} title="View Gallery"><i class="feather icon-eye"></i></a>
+                            </p>
+                            <p class="description">{item.name}</p>
+                          </figcaption>
+                        </figure>
+                      </a>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </section>
