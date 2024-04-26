@@ -25,6 +25,8 @@ import ConfirmModal from "../components/ConfirmModal";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { Switch } from "@mui/material";
 import LoadingOverlay from "../components/Loader";
+import { Tooltip, styled } from "@mui/material";
+import { tooltipClasses } from "@mui/material/Tooltip";
 
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL;
@@ -202,7 +204,11 @@ export const BookingListComponent = () => {
         }));
         setPackagePrices(prices);
       } catch (error) {
-        console.error("Error fetching providers:", error.message);
+        setProviders([]);
+        setClientList([]);
+        setPackages([]);
+        setPackagePrices([]);
+        console.error("Failed to fetch providers:", error.message);
       }
     }
   };
@@ -327,7 +333,8 @@ export const BookingListComponent = () => {
       });
       setEvents(events);
     } catch (error) {
-      console.error("Failed to:", error.message);
+      setBookingsData([]);
+      setEvents([]);
     }
   };
 
@@ -1020,10 +1027,70 @@ export const BookingListComponent = () => {
     }
   };
 
+
+  const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#f5f5f9",
+      color: "rgba(0, 0, 0, 0.87)",
+      maxWidth: 300,
+      fontSize: theme.typography.pxToRem(14),
+      border: "1px solid #dadde9",
+    },
+  }));
+
+  const CustomOption = ({ data, innerRef, innerProps }) => (
+    <CustomTooltip
+      title={`Price: $${data.package_price}`}
+      arrow
+      placement="left"
+    >
+      <div
+        ref={innerRef}
+        {...innerProps}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          height: "30px",
+          marginTop: "4px",
+          marginBottom: "4px",
+          cursor: "pointer",
+        }}
+        className="customOptionClass"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={16}
+          height={16}
+          fill="currentColor"
+          className="bi bi-eye-fill"
+          style={{
+            marginLeft: "0.3rem",
+            marginRight: "0.3rem",
+          }}
+          viewBox="0 0 16 16"
+        >
+          <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+          <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+        </svg>
+
+        <span
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {data.label}
+        </span>
+      </div>
+    </CustomTooltip>
+  );
+
   return (
     <>
       <LoadingOverlay loading={loading} />
-
       <div className="app-content content">
         <div className={`content-overlay`}></div>
         <div className="content-wrapper">
@@ -1059,8 +1126,8 @@ export const BookingListComponent = () => {
                           onClick={subscribe}
                         >
                           {calendarSub == 1
-                            ? "Subsribed"
-                            : "Subsribe to Calendar"}
+                            ? "Subscribed"
+                            : "Subscribe to Calendar"}
                         </button>
                       )}
                       <button
@@ -1270,47 +1337,7 @@ export const BookingListComponent = () => {
                                           hideSelectedOptions
                                           required
                                           components={{
-                                            Option: ({
-                                              data,
-                                              innerRef,
-                                              innerProps,
-                                            }) => (
-                                              <div
-                                                ref={innerRef}
-                                                {...innerProps}
-                                                style={{
-                                                  display: "flex",
-                                                  alignItems: "center",
-                                                  height: "30px",
-                                                  marginTop: "4px",
-                                                  marginBottom: "4px",
-                                                  cursor: "pointer",
-                                                }}
-                                                className="customOptionClass"
-                                              >
-                                                <img
-                                                  src={toolIcons}
-                                                  style={{
-                                                    marginRight: "10px",
-                                                    borderRadius: "50%",
-                                                    width: "10px",
-                                                    height: "10px",
-                                                    margin: "4px",
-                                                  }}
-                                                  alt=""
-                                                />
-                                                <span
-                                                  title={data.label}
-                                                  style={{
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    whiteSpace: "nowrap",
-                                                  }}
-                                                >
-                                                  {data.label}
-                                                </span>
-                                              </div>
-                                            ),
+                                            Option: CustomOption,
                                           }}
                                         />
                                       </div>
@@ -1599,63 +1626,63 @@ export const BookingListComponent = () => {
                                     </div>
 
                                     <div className="tab-pane fade" id="tab2">
-                                        <div className="modal-body d-flex px-4">
-                                          <label
-                                            htmlFor="client"
-                                            style={{ width: "10rem" }}
-                                          >
-                                            Client
-                                          </label>
-                                          <Select
-                                            className="select2 w-100"
-                                            name="clients"
-                                            value={selectedClient}
-                                            onChange={handleClientChange}
-                                            options={clientList
-                                              .sort((a, b) =>
-                                                a.name.localeCompare(b.name)
-                                              )
-                                              .map((client) => ({
-                                                value: client.id,
-                                                label: client.name,
-                                              }))}
-                                            isSearchable
-                                            components={{
-                                              Option: ({
-                                                data,
-                                                innerRef,
-                                                innerProps,
-                                              }) => (
-                                                <div
-                                                  ref={innerRef}
-                                                  {...innerProps}
+                                      <div className="modal-body d-flex px-4">
+                                        <label
+                                          htmlFor="client"
+                                          style={{ width: "10rem" }}
+                                        >
+                                          Client
+                                        </label>
+                                        <Select
+                                          className="select2 w-100"
+                                          name="clients"
+                                          value={selectedClient}
+                                          onChange={handleClientChange}
+                                          options={clientList
+                                            .sort((a, b) =>
+                                              a.name.localeCompare(b.name)
+                                            )
+                                            .map((client) => ({
+                                              value: client.id,
+                                              label: client.name,
+                                            }))}
+                                          isSearchable
+                                          components={{
+                                            Option: ({
+                                              data,
+                                              innerRef,
+                                              innerProps,
+                                            }) => (
+                                              <div
+                                                ref={innerRef}
+                                                {...innerProps}
+                                                style={{
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  cursor: "pointer",
+                                                }}
+                                                className="customOptionClass"
+                                              >
+                                                <img
+                                                  src={
+                                                    data.profile_photo ||
+                                                    avatar1
+                                                  }
+                                                  alt="Profile"
                                                   style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    cursor: "pointer",
+                                                    marginRight: "10px",
+                                                    borderRadius: "50%",
+                                                    width: "30px",
+                                                    height: "30px",
+                                                    margin: "4px",
                                                   }}
-                                                  className="customOptionClass"
-                                                >
-                                                  <img
-                                                    src={
-                                                      data.profile_photo ||
-                                                      avatar1
-                                                    }
-                                                    alt="Profile"
-                                                    style={{
-                                                      marginRight: "10px",
-                                                      borderRadius: "50%",
-                                                      width: "30px",
-                                                      height: "30px",
-                                                      margin: "4px",
-                                                    }}
-                                                  />
-                                                  <span>{data.label}</span>
-                                                </div>
-                                              ),
-                                            }}
-                                          />
-                                        </div>
+                                                />
+                                                <span>{data.label}</span>
+                                              </div>
+                                            ),
+                                          }}
+                                        />
+                                      </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
                                           htmlFor="comment"
