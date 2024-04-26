@@ -378,7 +378,7 @@ const Collections = () => {
                         setShowAddGalleryModal(true);
                       }}
                     >
-                      Add Gallery
+                      New Collection
                     </button>
                   </div>
                 </li>
@@ -388,7 +388,7 @@ const Collections = () => {
         </div>
       </div>
       <AddGalleryModal
-        message={formData.id ? "Update Gallery" : "Add Gallery"}
+        message={formData.id ? "Update Collection" : "Add Collection"}
         button={formData.id ? "Update" : "Add"}
         isOpen={showAddGalleryModal}
         formData={formData}

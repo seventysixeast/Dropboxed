@@ -16,16 +16,14 @@ export const ViewGallery = () => {
   const [imageUrls, setImageUrls] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const page = useRef(1); // Keep track of the current page
-  const fetchSize = 16; // Number of thumbnails to fetch per request
-  const folderPath = '/web'; // Specify the path to the folder containing images
-  const fileList = useRef([]); // Store the list of files
+  const page = useRef(1);
+  const fetchSize = 16;
+  const folderPath = '/web';
+  const fileList = useRef([]);
   const { id } = useParams();
-  
   
   useEffect(() => {
     fetchFileList();
-    // dfetchCollection();
   }, []);
 
   const fetchCollection = async () => {
@@ -83,19 +81,8 @@ export const ViewGallery = () => {
     }
   };
 
-  /*const handleDownload = (url) => {
-    // Example implementation of downloading the image
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'image.jpg'; // You can customize the file name
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };*/
-
   const fetchBatchThumbnails = async (entries) => {
     const urls = [];
-  
     try {
       const response = await axios.post(
         'https://content.dropboxapi.com/2/files/get_thumbnail_batch',
