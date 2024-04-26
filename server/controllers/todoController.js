@@ -36,9 +36,7 @@ const getAllTasks = async (req, res) => {
 
         const tasksData = tasks && tasks.length > 0 ? tasks : [];
         const tagsData = tags && tags.length > 0 ? tags : [];
-        const commentsData = tasks.flatMap(task => task.TaskComments) || [];
-
-        res.status(200).json({ success: true, tasks: tasksData, tags: tagsData, comments: commentsData });
+        res.status(200).json({ success: true, tasks: tasksData, tags: tagsData });
     } catch (error) {
         console.error("Error fetching tasks:", error);
         res.status(500).json({ error: "Failed to list tasks" });

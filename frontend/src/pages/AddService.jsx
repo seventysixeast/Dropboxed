@@ -337,7 +337,6 @@ const AddService = () => {
                             <div className="col-md-12 my-3 ">
                               <div className="row">
                                 <div className="col-md-2"></div>
-
                                 <Select
                                   className="select2 col-md-3 col-sm-6 mr-1 mb-1  p-0"
                                   styles={{ padding: "none !important" }}

@@ -8,5 +8,6 @@ router.post('/getClient', clientController.getClient);
 router.post('/deleteClient', clientController.deleteClient);
 router.post('/activeInactiveClient', clientController.activeInactiveClient);
 router.post('/getAllPhotographers', clientController.getAllPhotographers);
+router.post('/getClientPhotographers', clientController.getClientPhotographers);
 
 module.exports = router;

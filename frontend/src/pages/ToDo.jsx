@@ -2,6 +2,9 @@ import { toast } from "react-toastify";
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/authContext";
 import { getAlltasks } from "../api/todoApis";
+import Select from "react-select";
+import { getClientPhotographers } from "../api/clientApis";
+import _ from "lodash";
 
 const ToDo = () => {
   const { authData } = useAuth();
@@ -10,11 +13,15 @@ const ToDo = () => {
   const subdomainId = user.subdomain_id;
 
   const [tasks, setTasks] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [clients, setClients] = useState([]);
   const [isNewTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [show, setShow] = useState(false);
   const modalRef = useRef(null);
   const [taskData, setTaskData] = useState({
-    taskTitle: ""
+    taskTitle: "",
+    taskTags: [],
+    assignUser: "",
   });
 
   const getTasks = async () => {
@@ -23,9 +30,21 @@ const ToDo = () => {
     formData.append("role_id", roleId);
     const response = await getAlltasks(formData);
     if (response.success) {
-      setTasks(response.data);
+      setTasks(response.tasks);
+      setTags(response.tags);
     } else {
       toast.error("Failed to get tasks!");
+    }
+  };
+
+  const getClients = async () => {
+    const formData = new FormData();
+    formData.append("subdomain_id", subdomainId);
+    const response = await getClientPhotographers(formData);
+    if (response.success) {
+      setClients(response.data);
+    } else {
+      toast.error("Failed to get clients!");
     }
   };
 
@@ -42,13 +61,27 @@ const ToDo = () => {
     if (tasks && tasks.length === 0) {
       getTasks();
     }
+    if (clients && clients.length === 0) {
+      getClients();
+    }
     document.addEventListener("mousedown", handleModalClose);
     return () => {
       document.removeEventListener("mousedown", handleModalClose);
     };
   }, []);
 
-  console.log(taskData);
+  function getBulletClass(index) {
+    const colors = [
+      "#87CEEB",
+      "#FFD700",
+      "#00FF7F",
+      "#FF69B4",
+      "#40E0D0",
+      "#FFA07A",
+      "#9370DB",
+    ];
+    return `${colors[index % colors.length]}`;
+  }
 
   return (
     <div className="todo-application">
@@ -67,6 +100,7 @@ const ToDo = () => {
                 <div className="form-group text-center add-task">
                   <button
                     type="button"
+                    useState
                     className="btn btn-outline-danger btn-glow add-task-btn btn-block my-1"
                     onClick={toggleNewTaskModal}
                   >
@@ -108,41 +142,21 @@ const ToDo = () => {
                   </div>
                   <label className="filter-label mt-2 mb-1 pt-25">Labels</label>
                   <div className="list-group">
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Frontend</span>
-                      <span className="bullet bullet-sm bullet-primary"></span>
-                    </a>
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Backend</span>
-                      <span className="bullet bullet-sm bullet-success"></span>
-                    </a>
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Issue</span>
-                      <span className="bullet bullet-sm bullet-danger"></span>
-                    </a>
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Design</span>
-                      <span className="bullet bullet-sm bullet-warning"></span>
-                    </a>
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Wireframe</span>
-                      <span className="bullet bullet-sm bullet-info"></span>
-                    </a>
+                    {tags.map((tag, index) => (
+                      <a
+                        key={index}
+                        href="#"
+                        className="list-group-item border-0 d-flex align-items-center justify-content-between"
+                      >
+                        <span>{tag.tasktag_title}</span>
+                        <span
+                          className={`bullet bullet-sm`}
+                          style={{
+                            backgroundColor: `${getBulletClass(tag.id)}`,
+                          }}
+                        ></span>
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -213,7 +227,10 @@ const ToDo = () => {
                           required=""
                           value={taskData.taskTitle}
                           onChange={(e) => {
-                            setTaskData({ ...taskData, taskTitle: e.target.value });
+                            setTaskData({
+                              ...taskData,
+                              taskTitle: e.target.value,
+                            });
                           }}
                         />
                       </div>
@@ -232,9 +249,33 @@ const ToDo = () => {
                               <i className="feather icon-user font-medium-4" />
                             </div>
                           </div>
-                          {/* select2  for user name  */}
                           <div className="select-box mr-1">
-                            <select
+                            <Select
+                              className="select2 font-sm"
+                              styles={{width:'10rem !important'}}
+                              name="tags"
+                              value={taskData.assignUser.label}
+                              onChange={(selectedOption) =>
+                                setTaskData({
+                                  ...taskData,
+                                  assignUser: selectedOption.value,
+                                })
+                              }
+                              options={_.chain(clients)
+                                .groupBy("role_id")
+                                .map((value, key) => ({
+                                  label:
+                                    key === "2" ? "Photographers" : "Clients",
+                                  options: value.map((client) => ({
+                                    value: client.id,
+                                    label: client.name,
+                                  })),
+                                }))
+                                .value()}
+                              isSearchable
+                              components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}
+                            />
+                            {/* <select
                               className="select2-users-name form-control"
                               id="select2-users-name"
                             >
@@ -254,7 +295,7 @@ const ToDo = () => {
                                 <option value="Maria Hern">Maria Hern</option>
                                 <option value="Jamesh J">Jamesh Jackson</option>
                               </optgroup>
-                            </select>
+                            </select> */}
                           </div>
                         </div>
                         <div className="form-group d-flex align-items-center position-relative">
@@ -289,20 +330,24 @@ const ToDo = () => {
                       <div className="tag d-flex justify-content-between align-items-center pt-1">
                         <div className="flex-grow-1 d-flex align-items-center">
                           <i className="feather icon-tag align-middle mr-25" />
-                          <select
-                            className="select2-assign-label form-control"
-                            multiple="multiple"
-                            id="select2-assign-label"
-                            disabled=""
-                          >
-                            <optgroup label="Tags">
-                              <option value="Frontend">Frontend</option>
-                              <option value="Backend">Backend</option>
-                              <option value="Issue">Issue</option>
-                              <option value="Design">Design</option>
-                              <option value="Wireframe">Wireframe</option>
-                            </optgroup>
-                          </select>
+                          {console.log(taskData)}
+                          <Select
+                            className="select2"
+                            name="tags"
+                            value={taskData.taskTags.label}
+                            onChange={(selectedTags) =>
+                              setTaskData({
+                                ...taskData,
+                                taskTags: selectedTags.map((tag) => tag.value),
+                              })
+                            }
+                            options={tags.map((tag) => ({
+                              value: tag.id,
+                              label: tag.tasktag_title,
+                            }))}
+                            isSearchable
+                            isMulti={true}
+                          />
                         </div>
                         <div className="ml-25">
                           <i className="feather icon-plus-circle cursor-pointer add-tags" />
@@ -454,9 +499,27 @@ const ToDo = () => {
                               </div>
                               <div className="todo-item-action d-flex align-items-center">
                                 <div className="todo-badge-wrapper d-flex">
-                                  <span className="badge badge-primary badge-pill">
-                                    {task.task_tags}
-                                  </span>
+                                  {task.task_tags.split(",").map((tagId) => {
+                                    const tag = tags.find(
+                                      (tag) => tag.id === parseInt(tagId)
+                                    );
+                                    if (tag) {
+                                      return (
+                                        <span
+                                          key={tag.id}
+                                          className="badge badge-primary badge-pill"
+                                          style={{
+                                            backgroundColor: `${getBulletClass(
+                                              tag.id
+                                            )}`,
+                                          }}
+                                        >
+                                          {tag.tasktag_title}
+                                        </span>
+                                      );
+                                    }
+                                    return null;
+                                  })}
                                 </div>
                                 <div className="avatar ml-1">
                                   <img
