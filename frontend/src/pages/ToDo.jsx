@@ -1,10 +1,52 @@
+import { toast } from "react-toastify";
 import React, { useEffect, useRef, useState } from "react";
+import { useAuth } from "../context/authContext";
+import { getAlltasks } from "../api/todoApis";
+import Select from "react-select";
+import { getClientPhotographers } from "../api/clientApis";
+import _ from "lodash";
 
 const ToDo = () => {
-  const [isNewTaskModalOpen, setNewTaskModalOpen] = useState(false);
-  const [show, setShow] = useState(false)
+  const { authData } = useAuth();
+  const { user } = authData;
+  const roleId = user.role_id;
+  const subdomainId = user.subdomain_id;
 
+  const [tasks, setTasks] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [isNewTaskModalOpen, setNewTaskModalOpen] = useState(false);
+  const [show, setShow] = useState(false);
   const modalRef = useRef(null);
+  const [taskData, setTaskData] = useState({
+    taskTitle: "",
+    taskTags: [],
+    assignUser: "",
+  });
+
+  const getTasks = async () => {
+    const formData = new FormData();
+    formData.append("subdomain_id", subdomainId);
+    formData.append("role_id", roleId);
+    const response = await getAlltasks(formData);
+    if (response.success) {
+      setTasks(response.tasks);
+      setTags(response.tags);
+    } else {
+      toast.error("Failed to get tasks!");
+    }
+  };
+
+  const getClients = async () => {
+    const formData = new FormData();
+    formData.append("subdomain_id", subdomainId);
+    const response = await getClientPhotographers(formData);
+    if (response.success) {
+      setClients(response.data);
+    } else {
+      toast.error("Failed to get clients!");
+    }
+  };
 
   const toggleNewTaskModal = () => {
     setNewTaskModalOpen(!isNewTaskModalOpen);
@@ -16,24 +58,49 @@ const ToDo = () => {
   };
 
   useEffect(() => {
+    if (tasks && tasks.length === 0) {
+      getTasks();
+    }
+    if (clients && clients.length === 0) {
+      getClients();
+    }
     document.addEventListener("mousedown", handleModalClose);
     return () => {
       document.removeEventListener("mousedown", handleModalClose);
     };
   }, []);
+
+  function getBulletClass(index) {
+    const colors = [
+      "#87CEEB",
+      "#FFD700",
+      "#00FF7F",
+      "#FF69B4",
+      "#40E0D0",
+      "#FFA07A",
+      "#9370DB",
+    ];
+    return `${colors[index % colors.length]}`;
+  }
+
   return (
     <div className="todo-application">
       <div className="app-content content">
         <div className={`sidebar-left ${show ? "show" : ""}`}>
           <div className="sidebar">
             <div className="todo-sidebar d-flex">
-              <span className="sidebar-close-icon" onClick={() => setShow(!show)} onTouchStart={() => setShow(!show)}>
+              <span
+                className="sidebar-close-icon"
+                onClick={() => setShow(!show)}
+                onTouchStart={() => setShow(!show)}
+              >
                 <i className="feather icon-x"></i>
               </span>
               <div className="todo-app-menu">
                 <div className="form-group text-center add-task">
                   <button
                     type="button"
+                    useState
                     className="btn btn-outline-danger btn-glow add-task-btn btn-block my-1"
                     onClick={toggleNewTaskModal}
                   >
@@ -75,59 +142,41 @@ const ToDo = () => {
                   </div>
                   <label className="filter-label mt-2 mb-1 pt-25">Labels</label>
                   <div className="list-group">
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Frontend</span>
-                      <span className="bullet bullet-sm bullet-primary"></span>
-                    </a>
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Backend</span>
-                      <span className="bullet bullet-sm bullet-success"></span>
-                    </a>
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Issue</span>
-                      <span className="bullet bullet-sm bullet-danger"></span>
-                    </a>
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Design</span>
-                      <span className="bullet bullet-sm bullet-warning"></span>
-                    </a>
-                    <a
-                      href="#"
-                      className="list-group-item border-0 d-flex align-items-center justify-content-between"
-                    >
-                      <span>Wireframe</span>
-                      <span className="bullet bullet-sm bullet-info"></span>
-                    </a>
+                    {tags.map((tag, index) => (
+                      <a
+                        key={index}
+                        href="#"
+                        className="list-group-item border-0 d-flex align-items-center justify-content-between"
+                      >
+                        <span>{tag.tasktag_title}</span>
+                        <span
+                          className={`bullet bullet-sm`}
+                          style={{
+                            backgroundColor: `${getBulletClass(tag.id)}`,
+                          }}
+                        ></span>
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
             <div
-              className={`todo-new-task-sidebar ${isNewTaskModalOpen ? "show" : ""}`}
-              style={{ maxHeight: 'inherit', overflowY: 'auto' }}
+              className={`todo-new-task-sidebar ${
+                isNewTaskModalOpen ? "show" : ""
+              }`}
+              style={{ maxHeight: "inherit", overflowY: "auto" }}
               ref={modalRef}
             >
-
-
               <div className="card shadow-none p-0 m-0">
                 <div className="card-header border-bottom py-75">
                   <div className="task-header d-flex justify-content-between align-items-center">
                     <h5 className="new-task-title mb-0">New Task</h5>
                     <button className="mark-complete-btn btn btn-primary btn-sm">
                       <i className="feather icon-check align-middle" />
-                      <span className="mark-complete align-middle">Mark Complete</span>
+                      <span className="mark-complete align-middle">
+                        Mark Complete
+                      </span>
                     </button>
                     <span className="dropdown mr-1">
                       <i className="feather icon-paperclip cursor-pointer mr-50" />
@@ -157,24 +206,32 @@ const ToDo = () => {
                       </span>
                     </span>
                   </div>
-                  <button type="button" onClick={toggleNewTaskModal} className="close close-icon">
+                  <button
+                    type="button"
+                    onClick={toggleNewTaskModal}
+                    className="close close-icon"
+                  >
                     <i className="feather icon-x align-middle" />
                   </button>
                 </div>
-                {/* form start */}
                 <form id="compose-form" className="mt-1">
                   <div className="card-content">
                     <div className="card-body py-0 border-bottom">
                       <div className="form-group">
-                        {/* text area for task title */}
                         <textarea
-                          name="title"
+                          name="name"
                           className="form-control task-title"
                           cols={1}
                           rows={2}
                           placeholder="Write a Task Name"
                           required=""
-                          defaultValue={"                      "}
+                          value={taskData.taskTitle}
+                          onChange={(e) => {
+                            setTaskData({
+                              ...taskData,
+                              taskTitle: e.target.value,
+                            });
+                          }}
                         />
                       </div>
                       <div className="assigned d-flex justify-content-between">
@@ -192,9 +249,33 @@ const ToDo = () => {
                               <i className="feather icon-user font-medium-4" />
                             </div>
                           </div>
-                          {/* select2  for user name  */}
                           <div className="select-box mr-1">
-                            <select
+                            <Select
+                              className="select2 font-sm"
+                              styles={{width:'10rem !important'}}
+                              name="tags"
+                              value={taskData.assignUser.label}
+                              onChange={(selectedOption) =>
+                                setTaskData({
+                                  ...taskData,
+                                  assignUser: selectedOption.value,
+                                })
+                              }
+                              options={_.chain(clients)
+                                .groupBy("role_id")
+                                .map((value, key) => ({
+                                  label:
+                                    key === "2" ? "Photographers" : "Clients",
+                                  options: value.map((client) => ({
+                                    value: client.id,
+                                    label: client.name,
+                                  })),
+                                }))
+                                .value()}
+                              isSearchable
+                              components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}
+                            />
+                            {/* <select
                               className="select2-users-name form-control"
                               id="select2-users-name"
                             >
@@ -202,15 +283,19 @@ const ToDo = () => {
                                 <option value="David Smith">David Smith</option>
                                 <option value="John Doe">John Doe</option>
                                 <option value="James Smith">James Smith</option>
-                                <option value="Maria Garcia">Maria Garcia</option>
+                                <option value="Maria Garcia">
+                                  Maria Garcia
+                                </option>
                               </optgroup>
                               <optgroup label="Frontend">
-                                <option value="Maria Rodrigu">Maria Rodrigu</option>
+                                <option value="Maria Rodrigu">
+                                  Maria Rodrigu
+                                </option>
                                 <option value="Marry Smith">Marry Smith</option>
                                 <option value="Maria Hern">Maria Hern</option>
                                 <option value="Jamesh J">Jamesh Jackson</option>
                               </optgroup>
-                            </select>
+                            </select> */}
                           </div>
                         </div>
                         <div className="form-group d-flex align-items-center position-relative">
@@ -245,20 +330,24 @@ const ToDo = () => {
                       <div className="tag d-flex justify-content-between align-items-center pt-1">
                         <div className="flex-grow-1 d-flex align-items-center">
                           <i className="feather icon-tag align-middle mr-25" />
-                          <select
-                            className="select2-assign-label form-control"
-                            multiple="multiple"
-                            id="select2-assign-label"
-                            disabled=""
-                          >
-                            <optgroup label="Tags">
-                              <option value="Frontend">Frontend</option>
-                              <option value="Backend">Backend</option>
-                              <option value="Issue">Issue</option>
-                              <option value="Design">Design</option>
-                              <option value="Wireframe">Wireframe</option>
-                            </optgroup>
-                          </select>
+                          {console.log(taskData)}
+                          <Select
+                            className="select2"
+                            name="tags"
+                            value={taskData.taskTags.label}
+                            onChange={(selectedTags) =>
+                              setTaskData({
+                                ...taskData,
+                                taskTags: selectedTags.map((tag) => tag.value),
+                              })
+                            }
+                            options={tags.map((tag) => ({
+                              value: tag.id,
+                              label: tag.tasktag_title,
+                            }))}
+                            isSearchable
+                            isMulti={true}
+                          />
                         </div>
                         <div className="ml-25">
                           <i className="feather icon-plus-circle cursor-pointer add-tags" />
@@ -275,7 +364,9 @@ const ToDo = () => {
                             height={38}
                           />
                         </div>
-                        <div className="avatar-content">Charlie created this task</div>
+                        <div className="avatar-content">
+                          Charlie created this task
+                        </div>
                         <small className="ml-75 text-muted">13 days ago</small>
                       </div>
                       {/* quill editor for comment */}
@@ -298,10 +389,16 @@ const ToDo = () => {
                         </div>
                       </div>
                       <div className="mt-1 d-flex justify-content-between">
-                        <button type="button" className="btn btn-outline-danger add-todo">
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger add-todo"
+                        >
                           Add Task
                         </button>
-                        <button type="button" className="btn btn-outline-danger update-todo">
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger update-todo"
+                        >
                           Save Changes
                         </button>
                       </div>
@@ -310,8 +407,6 @@ const ToDo = () => {
                 </form>
                 {/* form start end*/}
               </div>
-
-
             </div>
           </div>
         </div>
@@ -320,19 +415,21 @@ const ToDo = () => {
           <div className="content-wrapper">
             <div className="content-header row mt-2"></div>
             <div className="content-body">
-              {show || isNewTaskModalOpen ? <div
-                className="app-content-overlay show"></div> : <div
-                  className="app-content-overlay"></div>}
+              {show || isNewTaskModalOpen ? (
+                <div className="app-content-overlay show"></div>
+              ) : (
+                <div className="app-content-overlay"></div>
+              )}
 
-              {/* <div
-                className={`app-content-overlay ${isNewTaskModalOpen ? "show" : ""
-                  }`}
-              ></div> */}
               <div className="todo-app-area">
                 <div className="todo-app-list-wrapper">
                   <div className="todo-app-list">
                     <div className="todo-fixed-search d-flex justify-content-between align-items-center">
-                    <div className="sidebar-toggle d-block d-lg-none" onClick={() => setShow(!show)} onTouchStart={() => setShow(!show)}>
+                      <div
+                        className="sidebar-toggle d-block d-lg-none"
+                        onClick={() => setShow(!show)}
+                        onTouchStart={() => setShow(!show)}
+                      >
                         <i className="feather icon-menu"></i>
                       </div>
                       <fieldset className="form-group position-relative has-icon-left m-0 flex-grow-1 pl-2">
@@ -376,289 +473,72 @@ const ToDo = () => {
                         className="todo-task-list-wrapper list-unstyled"
                         id="todo-task-list-drag"
                       >
-                        <li className="todo-item" data-name="David Smith">
-                          <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
-                            <div className="todo-title-area d-flex">
-                              <i className="feather icon-more-vertical handle"></i>
-                              <div className="custom-control custom-checkbox">
-                                <input
-                                  type="checkbox"
-                                  className="custom-control-input"
-                                  id="checkbox1"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  htmlFor="checkbox1"
-                                ></label>
+                        {tasks.map((task, index) => (
+                          <li
+                            key={index}
+                            className="todo-item"
+                            data-name={task.assign_user}
+                          >
+                            <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
+                              <div className="todo-title-area d-flex">
+                                <i className="feather icon-more-vertical handle"></i>
+                                <div className="custom-control custom-checkbox">
+                                  <input
+                                    type="checkbox"
+                                    className="custom-control-input"
+                                    id={`checkbox${index}`}
+                                  />
+                                  <label
+                                    className="custom-control-label"
+                                    htmlFor={`checkbox${index}`}
+                                  ></label>
+                                </div>
+                                <p className="todo-title mx-50 m-0 truncate">
+                                  {task.task_title}
+                                </p>
                               </div>
-                              <p className="todo-title mx-50 m-0 truncate">
-                                Effective Hypnosis Quit Smoking Methods
-                              </p>
+                              <div className="todo-item-action d-flex align-items-center">
+                                <div className="todo-badge-wrapper d-flex">
+                                  {task.task_tags.split(",").map((tagId) => {
+                                    const tag = tags.find(
+                                      (tag) => tag.id === parseInt(tagId)
+                                    );
+                                    if (tag) {
+                                      return (
+                                        <span
+                                          key={tag.id}
+                                          className="badge badge-primary badge-pill"
+                                          style={{
+                                            backgroundColor: `${getBulletClass(
+                                              tag.id
+                                            )}`,
+                                          }}
+                                        >
+                                          {tag.tasktag_title}
+                                        </span>
+                                      );
+                                    }
+                                    return null;
+                                  })}
+                                </div>
+                                <div className="avatar ml-1">
+                                  <img
+                                    src="/app-assets/images/portrait/small/avatar-s-1.png"
+                                    alt="avatar"
+                                    height="30"
+                                    width="30"
+                                  />
+                                </div>
+                                <a className="todo-item-favorite ml-75">
+                                  <i className="feather icon-star"></i>
+                                </a>
+                                <a className="todo-item-delete ml-75">
+                                  <i className="feather icon-trash-2"></i>
+                                </a>
+                              </div>
                             </div>
-                            <div className="todo-item-action d-flex align-items-center">
-                              <div className="todo-badge-wrapper d-flex">
-                                <span className="badge badge-primary badge-pill">
-                                  Frontend
-                                </span>
-                              </div>
-                              <div className="avatar ml-1">
-                                <img
-                                  src="/app-assets/images/portrait/small/avatar-s-1.png"
-                                  alt="avatar"
-                                  height="30"
-                                  width="30"
-                                />
-                              </div>
-                              <a className="todo-item-favorite ml-75">
-                                <i className="feather icon-star"></i>
-                              </a>
-                              <a className="todo-item-delete ml-75">
-                                <i className="feather icon-trash-2"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="todo-item" data-name="John Doe">
-                          <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
-                            <div className="todo-title-area d-flex">
-                              <i className="feather icon-more-vertical handle"></i>
-                              <div className="custom-control custom-checkbox">
-                                <input
-                                  type="checkbox"
-                                  className="custom-control-input"
-                                  id="checkbox2"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  htmlFor="checkbox2"
-                                ></label>
-                              </div>
-                              <p className="todo-title mx-50 m-0 truncate">
-                                How To Protect Your Computer Very Useful Tips
-                              </p>
-                            </div>
-                            <div className="todo-item-action d-flex align-items-center">
-                              <div className="todo-badge-wrapper d-flex"></div>
-                              <div className="avatar ml-1">
-                                <img
-                                  src="/app-assets/images/portrait/small/avatar-s-2.png"
-                                  alt="avatar"
-                                  height="30"
-                                  width="30"
-                                />
-                              </div>
-                              <a className="todo-item-favorite ml-75 warning">
-                                <i className="feather icon-star"></i>
-                              </a>
-                              <a className="todo-item-delete ml-75">
-                                <i className="feather icon-trash-2"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="todo-item" data-name="James Smith">
-                          <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
-                            <div className="todo-title-area d-flex">
-                              <i className="feather icon-more-vertical handle"></i>
-                              <div className="custom-control custom-checkbox">
-                                <input
-                                  type="checkbox"
-                                  className="custom-control-input"
-                                  id="checkbox14"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  htmlFor="checkbox14"
-                                ></label>
-                              </div>
-                              <p className="todo-title mx-50 m-0 truncate">
-                                It is a good idea to think of your PC as an
-                                office.
-                              </p>
-                            </div>
-                            <div className="todo-item-action d-flex align-items-center">
-                              <div className="todo-badge-wrapper d-flex">
-                                <span className="badge badge-primary badge-pill">
-                                  Frontend
-                                </span>
-                              </div>
-                              <div className="avatar ml-1">
-                                <img
-                                  src="/app-assets/images/portrait/small/avatar-s-3.png"
-                                  alt="avatar"
-                                  height="30"
-                                  width="30"
-                                />
-                              </div>
-                              <a className="todo-item-favorite ml-75">
-                                <i className="feather icon-star"></i>
-                              </a>
-                              <a className="todo-item-delete ml-75">
-                                <i className="feather icon-trash-2"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="todo-item" data-name="Maria Garcia">
-                          <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
-                            <div className="todo-title-area d-flex">
-                              <i className="feather icon-more-vertical handle"></i>
-                              <div className="custom-control custom-checkbox">
-                                <input
-                                  type="checkbox"
-                                  className="custom-control-input"
-                                  id="checkbox4"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  htmlFor="checkbox4"
-                                ></label>
-                              </div>
-                              <p className="todo-title mx-50 m-0 truncate">
-                                Don't Let The Outtakes Take You Out
-                              </p>
-                            </div>
-                            <div className="todo-item-action d-flex align-items-center">
-                              <div className="todo-badge-wrapper d-flex">
-                                <span className="badge badge-danger badge-pill ml-50">
-                                  Issue
-                                </span>
-                                <span className="badge badge-pill badge-success ml-50">
-                                  Backend
-                                </span>
-                              </div>
-                              <div className="avatar ml-1">
-                                <img
-                                  src="../../../app-assets/images/portrait/small/avatar-s-4.png"
-                                  alt="avatar"
-                                  height="30"
-                                  width="30"
-                                />
-                              </div>
-                              <a className="todo-item-favorite ml-75 warning">
-                                <i className="feather icon-star"></i>
-                              </a>
-                              <a className="todo-item-delete ml-75">
-                                <i className="feather icon-trash-2"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="todo-item" data-name="Maria Rodrigu">
-                          <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
-                            <div className="todo-title-area d-flex">
-                              <i className="feather icon-more-vertical handle"></i>
-                              <div className="custom-control custom-checkbox">
-                                <input
-                                  type="checkbox"
-                                  className="custom-control-input"
-                                  id="checkbox5"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  htmlFor="checkbox5"
-                                ></label>
-                              </div>
-                              <p className="todo-title mx-50 m-0 truncate">
-                                Sony laptops are among the most well known
-                                laptops on today
-                              </p>
-                            </div>
-                            <div className="todo-item-action d-flex align-items-center">
-                              <div className="todo-badge-wrapper d-flex"></div>
-                              <div className="avatar ml-1">
-                                <img
-                                  src="../../../app-assets/images/portrait/small/avatar-s-5.png"
-                                  alt="avatar"
-                                  height="30"
-                                  width="30"
-                                />
-                              </div>
-                              <a className="todo-item-favorite ml-75">
-                                <i className="feather icon-star"></i>
-                              </a>
-                              <a className="todo-item-delete ml-75">
-                                <i className="feather icon-trash-2"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="todo-item" data-name="Marry Smith">
-                          <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
-                            <div className="todo-title-area d-flex">
-                              <i className="feather icon-more-vertical handle"></i>
-                              <div className="custom-control custom-checkbox">
-                                <input
-                                  type="checkbox"
-                                  className="custom-control-input"
-                                  id="checkbox6"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  htmlFor="checkbox6"
-                                ></label>
-                              </div>
-                              <p className="todo-title mx-50 m-0 truncate">
-                                Success Steps htmlFor Your Personal Or Business Life
-                              </p>
-                            </div>
-                            <div className="todo-item-action d-flex align-items-center">
-                              <div className="todo-badge-wrapper d-flex"></div>
-                              <div className="avatar ml-1">
-                                <img
-                                  src="../../../app-assets/images/portrait/small/avatar-s-6.png"
-                                  alt="avatar"
-                                  height="30"
-                                  width="30"
-                                />
-                              </div>
-                              <a className="todo-item-favorite ml-75">
-                                <i className="feather icon-star"></i>
-                              </a>
-                              <a className="todo-item-delete ml-75">
-                                <i className="feather icon-trash-2"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="todo-item" data-name="Maria Hern">
-                          <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
-                            <div className="todo-title-area d-flex">
-                              <i className="feather icon-more-vertical handle"></i>
-                              <div className="custom-control custom-checkbox">
-                                <input
-                                  type="checkbox"
-                                  className="custom-control-input"
-                                  id="checkbox7"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  htmlFor="checkbox7"
-                                ></label>
-                              </div>
-                              <p className="todo-title mx-50 m-0 truncate">
-                                Believing Is The Absence Of Doubt
-                              </p>
-                            </div>
-                            <div className="todo-item-action d-flex align-items-center">
-                              <div className="todo-badge-wrapper d-flex"></div>
-                              <div className="avatar ml-1">
-                                <img
-                                  src="../../../app-assets/images/portrait/small/avatar-s-7.png"
-                                  alt="avatar"
-                                  height="30"
-                                  width="30"
-                                />
-                              </div>
-                              <a className="todo-item-favorite ml-75">
-                                <i className="feather icon-star"></i>
-                              </a>
-                              <a className="todo-item-delete ml-75">
-                                <i className="feather icon-trash-2"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </li>
+                          </li>
+                        ))}
                       </ul>
                       <div className="no-results">
                         <h5>No Items Found</h5>

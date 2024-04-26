@@ -30,7 +30,6 @@ const TableCustom = ({ data, columns }) => {
     useGlobalFilter,
     useSortBy,
     usePagination,
-
   );
 
   return (
@@ -79,8 +78,6 @@ const TableCustom = ({ data, columns }) => {
                               {headerGroup.headers.map((column) => (
                                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                                   {column.render("Header")}
-                                  {/* Add sorting indicators. also show both when not sorting by any*/}
-                                                                    
                                   <span>
                                     {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc"/> : <i className="fa fa-sort-asc"/>) : ''}
                                   </span>

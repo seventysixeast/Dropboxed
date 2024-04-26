@@ -308,13 +308,13 @@ const AddService = () => {
                             <div className="row">
                               <label
                                 htmlFor="serviceName"
-                                className="form-label col-md-2 col-sm-3"
+                                className="form-label col-md-2 col-sm-12"
                               >
                                 Service Name
                               </label>
                               <input
                                 type="text"
-                                className="form-control col-md-3 col-sm-3 mr-1 mb-1"
+                                className="form-control col-md-3 col-sm-6 mr-1 mb-1"
                                 id="serviceName"
                                 name="serviceName"
                                 value={serviceData.serviceName}
@@ -329,17 +329,16 @@ const AddService = () => {
                             </div>
                           </div>
                         </div>
-                        <p className="form-label col-md-3 col-sm-3 mr-1 mb-1">
+                        <p className="form-label col-md-12 col-sm-12 mr-1 mb-1">
                           Image Type Details
                         </p>
                         {Array.from({ length: cloneIndex }).map((_, index) => (
                           <div key={index}>
                             <div className="col-md-12 my-3 ">
                               <div className="row">
-                                <div className="col-md-2 col-sm-3"></div>
-
+                                <div className="col-md-2"></div>
                                 <Select
-                                  className="select2 col-md-3 col-sm-3 mr-1 mb-1  p-0"
+                                  className="select2 col-md-3 col-sm-6 mr-1 mb-1  p-0"
                                   styles={{ padding: "none !important" }}
                                   name={`imageType${index}`}
                                   id={`imageType${index}`}
@@ -366,7 +365,7 @@ const AddService = () => {
                                 />
                                 <input
                                   type="text"
-                                  className="form-control col-md-3 col-sm-3 mr-1 mb-1"
+                                  className="form-control col-md-3 col-sm-6 mr-1 mb-1"
                                   id={`imageTypeLabel${index}`}
                                   name={`imageTypeLabel${index}`}
                                   value={
@@ -380,9 +379,10 @@ const AddService = () => {
                                     )
                                   }
                                 />
+
                                 <input
                                   type="number"
-                                  className="form-control col-md-3 col-sm-3 mr-1 mb-1"
+                                  className="form-control col-md-3 col-sm-6 mr-1 mb-1"
                                   id={`imageCount${index}`}
                                   name={`imageCount${index}`}
                                   value={
