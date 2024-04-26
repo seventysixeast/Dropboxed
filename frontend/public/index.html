@@ -298,10 +298,8 @@
     <script src="/app-assets/js/scripts/forms/select/form-select2.js"></script>
     <script src="/app-assets/js/scripts/forms/wizard-steps.js"></script>
 
-    <!-- END: Page JS-->
     <script>
       window.addEventListener("DOMContentLoaded", function () {
-        // Function to remove classes
         function removeClasses() {
           const body = document.body;
           body.classList.remove(
@@ -312,7 +310,6 @@
           );
         }
 
-        // Function to add classes
         function addClasses() {
           const body = document.body;
           body.classList.add(
@@ -323,7 +320,6 @@
           );
         }
 
-        // Check route and add/remove classes accordingly
         function checkRoute() {
           const currentPath = window.location.pathname;
           if (currentPath === "/login" || currentPath === "/signup") {
@@ -331,15 +327,12 @@
           } else {
             addClasses();
           }
-          // Scroll the page after adding or removing classes
-          window.scrollTo(0, 10); // Scroll down 10 pixels
-          window.scrollTo(0, 0); // Scroll back up
+          window.scrollTo(0, 10);
+          window.scrollTo(0, 0);
         }
 
-        // Call checkRoute initially
         checkRoute();
 
-        // Listen for changes in the URL
         window.addEventListener("popstate", checkRoute);
       });
     </script>

@@ -1,7 +1,5 @@
 import API from "./baseApi";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
-
 const newBooking = async (bookingData) => {
   try {
     const response = await API.post('/booking/new-booking', bookingData);
@@ -82,7 +80,6 @@ const updateBooking = async (data) => {
   }
 };
 
-// Get All Booking titles using ClientId
 const getAllBookingTitles = async (data) => {
   try {
     const response = await API.post(`/booking/getAllBookingTitles`, data, {
@@ -99,7 +96,6 @@ const getAllBookingTitles = async (data) => {
   }
 };
 
-// Get All Services using ClientId & booking_title
 const getAllServices = async (data) => {
   try {
     const response = await API.post(`/booking/getAllServices`, data, {
@@ -116,7 +112,6 @@ const getAllServices = async (data) => {
   }
 };
 
-// Get All Photographers using ClientId & booking_title
 const getAllPhotographers = async (data) => {
   try {
     const response = await API.post(`/booking/getAllPhotographers`, data, {
