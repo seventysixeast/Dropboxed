@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { getAllServices } from "../api/serviceApis";
+import { deleteService, getAllServices } from "../api/serviceApis";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import { useNavigate } from 'react-router-dom';
-import AddService from "./AddService";
 
 const CardsPackages = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const [modalShow, setModalShow] = useState(false);
 
   const [servicesData, setServicesData] = useState([]);
   const [serviceId, setServiceId] = useState(null);
-  const [serviceData, setServiceData] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
 
@@ -40,7 +37,7 @@ const CardsPackages = () => {
   };
 
   const handleEditService = (service) => {
-    navigate(`/services/${service.id}`);
+    navigate(`/services/edit-service/${service.id}`);
   };
 
   const handleDeleteService = (service) => {
@@ -48,11 +45,7 @@ const CardsPackages = () => {
     setShowDeleteModal(true);
   };
 
-  const handleEditModalClose = () => {
-    setServiceData([]);
-  };
-
-  const deleteService = async () => {
+  const deleteServiceId = async () => {
     const formData = new FormData();
     formData.append("id", serviceId);
     const response = await deleteService(formData);
@@ -62,6 +55,7 @@ const CardsPackages = () => {
     } else {
       toast.error("Failed to delete service!");
     }
+    setShowDeleteModal(false);
   };
 
   const handleDeleteModalClose = () => {
@@ -92,13 +86,15 @@ const CardsPackages = () => {
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group">
-                    <a
+                    {roleId !== 3 &&
+                      <a
                       type="button"
                       className="btn btn-outline-primary btn-block"
-                      onClick={() => setModalShow(true)}
+                      href="/services/add-service"
                     >
                       Add Service
                     </a>
+                    }
 
                     <div
                       className="modal fade text-left"
@@ -217,7 +213,10 @@ const CardsPackages = () => {
                       </ul>
                     </div>
                   </div>
+                  {roleId !== 3 &&
                   <div className="card-footer d-flex justify-content-between">
+                  
+                  <>
                     <button
                       className="btn btn-primary"
                       onClick={() => handleEditService(service)}
@@ -230,7 +229,11 @@ const CardsPackages = () => {
                     >
                       Delete
                     </button>
+                  </>
+
                   </div>
+                  }
+
                 </div>
               </div>
             ))}
@@ -240,7 +243,7 @@ const CardsPackages = () => {
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={handleDeleteModalClose}
-        onConfirm={deleteService}
+        onConfirm={deleteServiceId}
         message="Are you sure you want to delete this appointment?"
       />
     </>

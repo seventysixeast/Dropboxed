@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import DownloadImageModal from '../components/DownloadImageModal';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import DownloadImageModal from '../components/DownloadImageModal';
+import { getCollection } from "../api/collectionApis";
 
 const accessToken = process.env.REACT_APP_DROPBOX_KEY;
 
@@ -14,21 +16,29 @@ export const ViewGallery = () => {
   const [imageUrls, setImageUrls] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const page = useRef(1);
-  const fetchSize = 16;
-  const folderPath = '/web';
-
+  const page = useRef(1); // Keep track of the current page
+  const fetchSize = 16; // Number of thumbnails to fetch per request
+  const folderPath = '/web'; // Specify the path to the folder containing images
+  const fileList = useRef([]); // Store the list of files
+  const { id } = useParams();
+  
+  
   useEffect(() => {
-    fetchImages();
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    fetchFileList();
+    // dfetchCollection();
   }, []);
 
-  const fetchImages = async () => {
+  const fetchCollection = async () => {
+    const formDataToSend = new FormData();
+    formDataToSend.append("id", id);
+    let res = await getCollection(id);
+    if (res.success) {
+      console.log("res", res)
+    }
+  }
+
+  const fetchFileList = async () => {
     try {
-      setLoading(true);
       const listResponse = await axios.post(
         'https://api.dropboxapi.com/2/files/list_folder',
         { path: folderPath },
@@ -39,23 +49,33 @@ export const ViewGallery = () => {
           },
         }
       );
+
       const entries = listResponse.data.entries;
       const fileEntries = entries.filter(entry => entry['.tag'] === 'file');
-      const totalFiles = fileEntries.length;
+      fileList.current = fileEntries;
+      fetchImages();
+    } catch (error) {
+      console.error('Error fetching file list:', error);
+    }
+  };
+
+  const fetchImages = async () => {
+    try {
+      setLoading(true);
+
+      const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
       const endIndex = Math.min(startIndex + fetchSize, totalFiles);
+
       if (startIndex >= totalFiles) {
         setHasMore(false);
         setLoading(false);
         return;
       }
-      const batchEntries = fileEntries.slice(startIndex, endIndex);
+
+      const batchEntries = fileList.current.slice(startIndex, endIndex);
       const batchUrls = await fetchBatchThumbnails(batchEntries);
-      const batchUrlsWithPath = batchUrls.map((url, index) => ({
-        url: url,
-        path_display: batchEntries[index].path_display
-      }));
-      setImageUrls(prevUrls => [...prevUrls, ...batchUrlsWithPath]);
+      setImageUrls(prevUrls => [...prevUrls, ...batchUrls]);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching images:', error);
@@ -63,8 +83,19 @@ export const ViewGallery = () => {
     }
   };
 
+  /*const handleDownload = (url) => {
+    // Example implementation of downloading the image
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'image.jpg'; // You can customize the file name
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };*/
+
   const fetchBatchThumbnails = async (entries) => {
     const urls = [];
+  
     try {
       const response = await axios.post(
         'https://content.dropboxapi.com/2/files/get_thumbnail_batch',
@@ -82,16 +113,24 @@ export const ViewGallery = () => {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
-          responseType: 'json'
+          responseType: 'json', // Change responseType to json
         }
       );
+  
+      // Iterate over the response and extract the thumbnails
       for (const entry of response.data.entries) {
         const url = "data:image/jpeg;base64," + entry.thumbnail;
-        urls.push(url);
+        const path_display = entry.metadata.path_display;
+        const imgObj = {
+          url,
+          path_display
+        }
+        urls.push(imgObj);
       }
     } catch (error) {
       console.error('Error fetching batch thumbnails:', error);
     }
+  
     return urls;
   };
 
@@ -101,6 +140,7 @@ export const ViewGallery = () => {
     const html = document.documentElement;
     const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
     const windowBottom = windowHeight + window.pageYOffset;
+  
     if (windowBottom >= docHeight) {
       loadMoreThumbnails();
     }
@@ -113,6 +153,13 @@ export const ViewGallery = () => {
     }
   };
 
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  
   const handleDownload = async () => {
     try {
       const { data: { link } } = await axios.post(
