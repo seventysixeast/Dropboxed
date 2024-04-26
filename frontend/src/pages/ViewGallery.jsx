@@ -29,7 +29,6 @@ export const ViewGallery = () => {
   const fetchImages = async () => {
     try {
       setLoading(true);
-
       const listResponse = await axios.post(
         'https://api.dropboxapi.com/2/files/list_folder',
         { path: folderPath },
@@ -40,23 +39,23 @@ export const ViewGallery = () => {
           },
         }
       );
-
       const entries = listResponse.data.entries;
       const fileEntries = entries.filter(entry => entry['.tag'] === 'file');
       const totalFiles = fileEntries.length;
-
       const startIndex = (page.current - 1) * fetchSize;
       const endIndex = Math.min(startIndex + fetchSize, totalFiles);
-
       if (startIndex >= totalFiles) {
         setHasMore(false);
         setLoading(false);
         return;
       }
-
       const batchEntries = fileEntries.slice(startIndex, endIndex);
       const batchUrls = await fetchBatchThumbnails(batchEntries);
-      setImageUrls(prevUrls => [...prevUrls, ...batchUrls]);
+      const batchUrlsWithPath = batchUrls.map((url, index) => ({
+        url: url,
+        path_display: batchEntries[index].path_display
+      }));
+      setImageUrls(prevUrls => [...prevUrls, ...batchUrlsWithPath]);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching images:', error);
@@ -64,55 +63,8 @@ export const ViewGallery = () => {
     }
   };
 
-  // const handleDownload = (url) => {
-  //   const link = document.createElement('a');
-  //   link.href = url;
-  //   link.download = 'image.jpg';
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  // };
-
-  const handleDownload = async () => {
-    try {
-      const downloadImageOptions = {
-        size: downloadOptions.size,
-        quality: downloadOptions.quality
-      };
-
-      const response = await axios.post(
-        "https://content.dropboxapi.com/2/files/download",
-        null,
-        {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            "Dropbox-API-Arg": JSON.stringify({
-              path: selectedImageUrl,
-              downloadImageOptions
-            }),
-            "Content-Type": "application/octet-stream"
-          },
-          responseType: "blob"
-        }
-      );
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "downloaded_image.jpg");
-      document.body.appendChild(link);
-      link.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-      setDownloadImageModal(false);
-    } catch (error) {
-      console.error("Error downloading image from Dropbox:", error);
-    }
-  };
-
   const fetchBatchThumbnails = async (entries) => {
     const urls = [];
-
     try {
       const response = await axios.post(
         'https://content.dropboxapi.com/2/files/get_thumbnail_batch',
@@ -130,14 +82,9 @@ export const ViewGallery = () => {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
-          responseType: 'json', // Change responseType to json
+          responseType: 'json'
         }
       );
-
-      // Check the structure of response.data
-      console.log("Response Data:", response.data);
-
-      // Iterate over the response and extract the thumbnails
       for (const entry of response.data.entries) {
         const url = "data:image/jpeg;base64," + entry.thumbnail;
         urls.push(url);
@@ -145,7 +92,6 @@ export const ViewGallery = () => {
     } catch (error) {
       console.error('Error fetching batch thumbnails:', error);
     }
-
     return urls;
   };
 
@@ -155,7 +101,6 @@ export const ViewGallery = () => {
     const html = document.documentElement;
     const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
     const windowBottom = windowHeight + window.pageYOffset;
-
     if (windowBottom >= docHeight) {
       loadMoreThumbnails();
     }
@@ -168,50 +113,110 @@ export const ViewGallery = () => {
     }
   };
 
+  const handleDownload = async () => {
+    try {
+      const { data: { link } } = await axios.post(
+        "https://api.dropboxapi.com/2/files/get_temporary_link",
+        { path: selectedImageUrl },
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      const response = await axios.get(
+        link,
+        {
+          responseType: 'blob',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }
+      );
+
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+
+      // Adjust image quality and size based on downloadOptions
+      let adjustedBlob = blob;
+      if (downloadOptions.quality === "low") {
+        adjustedBlob = await compressImage(blob, { quality: 0.5 }); // Adjust quality as needed
+      }
+
+      // Adjust image size based on downloadOptions
+      let adjustedUrl = url;
+      if (downloadOptions.size === "compressed") {
+        adjustedUrl = window.URL.createObjectURL(adjustedBlob);
+      }
+
+      const linkElement = document.createElement('a');
+      linkElement.href = adjustedUrl;
+      linkElement.setAttribute('download', 'downloaded_image.jpg');
+      document.body.appendChild(linkElement);
+      linkElement.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(linkElement);
+      setDownloadImageModal(false);
+    } catch (error) {
+      console.error("Error downloading image from Dropbox:", error);
+    }
+  };
+
+  // Function to compress image
+  const compressImage = async (blob, options) => {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const img = new Image();
+        img.src = reader.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(resolve, 'image/jpeg', options.quality);
+        };
+      };
+    });
+  };
+
   return (
     <div class="app-content content">
       <div class="content-overlay"></div>
       <div class="content-wrapper">
         <div className="content-body">
-          <section id="image-gallery" class="card">
-            <div class="card-header">
-              <h4 class="card-title">Image gallery</h4>
-              <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
-              <div class="heading-elements">
-                <ul class="list-inline mb-0">
-                  <li><a data-action="collapse"><i class="feather icon-minus"></i></a></li>
-                  <li><a data-action="reload"><i class="feather icon-rotate-cw"></i></a></li>
-                  <li><a data-action="expand"><i class="feather icon-maximize"></i></a></li>
-                  <li><a data-action="close"><i class="feather icon-x"></i></a></li>
-                </ul>
-              </div>
-            </div>
+          <section id="image-gallery">
             <div class="card-content collapse show">
-              <div class="card-body  my-gallery" itemscope itemtype="http://schema.org/ImageGallery">
-                <div className="card-deck-wrapper">
-                  <div class="grid-hover row">
-                    {imageUrls.map((url, index) => (
-                      <div className='col'>
-                        <figure id={index} class="col-lg-3 col-md-6 col-12" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
-                          <a href={url} itemprop="contentUrl" data-size="480x360">
-                            <img src={url} itemprop="thumbnail" alt="Image description" />
-                          </a>
-                        </figure>
-                        <div className='text-right mr-2'>
-                          <i
-                            className="feather icon-download"
-                            title="Download"
-                            onClick={() => {
-                              setSelectedImageUrl(url);
-                              setDownloadImageModal(true);
-                            }}
-                          ></i>
+              <div class="card-body my-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+                <div class="row">
+                  {imageUrls.map((image, index) => (
+                    <figure id={index} class="col-lg-3 col-md-6 col-12" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+                      <a href={image.url} class="hovereffect" itemprop="contentUrl" data-size="480x360">
+                        <img class="img-fluid" src={image.url} alt="" />
+                        <div class="overlay">
+                          <p class="icon-links">
+                            <a>
+                              <span
+                                class="feather icon-download"
+                                onClick={() => {
+                                  setSelectedImageUrl(image.path_display);
+                                  setDownloadImageModal(true);
+                                }}>
+                              </span>
+                            </a>
+                            <a href="#">
+                              <span class="feather icon-edit"></span>
+                            </a>
+                          </p>
                         </div>
-                      </div>
-                    ))}
-                    {loading && <div>Loading...</div>}
-                    {!loading && !hasMore && <div>No more thumbnails to load</div>}
-                  </div>
+                      </a>
+                    </figure>
+                  ))}
+                  {loading && <div>Loading...</div>}
+                  {!loading && !hasMore && <div>No more thumbnails to load</div>}
                 </div>
               </div>
               <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
