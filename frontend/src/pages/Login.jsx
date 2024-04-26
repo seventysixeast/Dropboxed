@@ -26,7 +26,7 @@ const Login = () => {
   });
 
   useEffect(() => {
-    // Check if rememberMe cookie exists
+    document.body.classList.remove("vertical-layout", "vertical-menu-modern", "2-columns", "fixed-navbar");
     const rememberMeCookie = Cookies.get("rememberMe");
     if (rememberMeCookie) {
       // Automatically populate username from cookie
