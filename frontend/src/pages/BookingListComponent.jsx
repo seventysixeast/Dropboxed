@@ -25,9 +25,11 @@ import ConfirmModal from "../components/ConfirmModal";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { Switch } from "@mui/material";
 import LoadingOverlay from "../components/Loader";
+import { Tooltip, styled } from "@mui/material";
+import { tooltipClasses } from "@mui/material/Tooltip";
 
 export const BookingListComponent = () => {
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:6977";
+  const API_URL = process.env.REACT_APP_API_URL;
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
@@ -37,7 +39,6 @@ export const BookingListComponent = () => {
   const [packagePrice, setPackagePrices] = useState([]);
   const [selectedPackagePrice, setSelectedPackagePrice] = useState(0);
   const buttonRef = useRef(null);
-  const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
@@ -56,6 +57,7 @@ export const BookingListComponent = () => {
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [notifyCheckbox, setNotifyCheckbox] = useState(false);
   const [notifyDisabled, setNotifyDisabled] = useState(false);
+
   const [bookingData, setBookingData] = useState({
     title: "",
     package: 1,
@@ -83,32 +85,11 @@ export const BookingListComponent = () => {
     customer: "",
   });
 
-  const [customerData, setCustomerData] = useState({
-    name: "",
-    email: "",
-    mobile: "",
-    office: "",
-    home: "",
-    address: "",
-    city: "",
-    state: "",
-    zip: "",
-  });
-
-  const handleCustomerDataChange = (e) => {
-    const { name, value } = e.target;
-    setCustomerData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const convertedTime = bookingData.fromTime;
-      console.log(bookingData.toTime);
       const hoursToAdd = Math.floor(bookingData.toTime / 60);
       const minutesToAdd = bookingData.toTime % 60;
 
@@ -131,7 +112,6 @@ export const BookingListComponent = () => {
       const month = ("0" + (date.getMonth() + 1)).slice(-2);
       const day = ("0" + date.getDate()).slice(-2);
       const formattedDate = `${year}-${month}-${day}`;
-      console.log(formattedDate);
 
       const bookingDataToSend = {
         id: bookingIdToDelete,
@@ -146,7 +126,6 @@ export const BookingListComponent = () => {
         booking_title: bookingAddress.label,
         subdomain_id: subdomainId,
       };
-      console.log(bookingDataToSend);
       if (roleId == 3) {
         bookingDataToSend.user_id = userId;
       } else {
@@ -169,18 +148,6 @@ export const BookingListComponent = () => {
         client: "",
         comment: "",
         provider: "",
-      });
-
-      setCustomerData({
-        name: "",
-        email: "",
-        mobile: "",
-        office: "",
-        home: "",
-        address: "",
-        city: "",
-        state: "",
-        zip: "",
       });
 
       setSelectedProvider(null);
@@ -237,7 +204,11 @@ export const BookingListComponent = () => {
         }));
         setPackagePrices(prices);
       } catch (error) {
-        console.error("Error fetching providers:", error.message);
+        setProviders([]);
+        setClientList([]);
+        setPackages([]);
+        setPackagePrices([]);
+        console.error("Failed to fetch providers:", error.message);
       }
     }
   };
@@ -259,10 +230,6 @@ export const BookingListComponent = () => {
     if (buttonRef.current) {
       buttonRef.current.click();
     }
-  };
-
-  const handleNewCustomer = () => {
-    setShowNewCustomer(!showNewCustomer);
   };
 
   const handleSelectedChange = (selectedOptions) => {
@@ -366,12 +333,12 @@ export const BookingListComponent = () => {
       });
       setEvents(events);
     } catch (error) {
-      console.error("Failed to:", error.message);
+      setBookingsData([]);
+      setEvents([]);
     }
   };
 
   const getBookingData = (data) => {
-    console.log(data);
     let array = [];
     setBookingIdToDelete(data.id);
     if (data.package_ids) {
@@ -540,6 +507,7 @@ export const BookingListComponent = () => {
       setLoading(false);
     }
   };
+
   const handleEventResize = (arg) => {
     let id = arg.event._def.publicId;
     let newDate = new Date(arg.event.start + "Z");
@@ -642,7 +610,6 @@ export const BookingListComponent = () => {
       timeZone: "UTC",
     });
 
-    console.log(startTime, endTime);
     const booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
     setUpdateData({
@@ -693,17 +660,6 @@ export const BookingListComponent = () => {
       });
       setBookingIdToDelete(null);
 
-      setCustomerData({
-        name: "",
-        email: "",
-        mobile: "",
-        office: "",
-        home: "",
-        address: "",
-        city: "",
-        state: "",
-        zip: "",
-      });
       setSelectedProvider(null);
       setSelectedService(null);
       setSelectedClient(null);
@@ -975,6 +931,7 @@ export const BookingListComponent = () => {
   const handleAddressChange = (address) => {
     setBookingAddress(address);
   };
+
   const resetAddress = () => {
     setBookingAddress(null);
   };
@@ -1021,17 +978,6 @@ export const BookingListComponent = () => {
     });
     setBookingIdToDelete(null);
 
-    setCustomerData({
-      name: "",
-      email: "",
-      mobile: "",
-      office: "",
-      home: "",
-      address: "",
-      city: "",
-      state: "",
-      zip: "",
-    });
     setSelectedProvider(null);
     setSelectedService(null);
     setSelectedClient(null);
@@ -1081,10 +1027,70 @@ export const BookingListComponent = () => {
     }
   };
 
+
+  const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#f5f5f9",
+      color: "rgba(0, 0, 0, 0.87)",
+      maxWidth: 300,
+      fontSize: theme.typography.pxToRem(14),
+      border: "1px solid #dadde9",
+    },
+  }));
+
+  const CustomOption = ({ data, innerRef, innerProps }) => (
+    <CustomTooltip
+      title={`Price: $${data.package_price}`}
+      arrow
+      placement="left"
+    >
+      <div
+        ref={innerRef}
+        {...innerProps}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          height: "30px",
+          marginTop: "4px",
+          marginBottom: "4px",
+          cursor: "pointer",
+        }}
+        className="customOptionClass"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={16}
+          height={16}
+          fill="currentColor"
+          className="bi bi-eye-fill"
+          style={{
+            marginLeft: "0.3rem",
+            marginRight: "0.3rem",
+          }}
+          viewBox="0 0 16 16"
+        >
+          <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+          <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+        </svg>
+
+        <span
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {data.label}
+        </span>
+      </div>
+    </CustomTooltip>
+  );
+
   return (
     <>
       <LoadingOverlay loading={loading} />
-
       <div className="app-content content">
         <div className={`content-overlay`}></div>
         <div className="content-wrapper">
@@ -1120,8 +1126,8 @@ export const BookingListComponent = () => {
                           onClick={subscribe}
                         >
                           {calendarSub == 1
-                            ? "Subsribed"
-                            : "Subsribe to Calendar"}
+                            ? "Subscribed"
+                            : "Subscribe to Calendar"}
                         </button>
                       )}
                       <button
@@ -1331,47 +1337,7 @@ export const BookingListComponent = () => {
                                           hideSelectedOptions
                                           required
                                           components={{
-                                            Option: ({
-                                              data,
-                                              innerRef,
-                                              innerProps,
-                                            }) => (
-                                              <div
-                                                ref={innerRef}
-                                                {...innerProps}
-                                                style={{
-                                                  display: "flex",
-                                                  alignItems: "center",
-                                                  height: "30px",
-                                                  marginTop: "4px",
-                                                  marginBottom: "4px",
-                                                  cursor: "pointer",
-                                                }}
-                                                className="customOptionClass"
-                                              >
-                                                <img
-                                                  src={toolIcons}
-                                                  style={{
-                                                    marginRight: "10px",
-                                                    borderRadius: "50%",
-                                                    width: "10px",
-                                                    height: "10px",
-                                                    margin: "4px",
-                                                  }}
-                                                  alt=""
-                                                />
-                                                <span
-                                                  title={data.label}
-                                                  style={{
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    whiteSpace: "nowrap",
-                                                  }}
-                                                >
-                                                  {data.label}
-                                                </span>
-                                              </div>
-                                            ),
+                                            Option: CustomOption,
                                           }}
                                         />
                                       </div>
@@ -1660,66 +1626,63 @@ export const BookingListComponent = () => {
                                     </div>
 
                                     <div className="tab-pane fade" id="tab2">
-                                      {showNewCustomer == false && (
-                                        <div className="modal-body d-flex px-4">
-                                          <label
-                                            htmlFor="client"
-                                            style={{ width: "10rem" }}
-                                          >
-                                            Client
-                                          </label>
-                                          <Select
-                                            className="select2 w-100"
-                                            name="clients"
-                                            value={selectedClient}
-                                            onChange={handleClientChange}
-                                            options={clientList
-                                              .sort((a, b) =>
-                                                a.name.localeCompare(b.name)
-                                              )
-                                              .map((client) => ({
-                                                value: client.id,
-                                                label: client.name,
-                                              }))}
-                                            isSearchable
-                                            components={{
-                                              Option: ({
-                                                data,
-                                                innerRef,
-                                                innerProps,
-                                              }) => (
-                                                <div
-                                                  ref={innerRef}
-                                                  {...innerProps}
+                                      <div className="modal-body d-flex px-4">
+                                        <label
+                                          htmlFor="client"
+                                          style={{ width: "10rem" }}
+                                        >
+                                          Client
+                                        </label>
+                                        <Select
+                                          className="select2 w-100"
+                                          name="clients"
+                                          value={selectedClient}
+                                          onChange={handleClientChange}
+                                          options={clientList
+                                            .sort((a, b) =>
+                                              a.name.localeCompare(b.name)
+                                            )
+                                            .map((client) => ({
+                                              value: client.id,
+                                              label: client.name,
+                                            }))}
+                                          isSearchable
+                                          components={{
+                                            Option: ({
+                                              data,
+                                              innerRef,
+                                              innerProps,
+                                            }) => (
+                                              <div
+                                                ref={innerRef}
+                                                {...innerProps}
+                                                style={{
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  cursor: "pointer",
+                                                }}
+                                                className="customOptionClass"
+                                              >
+                                                <img
+                                                  src={
+                                                    data.profile_photo ||
+                                                    avatar1
+                                                  }
+                                                  alt="Profile"
                                                   style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    cursor: "pointer",
+                                                    marginRight: "10px",
+                                                    borderRadius: "50%",
+                                                    width: "30px",
+                                                    height: "30px",
+                                                    margin: "4px",
                                                   }}
-                                                  className="customOptionClass"
-                                                >
-                                                  <img
-                                                    src={
-                                                      data.profile_photo ||
-                                                      avatar1
-                                                    }
-                                                    alt="Profile"
-                                                    style={{
-                                                      marginRight: "10px",
-                                                      borderRadius: "50%",
-                                                      width: "30px",
-                                                      height: "30px",
-                                                      margin: "4px",
-                                                    }}
-                                                  />
-                                                  <span>{data.label}</span>
-                                                </div>
-                                              ),
-                                            }}
-                                          />
-                                        </div>
-                                      )}
-
+                                                />
+                                                <span>{data.label}</span>
+                                              </div>
+                                            ),
+                                          }}
+                                        />
+                                      </div>
                                       <div className="modal-body d-flex px-4">
                                         <label
                                           htmlFor="comment"
@@ -1737,177 +1700,6 @@ export const BookingListComponent = () => {
                                           onChange={handleChange}
                                         />
                                       </div>
-                                      {/* {showNewCustomer ? (
-                                        <>
-                                          <div className="modal-body d-flex px-4 justify-content-between   ">
-                                            <label
-                                              htmlFor="home"
-                                              style={{ width: "10rem" }}
-                                            >
-                                              <img
-                                                src={avatar1}
-                                                className="border border-red mr-1 -mt-1"
-                                                style={{
-                                                  width: "4rem",
-                                                  borderRadius: "50%",
-                                                }}
-                                                alt="profile_icon"
-                                              />
-                                            </label>
-
-                                            <input
-                                              type="text"
-                                              className="form-control "
-                                              name="name"
-                                              value={customerData.name}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="Name"
-                                            />
-                                          </div>
-                                          <div className="modal-body d-flex px-4">
-                                            <label
-                                              htmlFor="email"
-                                              style={{ width: "10rem" }}
-                                            >
-                                              Email
-                                            </label>
-                                            <input
-                                              type="email"
-                                              className="form-control"
-                                              name="email"
-                                              value={customerData.email}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="Email"
-                                            />
-                                          </div>
-                                          <div className="modal-body d-flex px-4">
-                                            <label
-                                              htmlFor="moblie"
-                                              style={{ width: "10rem" }}
-                                            >
-                                              Mobile
-                                            </label>
-                                            <input
-                                              type="text"
-                                              className="form-control"
-                                              name="mobile"
-                                              value={customerData.mobile}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="Mobile"
-                                            />
-                                          </div>
-                                          <div className="modal-body d-flex px-4">
-                                            <label
-                                              htmlFor="office"
-                                              style={{ width: "10rem" }}
-                                            >
-                                              Office
-                                            </label>
-                                            <input
-                                              type="text"
-                                              className="form-control"
-                                              name="office"
-                                              value={customerData.office}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="Office"
-                                            />
-                                          </div>
-                                          <div className="modal-body d-flex px-4">
-                                            <label
-                                              htmlFor="home"
-                                              style={{ width: "10rem" }}
-                                            >
-                                              Home
-                                            </label>
-                                            <input
-                                              type="text"
-                                              className="form-control"
-                                              name="home"
-                                              value={customerData.home}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="Home"
-                                            />
-                                          </div>
-                                          <div className="modal-body d-flex px-4">
-                                            <label
-                                              htmlFor="address"
-                                              style={{ width: "10rem" }}
-                                            >
-                                              Address
-                                            </label>
-                                            <input
-                                              type="text"
-                                              className="form-control"
-                                              name="address"
-                                              value={customerData.address}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="Address"
-                                            />
-                                          </div>
-                                          <div className="modal-body d-flex px-4">
-                                            <div
-                                              style={{ width: "47rem" }}
-                                            ></div>
-                                            <input
-                                              type="text"
-                                              className="form-control mr-1"
-                                              name="city"
-                                              value={customerData.city}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="City"
-                                            />
-
-                                            <input
-                                              type="text"
-                                              className="form-control  mr-1"
-                                              name="state"
-                                              value={customerData.state}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="State"
-                                            />
-
-                                            <input
-                                              type="text"
-                                              className="form-control "
-                                              name="zip"
-                                              value={customerData.zip}
-                                              onChange={
-                                                handleCustomerDataChange
-                                              }
-                                              placeholder="Zip"
-                                            />
-                                          </div>
-                                          <input
-                                            className="btn btn-outline-primary mb-1 btn ml-4"
-                                            onClick={handleNewCustomer}
-                                            value="Cancel"
-                                            readOnly
-                                          />
-                                        </>
-                                      ) : (
-                                        <input
-                                          className="btn btn-outline-primary mb-1 btn ml-4"
-                                          onClick={handleNewCustomer}
-                                          value="+ New Customer"
-                                          readOnly
-                                        />
-                                      )} */}
                                       <div className="p-1 flex float-right">
                                         <>
                                           <input

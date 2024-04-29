@@ -6,6 +6,7 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const imageTypeRoutes = require('./routes/imageTypeRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
+const todoRoutes = require('./routes/todoRoutes');
 //const calenderRoutes = require('./routes/')
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
@@ -54,6 +55,7 @@ app.use('/service', serviceRoutes);
 app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
 app.use('/collection', collectionRoutes);
+app.use('/todo', todoRoutes);
 //app.use('/calender', calenderRoutes);
 
 // Protected route
@@ -71,7 +73,9 @@ app.get("/*", (req, res, next) => {
     req.url.includes("/imageType/") ||
     req.url.includes("/collection/") ||
     //req.url.includes("/calender/") ||
-    req.url.includes("/assets/")
+    req.url.includes("/assets/")||
+    req.url.includes("/todo/") 
+
   )
   return next();
   else

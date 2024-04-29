@@ -54,6 +54,30 @@ const getAllClients = async (req, res) => {
   }
 };
 
+const getClientPhotographers = async (req, res) => {
+  
+  try {
+
+    const clients = await BusinessClients.findAll({
+      where: {
+        business_id: req.body.subdomain_id
+      },
+      attributes: ['client_id']
+    });
+    const clientIds = clients.map(client => client.client_id);
+    const clientdata = await User.findAll({
+      where: {
+        id: clientIds
+      },
+      attributes: ['id', 'name', 'role_id'],
+      order: [['created', 'DESC']]
+    });
+    res.status(200).json({ success: true, data: clientdata });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to get users" });
+  }
+};
+
 const createClient = async (req, res) => {
   try {
     let imageName = req.files && req.files.profile_photo.name;
@@ -195,4 +219,4 @@ const getAllPhotographers = async (req, res) => {
   }
 };
 
-module.exports = { updateRedisCache, getAllClients, createClient, getClient, deleteClient, activeInactiveClient, getAllPhotographers };
+module.exports = { updateRedisCache, getAllClients, createClient, getClient, deleteClient, activeInactiveClient, getAllPhotographers, getClientPhotographers };
