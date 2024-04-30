@@ -43,4 +43,49 @@ const getAllTasks = async (req, res) => {
     }
 };
 
-module.exports = { getAllTasks };
+const createTask = async (req, res) => {
+    try {
+        const {
+            user_id,
+            subdomain_id,
+            role_id,
+            task_title,
+            assign_user,
+            task_assigndate,
+            task_description,
+            task_tags,
+            comment,
+            status,
+            is_favourite
+        } = req.body;
+
+        const newTask = await TaskTodo.create({
+            user_id,
+            subdomain_id,
+            role_id,
+            task_title,
+            assign_user,
+            task_assigndate,
+            task_tags,
+            task_description,
+            comment,
+            status,
+            is_favourite
+        });
+
+        // Create TaskComment
+        const newComment = await TaskComment.create({
+            user_id,
+            task_id: newTask.id, // Assuming newTask.id is the primary key of the TaskTodo record
+            comments: comment,
+            subdomain_id
+        });
+
+        res.status(201).json({ success: true, task: newTask, comment: newComment });
+    } catch (error) {
+        console.error("Error creating task:", error);
+        res.status(500).json({ error: "Failed to create task" });
+    }
+};
+
+module.exports = { getAllTasks, createTask };

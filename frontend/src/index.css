@@ -1038,3 +1038,14 @@ a:not([href]) {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+#tags .css-1xc3v61-indicatorContainer {
+  pointer-events: none;
+  display: none;
+}
+
+
+#tags .css-15lsz6c-indicatorContainer {
+  pointer-events: none;
+  display: none;
+}

@@ -1,14 +1,17 @@
 import { toast } from "react-toastify";
 import React, { useEffect, useRef, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../context/authContext";
-import { getAlltasks } from "../api/todoApis";
+import { getAlltasks, createTask } from "../api/todoApis";
 import Select from "react-select";
-import { getClientPhotographers } from "../api/clientApis";
+import { getClient, getClientPhotographers } from "../api/clientApis";
 import _ from "lodash";
 
 const ToDo = () => {
   const { authData } = useAuth();
   const { user } = authData;
+  const userId = user.id;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
 
@@ -19,10 +22,20 @@ const ToDo = () => {
   const [show, setShow] = useState(false);
   const modalRef = useRef(null);
   const [taskData, setTaskData] = useState({
+    id: "",
+    userId: "",
     taskTitle: "",
-    taskTags: [],
     assignUser: "",
+    taskAssigndate: new Date(),
+    taskDescription: "",
+    taskTags: [],
+    comment: "",
+    status: 0,
+    isFavourite: 1,
   });
+
+  const [comments, setComments] = useState([]);
+  const [taskAuthor, setTaskAuthor] = useState();
 
   const getTasks = async () => {
     const formData = new FormData();
@@ -51,6 +64,7 @@ const ToDo = () => {
   const toggleNewTaskModal = () => {
     setNewTaskModalOpen(!isNewTaskModalOpen);
   };
+
   const handleModalClose = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setNewTaskModalOpen(false);
@@ -83,6 +97,89 @@ const ToDo = () => {
     return `${colors[index % colors.length]}`;
   }
 
+  const handleSubmit = async () => {
+    const formData = new FormData();
+
+    // Append task data to the FormData object
+    if (taskData.id !== "") {
+      formData.append("id", taskData.id);
+    }
+    if (taskData.userId === "") {
+      formData.append("user_id", userId);
+    } else {
+      formData.append("user_id", taskData.userId);
+    }
+
+    formData.append("subdomain_id", subdomainId);
+    formData.append("role_id", roleId);
+    formData.append("task_title", taskData.taskTitle);
+    formData.append("assign_user", taskData.assignUser);
+    formData.append("task_assigndate", taskData.taskAssigndate);
+    formData.append("task_description", taskData.taskDescription);
+    formData.append("task_tags", taskData.taskTags);
+    formData.append("comment", taskData.comment);
+    formData.append("status", taskData.status);
+    formData.append("is_favourite", taskData.isFavourite);
+
+    try {
+      const response = await createTask(formData);
+
+      toast.success("Task created successfully!");
+      getTasks();
+      setNewTaskModalOpen(false);
+    } catch (error) {
+      console.error("Error creating task:", error);
+    }
+  };
+
+  const handleTaskClick = async (task) => {
+    console.log(task);
+
+    //  task =  {
+    //     "id": 50,
+    //     "user_id": 181,
+    //     "task_order": 0,
+    //     "assign_user": 186,
+    //     "task_title": "Name",
+    //     "task_description": "Description",
+    //     "task_tags": "5",
+    //     "status": 0,
+    //     "is_favourite": 1,
+    //     "task_assigndate": "2024-04-30",
+    //     "created_at": "2024-04-30T11:28:08.000Z",
+    //     "subdomain_id": 181,
+    //     "TaskComments": [
+    //         {
+    //             "id": 6,
+    //             "user_id": 181,
+    //             "task_id": 50,
+    //             "TaskComments": "12345",
+    //             "created_at": "2024-04-30T11:28:11.000Z",
+    //             "modified_at": "2024-04-30T11:28:11.000Z",
+    //             "subdomain_id": 181
+    //         }
+    //     ]
+    // }
+
+    setTaskData({
+      id: task.id,
+      userId: task.user_id,
+      taskTitle: task.task_title,
+      assignUser: task.assign_user,
+      taskAssigndate: new Date(task.task_assigndate),
+      taskDescription: task.task_description,
+      taskTags: task.task_tags,
+      status: task.status,
+      isFavourite: task.is_favourite,
+    });
+
+    setComments(task.TaskComments);
+    const formData = new FormData();
+    formData.append("id", task.user_id);
+    const response = await getClient(formData);
+    setTaskAuthor(response.data);
+  };
+  console.log(taskData);
   return (
     <div className="todo-application">
       <div className="app-content content">
@@ -171,40 +268,19 @@ const ToDo = () => {
               <div className="card shadow-none p-0 m-0">
                 <div className="card-header border-bottom py-75">
                   <div className="task-header d-flex justify-content-between align-items-center">
-                    <h5 className="new-task-title mb-0">New Task</h5>
-                    <button className="mark-complete-btn btn btn-primary btn-sm">
-                      <i className="feather icon-check align-middle" />
-                      <span className="mark-complete align-middle">
-                        Mark Complete
-                      </span>
-                    </button>
-                    <span className="dropdown mr-1">
-                      <i className="feather icon-paperclip cursor-pointer mr-50" />
-                      <a
-                        href="#"
-                        className="dropdown-toggle"
-                        id="todo-sidebar-dropdown"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="true"
-                      >
-                        <i className="feather icon-more-vertical" />
-                      </a>
-                      <span
-                        className="dropdown-menu dropdown-menu-right"
-                        aria-labelledby="todo-sidebar-dropdown"
-                      >
-                        <a href="#" className="dropdown-item">
-                          Add to another project
-                        </a>
-                        <a href="#" className="dropdown-item">
-                          Create follow up task
-                        </a>
-                        <a href="#" className="dropdown-item">
-                          Print
-                        </a>
-                      </span>
-                    </span>
+                    {taskData.id ? (
+                      <>
+                        <h5 className="new-task-title mb-0">Update Task</h5>
+                        <button className="mark-complete-btn btn btn-primary btn-sm">
+                          <i className="feather icon-check align-middle" />
+                          <span className="mark-complete align-middle">
+                            Mark Complete
+                          </span>
+                        </button>
+                      </>
+                    ) : (
+                      <h5 className="new-task-title mb-0">New Task</h5>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -214,7 +290,7 @@ const ToDo = () => {
                     <i className="feather icon-x align-middle" />
                   </button>
                 </div>
-                <form id="compose-form" className="mt-1">
+                <form id="my-form" className="mt-1">
                   <div className="card-content">
                     <div className="card-body py-0 border-bottom">
                       <div className="form-group">
@@ -249,10 +325,12 @@ const ToDo = () => {
                               <i className="feather icon-user font-medium-4" />
                             </div>
                           </div>
-                          <div className="select-box mr-1">
+                          <div
+                            className="select-box mr-1"
+                            style={{ width: "10rem" }}
+                          >
                             <Select
                               className="select2 font-sm"
-                              styles={{width:'10rem !important'}}
                               name="tags"
                               value={taskData.assignUser.label}
                               onChange={(selectedOption) =>
@@ -273,67 +351,59 @@ const ToDo = () => {
                                 }))
                                 .value()}
                               isSearchable
-                              components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}
+                              components={{
+                                DropdownIndicator: () => null,
+                                IndicatorSeparator: () => null,
+                              }}
                             />
-                            {/* <select
-                              className="select2-users-name form-control"
-                              id="select2-users-name"
-                            >
-                              <optgroup label="Backend">
-                                <option value="David Smith">David Smith</option>
-                                <option value="John Doe">John Doe</option>
-                                <option value="James Smith">James Smith</option>
-                                <option value="Maria Garcia">
-                                  Maria Garcia
-                                </option>
-                              </optgroup>
-                              <optgroup label="Frontend">
-                                <option value="Maria Rodrigu">
-                                  Maria Rodrigu
-                                </option>
-                                <option value="Marry Smith">Marry Smith</option>
-                                <option value="Maria Hern">Maria Hern</option>
-                                <option value="Jamesh J">Jamesh Jackson</option>
-                              </optgroup>
-                            </select> */}
                           </div>
                         </div>
                         <div className="form-group d-flex align-items-center position-relative">
+                          {/* calendar feather icon */}
                           {/* date picker */}
-                          <div className="date-icon mr-50 font-medium-3">
-                            <i className="feather icon-calendar" />
-                          </div>
-                          <div className="date-picker">
-                            <input
-                              type="text"
-                              className="pickadate form-control pl-1"
-                              placeholder="Due Date"
-                            />
-                          </div>
+
+                          <DatePicker
+                            className="form-control custom-datepicker p-1"
+                            id="datetimepicker4"
+                            name="prefferedDate"
+                            placeholderText="dd-mm-yyyy"
+                            selected={taskData.taskAssigndate}
+                            onChange={(date) =>
+                              setTaskData({
+                                ...taskData,
+                                taskAssigndate: date,
+                              })
+                            }
+                            dateFormat="dd-MM-yyyy"
+                          />
                         </div>
                       </div>
                     </div>
+
                     <div className="card-body border-bottom task-description">
-                      {/*  Quill editor for task description */}
-                      <div className="snow-container border rounded p-50">
-                        <div className="compose-editor mx-75" />
-                        <div className="d-flex justify-content-end">
-                          <div className="compose-quill-toolbar pb-0">
-                            <span className="ql-formats mr-0">
-                              <button className="ql-bold" />
-                              <button className="ql-link" />
-                              <button className="ql-image" />
-                            </span>
-                          </div>
-                        </div>
+                      <div className="form-group">
+                        <textarea
+                          name="description"
+                          className="form-control task-title"
+                          cols={1}
+                          rows={2}
+                          placeholder="Add description"
+                          value={taskData.taskDescription}
+                          onChange={(e) => {
+                            setTaskData({
+                              ...taskData,
+                              taskDescription: e.target.value,
+                            });
+                          }}
+                        />
                       </div>
                       <div className="tag d-flex justify-content-between align-items-center pt-1">
                         <div className="flex-grow-1 d-flex align-items-center">
                           <i className="feather icon-tag align-middle mr-25" />
-                          {console.log(taskData)}
                           <Select
                             className="select2"
                             name="tags"
+                            id="tags"
                             value={taskData.taskTags.label}
                             onChange={(selectedTags) =>
                               setTaskData({
@@ -347,6 +417,11 @@ const ToDo = () => {
                             }))}
                             isSearchable
                             isMulti={true}
+                            hideSelectedOptions={true}
+                            components={{
+                              DropdownIndicator: () => null,
+                              IndicatorSeparator: () => null,
+                            }}
                           />
                         </div>
                         <div className="ml-25">
@@ -354,32 +429,323 @@ const ToDo = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="card-body pb-1">
-                      <div className="d-flex align-items-center mb-1">
-                        <div className="avatar mr-75">
-                          <img
-                            src="../../../app-assets/images/portrait/small/avatar-s-3.png"
-                            alt="charlie"
-                            width={38}
-                            height={38}
-                          />
+
+                    <div className="card-body pb-1 d-none">
+                      {/* quill editor for  Dummy comment */}
+                      <div className="snow-container border rounded p-50 d-none dummy">
+                        <div className="comment-editor mx-75 ql-container ql-snow">
+                          <div
+                            className="ql-editor ql-blank"
+                            data-gramm="false"
+                            data-placeholder="Write a Comment..."
+                          >
+                            <p>
+                              <br />
+                            </p>
+                          </div>
+                          <div className="ql-clipboard" tabIndex={-1} />
+                          <div className="ql-tooltip ql-hidden">
+                            <a
+                              className="ql-preview"
+                              target="_blank"
+                              href="about:blank"
+                            />
+                            <input
+                              type="text"
+                              data-formula="e=mc^2"
+                              data-link="https://quilljs.com"
+                              data-video="Embed URL"
+                            />
+                            <a className="ql-action" />
+                            <a className="ql-remove" />
+                          </div>
                         </div>
-                        <div className="avatar-content">
-                          Charlie created this task
-                        </div>
-                        <small className="ml-75 text-muted">13 days ago</small>
-                      </div>
-                      {/* quill editor for comment */}
-                      <div className="snow-container border rounded p-50">
-                        <div className="comment-editor mx-75" />
                         <div className="d-flex justify-content-end">
-                          <div className="comment-quill-toolbar pb-0">
+                          <div className="comment-quill-toolbar pb-0 ql-toolbar ql-snow">
                             <span className="ql-formats mr-0">
-                              <button className="ql-bold" />
-                              <button className="ql-link" />
-                              <button className="ql-image" />
+                              <button className="ql-bold" type="button">
+                                <svg viewBox="0 0 18 18">
+                                  {" "}
+                                  <path
+                                    className="ql-stroke"
+                                    d="M5,4H9.5A2.5,2.5,0,0,1,12,6.5v0A2.5,2.5,0,0,1,9.5,9H5A0,0,0,0,1,5,9V4A0,0,0,0,1,5,4Z"
+                                  />{" "}
+                                  <path
+                                    className="ql-stroke"
+                                    d="M5,9h5.5A2.5,2.5,0,0,1,13,11.5v0A2.5,2.5,0,0,1,10.5,14H5a0,0,0,0,1,0,0V9A0,0,0,0,1,5,9Z"
+                                  />{" "}
+                                </svg>
+                              </button>
+                              <button className="ql-link" type="button">
+                                <svg viewBox="0 0 18 18">
+                                  {" "}
+                                  <line
+                                    className="ql-stroke"
+                                    x1={7}
+                                    x2={11}
+                                    y1={7}
+                                    y2={11}
+                                  />{" "}
+                                  <path
+                                    className="ql-even ql-stroke"
+                                    d="M8.9,4.577a3.476,3.476,0,0,1,.36,4.679A3.476,3.476,0,0,1,4.577,8.9C3.185,7.5,2.035,6.4,4.217,4.217S7.5,3.185,8.9,4.577Z"
+                                  />{" "}
+                                  <path
+                                    className="ql-even ql-stroke"
+                                    d="M13.423,9.1a3.476,3.476,0,0,0-4.679-.36,3.476,3.476,0,0,0,.36,4.679c1.392,1.392,2.5,2.542,4.679.36S14.815,10.5,13.423,9.1Z"
+                                  />{" "}
+                                </svg>
+                              </button>
+                              <button className="ql-image" type="button">
+                                <svg viewBox="0 0 18 18">
+                                  {" "}
+                                  <rect
+                                    className="ql-stroke"
+                                    height={10}
+                                    width={12}
+                                    x={3}
+                                    y={4}
+                                  />{" "}
+                                  <circle
+                                    className="ql-fill"
+                                    cx={6}
+                                    cy={7}
+                                    r={1}
+                                  />{" "}
+                                  <polyline
+                                    className="ql-even ql-fill"
+                                    points="5 12 5 11 7 9 8 10 11 7 13 9 13 12 5 12"
+                                  />{" "}
+                                </svg>
+                              </button>
                             </span>
                           </div>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-primary comment-btn"
+                          >
+                            <span>Comment</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="card-body border-bottom task-description d-none dummy">
+                        <div className="snow-container border rounded p-50 d-none">
+                          <div className="compose-editor mx-75 ql-container ql-snow">
+                            <div
+                              className="ql-editor ql-blank"
+                              data-gramm="false"
+                              data-placeholder="Add Description..... "
+                            >
+                              <p>
+                                <br />
+                              </p>
+                            </div>
+                            <div className="ql-clipboard" tabIndex={-1} />
+                            <div className="ql-tooltip ql-hidden">
+                              <a
+                                className="ql-preview"
+                                target="_blank"
+                                href="about:blank"
+                              />
+                              <input
+                                type="text"
+                                data-formula="e=mc^2"
+                                data-link="https://quilljs.com"
+                                data-video="Embed URL"
+                              />
+                              <a className="ql-action" />
+                              <a className="ql-remove" />
+                            </div>
+                          </div>
+                          <div className="d-flex justify-content-end">
+                            <div className="compose-quill-toolbar pb-0 ql-toolbar ql-snow">
+                              <span className="ql-formats mr-0">
+                                <button className="ql-bold" type="button">
+                                  <svg viewBox="0 0 18 18">
+                                    {" "}
+                                    <path
+                                      className="ql-stroke"
+                                      d="M5,4H9.5A2.5,2.5,0,0,1,12,6.5v0A2.5,2.5,0,0,1,9.5,9H5A0,0,0,0,1,5,9V4A0,0,0,0,1,5,4Z"
+                                    />{" "}
+                                    <path
+                                      className="ql-stroke"
+                                      d="M5,9h5.5A2.5,2.5,0,0,1,13,11.5v0A2.5,2.5,0,0,1,10.5,14H5a0,0,0,0,1,0,0V9A0,0,0,0,1,5,9Z"
+                                    />{" "}
+                                  </svg>
+                                </button>
+                                <button className="ql-link" type="button">
+                                  <svg viewBox="0 0 18 18">
+                                    {" "}
+                                    <line
+                                      className="ql-stroke"
+                                      x1={7}
+                                      x2={11}
+                                      y1={7}
+                                      y2={11}
+                                    />{" "}
+                                    <path
+                                      className="ql-even ql-stroke"
+                                      d="M8.9,4.577a3.476,3.476,0,0,1,.36,4.679A3.476,3.476,0,0,1,4.577,8.9C3.185,7.5,2.035,6.4,4.217,4.217S7.5,3.185,8.9,4.577Z"
+                                    />{" "}
+                                    <path
+                                      className="ql-even ql-stroke"
+                                      d="M13.423,9.1a3.476,3.476,0,0,0-4.679-.36,3.476,3.476,0,0,0,.36,4.679c1.392,1.392,2.5,2.542,4.679.36S14.815,10.5,13.423,9.1Z"
+                                    />{" "}
+                                  </svg>
+                                </button>
+                                <button className="ql-image" type="button">
+                                  <svg viewBox="0 0 18 18">
+                                    {" "}
+                                    <rect
+                                      className="ql-stroke"
+                                      height={10}
+                                      width={12}
+                                      x={3}
+                                      y={4}
+                                    />{" "}
+                                    <circle
+                                      className="ql-fill"
+                                      cx={6}
+                                      cy={7}
+                                      r={1}
+                                    />{" "}
+                                    <polyline
+                                      className="ql-even ql-fill"
+                                      points="5 12 5 11 7 9 8 10 11 7 13 9 13 12 5 12"
+                                    />{" "}
+                                  </svg>
+                                </button>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="tag d-flex justify-content-between align-items-center pt-1 d-none">
+                          <div className="flex-grow-1 d-flex align-items-center">
+                            <i className="feather icon-tag align-middle mr-25" />
+                            <select
+                              className="select2-assign-label form-control select2-hidden-accessible"
+                              multiple=""
+                              id="select2-assign-label"
+                              disabled="disabled"
+                              data-select2-id="select2-assign-label"
+                              tabIndex={-1}
+                              aria-hidden="true"
+                            >
+                              <optgroup label="Tags">
+                                <option value="Frontend" data-select2-id={4}>
+                                  Frontend
+                                </option>
+                                <option value="Backend">Backend</option>
+                                <option value="Issue">Issue</option>
+                                <option value="Design">Design</option>
+                                <option value="Wireframe">Wireframe</option>
+                              </optgroup>
+                            </select>
+                            <span
+                              className="select2 select2-container select2-container--default select2-container--disabled"
+                              dir="ltr"
+                              data-select2-id={3}
+                              style={{ width: "100%" }}
+                            >
+                              <span className="selection">
+                                <span
+                                  className="select2-selection select2-selection--multiple"
+                                  role="combobox"
+                                  aria-haspopup="true"
+                                  aria-expanded="false"
+                                  tabIndex={-1}
+                                  aria-disabled="true"
+                                >
+                                  <ul className="select2-selection__rendered">
+                                    <li
+                                      className="select2-selection__choice"
+                                      title="Frontend"
+                                      data-select2-id={5}
+                                    >
+                                      <span
+                                        className="select2-selection__choice__remove"
+                                        role="presentation"
+                                      >
+                                        ×
+                                      </span>
+                                      Frontend
+                                    </li>
+                                    <li className="select2-search select2-search--inline">
+                                      <input
+                                        className="select2-search__field"
+                                        type="search"
+                                        tabIndex={0}
+                                        autoComplete="off"
+                                        autoCorrect="off"
+                                        autoCapitalize="none"
+                                        spellCheck="false"
+                                        role="searchbox"
+                                        aria-autocomplete="list"
+                                        placeholder=""
+                                        disabled=""
+                                        style={{ width: "0.75em" }}
+                                      />
+                                    </li>
+                                  </ul>
+                                </span>
+                              </span>
+                              <span
+                                className="dropdown-wrapper"
+                                aria-hidden="true"
+                              />
+                            </span>
+                          </div>
+                          <div className="ml-25">
+                            <i className="feather icon-plus-circle cursor-pointer add-tags" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Dummy Data */}
+                    </div>
+
+                    <div className="card-body pb-1">
+                      {taskData.id != "" && (
+                        <div className="d-flex align-items-center mb-1">
+                          <div className="avatar mr-75">
+                            <img
+                              src="../../../app-assets/images/portrait/small/avatar-s-3.png"
+                              alt="charlie"
+                              width={38}
+                              height={38}
+                            />
+                          </div>
+                          <div className="avatar-content">
+                            Charlie created this task
+                          </div>
+                          <small className="ml-75 text-muted">
+                            13 days ago
+                          </small>
+                        </div>
+                      )}
+                      {/* quill editor for comment */}
+                      <div className="">
+                        {comments.map((comment) => (
+                          <ol className="" key={comment.id}>
+                            <p>{comment.comments}</p>
+                          </ol>
+                        ))}
+
+                        <div className="justify-content-end ">
+                          <textarea
+                            name="comment"
+                            className="form-control task-title mb-1"
+                            cols={1}
+                            rows={2}
+                            placeholder="Leave a comment"
+                            value={taskData.comment}
+                            onChange={(e) => {
+                              setTaskData({
+                                ...taskData,
+                                comment: e.target.value,
+                              });
+                            }}
+                          />
                           <button
                             type="button"
                             className="btn btn-sm btn-primary comment-btn"
@@ -391,12 +757,14 @@ const ToDo = () => {
                       <div className="mt-1 d-flex justify-content-between">
                         <button
                           type="button"
+                          onClick={handleSubmit}
                           className="btn btn-outline-danger add-todo"
                         >
                           Add Task
                         </button>
                         <button
                           type="button"
+                          onClick={handleSubmit}
                           className="btn btn-outline-danger update-todo"
                         >
                           Save Changes
@@ -478,6 +846,7 @@ const ToDo = () => {
                             key={index}
                             className="todo-item"
                             data-name={task.assign_user}
+                            onClick={() => handleTaskClick(task)}
                           >
                             <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
                               <div className="todo-title-area d-flex">

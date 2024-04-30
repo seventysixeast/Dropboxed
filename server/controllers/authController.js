@@ -311,42 +311,6 @@ exports.verifyToken = async (req, res) => {
     if (!user) {
       return res.status(200).json({ success: false, message: "User not found" });
     }
-    // Return user information along with token
-    res.status(200).json({
-      accessToken: token,
-      user: {
-        id: user.id,
-        userName: user.name,
-        email: user.email,
-        profilePhoto: user.profile_photo,
-        subdomain: user.subdomain,
-      },
-      success: true,
-      message: "Success"
-    });
-  } catch (error) {
-    // Handle token verification errors
-    console.error("Error verifying token: ", error);
-    res
-      .status(200)
-      .json({ success: false, message: "Token verification failed" });
-  }
-};
-
-exports.verifyToken = async (req, res) => {
-  const { token } = req.body;
-
-  try {
-    // Here you would implement your token verification logic
-    // For example, you could use JWT verify method
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
-    // If verification is successful, you can return some data
-    // You may need to customize this part based on your user model
-    const user = await User.findByPk(decodedToken.userId);
-    if (!user) {
-      return res.status(200).json({ success: false, message: "User not found" });
-    }
 
     let subdomain_id = ''; // Initialize subdomain_id
 
