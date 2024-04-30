@@ -1,7 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
+import { toast } from 'react-toastify';
 import logoLight from "../assets/images/dropboxed-logo.png";
+import { forgotPassword } from "../api/authApis";
 
 const ForgotPassword = () => {
+  const [user, setUser] = useState({ email: "", password: "" });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let c = { ...user };
+    if (name === "email") {
+      c.email = value;
+    }
+    setUser(c);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (user.email) {
+        let email = user.email
+        let res = await forgotPassword({email:email});
+        if (res.success) {
+          toast.success(res.message);
+          window.location.href = `/reset?email=${user.email}`;
+        } else {
+          toast.error(res);
+        }
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
   return (
     <div className="bg-full-screen-image" style={{ height: "110vh" }}>
       <div className="content-overlay" />
@@ -19,33 +50,24 @@ const ForgotPassword = () => {
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
-                      <span>Forgot Password</span>
+                      <span>Enter Email for get OTP.</span>
                     </h6>
                   </div>
                   <div className="card-content">
                     <div className="card-body">
-                      <form className="form-horizontal">
+                      <form onSubmit={handleSubmit}>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
-                            type="text"
+                            type="email"
                             className="form-control"
-                            name="new_password"
-                            placeholder="New Password"
-                          // value={userData.new_password}
-                          // onChange={handleChange}
+                            name="email"
+                            placeholder="Email"
+                            value={user.email}
+                            onChange={handleChange}
+                            required
                           />
                         </fieldset>
-                        <fieldset className="form-group position-relative has-icon-left">
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="confirm_password"
-                            placeholder="Confirm Password"
-                          // value={userData.confirm_password}
-                          // onChange={handleChange}
-                          />
-                        </fieldset>
-                        <button type="submit" className="btn btn-outline-primary btn-block"><i className="feather icon-unlock" /> Forgot</button>
+                        <button type="submit" className="btn btn-outline-primary btn-block">Send OTP</button>
                       </form>
                     </div>
                   </div>

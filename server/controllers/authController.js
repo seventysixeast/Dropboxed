@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const User = require("../models/Users");
 const { generateAccessToken } = require("../utils/jwtUtils");
-const { SEND_EMAIL } = require("../helpers/emailTemplate");
+const { SEND_EMAIL, SEND_OTP } = require("../helpers/emailTemplate");
 const { sendEmail } = require("../helpers/sendEmail");
 const { google } = require("googleapis");
 const { OAuth2 } = google.auth;
@@ -54,13 +54,13 @@ exports.login = async (req, res) => {
       console.log(">>>>>>>");
       // Check if the client is connected to the provided subdomain
       const businessClient = await BusinessClients.findOne({ where: { client_id: user.id } });
-      console.log("businessClient>>",businessClient)
+      console.log("businessClient>>", businessClient)
       if (!businessClient) {
         return res.status(200).json({ success: false, message: 'Unauthorized access' });
       }
 
       const businessOwner = await User.findByPk(businessClient.business_id);
-      console.log("businessOwner",businessOwner, '----',subdomain)
+      console.log("businessOwner", businessOwner, '----', subdomain)
       if (!businessOwner || businessOwner.subdomain !== subdomain) {
         return res.status(200).json({ success: false, message: 'Unauthorized access' });
       }
@@ -388,3 +388,57 @@ exports.verifyToken = async (req, res) => {
   }
 };
 
+exports.forgotPassword = async (req, res) => {
+  try {
+    let email = req.body.email
+    let code = Math.floor(100000 + Math.random() * 900000);
+    let foundUser = await User.update({ otp: code }, {
+      where: { email: email }
+    });
+    if (foundUser) {
+      var OTPEmail = SEND_OTP.replace(/#email#/g, email).replace(/#otp#/g, code);
+      sendEmail(email, 'Password Reset', OTPEmail);
+      res.status(200).json({
+        success: true,
+        message: "OTP sent, Please check your inbox or in spam mail."
+      });
+    } else {
+      return res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error("Error updating user:", error);
+  }
+}
+
+exports.resetPassword = async (req, res) => {
+  try {
+    let { email, password, otp } = req.body.user
+    let foundUser = await User.findOne({ where: { email: email } });
+    if (foundUser) {
+      if (foundUser.otp == otp) {
+        var salt = bcrypt.genSaltSync(10);
+        password = bcrypt.hashSync(password, salt);
+        foundUser.otp = otp;
+        foundUser.password = password;
+        let a = await foundUser.save();
+        if (a) {
+          res.status(200).json({
+            success: true,
+            message: "Password Reset Successfully",
+          });
+        } else {
+          return res.status(404).json({ error: "Something went wrong. Please try again later" });
+        }
+      } else {
+        return res.send({
+          msg: "Wrong OTP.",
+          error: true
+        });
+      }
+    } else {
+      return res.status(404).json({ error: 'Email not found' });
+    }
+  } catch (error) {
+    console.error("Error updating user:", error);
+  }
+}

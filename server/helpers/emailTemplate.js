@@ -65,3 +65,38 @@ exports.BUSINESS_REGISTRATION_EMAIL = `
             <p> © Copyright 2021. Photography <br></p><div class="yj6qo"></div><div class="adL">
         </div></div><div class="adL">
     </div></div><div`;
+
+exports.SEND_OTP = `
+  <!DOCTYPE html>
+    <title>Forgot Password</title>
+    <html>
+       <head> 
+          <meta charset='UTF-8'>
+       </head>
+       <body style="margin:0px; padding:20px; background-color: #198ae3;color:#212529;font-family:Verdana,Geneva,sans-serif;">
+          <div align="center">
+             <div style="background-color:rgb(255,255,255);max-width:660px;padding:0px;">
+                <div>
+                   <table style="width:100%;">
+                      <tbody>
+                         <tr>
+                            <td style="padding:30px;width:100%;" valign="top">
+                               <div style="font-size:14px;font-weight:normal;line-height:1.8em;text-align:left">
+                                  <h3>Please enter the below mentioned OTP for reset password!</h3>                     
+                                   Email  : #email# <br>
+                                   OTP  : #otp# </p>
+                               </div>
+                               <br>
+                               <br>
+                                <p>Best Regards,<br>
+                                Dropboxed Team </p>
+                               <hr>                    
+                            </td>
+                         </tr>
+                      </tbody>
+                   </table>
+                </div>
+             </div>
+          </div>
+       </body>
+    </html>`;

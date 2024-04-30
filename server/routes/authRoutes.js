@@ -7,5 +7,7 @@ router.post('/signup', authController.signup);
 router.post('/google', authController.google);
 router.post('/client-signup', authController.clientSignup);
 router.post('/verify-token', authController.verifyToken);
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
 
 module.exports = router;
