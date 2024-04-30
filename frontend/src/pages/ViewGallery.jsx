@@ -9,10 +9,7 @@ const accessToken = process.env.REACT_APP_DROPBOX_KEY;
 export const ViewGallery = () => {
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
-  const [downloadOptions, setDownloadOptions] = useState({
-    size: "original",
-    quality: "high"
-  });
+  const [downloadOptions, setDownloadOptions] = useState({ size: "original" });
   const [imageUrls, setImageUrls] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -21,7 +18,7 @@ export const ViewGallery = () => {
   const folderPath = '/web';
   const fileList = useRef([]);
   const { id } = useParams();
-  
+
   useEffect(() => {
     fetchFileList();
   }, []);
@@ -100,11 +97,9 @@ export const ViewGallery = () => {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
-          responseType: 'json', // Change responseType to json
+          responseType: 'json'
         }
       );
-  
-      // Iterate over the response and extract the thumbnails
       for (const entry of response.data.entries) {
         const url = "data:image/jpeg;base64," + entry.thumbnail;
         const path_display = entry.metadata.path_display;
@@ -117,7 +112,6 @@ export const ViewGallery = () => {
     } catch (error) {
       console.error('Error fetching batch thumbnails:', error);
     }
-  
     return urls;
   };
 
@@ -127,7 +121,7 @@ export const ViewGallery = () => {
     const html = document.documentElement;
     const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
     const windowBottom = windowHeight + window.pageYOffset;
-  
+
     if (windowBottom >= docHeight) {
       loadMoreThumbnails();
     }
@@ -146,75 +140,75 @@ export const ViewGallery = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-  
+
   const handleDownload = async () => {
     try {
-      const { data: { link } } = await axios.post(
-        "https://api.dropboxapi.com/2/files/get_temporary_link",
-        { path: selectedImageUrl },
-        {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
+      if (downloadOptions.size === "original") {
+        const { data: { link } } = await axios.post(
+          "https://api.dropboxapi.com/2/files/get_temporary_link",
+          { path: selectedImageUrl },
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
-      const response = await axios.get(
-        link,
-        {
-          responseType: 'blob',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
+        );
+        const response = await axios.get(
+          link,
+          {
+            responseType: 'blob',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
           }
-        }
-      );
-
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
-
-      // Adjust image quality and size based on downloadOptions
-      let adjustedBlob = blob;
-      if (downloadOptions.quality === "low") {
-        adjustedBlob = await compressImage(blob, { quality: 0.5 }); // Adjust quality as needed
-      }
-
-      // Adjust image size based on downloadOptions
-      let adjustedUrl = url;
-      if (downloadOptions.size === "compressed") {
+        );
+        const blob = new Blob([response.data]);
+        const url = window.URL.createObjectURL(blob);
+        let adjustedBlob = blob;
+        let adjustedUrl = url;
         adjustedUrl = window.URL.createObjectURL(adjustedBlob);
+        const linkElement = document.createElement('a');
+        linkElement.href = adjustedUrl;
+        linkElement.setAttribute('download', 'downloaded_image.jpg');
+        document.body.appendChild(linkElement);
+        linkElement.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(linkElement);
+        setDownloadImageModal(false);
+      } else {
+        const response = await axios.post(
+          'https://content.dropboxapi.com/2/files/get_thumbnail_batch',
+          {
+            entries: [
+              {
+                path: selectedImageUrl,
+                format: 'jpeg',
+                mode: 'strict',
+                quality: 'quality_90',
+                size: "w2048h1536"
+              }
+            ],
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            responseType: 'json',
+          }
+        );
+        const imageData = response.data.entries[0].thumbnail;
+        const link = document.createElement('a');
+        link.href = `data:image/jpeg;base64,${imageData}`;
+        link.download = 'downloaded_image.jpg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
-
-      const linkElement = document.createElement('a');
-      linkElement.href = adjustedUrl;
-      linkElement.setAttribute('download', 'downloaded_image.jpg');
-      document.body.appendChild(linkElement);
-      linkElement.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(linkElement);
-      setDownloadImageModal(false);
     } catch (error) {
       console.error("Error downloading image from Dropbox:", error);
     }
-  };
-
-  // Function to compress image
-  const compressImage = async (blob, options) => {
-    return new Promise(resolve => {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = () => {
-        const img = new Image();
-        img.src = reader.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          canvas.toBlob(resolve, 'image/jpeg', options.quality);
-        };
-      };
-    });
   };
 
   return (
@@ -225,11 +219,20 @@ export const ViewGallery = () => {
           <section id="image-gallery">
             <div class="card-content collapse show">
               <div class="card-body my-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+                <div className='text-right mb-2'>
+                  <span
+                    class="feather icon-download black"
+                    title='All Download'
+                    onClick={() => {
+                      setDownloadImageModal(true);
+                    }}>
+                  </span>
+                </div>
                 <div class="row">
                   {imageUrls.map((image, index) => (
                     <figure id={index} class="col-lg-3 col-md-6 col-12" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
                       <a href={image.url} class="hovereffect" itemprop="contentUrl" data-size="480x360">
-                        <img class="img-fluid" src={image.url} alt="" />
+                        <img class="equal-image" src={image.url} alt="" />
                         <div class="overlay">
                           <p class="icon-links">
                             <a>
@@ -297,7 +300,6 @@ export const ViewGallery = () => {
         isOpen={showDownloadImageModal}
         onClose={() => setDownloadImageModal(false)}
         onConfirm={handleDownload}
-        message="Select size and quality options before downloading"
         selectedImageUrl={selectedImageUrl}
         downloadOptions={downloadOptions}
         setDownloadOptions={setDownloadOptions}

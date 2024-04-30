@@ -158,7 +158,6 @@ const EditProfile = () => {
     <div className="app-content content">
       <div className="content-overlay" />
       <div className="content-wrapper">
-        <div className="content-header row mt-2"></div>
         <div className="content-body">
           <section className="users-edit">
             <div className="card">
