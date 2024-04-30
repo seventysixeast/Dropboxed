@@ -5,8 +5,10 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../context/authContext";
 import { getAlltasks, createTask } from "../api/todoApis";
 import Select from "react-select";
-import { getClient, getClientPhotographers } from "../api/clientApis";
+import { getClientPhotographers } from "../api/clientApis";
 import _ from "lodash";
+import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
+import { Switch } from "@mui/material";
 
 const ToDo = () => {
   const { authData } = useAuth();
@@ -18,6 +20,8 @@ const ToDo = () => {
   const [tasks, setTasks] = useState([]);
   const [tags, setTags] = useState([]);
   const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
   const [isNewTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [show, setShow] = useState(false);
   const modalRef = useRef(null);
@@ -36,7 +40,7 @@ const ToDo = () => {
 
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState();
-
+  console.log(taskAuthor);
   const getTasks = async () => {
     const formData = new FormData();
     formData.append("subdomain_id", subdomainId);
@@ -69,6 +73,20 @@ const ToDo = () => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setNewTaskModalOpen(false);
     }
+    setTaskData({
+      id: "",
+      userId: "",
+      taskTitle: "",
+      assignUser: "",
+      taskAssigndate: new Date(),
+      taskDescription: "",
+      taskTags: [],
+      comment: "",
+      status: 0,
+      isFavourite: 1,
+    });
+    setSelectedClient([]);
+    setSelectedTags([]);
   };
 
   useEffect(() => {
@@ -100,67 +118,56 @@ const ToDo = () => {
   const handleSubmit = async () => {
     const formData = new FormData();
 
-    // Append task data to the FormData object
-    if (taskData.id !== "") {
+    if (taskData.id.trim() !== "") {
       formData.append("id", taskData.id);
     }
-    if (taskData.userId === "") {
+    if (taskData.userId.trim() === "") {
       formData.append("user_id", userId);
     } else {
       formData.append("user_id", taskData.userId);
     }
 
+    const formattedTags = selectedTags.map((tag) => tag.value).join(",");
+    formData.append("task_tags", formattedTags);
     formData.append("subdomain_id", subdomainId);
     formData.append("role_id", roleId);
     formData.append("task_title", taskData.taskTitle);
     formData.append("assign_user", taskData.assignUser);
     formData.append("task_assigndate", taskData.taskAssigndate);
     formData.append("task_description", taskData.taskDescription);
-    formData.append("task_tags", taskData.taskTags);
     formData.append("comment", taskData.comment);
     formData.append("status", taskData.status);
     formData.append("is_favourite", taskData.isFavourite);
 
     try {
       const response = await createTask(formData);
-
-      toast.success("Task created successfully!");
-      getTasks();
-      setNewTaskModalOpen(false);
+      if (response.success) {
+        toast.success("Task created successfully!");
+        getTasks();
+        setTaskData({
+          id: "",
+          userId: "",
+          taskTitle: "",
+          assignUser: "",
+          taskAssigndate: new Date(),
+          taskDescription: "",
+          taskTags: [],
+          comment: "",
+          status: 0,
+          isFavourite: 1,
+        });
+        setSelectedClient([]);
+        setSelectedTags([]);
+        setNewTaskModalOpen(false);
+      } else {
+        toast.error("Failed to create task!");
+      }
     } catch (error) {
       console.error("Error creating task:", error);
     }
   };
 
   const handleTaskClick = async (task) => {
-    console.log(task);
-
-    //  task =  {
-    //     "id": 50,
-    //     "user_id": 181,
-    //     "task_order": 0,
-    //     "assign_user": 186,
-    //     "task_title": "Name",
-    //     "task_description": "Description",
-    //     "task_tags": "5",
-    //     "status": 0,
-    //     "is_favourite": 1,
-    //     "task_assigndate": "2024-04-30",
-    //     "created_at": "2024-04-30T11:28:08.000Z",
-    //     "subdomain_id": 181,
-    //     "TaskComments": [
-    //         {
-    //             "id": 6,
-    //             "user_id": 181,
-    //             "task_id": 50,
-    //             "TaskComments": "12345",
-    //             "created_at": "2024-04-30T11:28:11.000Z",
-    //             "modified_at": "2024-04-30T11:28:11.000Z",
-    //             "subdomain_id": 181
-    //         }
-    //     ]
-    // }
-
     setTaskData({
       id: task.id,
       userId: task.user_id,
@@ -173,13 +180,41 @@ const ToDo = () => {
       isFavourite: task.is_favourite,
     });
 
+    const client = clients.find((c) => c.id === task.assign_user);
+
+    if (client) {
+      setSelectedClient({ value: client.id, label: client.name });
+    }
+
+    const selectedTags = tags.filter((tag) => task.task_tags.includes(tag.id));
+
+    if (client) {
+      setSelectedTags(
+        selectedTags.map((tag) => ({ value: tag.id, label: tag.tasktag_title }))
+      );
+    }
+
     setComments(task.TaskComments);
-    const formData = new FormData();
-    formData.append("id", task.user_id);
-    const response = await getClient(formData);
-    setTaskAuthor(response.data);
+
+    setTaskAuthor(task.author);
+    setNewTaskModalOpen(true);
   };
-  console.log(taskData);
+
+  const handleClientChange = (selectedOption) => {
+    setSelectedClient(selectedOption);
+  };
+
+  const handleSelectedTags = (selectedOption) => {
+    setSelectedTags(selectedOption);
+  };
+
+  const handleStatusChange = () => {
+    setTaskData({
+      ...taskData,
+      status: taskData.status === 0 ? 1 : 0,
+    });
+  }
+
   return (
     <div className="todo-application">
       <div className="app-content content">
@@ -197,7 +232,6 @@ const ToDo = () => {
                 <div className="form-group text-center add-task">
                   <button
                     type="button"
-                    useState
                     className="btn btn-outline-danger btn-glow add-task-btn btn-block my-1"
                     onClick={toggleNewTaskModal}
                   >
@@ -271,9 +305,10 @@ const ToDo = () => {
                     {taskData.id ? (
                       <>
                         <h5 className="new-task-title mb-0">Update Task</h5>
-                        <button className="mark-complete-btn btn btn-primary btn-sm">
-                          <i className="feather icon-check align-middle" />
-                          <span className="mark-complete align-middle">
+                        <button className="mark-complete-btn btn btn-primary btn-sm mr-5" style={{padding:'5px'}}>
+
+                          <input type="checkbox" className="align-items-cente" style={{marginLeft:'2px', marginRight:'10px', marginTop: '3px'}} checked={taskData.status === 1} onChange={handleStatusChange} />
+                          <span className="mark-complete text-center">
                             Mark Complete
                           </span>
                         </button>
@@ -300,7 +335,7 @@ const ToDo = () => {
                           cols={1}
                           rows={2}
                           placeholder="Write a Task Name"
-                          required=""
+                          required
                           value={taskData.taskTitle}
                           onChange={(e) => {
                             setTaskData({
@@ -329,16 +364,13 @@ const ToDo = () => {
                             className="select-box mr-1"
                             style={{ width: "10rem" }}
                           >
+                            {console.log(taskData)}
                             <Select
                               className="select2 font-sm"
                               name="tags"
-                              value={taskData.assignUser.label}
-                              onChange={(selectedOption) =>
-                                setTaskData({
-                                  ...taskData,
-                                  assignUser: selectedOption.value,
-                                })
-                              }
+                              value={selectedClient}
+                              required
+                              onChange={handleClientChange}
                               options={_.chain(clients)
                                 .groupBy("role_id")
                                 .map((value, key) => ({
@@ -368,6 +400,7 @@ const ToDo = () => {
                             name="prefferedDate"
                             placeholderText="dd-mm-yyyy"
                             selected={taskData.taskAssigndate}
+                            required
                             onChange={(date) =>
                               setTaskData({
                                 ...taskData,
@@ -389,6 +422,7 @@ const ToDo = () => {
                           rows={2}
                           placeholder="Add description"
                           value={taskData.taskDescription}
+                          required
                           onChange={(e) => {
                             setTaskData({
                               ...taskData,
@@ -404,13 +438,8 @@ const ToDo = () => {
                             className="select2"
                             name="tags"
                             id="tags"
-                            value={taskData.taskTags.label}
-                            onChange={(selectedTags) =>
-                              setTaskData({
-                                ...taskData,
-                                taskTags: selectedTags.map((tag) => tag.value),
-                              })
-                            }
+                            value={selectedTags}
+                            onChange={handleSelectedTags}
                             options={tags.map((tag) => ({
                               value: tag.id,
                               label: tag.tasktag_title,
@@ -709,27 +738,34 @@ const ToDo = () => {
                         <div className="d-flex align-items-center mb-1">
                           <div className="avatar mr-75">
                             <img
-                              src="../../../app-assets/images/portrait/small/avatar-s-3.png"
+                              src={taskAuthor.profile_photo || avatar1}
                               alt="charlie"
                               width={38}
                               height={38}
                             />
                           </div>
                           <div className="avatar-content">
-                            Charlie created this task
+                            <span>{taskAuthor.name}</span> created this task
                           </div>
                           <small className="ml-75 text-muted">
-                            13 days ago
+                            {Math.floor(
+                              (new Date() -
+                                new Date("2024-03-14T00:00:00.000Z")) /
+                                (1000 * 60 * 60 * 24)
+                            )}{" "}
+                            days ago
                           </small>
                         </div>
                       )}
                       {/* quill editor for comment */}
                       <div className="">
-                        {comments.map((comment) => (
-                          <ol className="" key={comment.id}>
-                            <p>{comment.comments}</p>
-                          </ol>
-                        ))}
+                        <ul className="list-group ml-5">
+                          {comments.map((comment) => (
+                            <li className="list-item" key={comment.id}>
+                              <p>{comment.comments}</p>
+                            </li>
+                          ))}
+                        </ul>
 
                         <div className="justify-content-end ">
                           <textarea

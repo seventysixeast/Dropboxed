@@ -2,6 +2,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize");
 const TaskComment = require("./TodoComments");
+const Users = require("./Users"); // Import the Users model
 
 const TaskTodo = sequelize.define(
   "TaskTodo",
@@ -65,6 +66,7 @@ const TaskTodo = sequelize.define(
 );
 
 TaskTodo.hasMany(TaskComment, { foreignKey: 'task_id' });
+TaskTodo.belongsTo(Users, { foreignKey: 'user_id', as: 'author' });
 
 
 module.exports = TaskTodo;
