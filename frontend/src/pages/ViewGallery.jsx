@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import DownloadImageModal from '../components/DownloadImageModal';
+import DownloadGalleryModal from '../components/DownloadGalleryModal';
 import { getCollection } from "../api/collectionApis";
+import JSZip from 'jszip';
 
 const accessToken = process.env.REACT_APP_DROPBOX_KEY;
 
 export const ViewGallery = () => {
+  const [showDownloadGalleryModal, setDownloadGalleryModal] = useState(false);
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
   const [downloadOptions, setDownloadOptions] = useState({ size: "original" });
@@ -211,6 +214,75 @@ export const ViewGallery = () => {
     }
   };
 
+  const handleAllDownload = async () => {
+    try {
+      const zip = new JSZip();
+
+      for (const imageData of imageUrls) {
+        let imageBlob;
+        if (downloadOptions.size === "original") {
+          const { data: { link } } = await axios.post(
+            "https://api.dropboxapi.com/2/files/get_temporary_link",
+            { path: imageData.path_display },
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          const response = await axios.get(
+            link,
+            {
+              responseType: 'blob',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`
+              }
+            }
+          );
+          imageBlob = response.data;
+        } else {
+          const response = await axios.post(
+            'https://content.dropboxapi.com/2/files/get_thumbnail_batch',
+            {
+              entries: [
+                {
+                  path: imageData.path_display,
+                  format: 'jpeg',
+                  mode: 'strict',
+                  quality: 'quality_90',
+                  size: "w2048h1536"
+                }
+              ],
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+              },
+              responseType: 'arraybuffer',
+            }
+          );
+          imageBlob = new Blob([response.data], { type: 'image/jpeg' });
+        }
+        zip.file(imageData.path_display.split('/').pop(), imageBlob);
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipUrl = window.URL.createObjectURL(zipBlob);
+      const linkElement = document.createElement('a');
+      linkElement.href = zipUrl;
+      linkElement.setAttribute('download', 'downloaded_images.zip');
+      document.body.appendChild(linkElement);
+      linkElement.click();
+      window.URL.revokeObjectURL(zipUrl);
+      document.body.removeChild(linkElement);
+      setDownloadGalleryModal(false);
+    } catch (error) {
+      console.error("Error downloading images from Dropbox:", error);
+    }
+  };
+
   return (
     <div class="app-content content">
       <div class="content-overlay"></div>
@@ -222,9 +294,9 @@ export const ViewGallery = () => {
                 <div className='text-right mb-2'>
                   <span
                     class="feather icon-download black"
-                    title='All Download'
+                    title='Download'
                     onClick={() => {
-                      setDownloadImageModal(true);
+                      setDownloadGalleryModal(true);
                     }}>
                   </span>
                 </div>
@@ -296,11 +368,17 @@ export const ViewGallery = () => {
           </section>
         </div>
       </div>
+      <DownloadGalleryModal
+        isOpen={showDownloadGalleryModal}
+        onClose={() => setDownloadGalleryModal(false)}
+        onConfirm={handleAllDownload}
+        downloadOptions={downloadOptions}
+        setDownloadOptions={setDownloadOptions}
+      />
       <DownloadImageModal
         isOpen={showDownloadImageModal}
         onClose={() => setDownloadImageModal(false)}
         onConfirm={handleDownload}
-        selectedImageUrl={selectedImageUrl}
         downloadOptions={downloadOptions}
         setDownloadOptions={setDownloadOptions}
       />
