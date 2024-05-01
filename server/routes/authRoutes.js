@@ -9,5 +9,6 @@ router.post('/client-signup', authController.clientSignup);
 router.post('/verify-token', authController.verifyToken);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
+router.post('/dropbox-auth', authController.dropboxAuth)
 
 module.exports = router;

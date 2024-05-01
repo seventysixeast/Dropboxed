@@ -1,6 +1,6 @@
-const User = require('../models/Users');
-const BusinessClients = require('../models/BusinessClients');
-const redis = require('ioredis');
+const User = require("../models/Users");
+const BusinessClients = require("../models/BusinessClients");
+const redis = require("ioredis");
 const redisClient = new redis();
 
 const updateRedisCache = async (subdomain_id) => {
@@ -8,43 +8,53 @@ const updateRedisCache = async (subdomain_id) => {
   try {
     const clients = await BusinessClients.findAll({
       where: {
-        business_id: subdomain_id
+        business_id: subdomain_id,
       },
-      attributes: ['client_id']
+      attributes: ["client_id"],
     });
-    const clientIds = clients.map(client => client.client_id);
+    const clientIds = clients.map((client) => client.client_id);
     const clientsData = await User.findAll({
       where: {
         role_id: 3,
-        id: clientIds
+        id: clientIds,
       },
-      order: [['created', 'DESC']]
+      order: [["created", "DESC"]],
     });
-    await redisClient.set('clientsData', JSON.stringify(clientsData), 'EX', 3600);
+    await redisClient.set(
+      "clientsData",
+      JSON.stringify(clientsData),
+      "EX",
+      3600
+    );
   } catch (err) {
-    console.error('Error updating Redis cache:', err);
+    console.error("Error updating Redis cache:", err);
   }
-}
+};
 
 const getAllClients = async (req, res) => {
   try {
-    let clientsData = await redisClient.get('clientsData');
+    let clientsData = await redisClient.get("clientsData");
     if (!clientsData) {
       const clients = await BusinessClients.findAll({
         where: {
-          business_id: req.body.subdomainId
+          business_id: req.body.subdomainId,
         },
-        attributes: ['client_id']
+        attributes: ["client_id"],
       });
-      const clientIds = clients.map(client => client.client_id);
+      const clientIds = clients.map((client) => client.client_id);
       clientsData = await User.findAll({
         where: {
           role_id: 3,
-          id: clientIds
+          id: clientIds,
         },
-        order: [['created', 'DESC']]
+        order: [["created", "DESC"]],
       });
-      await redisClient.set('clientsData', JSON.stringify(clientsData), 'EX', 3600);
+      await redisClient.set(
+        "clientsData",
+        JSON.stringify(clientsData),
+        "EX",
+        3600
+      );
     } else {
       clientsData = JSON.parse(clientsData);
     }
@@ -55,22 +65,20 @@ const getAllClients = async (req, res) => {
 };
 
 const getClientPhotographers = async (req, res) => {
-  
   try {
-
     const clients = await BusinessClients.findAll({
       where: {
-        business_id: req.body.subdomain_id
+        business_id: req.body.subdomain_id,
       },
-      attributes: ['client_id']
+      attributes: ["client_id"],
     });
-    const clientIds = clients.map(client => client.client_id);
+    const clientIds = clients.map((client) => client.client_id);
     const clientdata = await User.findAll({
       where: {
-        id: clientIds
+        id: clientIds,
       },
-      attributes: ['id', 'name', 'role_id'],
-      order: [['created', 'DESC']]
+      attributes: ["id", "name", "role_id"],
+      order: [["created", "DESC"]],
     });
     res.status(200).json({ success: true, data: clientdata });
   } catch (error) {
@@ -87,11 +95,12 @@ const createClient = async (req, res) => {
       phone: req.body.phone,
       business_name: req.body.business_name,
       role_id: req.body.role_id,
-      profile_photo: imageName || req.body.profile_photo
+      profile_photo: imageName || req.body.profile_photo,
     };
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
-      let fileUrl = `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
+      let fileUrl =
+        `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
       file.mv(fileUrl, async function (err) {
         if (err) {
           console.log("in image move error...", fileUrl, err);
@@ -103,20 +112,24 @@ const createClient = async (req, res) => {
     if (req.body.id) {
       client = await User.findOne({ where: { id: req.body.id } });
       if (!client) {
-        return res.status(404).json({ error: 'Client not found' });
+        return res.status(404).json({ error: "Client not found" });
       }
       await client.update(clientData);
     } else {
-      if (req.body.email !== '') {
-        const existingEmail = await User.findOne({ where: { email: req.body.email } });
+      if (req.body.email !== "") {
+        const existingEmail = await User.findOne({
+          where: { email: req.body.email },
+        });
         if (existingEmail) {
-          return res.status(400).json({ error: 'Email already exists' });
+          return res.status(400).json({ error: "Email already exists" });
         }
       }
-      if (req.body.phone !== '') {
-        const existingPhone = await User.findOne({ where: { phone: req.body.phone } });
+      if (req.body.phone !== "") {
+        const existingPhone = await User.findOne({
+          where: { phone: req.body.phone },
+        });
         if (existingPhone) {
-          return res.status(400).json({ error: 'Phone number already exists' });
+          return res.status(400).json({ error: "Phone number already exists" });
         }
       }
       // Create the client
@@ -132,8 +145,10 @@ const createClient = async (req, res) => {
     await updateRedisCache(req.body.subdomainId);
     res.status(200).json({
       success: true,
-      message: req.body.id ? "Client updated successfully" : "Client created successfully",
-      data: client
+      message: req.body.id
+        ? "Client updated successfully"
+        : "Client created successfully",
+      data: client,
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to add/update client" });
@@ -153,45 +168,53 @@ const deleteClient = async (req, res) => {
   try {
     const clientId = req.body.id;
     const client = await User.findByPk(clientId);
-    
-    // Check if the client exists
+
     if (!client) {
-      return res.status(404).json({ success: false, message: "Client not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Client not found" });
     }
 
-    // Update the status to 'Deleted' and set the deletedAt date
-    await User.update({ status: 'Deleted', deleted_at: new Date() }, { where: { id: clientId } });
+    await User.update(
+      { status: "Deleted", deleted_at: new Date() },
+      { where: { id: clientId } }
+    );
 
-    // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
-    
-    res.status(200).json({ success: true, message: "Action successful. Record will be removed permanently after 30 days." });
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message:
+          "Action successful. Record will be removed permanently after 30 days.",
+      });
   } catch (error) {
     res.status(500).json({ error: "Failed to update client status" });
   }
 };
-
 
 const activeInactiveClient = async (req, res) => {
   try {
     const clientId = req.body.id;
     const clientStatus = req.body.status;
     let updateFields = { status: clientStatus };
-    
+
     await User.update(updateFields, { where: { id: clientId } });
     const updatedClient = await User.findByPk(clientId);
-    
+
     if (!updatedClient) {
-      return res.status(404).json({ success: false, message: "Client not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Client not found" });
     }
-    
-    // Update Redis cache
+
     await updateRedisCache(req.body.subdomainId);
-    
+
     res.status(200).json({
       success: true,
       message: "Client status updated.",
-      data: updatedClient
+      data: updatedClient,
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to update client status" });
@@ -202,16 +225,18 @@ const getAllPhotographers = async (req, res) => {
   try {
     const photographers = await BusinessClients.findAll({
       where: {
-        business_id: req.body.subdomainId
+        business_id: req.body.subdomainId,
       },
-      attributes: ['client_id']
+      attributes: ["client_id"],
     });
-    const photographerIds = photographers.map(photographer => photographer.client_id);
+    const photographerIds = photographers.map(
+      (photographer) => photographer.client_id
+    );
     let photographersData = await User.findAll({
       where: {
         role_id: 2,
-        id: photographerIds
-      }
+        id: photographerIds,
+      },
     });
     res.status(200).json({ success: true, data: photographersData });
   } catch (error) {
@@ -219,4 +244,13 @@ const getAllPhotographers = async (req, res) => {
   }
 };
 
-module.exports = { updateRedisCache, getAllClients, createClient, getClient, deleteClient, activeInactiveClient, getAllPhotographers, getClientPhotographers };
+module.exports = {
+  updateRedisCache,
+  getAllClients,
+  createClient,
+  getClient,
+  deleteClient,
+  activeInactiveClient,
+  getAllPhotographers,
+  getClientPhotographers,
+};

@@ -83,7 +83,9 @@ exports.login = async (req, res) => {
         subdomain: user_subdmain,
         subdomain_id: subdomain_id,
         calendarSub: user.calendar_sub,
-        role_id: user.role_id
+        role_id: user.role_id,
+        dropbox_refresh: user.dropbox_refresh,
+        dropbox_access: user.dropbox_access
       },
       message: "Login successfull"
     });
@@ -340,7 +342,9 @@ exports.verifyToken = async (req, res) => {
         subdomain: user.subdomain,
         subdomain_id: subdomain_id,
         calendarSub: user.calendar_sub,
-        role_id: user.role_id
+        role_id: user.role_id,
+        dropbox_refresh: user.dropbox_refresh,
+        dropbox_access: user.dropbox_access
       },
       success: true,
       message: "Success"
@@ -404,5 +408,43 @@ exports.resetPassword = async (req, res) => {
     }
   } catch (error) {
     console.error("Error updating user:", error);
+  }
+}
+
+exports.dropboxAuth = async (req, res) => {
+  try {
+    let { dropbox_refresh, dropbox_access, id } = req.body;
+    
+    if (dropbox_refresh === undefined || dropbox_access === undefined || id === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    id = parseInt(id);
+
+    const userExists = await User.findOne({ where: { id: id } });
+    if (!userExists) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    await User.update({ dropbox_refresh, dropbox_access }, {
+      where: { id: id }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Dropbox Auth Successfully",
+    });
+  } catch (error) {
+    console.error("Error in dropboxAuth:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 }
