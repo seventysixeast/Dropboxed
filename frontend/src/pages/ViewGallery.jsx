@@ -12,8 +12,8 @@ export const ViewGallery = () => {
   const user = authData.user;
   const subdomainId = user.subdomain_id
   const userId = user.id
-  const dropboxAccess = user.dropbox_access;
-  const dropboxRefresh = user.dropbox_refresh;
+  const dropboxAccess = user.dropbox_access
+  const dropboxRefresh = user.dropbox_refresh
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
   const [downloadOptions, setDownloadOptions] = useState({ size: "original" });
@@ -40,10 +40,11 @@ export const ViewGallery = () => {
   }
 
   const fetchFileList = async () => {
+
     try {
       const listResponse = await axios.post(
         'https://api.dropboxapi.com/2/files/list_folder',
-        { path: folderPath },
+        {path: folderPath},
         {
           headers: {
             'Authorization': `Bearer ${dropboxAccess}`,

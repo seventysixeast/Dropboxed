@@ -31,38 +31,61 @@ const updateRedisCache = async (subdomain_id) => {
   }
 };
 
+// const getAllClients = async (req, res) => {
+//   try {
+//     let clientsData = await redisClient.get("clientsData");
+//     if (!clientsData) {
+//       const clients = await BusinessClients.findAll({
+//         where: {
+//           business_id: req.body.subdomainId,
+//         },
+//         attributes: ["client_id"],
+//       });
+//       const clientIds = clients.map((client) => client.client_id);
+//       clientsData = await User.findAll({
+//         where: {
+//           role_id: 3,
+//           id: clientIds,
+//         },
+//         order: [["created", "DESC"]],
+//       });
+//       await redisClient.set(
+//         "clientsData",
+//         JSON.stringify(clientsData),
+//         "EX",
+//         3600
+//       );
+//     } else {
+//       clientsData = JSON.parse(clientsData);
+//     }
+//     res.status(200).json({ success: true, data: clientsData });
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to list clients" });
+//   }
+// };
+
 const getAllClients = async (req, res) => {
   try {
-    let clientsData = await redisClient.get("clientsData");
-    if (!clientsData) {
-      const clients = await BusinessClients.findAll({
-        where: {
-          business_id: req.body.subdomainId,
-        },
-        attributes: ["client_id"],
-      });
-      const clientIds = clients.map((client) => client.client_id);
-      clientsData = await User.findAll({
-        where: {
-          role_id: 3,
-          id: clientIds,
-        },
-        order: [["created", "DESC"]],
-      });
-      await redisClient.set(
-        "clientsData",
-        JSON.stringify(clientsData),
-        "EX",
-        3600
-      );
-    } else {
-      clientsData = JSON.parse(clientsData);
-    }
+    const clients = await BusinessClients.findAll({
+      where: {
+        business_id: req.body.subdomainId,
+      },
+      attributes: ["client_id"],
+    });
+    const clientIds = clients.map((client) => client.client_id);
+    const clientsData = await User.findAll({
+      where: {
+        role_id: 3,
+        id: clientIds,
+      },
+      order: [["created", "DESC"]],
+    });
     res.status(200).json({ success: true, data: clientsData });
   } catch (error) {
     res.status(500).json({ error: "Failed to list clients" });
   }
 };
+
 
 const getClientPhotographers = async (req, res) => {
   try {
