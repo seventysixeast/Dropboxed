@@ -6,6 +6,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import SignUp from "../pages/SignUp";
 import ClientSignup from "../pages/ClientSignup";
+import DropboxOAuth from "../pages/DropboxAuth";
 
 const AuthRouter = () => {
   const route = useRoutes([
@@ -14,8 +15,9 @@ const AuthRouter = () => {
     { path: "/reset", element: <ResetPassword /> },
     { path: "/signup", element: <SignUp /> },
     { path: "/client-signup", element: <ClientSignup /> },
-    { path: "/", element: <Navigate to="/login" /> }
+    { path: "/", element: <Navigate to="/login" /> },
     // Add other authentication routes if needed
+    { path: "/auth/dropbox", element: <DropboxOAuth /> },
   ]);
 
   return <>{route}</>;

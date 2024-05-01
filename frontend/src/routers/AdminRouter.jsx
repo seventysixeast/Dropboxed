@@ -25,6 +25,7 @@ import EditProfile from "../pages/EditProfile";
 import SignUp from "../pages/SignUp";
 import { useAuth } from "../context/authContext";
 import AddService from "../pages/AddService";
+import DropboxOAuth from "../pages/DropboxAuth";
 
 const AdminRouter = () => {
   const { authData } = useAuth();
@@ -55,6 +56,8 @@ const AdminRouter = () => {
     { path: "/services/add-service", element: <AddService /> },
     { path: "/services/edit-service/:id", element: <AddService /> },
     { path: "/services/*", element: <AddService /> },
+    { path: "/auth/dropbox", element: <DropboxOAuth /> },
+
 
 
   ]);

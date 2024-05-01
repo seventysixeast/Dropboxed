@@ -96,10 +96,6 @@ const ToDo = () => {
     if (clients && clients.length === 0) {
       getClients();
     }
-    document.addEventListener("mousedown", handleModalClose);
-    return () => {
-      document.removeEventListener("mousedown", handleModalClose);
-    };
   }, []);
 
   function getBulletClass(index) {
@@ -118,10 +114,10 @@ const ToDo = () => {
   const handleSubmit = async () => {
     const formData = new FormData();
 
-    if (taskData.id.trim() !== "") {
+    if (taskData.id !== "") {
       formData.append("id", taskData.id);
     }
-    if (taskData.userId.trim() === "") {
+    if (taskData.userId === "") {
       formData.append("user_id", userId);
     } else {
       formData.append("user_id", taskData.userId);
@@ -159,6 +155,8 @@ const ToDo = () => {
         setSelectedClient([]);
         setSelectedTags([]);
         setNewTaskModalOpen(false);
+        setComments([]);
+        setTaskAuthor();
       } else {
         toast.error("Failed to create task!");
       }
@@ -213,7 +211,7 @@ const ToDo = () => {
       ...taskData,
       status: taskData.status === 0 ? 1 : 0,
     });
-  }
+  };
 
   return (
     <div className="todo-application">
@@ -305,9 +303,21 @@ const ToDo = () => {
                     {taskData.id ? (
                       <>
                         <h5 className="new-task-title mb-0">Update Task</h5>
-                        <button className="mark-complete-btn btn btn-primary btn-sm mr-5" style={{padding:'5px'}}>
-
-                          <input type="checkbox" className="align-items-cente" style={{marginLeft:'2px', marginRight:'10px', marginTop: '3px'}} checked={taskData.status === 1} onChange={handleStatusChange} />
+                        <button
+                          className="mark-complete-btn btn btn-primary btn-sm mr-5"
+                          style={{ padding: "5px" }}
+                        >
+                          <input
+                            type="checkbox"
+                            className="align-items-cente"
+                            style={{
+                              marginLeft: "2px",
+                              marginRight: "10px",
+                              marginTop: "3px",
+                            }}
+                            checked={taskData.status === 1}
+                            onChange={handleStatusChange}
+                          />
                           <span className="mark-complete text-center">
                             Mark Complete
                           </span>
@@ -882,25 +892,34 @@ const ToDo = () => {
                             key={index}
                             className="todo-item"
                             data-name={task.assign_user}
-                            onClick={() => handleTaskClick(task)}
                           >
-                            <div className="todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center">
+                            <div className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center ${tasks[index].status === 1 ? 'linethrough' : ''}`}>
                               <div className="todo-title-area d-flex">
                                 <i className="feather icon-more-vertical handle"></i>
+                                {/* map status on checkbox */}
+
                                 <div className="custom-control custom-checkbox">
                                   <input
                                     type="checkbox"
                                     className="custom-control-input"
                                     id={`checkbox${index}`}
+                                    checked={tasks[index].status === 1}
+
                                   />
                                   <label
                                     className="custom-control-label"
                                     htmlFor={`checkbox${index}`}
                                   ></label>
                                 </div>
-                                <p className="todo-title mx-50 m-0 truncate">
-                                  {task.task_title}
-                                </p>
+
+                                <div>
+                                  <p
+                                    className="todo-title mx-50 m-0 truncate"
+                                    onClick={() => handleTaskClick(task)}
+                                  >
+                                    {task.task_title}
+                                  </p>
+                                </div>
                               </div>
                               <div className="todo-item-action d-flex align-items-center">
                                 <div className="todo-badge-wrapper d-flex">

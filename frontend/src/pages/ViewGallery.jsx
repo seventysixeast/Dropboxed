@@ -3,10 +3,17 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import DownloadImageModal from '../components/DownloadImageModal';
 import { getCollection } from "../api/collectionApis";
+import { useAuth } from "../context/authContext";
+import { getRefreshToken, verifyToken } from "../api/authApis";
 
-const accessToken = process.env.REACT_APP_DROPBOX_KEY;
 
 export const ViewGallery = () => {
+  const { authData } = useAuth();
+  const user = authData.user;
+  const subdomainId = user.subdomain_id
+  const userId = user.id
+  const dropboxAccess = user.dropbox_access;
+  const dropboxRefresh = user.dropbox_refresh;
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
   const [downloadOptions, setDownloadOptions] = useState({ size: "original" });
@@ -39,7 +46,7 @@ export const ViewGallery = () => {
         { path: folderPath },
         {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${dropboxAccess}`,
             'Content-Type': 'application/json',
           },
         }
@@ -94,7 +101,7 @@ export const ViewGallery = () => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${dropboxAccess}`,
             'Content-Type': 'application/json',
           },
           responseType: 'json'
@@ -149,7 +156,7 @@ export const ViewGallery = () => {
           { path: selectedImageUrl },
           {
             headers: {
-              'Authorization': `Bearer ${accessToken}`,
+              'Authorization': `Bearer ${dropboxAccess}`,
               'Content-Type': 'application/json'
             }
           }
@@ -159,7 +166,7 @@ export const ViewGallery = () => {
           {
             responseType: 'blob',
             headers: {
-              'Authorization': `Bearer ${accessToken}`
+              'Authorization': `Bearer ${dropboxAccess}`
             }
           }
         );
@@ -192,7 +199,7 @@ export const ViewGallery = () => {
           },
           {
             headers: {
-              'Authorization': `Bearer ${accessToken}`,
+              'Authorization': `Bearer ${dropboxAccess}`,
               'Content-Type': 'application/json',
             },
             responseType: 'json',

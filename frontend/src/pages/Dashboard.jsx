@@ -6,12 +6,19 @@ import { toast } from 'react-toastify';
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
+import { getRefreshToken, verifyToken } from "../api/authApis";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
+const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
+const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
+
 export const Dashboard = () => {
   const { authData } = useAuth();
+  console.log(authData);
   const user = authData.user;
   const subdomainId = user.subdomain_id
+  const userId = user.id
+  const accessToken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [bookingTitles, setBookingTitles] = useState([]);
@@ -22,6 +29,11 @@ export const Dashboard = () => {
   const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
   const [collections, setCollections] = useState([]);
   const navigate = useNavigate();
+  const currentUrl = window.location.href;
+  const url = new URL(currentUrl);
+  url.searchParams.set('userId', userId);
+
+  const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&response_type=code&state=${url}`;
 
   const [formData, setFormData] = useState({
     id: '',
@@ -40,6 +52,8 @@ export const Dashboard = () => {
   useEffect(() => {
     getClients();
     getAllCollectionsData();
+    verifyToken(accessToken);
+    getRefreshToken(user.dropbox_refresh)
   }, [])
 
   useEffect(() => {
@@ -310,12 +324,18 @@ export const Dashboard = () => {
                 <div className="heading-elements">
                   <ul className="list-inline mb-0">
                     <li>
-                      <div className="form-group">
+                      <div className="form-group d-flex">
+                        {user.dropbox_refresh == null &&
+                        <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{paddingTop:"10px"}}>Link Your Dropbox</a>
+                      }
                         <button
                           type="button"
-                          className="btn btn-outline-primary btn-block"
+                          className="btn btn-outline-primary"
                           data-toggle="modal"
                           data-target="#bootstrap"
+                          // title conditional 
+                          title = {user.dropbox_refresh == null ? "Dropbox Not Linked" : "Add Collection"}
+                          disabled={user.dropbox_refresh == null}
                           onClick={() => {
                             setShowAddGalleryModal(true);
                           }}
