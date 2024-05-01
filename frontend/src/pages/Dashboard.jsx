@@ -320,7 +320,7 @@ export const Dashboard = () => {
                             setShowAddGalleryModal(true);
                           }}
                         >
-                          Add Gallery
+                          New Collection
                         </button>
                       </div>
                     </li>
@@ -436,7 +436,7 @@ export const Dashboard = () => {
         </div>
       </div>
       <AddGalleryModal
-        message="Add Gallery"
+        message="Add Collection"
         isOpen={showAddGalleryModal}
         formData={formData}
         clients={clients}

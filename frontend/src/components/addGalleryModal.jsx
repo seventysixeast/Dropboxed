@@ -4,7 +4,6 @@ import toolIcons from "../assets/images/i.png";
 import { Switch, Checkbox } from '@mui/material';
 
 const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clients, bookingTitles, services, photographers, isGalleryLocked, isNotifyChecked, loading, handleInputChange, handleBannerChange, handleGalleryLockChange, handleNotifyChange, handleSubmit, onClose }) => {
-  { console.log("formData", formData) }
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>

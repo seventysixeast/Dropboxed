@@ -6,6 +6,7 @@ import logoLight from "../assets/images/dropboxed-logo.png";
 import { login } from "../api/authApis";
 import { encryptToken } from "../helpers/tokenUtils";
 import { getSubdomainFromUrl } from "../helpers/utils";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -192,12 +193,12 @@ const Login = () => {
                             </fieldset>
                           </div>
                           <div className="col-sm-6 col-12 float-sm-left text-center text-sm-right">
-                            <a
-                              href="recover-password.html"
+                            <Link
+                              to="/forgot"
                               className="card-link"
                             >
                               Forgot Password?
-                            </a>
+                            </Link>
                           </div>
                         </div>
                         <button

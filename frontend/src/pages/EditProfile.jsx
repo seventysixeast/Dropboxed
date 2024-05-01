@@ -1,52 +1,210 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/authContext";
+import { getUser, updateUser, changePassword } from "../api/userApis";
+import { toast } from 'react-toastify';
+const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const EditProfile = () => {
+  const { authData } = useAuth();
+  const user = authData.user;
+  const userId = user.id
+  const [previewImage, setPreviewImage] = useState(null);
+  const [formData, setFormData] = useState({
+    id: '',
+    username: '',
+    name: '',
+    email: '',
+    status: '',
+    business_name: '',
+    profile_photo: null
+  });
+  const [changePasswordData, setChangePasswordData] = useState({
+    old_password: '',
+    new_password: '',
+    confirm_password: ''
+  })
+
+  useEffect(() => {
+    getUserData();
+  }, [])
+
+  const getUserData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', userId);
+      let userData = await getUser(formDataToSend);
+      if (userData && userData.data) {
+        setFormData(userData.data);
+      } else {
+        setFormData([]);
+      }
+      if (userData.data.profile_photo !== "") {
+        let path = `${IMAGE_URL}/${userData.data.profile_photo}`
+        setPreviewImage(path)
+      } else {
+        setPreviewImage(null)
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  }
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let user = { ...formData };
+    if (name === "username") {
+      user.username = value;
+    } else if (name === "name") {
+      user.name = value;
+    } else if (name === 'email') {
+      user.email = value
+    } else if (name === 'status') {
+      user.status = value
+    } else if (name === 'business_name') {
+      user.business_name = value
+    }
+    setFormData(user);
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setFormData({
+          ...formData,
+          profile_photo: file
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+      setFormData({
+        ...formData,
+        profile_photo: ''
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', userId);
+      formDataToSend.append('username', formData.username);
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('status', formData.status);
+      formDataToSend.append('business_name', formData.business_name);
+      formDataToSend.append('profile_photo', formData.profile_photo);
+
+      let res = await updateUser(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        getUserData();
+      } else {
+        toast.error(res);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const handlePasswordChanges = (e) => {
+    let c = { ...changePasswordData };
+    let { name, value } = e.target;
+    if (name === 'old_password') {
+      c.old_password = value
+    } else if (name === 'new_password') {
+      c.new_password = value
+    } else if (name === 'confirm_password') {
+      c.confirm_password = value
+    }
+    setChangePasswordData(c);
+  }
+
+  const resetChangePasswordFormData = () => {
+    const c = { ...changePasswordData }
+    c.old_password = '';
+    c.new_password = '';
+    c.confirm_password = '';
+    setChangePasswordData(c);
+  }
+
+  const handlePasswordSubmit = async (e) => {
+    console.log("changePasswordData", changePasswordData);
+    e.preventDefault();
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', userId);
+      formDataToSend.append('old_password', changePasswordData.old_password);
+      formDataToSend.append('new_password', changePasswordData.new_password);
+      formDataToSend.append('confirm_password', changePasswordData.confirm_password);
+      let res = await changePassword(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        resetChangePasswordFormData();
+        getUserData();
+      } else {
+        toast.error(res);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  }
+
   return (
     <div className="app-content content">
       <div className="content-overlay" />
       <div className="content-wrapper">
-        <div className="content-header row mt-2"></div>
         <div className="content-body">
-          {/* users edit start */}
           <section className="users-edit">
             <div className="card">
               <div className="card-content">
                 <div className="card-body">
-                  <div className="media mb-2">
-                    <a className="mr-2" href="#">
-                      <img
-                        src="../../../app-assets/images/portrait/small/avatar-s-26.png"
-                        alt="users avatar"
-                        className="users-avatar-shadow rounded-circle"
-                        height={64}
-                        width={64}
-                      />
-                    </a>
-                    <div className="media-body">
-                      <h4 className="media-heading">Avatar</h4>
-                      <div className="col-12 px-0 d-flex">
-                        <a href="#" className="btn btn-sm btn-primary mr-25">
-                          Change
-                        </a>
-                        <a href="#" className="btn btn-sm btn-secondary">
-                          Reset
-                        </a>
+                  <form onSubmit={handleSubmit}>
+                    <div className="media mb-2">
+                      {previewImage && (
+                        <img
+                          src={previewImage}
+                          className="rounded-circle height-100 width-100 mt-2"
+                          alt="Preview"
+                        />
+                      )}
+                      <div className="media-body mt-3 ml-2">
+                        <h4 className="media-heading">Profile Photo</h4>
+                        <input
+                          type="file"
+                          className="form-control-file"
+                          name="profile_photo"
+                          onChange={handlePhotoChange}
+                          accept="image/*"
+                        />
                       </div>
                     </div>
-                  </div>
-                  <form noValidate="">
                     <div className="row">
                       <div className="col-12 col-sm-6">
+                        <div className="form-group">
+                          <label>Username</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleInputChange}
+                          />
+                          <div className="help-block" />
+                        </div>
                         <div className="form-group">
                           <div className="controls">
                             <label>Name</label>
                             <input
                               type="text"
                               className="form-control"
-                              placeholder="Name"
-                              defaultValue="Dean Stanley"
-                              required=""
-                              data-validation-required-message="This name field is required"
+                              name="name"
+                              value={formData.name}
+                              onChange={handleInputChange}
                             />
                             <div className="help-block" />
                           </div>
@@ -57,10 +215,9 @@ const EditProfile = () => {
                             <input
                               type="email"
                               className="form-control"
-                              placeholder="Email"
-                              defaultValue="deanstanley@gmail.com"
-                              required=""
-                              data-validation-required-message="This email field is required"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleInputChange}
                             />
                             <div className="help-block" />
                           </div>
@@ -69,31 +226,38 @@ const EditProfile = () => {
                       <div className="col-12 col-sm-6">
                         <div className="form-group">
                           <label>Status</label>
-                          <select className="form-control">
-                            <option>Active</option>
-                            <option>Banned</option>
-                            <option>Close</option>
+                          <select
+                            className="form-control"
+                            name="status"
+                            value={formData.status}
+                            onChange={handleInputChange}
+                          >
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
                           </select>
+                        </div>
+                        <div className="form-group">
+                          <label>Business Name</label>
+                          <input
+                            className="form-control"
+                            name="business_name"
+                            value={formData.business_name}
+                            onChange={handleInputChange}
+                          />
                         </div>
                         <div className="form-group">
                           <label>Subdomain</label>
                           <input
-                            type="text"
                             className="form-control"
-                            placeholder="Subdomain"
+                            name="subdomain"
+                            value={formData.subdomain}
+                            onChange={handleInputChange}
+                            disabled
                           />
                         </div>
                       </div>
                       <div className="col-12 d-flex flex-sm-row flex-column justify-content-end mt-1">
-                        <button
-                          type="submit"
-                          className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1"
-                        >
-                          Save changes
-                        </button>
-                        <button type="reset" className="btn btn-light">
-                          Cancel
-                        </button>
+                        <button type="submit" className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1">Save Changes</button>
                       </div>
                     </div>
                   </form>
@@ -101,11 +265,57 @@ const EditProfile = () => {
               </div>
             </div>
           </section>
-          {/* users edit ends */}
+          <section className="users-edit">
+            <div className="card">
+              <div className="card-content">
+                <div className="card-body">
+                  <form onSubmit={handlePasswordSubmit}>
+                    <div className="row">
+                      <div className="col-md-3 form-group">
+                        <label>Old Password</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="old_password"
+                          value={changePasswordData.old_password}
+                          onChange={handlePasswordChanges}
+                          required
+                        />
+                      </div>
+                      <div className="col-md-3 form-group">
+                        <label>New Password</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="new_password"
+                          value={changePasswordData.new_password}
+                          onChange={handlePasswordChanges}
+                          required
+                        />
+                      </div>
+                      <div className="col-md-3 form-group">
+                        <label>Confirm Password</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="confirm_password"
+                          value={changePasswordData.confirm_password}
+                          onChange={handlePasswordChanges}
+                          required
+                        />
+                      </div>
+                      <div className="col-md-3 form-group d-flex align-items-end justify-content-end">
+                        <button type="submit" className="btn btn-warning glow mb-1 mb-sm-0 mr-0 mr-sm-1">Change Password</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
-
   );
 };
 

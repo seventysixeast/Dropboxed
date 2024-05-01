@@ -52,4 +52,28 @@ const verifyToken = async (token) => {
     }
 };
 
-export { signup, login, verifyToken, clientSignup };
+const forgotPassword = async (data) => {
+    try {
+        const response = await API.post('/auth/forgot-password', data);
+        if (response.status !== 200) {
+            throw new Error('Failed to forgot');
+        }
+        return response.data;
+    } catch (error) {
+        return error.response.data.error;
+    }
+};
+
+const resetPassword = async (data) => {
+    try {
+        const response = await API.post('/auth/reset-password', data);
+        if (response.status !== 200) {
+            throw new Error('Failed to reset');
+        }
+        return response.data;
+    } catch (error) {
+        return error.response.data.error;
+    }
+};
+
+export { signup, login, verifyToken, clientSignup, forgotPassword, resetPassword };

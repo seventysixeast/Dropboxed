@@ -7,6 +7,7 @@ const bookingRouter = require('./routes/bookingRoutes');
 const imageTypeRoutes = require('./routes/imageTypeRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const todoRoutes = require('./routes/todoRoutes');
+const userRoutes = require('./routes/userRoutes');
 //const calenderRoutes = require('./routes/')
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
@@ -56,6 +57,7 @@ app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
 app.use('/collection', collectionRoutes);
 app.use('/todo', todoRoutes);
+app.use('/user', userRoutes);
 //app.use('/calender', calenderRoutes);
 
 // Protected route
@@ -73,11 +75,12 @@ app.get("/*", (req, res, next) => {
     req.url.includes("/imageType/") ||
     req.url.includes("/collection/") ||
     //req.url.includes("/calender/") ||
-    req.url.includes("/assets/")||
-    req.url.includes("/todo/") 
+    req.url.includes("/assets/") ||
+    req.url.includes("/todo/") ||
+    req.url.includes("/user/")
 
   )
-  return next();
+    return next();
   else
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });

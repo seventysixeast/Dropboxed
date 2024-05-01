@@ -137,6 +137,9 @@ const Users = sequelize.define('User', {
     allowNull: false,
     defaultValue: 'Active'
   },
+  otp: {
+    type: DataTypes.STRING(6)
+  },
   access_token: {
     type: DataTypes.STRING(255),
     allowNull: false,
