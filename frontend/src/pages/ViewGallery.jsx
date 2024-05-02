@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import DownloadImageModal from '../components/DownloadImageModal';
+import DownloadGalleryModal from '../components/DownloadGalleryModal';
 import { getCollection } from "../api/collectionApis";
 import { useAuth } from "../context/authContext";
 import { getRefreshToken, verifyToken } from "../api/authApis";
+import JSZip from 'jszip';
 
 
 export const ViewGallery = () => {
@@ -14,6 +16,7 @@ export const ViewGallery = () => {
   const userId = user.id
   const [dropboxAccess, setDropboxAccess] = useState("");
   const dropboxRefresh = user.dropbox_refresh
+  const [showDownloadGalleryModal, setDownloadGalleryModal] = useState(false);
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
   const [downloadOptions, setDownloadOptions] = useState({ size: "original" });
@@ -58,10 +61,11 @@ export const ViewGallery = () => {
       const entries = listResponse.data.entries;
       const fileEntries = entries.filter(entry => entry['.tag'] === 'file');
       fileList.current = fileEntries;
+    fetchImages();
+
     } catch (error) {
       console.error('Error fetching file list:', error);
     }
-    fetchImages();
   };
 
   const fetchImages = async () => {
@@ -224,33 +228,104 @@ export const ViewGallery = () => {
     }
   };
 
+  const handleAllDownload = async () => {
+    const tokens = await getRefreshToken(dropboxRefresh);
+    setDropboxAccess(tokens.access_token);
+    try {
+      const zip = new JSZip();
+
+      for (const imageData of imageUrls) {
+        let imageBlob;
+        if (downloadOptions.size === "original") {
+          const { data: { link } } = await axios.post(
+            "https://api.dropboxapi.com/2/files/get_temporary_link",
+            { path: imageData.path_display },
+            {
+              headers: {
+                'Authorization': `Bearer ${tokens.access_token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          const response = await axios.get(
+            link,
+            {
+              responseType: 'blob',
+              headers: {
+                'Authorization': `Bearer ${tokens.access_token}`
+              }
+            }
+          );
+          imageBlob = response.data;
+        } else {
+          const response = await axios.post(
+            'https://content.dropboxapi.com/2/files/get_thumbnail_batch',
+            {
+              entries: [
+                {
+                  path: imageData.path_display,
+                  format: 'jpeg',
+                  mode: 'strict',
+                  quality: 'quality_90',
+                  size: "w2048h1536"
+                }
+              ],
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${tokens.access_token}`,
+                'Content-Type': 'application/json',
+              },
+              responseType: 'arraybuffer',
+            }
+          );
+          imageBlob = new Blob([response.data], { type: 'image/jpeg' });
+        }
+        zip.file(imageData.path_display.split('/').pop(), imageBlob);
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipUrl = window.URL.createObjectURL(zipBlob);
+      const linkElement = document.createElement('a');
+      linkElement.href = zipUrl;
+      linkElement.setAttribute('download', 'downloaded_images.zip');
+      document.body.appendChild(linkElement);
+      linkElement.click();
+      window.URL.revokeObjectURL(zipUrl);
+      document.body.removeChild(linkElement);
+      setDownloadGalleryModal(false);
+    } catch (error) {
+      console.error("Error downloading images from Dropbox:", error);
+    }
+  };
+
   return (
-    <div class="app-content content">
-      <div class="content-overlay"></div>
-      <div class="content-wrapper">
+    <div className="app-content content">
+      <div className="content-overlay"></div>
+      <div className="content-wrapper">
         <div className="content-body">
           <section id="image-gallery">
-            <div class="card-content collapse show">
-              <div class="card-body my-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+            <div className="card-content collapse show">
+              <div className="card-body my-gallery" itemScope itemType="http://schema.org/ImageGallery">
                 <div className='text-right mb-2'>
                   <span
-                    class="feather icon-download black"
-                    title='All Download'
+                    className="feather icon-download black"
+                    title='Download'
                     onClick={() => {
-                      setDownloadImageModal(true);
+                      setDownloadGalleryModal(true);
                     }}>
                   </span>
                 </div>
-                <div class="row">
+                <div className="row">
                   {imageUrls.map((image, index) => (
-                    <figure id={index} class="col-lg-3 col-md-6 col-12" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
-                      <a href={image.url} class="hovereffect" itemprop="contentUrl" data-size="480x360">
-                        <img class="equal-image" src={image.url} alt="" />
-                        <div class="overlay">
-                          <p class="icon-links">
+                    <figure id={index} className="col-lg-3 col-md-6 col-12" itemprop="associatedMedia" itemScope itemType="http://schema.org/ImageObject">
+                      <a href={image.url} className="hovereffect" itemprop="contentUrl" data-size="480x360">
+                        <img className="equal-image" src={image.url} alt="" />
+                        <div className="overlay">
+                          <p className="icon-links">
                             <a>
                               <span
-                                class="feather icon-download"
+                                className="feather icon-download"
                                 onClick={() => {
                                   setSelectedImageUrl(image.path_display);
                                   setDownloadImageModal(true);
@@ -258,7 +333,7 @@ export const ViewGallery = () => {
                               </span>
                             </a>
                             <a href="#">
-                              <span class="feather icon-edit"></span>
+                              <span className="feather icon-edit"></span>
                             </a>
                           </p>
                         </div>
@@ -269,38 +344,38 @@ export const ViewGallery = () => {
                   {!loading && !hasMore && <div>No more thumbnails to load</div>}
                 </div>
               </div>
-              <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="pswp__bg"></div>
-                <div class="pswp__scroll-wrap">
-                  <div class="pswp__container">
-                    <div class="pswp__item"></div>
-                    <div class="pswp__item"></div>
-                    <div class="pswp__item"></div>
+              <div className="pswp" tabIndex="-1" role="dialog" aria-hidden="true">
+                <div className="pswp__bg"></div>
+                <div className="pswp__scroll-wrap">
+                  <div className="pswp__container">
+                    <div className="pswp__item"></div>
+                    <div className="pswp__item"></div>
+                    <div className="pswp__item"></div>
                   </div>
-                  <div class="pswp__ui pswp__ui--hidden">
-                    <div class="pswp__top-bar">
-                      <div class="pswp__counter"></div>
-                      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-                      <button class="pswp__button pswp__button--share" title="Share"></button>
-                      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-                      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-                      <div class="pswp__preloader">
-                        <div class="pswp__preloader__icn">
-                          <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
+                  <div className="pswp__ui pswp__ui--hidden">
+                    <div className="pswp__top-bar">
+                      <div className="pswp__counter"></div>
+                      <button className="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                      <button className="pswp__button pswp__button--share" title="Share"></button>
+                      <button className="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                      <button className="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                      <div className="pswp__preloader">
+                        <div className="pswp__preloader__icn">
+                          <div className="pswp__preloader__cut">
+                            <div className="pswp__preloader__donut"></div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                      <div class="pswp__share-tooltip"></div>
+                    <div className="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                      <div className="pswp__share-tooltip"></div>
                     </div>
-                    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+                    <button className="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
                     </button>
-                    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+                    <button className="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
                     </button>
-                    <div class="pswp__caption">
-                      <div class="pswp__caption__center"></div>
+                    <div className="pswp__caption">
+                      <div className="pswp__caption__center"></div>
                     </div>
                   </div>
                 </div>
@@ -309,11 +384,17 @@ export const ViewGallery = () => {
           </section>
         </div>
       </div>
+      <DownloadGalleryModal
+        isOpen={showDownloadGalleryModal}
+        onClose={() => setDownloadGalleryModal(false)}
+        onConfirm={handleAllDownload}
+        downloadOptions={downloadOptions}
+        setDownloadOptions={setDownloadOptions}
+      />
       <DownloadImageModal
         isOpen={showDownloadImageModal}
         onClose={() => setDownloadImageModal(false)}
         onConfirm={handleDownload}
-        selectedImageUrl={selectedImageUrl}
         downloadOptions={downloadOptions}
         setDownloadOptions={setDownloadOptions}
       />

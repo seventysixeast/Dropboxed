@@ -30,12 +30,16 @@ export const Dashboard = () => {
   const [collections, setCollections] = useState([]);
   const navigate = useNavigate();
   const currentUrl = window.location.href;
+
+
+  const url2 = new URL(currentUrl);
+  url2.pathname = url2.pathname.replace('/dashboard', '');
+
   const url = new URL(currentUrl);
+
   url.searchParams.set('userId', userId);
   const scopes = encodeURIComponent('account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read');
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
-  
-  // const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&response_type=code&state=${url}`;
 
   const [formData, setFormData] = useState({
     id: '',
@@ -328,15 +332,15 @@ export const Dashboard = () => {
                     <li>
                       <div className="form-group d-flex">
                         {user.dropbox_refresh == null &&
-                        <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{paddingTop:"10px"}}>Link Your Dropbox</a>
-                      }
+                          <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{ paddingTop: "10px" }}>Link Your Dropbox</a>
+                        }
                         <button
                           type="button"
                           className="btn btn-outline-primary"
                           data-toggle="modal"
                           data-target="#bootstrap"
                           // title conditional 
-                          title = {user.dropbox_refresh == null ? "Dropbox Not Linked" : "Add Collection"}
+                          title={user.dropbox_refresh == null ? "Dropbox Not Linked" : "Add Collection"}
                           disabled={user.dropbox_refresh == null}
                           onClick={() => {
                             setShowAddGalleryModal(true);
@@ -354,7 +358,7 @@ export const Dashboard = () => {
                   {collections && collections.map(item => (
                     <div className="col-md-3 mb-3">
                       <a
-                        onClick={() => navigate(`/view-gallery/${item.id}`)}
+                        href={`${url2}view-gallery/${item.id}`}
                         className="gallery-link"
                       >
                         <figure class="effect-zoe">
