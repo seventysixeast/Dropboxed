@@ -12,7 +12,7 @@ export const ViewGallery = () => {
   const user = authData.user;
   const subdomainId = user.subdomain_id
   const userId = user.id
-  const dropboxAccess = user.dropbox_access
+  const [dropboxAccess, setDropboxAccess] = useState("");
   const dropboxRefresh = user.dropbox_refresh
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
@@ -42,12 +42,14 @@ export const ViewGallery = () => {
   const fetchFileList = async () => {
 
     try {
+      const tokens = await getRefreshToken(dropboxRefresh);
+      setDropboxAccess(tokens.access_token);
       const listResponse = await axios.post(
         'https://api.dropboxapi.com/2/files/list_folder',
         {path: folderPath},
         {
           headers: {
-            'Authorization': `Bearer ${dropboxAccess}`,
+            'Authorization': `Bearer ${tokens.access_token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -56,10 +58,10 @@ export const ViewGallery = () => {
       const entries = listResponse.data.entries;
       const fileEntries = entries.filter(entry => entry['.tag'] === 'file');
       fileList.current = fileEntries;
-      fetchImages();
     } catch (error) {
       console.error('Error fetching file list:', error);
     }
+    fetchImages();
   };
 
   const fetchImages = async () => {
@@ -87,6 +89,7 @@ export const ViewGallery = () => {
   };
 
   const fetchBatchThumbnails = async (entries) => {
+    const tokens = await getRefreshToken(dropboxRefresh);
     const urls = [];
     try {
       const response = await axios.post(
@@ -102,7 +105,7 @@ export const ViewGallery = () => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${dropboxAccess}`,
+            'Authorization': `Bearer ${tokens.access_token}`,
             'Content-Type': 'application/json',
           },
           responseType: 'json'
@@ -150,6 +153,8 @@ export const ViewGallery = () => {
   }, []);
 
   const handleDownload = async () => {
+    const tokens = await getRefreshToken(dropboxRefresh);
+
     try {
       if (downloadOptions.size === "original") {
         const { data: { link } } = await axios.post(
@@ -157,7 +162,7 @@ export const ViewGallery = () => {
           { path: selectedImageUrl },
           {
             headers: {
-              'Authorization': `Bearer ${dropboxAccess}`,
+              'Authorization': `Bearer ${tokens.access_token}`,
               'Content-Type': 'application/json'
             }
           }
@@ -167,7 +172,7 @@ export const ViewGallery = () => {
           {
             responseType: 'blob',
             headers: {
-              'Authorization': `Bearer ${dropboxAccess}`
+              'Authorization': `Bearer ${tokens.access_token}`
             }
           }
         );
@@ -200,7 +205,7 @@ export const ViewGallery = () => {
           },
           {
             headers: {
-              'Authorization': `Bearer ${dropboxAccess}`,
+              'Authorization': `Bearer ${tokens.access_token}`,
               'Content-Type': 'application/json',
             },
             responseType: 'json',
