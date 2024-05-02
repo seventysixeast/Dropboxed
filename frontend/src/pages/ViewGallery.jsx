@@ -9,6 +9,10 @@ import { getRefreshToken } from "../api/authApis";
 import JSZip from 'jszip';
 import LoadingOverlay from "../components/Loader";
 import { toast } from 'react-toastify';
+import PhotoswipeUIDefault from 'photoswipe/dist/photoswipe-ui-default'
+import { CustomGallery, Item, DefaultLayout } from 'react-photoswipe-gallery';
+import 'photoswipe/dist/photoswipe.css';
+import 'photoswipe/dist/default-skin/default-skin.css';
 
 export const ViewGallery = () => {
   const { authData } = useAuth();
@@ -31,19 +35,31 @@ export const ViewGallery = () => {
   const { id } = useParams();
   const [dropboxLink, setDropboxLink] = useState("");
   const [running, setRunning] = useState(false)
+  const layoutRef = useRef()
+
 
   useEffect(() => {
-    if (fileList.current && fileList.current.length == 0) {
+    if (fileList.current && fileList.current.length === 0) {
       if (!running) {
-      fetchCollection();
+        fetchCollection();
       }
     }
+  
+    document.body.classList.remove(
+      'vertical-layout',
+      'vertical-menu-modern',
+      '2-columns',
+      'fixed-navbar',
+      'menu-expanded'
+    );
+  
   }, []);
+  
 
 
   const fetchCollection = async () => {
     setRunning(true);
-    
+
     const formDataToSend = new FormData();
     formDataToSend.append("id", id);
     let res = await getCollection(formDataToSend);
@@ -405,16 +421,22 @@ export const ViewGallery = () => {
     setDownloadOptions({ device: "device", size: "original" });
   };
 
+  const customOptions = {
+    ui: {
+      shareEl: false, // Hide share button
+    },
+  };
+
   return (
     <>
       <LoadingOverlay loading={loading} />
-      <div className="app-content content" style={{overflowX : "visible" }}>
+      <div className="app-content content" style={{ overflowX: "visible" }}>
         <div className="content-overlay"></div>
         <div className="content-wrapper">
           <div className="content-body">
             <section id="image-gallery">
               <div className="card-content collapse show">
-                <div className="card-body my-gallery" itemScope itemType="http://schema.org/ImageGallery">
+                <div className="card-body my-gallery">
                   <div className='text-right mb-2'>
                     <span
                       className="feather icon-download black"
@@ -424,76 +446,61 @@ export const ViewGallery = () => {
                       }}>
                     </span>
                   </div>
-                  <div className="row">
-                    {imageUrls.map((image, index) => (
-                      <figure id={index} className="col-lg-3 col-md-6 col-12" itemProp="associatedMedia" itemScope itemType="http://schema.org/ImageObject">
-                        <a href={image.url} className="hovereffect" itemProp="contentUrl" data-size="640x360">
-                          <img className="equal-image" src={image.url} alt="" />
-                          <div className="overlay">
-                            <p className="icon-links">
-                              <a>
-                                <span
-                                  className="feather icon-download"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    setSelectedImageUrl(image.path_display);
-                                    setDownloadImageModal(true);
-                                  }}>
-                                </span>
+                  <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
+                    <div className="row">
+                      {imageUrls.map((image, index) => (
+                        <Item
+                          key={index}
+                          original={image.url}
+                          thumbnail={image.url}
+                          width="480"
+                          height="320"
+                        >
+                          {({ ref, open }) => (
+                            <figure ref={ref} className="col-lg-3 col-md-6 col-12" onClick={open}>
+                              <a href={image.url} className="hovereffect" itemProp="contentUrl" data-size="480x320">
+                                <img className="equal-image" src={image.url} alt="" />
+                                <div className="overlay">
+                                  <p className="icon-links">
+                                    <a>
+                                      <span
+                                        className="feather icon-download"
+                                        onClick={(event) => {
+                                          event.stopPropagation();
+                                          setSelectedImageUrl(image.path_display);
+                                          setDownloadImageModal(true);
+                                        }}>
+                                      </span>
+                                    </a>
+                                    <a>
+                                      <span className="feather icon-edit"></span>
+                                    </a>
+                                  </p>
+                                </div>
                               </a>
-                              <a href="#">
-                                <span className="feather icon-edit"></span>
-                              </a>
-                            </p>
-                          </div>
-                        </a>
-                      </figure>
-                    ))}
-
-                    {loading && <div>Loading...</div>}
-                    {!loading && !hasMore && <div>No more thumbnails to load</div>}
-                  </div>
+                            </figure>
+                          )}
+                        </Item>
+                      ))}
+                      {loading && <div>Loading...</div>}
+                      {!loading && !hasMore && <div>No more thumbnails to load</div>}
+                    </div>
+                  </CustomGallery>
                 </div>
                 <div className="pswp" tabIndex="-1" role="dialog" aria-hidden="true">
-                  <div className="pswp__bg"></div>
-                  <div className="pswp__scroll-wrap">
-                    <div className="pswp__container">
-                      <div className="pswp__item"></div>
-                      <div className="pswp__item"></div>
-                      <div className="pswp__item"></div>
-                    </div>
-                    <div className="pswp__ui pswp__ui--hidden">
-                      <div className="pswp__top-bar">
-                        <div className="pswp__counter"></div>
-                        <button className="pswp__button pswp__button--close" title="Close (Esc)"></button>
-                        <button className="pswp__button pswp__button--share" title="Share"></button>
-                        <button className="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-                        <button className="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-                        <div className="pswp__preloader">
-                          <div className="pswp__preloader__icn">
-                            <div className="pswp__preloader__cut">
-                              <div className="pswp__preloader__donut"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                        <div className="pswp__share-tooltip"></div>
-                      </div>
-                      <button className="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-                      </button>
-                      <button className="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-                      </button>
-                      <div className="pswp__caption">
-                        <div className="pswp__caption__center"></div>
-                      </div>
-                    </div>
-                  </div>
+                  {/* PhotoSwipe gallery markup */}
                 </div>
               </div>
             </section>
           </div>
         </div>
+
+        <DefaultLayout
+          shareButton={false}
+          fullscreenButton={true}
+          zoomButton={true}
+          ref={layoutRef}
+        />
 
         <DownloadGalleryModal
           isOpen={showDownloadGalleryModal}

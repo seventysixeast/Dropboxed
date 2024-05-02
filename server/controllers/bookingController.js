@@ -49,9 +49,11 @@ async function createCalendar() {
   }
 }
 
-async function addevent(data, userID) {
+async function addevent(data) {
+  const userID = data.subdomain_id;
   let theuser = await Users.findOne({ where: { id: userID } });
   let code = theuser.dataValues.refresh_token;
+  console.log(code);
   let grant_type = "refresh_token";
 
   const response = await axios
@@ -223,12 +225,12 @@ const createBooking = async (req, res) => {
 
     let theUser = await Users.findOne({
       attributes: ["calendar_sub"],
-      where: { id: userID },
+      where: { id: subdomainId },
     });
 
     if (theUser && theUser.calendar_sub == 1) {
       try {
-        await addevent(booking, userID);
+        await addevent(booking);
       } catch (error) {
         console.error("Failed to add event:", error.message);
         return res.status(500).json({ error: "Failed to add event" });
@@ -304,7 +306,6 @@ const getAllBookings = async (req, res) => {
   }
 };
 
-
 const getBooking = async (req, res) => {
   try {
     const bookingData = await Booking.findOne({ where: { id: req.body.id } });
@@ -351,7 +352,6 @@ const deleteBooking = async (req, res) => {
     res.status(500).json({ error: "Failed to delete Booking" });
   }
 };
-
 
 const updateBooking = async (req, res) => {
   try {

@@ -46,7 +46,7 @@
       href="/app-assets/vendors/css/calendars/daygrid.min.css"
     />
 
-    <link
+    <!-- <link
       rel="stylesheet"
       type="text/css"
       href="/app-assets/vendors/js/gallery/photo-swipe/photoswipe.css"
@@ -55,7 +55,7 @@
       rel="stylesheet"
       type="text/css"
       href="/app-assets/vendors/js/gallery/photo-swipe/default-skin/default-skin.css"
-    />
+    /> -->
     <link
       rel="stylesheet"
       type="text/css"
@@ -274,8 +274,8 @@
     <script src="/app-assets/js/core/app.js"></script>
     <script src="/app-assets/js/scripts/cards/card-statistics.js"></script>
     <script src="/app-assets/vendors/js/gallery/masonry/masonry.pkgd.min.js"></script>
-    <script src="/app-assets/vendors/js/gallery/photo-swipe/photoswipe.min.js"></script>
-    <script src="/app-assets/vendors/js/gallery/photo-swipe/photoswipe-ui-default.min.js"></script>
+    <!-- <script src="/app-assets/vendors/js/gallery/photo-swipe/photoswipe.min.js"></script> -->
+    <!-- <script src="/app-assets/vendors/js/gallery/photo-swipe/photoswipe-ui-default.min.js"></script> -->
 
     <script src="/app-assets/vendors/js/forms/toggle/bootstrap-checkbox.min.js"></script>
     <script src="/app-assets/vendors/js/forms/toggle/switchery.min.js"></script>
@@ -287,7 +287,7 @@
     <!-- <script src="/app-assets/js/scripts/extensions/fullcalendar-events.js"></script> -->
     <script src="/app-assets/js/scripts/pickers/dateTime/bootstrap-datetime.js"></script>
     <script src="/app-assets/js/scripts/pickers/dateTime/pick-a-datetime.js"></script>
-    <script src="/app-assets/js/scripts/gallery/photo-swipe/photoswipe-script.js"></script>
+    <!-- <script src="/app-assets/js/scripts/gallery/photo-swipe/photoswipe-script.js"></script> -->
     <script src="/app-assets/js/scripts/pages/app-todo.js"></script>
     <script src="/app-assets/js/scripts/modal/components-modal.js"></script>
     <script src="/app-assets/js/scripts/forms/switch.js"></script>
@@ -322,7 +322,7 @@
 
         function checkRoute() {
           const currentPath = window.location.pathname;
-          if (currentPath === "/login" || currentPath === "/signup") {
+          if (currentPath === "/login" || currentPath === "/signup" || currentPath === "/auth/dropbox" || currentPath === "/auth/google" || currentPath === "/view-gallery" || currentPath === "/view-gallery/*" ) {
             removeClasses();
           } else {
             addClasses();

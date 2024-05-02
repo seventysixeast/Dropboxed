@@ -28,6 +28,7 @@ import LoadingOverlay from "../components/Loader";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
 
+const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 export const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL;
   const { authData } = useAuth();
@@ -84,6 +85,11 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
+  const currentUrl = window.location.href;
+  const url = new URL(currentUrl);
+
+  const authUrl = `${REACT_APP_BASE_URL}/auth/google?userId=${encodeURIComponent(userId)}&url=${encodeURIComponent(url)}`;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1104,7 +1110,7 @@ export const BookingListComponent = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="index.html">Home</a>
+                      <a href="/dashboard">Home</a>
                     </li>
                     <li className="breadcrumb-item active">Bookings</li>
                   </ol>
@@ -1119,16 +1125,15 @@ export const BookingListComponent = () => {
                       {calendarSub == null ? (
                         <></>
                       ) : (
-                        <button
-                          type="button"
-                          className="btn btn-outline-primary mx-1"
-                          disabled={calendarSub == 1}
-                          onClick={subscribe}
+                        <a
+                          className={`btn btn-outline-primary mx-1 ${calendarSub === 1 ? 'd-none' : ''}`}
+                          disabled={calendarSub === 1}
+                          href={`${authUrl}`}
                         >
                           {calendarSub == 1
                             ? "Subscribed"
                             : "Subscribe to Calendar"}
-                        </button>
+                        </a>
                       )}
                       <button
                         ref={buttonRef}
