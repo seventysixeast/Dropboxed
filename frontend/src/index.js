@@ -13,7 +13,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <GoogleOAuthProvider clientId="49494450157-past37o3hghtbn0vd7mn220ub5u975ef.apps.googleusercontent.com">
       <AuthProvider>
         <Router>
@@ -22,7 +22,7 @@ root.render(
         </Router>
       </AuthProvider>
     </GoogleOAuthProvider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );
 
 reportWebVitals();
