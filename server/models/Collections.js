@@ -111,6 +111,10 @@ const Collections = sequelize.define('Collections', {
     allowNull: false,
     defaultValue: false
   },
+  dropbox_refresh: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   lock_gallery: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

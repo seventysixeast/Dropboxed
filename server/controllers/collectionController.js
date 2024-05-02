@@ -120,6 +120,7 @@ const getAllCollections = async (req, res) => {
 };
 
 const getCollection = async (req, res) => {
+  console.log(req.body);
   try {
     let collectionData = await Collection.findOne({
       where: {
