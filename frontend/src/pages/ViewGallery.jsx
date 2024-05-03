@@ -13,7 +13,9 @@ import PhotoswipeUIDefault from 'photoswipe/dist/photoswipe-ui-default'
 import { CustomGallery, Item, DefaultLayout } from 'react-photoswipe-gallery';
 import 'photoswipe/dist/photoswipe.css';
 import 'photoswipe/dist/default-skin/default-skin.css';
+import ReactPlayer from 'react-player';
 
+const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 export const ViewGallery = () => {
   const { authData } = useAuth();
   const user = authData.user;
@@ -30,12 +32,18 @@ export const ViewGallery = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const page = useRef(1);
-  const fetchSize = 8;
+  const fetchSize = 16;
   const fileList = useRef([]);
   const { id } = useParams();
   const [dropboxLink, setDropboxLink] = useState("");
   const [running, setRunning] = useState(false)
   const layoutRef = useRef()
+  const [banner, setBanner] = useState('');
+  const [videoLink, setVideoLink] = useState('');
+  const [collection, setCollection] = useState([]);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const imageGalleryRef = useRef(null);
 
 
   useEffect(() => {
@@ -44,7 +52,7 @@ export const ViewGallery = () => {
         fetchCollection();
       }
     }
-  
+
     document.body.classList.remove(
       'vertical-layout',
       'vertical-menu-modern',
@@ -52,13 +60,14 @@ export const ViewGallery = () => {
       'fixed-navbar',
       'menu-expanded'
     );
-  
+
   }, []);
-  
+
 
 
   const fetchCollection = async () => {
     setRunning(true);
+    setLoading(true);
 
     const formDataToSend = new FormData();
     formDataToSend.append("id", id);
@@ -68,10 +77,15 @@ export const ViewGallery = () => {
       setCollectionRefresh(res.data.dropbox_refresh)
       setDropboxLink(res.data.dropbox_link)
       fetchFileList(res.data.dropbox_refresh, res.data.dropbox_link);
+      setVideoLink(res.data.video_link)
+      setBanner(res.data.banner)
+      setCollection(res.data)
     } else {
       toast.error("Failed to get collection...")
     }
     setRunning(false)
+    setLoading(false);
+    setShowAnimation(true);
   }
 
   const fetchFileList = async (data, link) => {
@@ -111,7 +125,6 @@ export const ViewGallery = () => {
 
   const fetchImages = async (data) => {
     try {
-      setLoading(true);
 
       const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
@@ -119,7 +132,6 @@ export const ViewGallery = () => {
 
       if (startIndex >= totalFiles) {
         setHasMore(false);
-        setLoading(false);
         return;
       }
 
@@ -145,7 +157,7 @@ export const ViewGallery = () => {
             format: 'jpeg',
             mode: 'strict',
             quality: 'quality_80',
-            size: 'w640h480'
+            size: 'w1024h768'
           })),
         },
         {
@@ -423,101 +435,173 @@ export const ViewGallery = () => {
 
   const customOptions = {
     ui: {
-      shareEl: false, // Hide share button
+      shareEl: false,
     },
+  };
+
+  useEffect(() => {
+    const measureScrollbar = () => {
+      const scrollDiv = document.createElement('div');
+      scrollDiv.style.width = '100px';
+      scrollDiv.style.height = '100px';
+      scrollDiv.style.overflow = 'scroll';
+      scrollDiv.style.position = 'absolute';
+      scrollDiv.style.top = '-9999px';
+      document.body.appendChild(scrollDiv);
+      const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+      document.body.removeChild(scrollDiv);
+      setScrollbarWidth(scrollbarWidth);
+    };
+
+    measureScrollbar();
+
+    const handleResize = () => {
+      measureScrollbar();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const handleScrollToGallery = () => {
+    if (imageGalleryRef.current) {
+      const offsetTop = imageGalleryRef.current.offsetTop;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth',
+      });
+    }
   };
 
   return (
     <>
       <LoadingOverlay loading={loading} />
-      <div className="app-content content" style={{ overflowX: "visible" }}>
-        <div className="content-overlay"></div>
-        <div className="content-wrapper">
-          <div className="content-body">
-            <section id="image-gallery">
-              <div className="card-content collapse show">
-                <div className="card-body my-gallery">
-                  <div className='text-right mb-2'>
-                    <span
-                      className="feather icon-download black"
-                      title='Download'
-                      onClick={() => {
-                        setDownloadGalleryModal(true);
-                      }}>
-                    </span>
-                  </div>
-                  <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
-                    <div className="row">
-                      {imageUrls.map((image, index) => (
-                        <Item
-                          key={index}
-                          original={image.url}
-                          thumbnail={image.url}
-                          width="480"
-                          height="320"
-                        >
-                          {({ ref, open }) => (
-                            <figure ref={ref} className="col-lg-3 col-md-6 col-12" onClick={open}>
-                              <a href={image.url} className="hovereffect" itemProp="contentUrl" data-size="480x320">
-                                <img className="equal-image" src={image.url} alt="" />
-                                <div className="overlay">
-                                  <p className="icon-links">
-                                    <a>
-                                      <span
-                                        className="feather icon-download"
-                                        onClick={(event) => {
-                                          event.stopPropagation();
-                                          setSelectedImageUrl(image.path_display);
-                                          setDownloadImageModal(true);
-                                        }}>
-                                      </span>
-                                    </a>
-                                    <a>
-                                      <span className="feather icon-edit"></span>
-                                    </a>
-                                  </p>
-                                </div>
-                              </a>
-                            </figure>
-                          )}
-                        </Item>
-                      ))}
-                      {loading && <div>Loading...</div>}
-                      {!loading && !hasMore && <div>No more thumbnails to load</div>}
-                    </div>
-                  </CustomGallery>
-                </div>
-                <div className="pswp" tabIndex="-1" role="dialog" aria-hidden="true">
-                  {/* PhotoSwipe gallery markup */}
-                </div>
-              </div>
-            </section>
+      <section id='gallery-banner' style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', maxWidth: `calc(100vw - ${scrollbarWidth}px)`, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ position: 'relative' }}>
+            <img
+              className="gallery-cover"
+              src={
+                banner !== null && banner !== "" &&
+                `${REACT_APP_GALLERY_IMAGE_URL}/${banner}`
+              }
+              style={{ width: '100%', height: 'auto' }}
+            />
+            <div id="cover-overlay" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1 }}></div>
           </div>
         </div>
+        <div className='banner-detail' style={{ position: 'absolute', zIndex: 2, textAlign: 'center', marginTop: showAnimation ? '-100px' : '0px', transition: 'margin-top 0.5s ease' }}>
+          <h1 className='banner-collection-name mb-3'>{collection.name}</h1>
+          <button onClick={handleScrollToGallery} className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${showAnimation ? 'slide-down' : ''}`} style={{ animationDelay: showAnimation ? '0.5s' : '0s' }}>
+            View Gallery
+          </button>
+        </div>
+        <div className='m-2 mr-5' style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', opacity: showAnimation ? 1 : 0, transition: 'opacity 0.5s ease' }}>
+          <div>
+            <h1 className='text-class-h1'>{collection.name}</h1>
+          </div>
+          <div>
+            <span
+              className="text-right feather icon-download black"
+              title='Download'
+              onClick={() => {
+                setDownloadGalleryModal(true);
+              }}>
+            </span>
+          </div>
+        </div>
+      </section>
 
-        <DefaultLayout
-          shareButton={false}
-          fullscreenButton={true}
-          zoomButton={true}
-          ref={layoutRef}
-        />
+      <section id="video-player" ref={imageGalleryRef}>
+        <div className='player-wrapper'>
+          <ReactPlayer
+            url='https://vimeo.com/902015705'
+            controls
+            width={`calc(100vw - ${scrollbarWidth}px)`}
+            height={'80%'}
+            playing={true}
+            loop={true}
+            muted={true}
+            className="react-player"
+          />
+        </div>
+      </section>
 
-        <DownloadGalleryModal
-          isOpen={showDownloadGalleryModal}
-          onClose={() => setDownloadGalleryModal(false)}
-          onConfirm={handleAllDownload}
-          downloadOptions={downloadOptions}
-          setDownloadOptions={setDownloadOptions}
-        />
+      <section id="image-gallery" className="image-gallery">
+        <div className="card-content collapse show">
+          <div className="card-body my-gallery">
 
-        <DownloadImageModal
-          isOpen={showDownloadImageModal}
-          onClose={() => setDownloadImageModal(false)}
-          onConfirm={handleDownload}
-          downloadOptions={downloadOptions}
-          setDownloadOptions={setDownloadOptions}
-        />
-      </div>
+            <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
+              <div className="row">
+                {imageUrls.map((image, index) => (
+                  <Item
+                    key={index}
+                    original={image.url}
+                    thumbnail={image.url}
+                    width="1024"
+                    height="576"
+                  >
+                    {({ ref, open }) => (
+                      <figure ref={ref} className="col-lg-3 col-md-6 col-12" onClick={open}>
+                        <a href={image.url} className="hovereffect" itemProp="contentUrl">
+                          <img className="equal-image" src={image.url} alt="" />
+                          <div className="overlay">
+                            <p className="icon-links">
+                              <a>
+                                <span
+                                  className="feather icon-download"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setSelectedImageUrl(image.path_display);
+                                    setDownloadImageModal(true);
+                                  }}>
+                                </span>
+                              </a>
+                              <a>
+                                <span className="feather icon-edit"></span>
+                              </a>
+                            </p>
+                          </div>
+                        </a>
+                      </figure>
+                    )}
+                  </Item>
+                ))}
+                {loading && <div>Loading...</div>}
+                {!loading && !hasMore && <div>No more thumbnails to load</div>}
+              </div>
+            </CustomGallery>
+          </div>
+          <div className="pswp" tabIndex="-1" role="dialog" aria-hidden="true">
+            {/* PhotoSwipe gallery markup */}
+          </div>
+        </div>
+      </section>
+      <DefaultLayout
+        shareButton={false}
+        fullscreenButton={true}
+        zoomButton={true}
+        ref={layoutRef}
+      />
+
+      <DownloadGalleryModal
+        isOpen={showDownloadGalleryModal}
+        onClose={() => setDownloadGalleryModal(false)}
+        onConfirm={handleAllDownload}
+        downloadOptions={downloadOptions}
+        setDownloadOptions={setDownloadOptions}
+      />
+
+      <DownloadImageModal
+        isOpen={showDownloadImageModal}
+        onClose={() => setDownloadImageModal(false)}
+        onConfirm={handleDownload}
+        downloadOptions={downloadOptions}
+        setDownloadOptions={setDownloadOptions}
+      />
     </>
   );
 };

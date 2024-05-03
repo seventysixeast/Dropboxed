@@ -1171,7 +1171,6 @@ a:not([href]) {
   cursor: pointer;
 }
 
-
 .swiper {
   width: 100%;
   height: 100%;
@@ -1206,3 +1205,263 @@ a:not([href]) {
 .swiper-slide:nth-child(3n) {
   width: 20%;
 }
+
+#gallery-banner {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+}
+
+.banner-detail {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  position: absolute;
+  top: 50%;
+  z-index: 9;
+  transform: translateY(-50%);
+}
+
+.banner-collection-name {
+  font-size: 3.25rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: lining-nums;
+  font-family: raleway, sans-serif;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.banner-pointer {
+  margin: 40px auto 20px;
+  z-index: 3;
+  box-sizing: border-box;
+}
+.collection-cover__scroll-button {
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  height: 40px;
+  padding: 0 24px;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  color: inherit;
+  background-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: lining-nums;
+  --placeholder: "call-to-action";
+  font-family: lato, sans-serif;
+  font-weight: 500;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: color 0.25s ease-out, background-color 0.25s ease-out,
+    border-color 0.25s ease-out;
+}
+
+.text-class-h1 {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: lining-nums;
+  font-family: raleway, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-size: 1.0125rem;
+  margin: 0;
+  display: inline-block;
+  max-width: 20rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  color: var(--theme-text-primary);
+  color: #000000ce;
+}
+
+#cover-overlay {
+  position: fixed;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle closest-side at center,
+                             rgba(0, 0, 0, 0.1) 0%,
+                             rgba(0, 0, 0, 0.1) 10%,
+                             rgba(0, 0, 0, 0.3) 500%);
+  z-index: 99999999;
+  transition: all 0.3s ease;
+  opacity: 1;
+  color: var(--theme-text-primary);
+}
+
+.collection-cover__scroll-button {
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  height: 40px;
+  padding: 0 24px;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  color: inherit;
+  background-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: lining-nums;
+  --placeholder: 'call-to-action';
+  font-family: lato, sans-serif;
+  font-weight: 500;
+  font-size: .6875rem;
+  line-height: 1rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  transition: color .25s ease-out, background-color .25s ease-out, border-color .25s ease-out;
+}
+
+.collection-cover__scroll-button:hover {
+  border-color: white;
+  color: black;
+  background-color: white
+}
+
+.button-reset, .input-reset {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.image-gallery {
+  transition: margin-top 1s ease;
+}
+
+
+.player-wrapper {
+  position: relative;
+  padding-top: 56.25%; /* Player ratio: 16:9 (1280 / 720 = 0.5625) */
+  margin-bottom: -10%;
+}
+
+.react-player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+
+  .banner-collection-name {
+    margin-top: 10rem;
+    font-size: 2rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: lining-nums;
+    font-family: raleway, sans-serif;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .collection-cover__scroll-button {
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    height: 30px;
+    padding: 0 24px;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    border: 1px solid currentColor;
+    color: inherit;
+    background-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: lining-nums;
+    --placeholder: "call-to-action";
+    font-family: lato, sans-serif;
+    font-weight: 500;
+    font-size: 0.5875rem;
+    line-height: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color 0.25s ease-out, background-color 0.25s ease-out,
+      border-color 0.25s ease-out;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .player-wrapper {
+    padding-top: 60%; /* Adjusted height for smaller screens */
+  }
+  .banner-collection-name {
+    margin-top: 10rem;
+    font-size: 1.75rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: lining-nums;
+    font-family: raleway, sans-serif;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .banner-collection-name {
+    margin-top: 10rem;
+    font-size: 1.25rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: lining-nums;
+    font-family: raleway, sans-serif;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .collection-cover__scroll-button {
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    height: 30px;
+    padding: 0 24px;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    border: 1px solid currentColor;
+    color: inherit;
+    background-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: lining-nums;
+    --placeholder: "call-to-action";
+    font-family: lato, sans-serif;
+    font-weight: 500;
+    font-size: 0.5875rem;
+    line-height: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color 0.25s ease-out, background-color 0.25s ease-out,
+      border-color 0.25s ease-out;
+  }
+}
+
+
