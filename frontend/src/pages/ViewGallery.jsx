@@ -126,15 +126,27 @@ export const ViewGallery = () => {
       const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
       const endIndex = Math.min(startIndex + fetchSize, totalFiles);
-
+  
       if (startIndex >= totalFiles) {
         setHasMore(false);
         return;
       }
-
+  
       const batchEntries = fileList.current.slice(startIndex, endIndex);
       const batchUrls = await fetchBatchThumbnails(batchEntries, data);
       setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
+  
+      // Increment page for the next batch
+      page.current++;
+  
+      // If there are more images to fetch, fetch the next batch
+      if (endIndex < totalFiles) {
+        fetchImages(data);
+      } else {
+        // If there are no more images, set hasMore to false
+        setHasMore(false);
+      }
+  
       setLoading(false);
     } catch (error) {
       console.error("Error fetching images:", error);
@@ -143,7 +155,6 @@ export const ViewGallery = () => {
   };
 
   const fetchBatchThumbnails = async (entries, data) => {
-    // if collectionRefresh is not empty string then user collection refresh instead of data
     const refreshToken = collectionRefresh !== "" ? collectionRefresh : data;
     const tokens = await getRefreshToken(refreshToken);
     const urls = [];
@@ -181,44 +192,6 @@ export const ViewGallery = () => {
     }
     return urls;
   };
-
-  const handleScroll = () => {
-    console.log("Scrolling...");
-    const windowHeight = window.innerHeight;
-    const body = document.body;
-    const html = document.documentElement;
-    const docHeight = Math.max(
-      body.scrollHeight,
-      body.offsetHeight,
-      html.clientHeight,
-      html.scrollHeight,
-      html.offsetHeight
-    );
-    const windowBottom = windowHeight + window.pageYOffset;
-  
-    if (windowBottom >= docHeight) {
-      console.log("Reached the bottom of the page.");
-      loadMoreThumbnails();
-    }
-  };
-  
-  const loadMoreThumbnails = () => {
-    console.log("Loading more thumbnails...");
-    if (!loading && hasMore) {
-      page.current += 1;
-      fetchImages();
-    }
-  };
-
-  useEffect(() => {
-    if (fileList.current.length > imageUrls.length) {
-      window.addEventListener("scroll", handleScroll);
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
-      };
-    }
-  }, [handleScroll]);
-  
 
   const handleDownload = async () => {
     const tokens = await getRefreshToken(collectionRefresh);
@@ -593,16 +566,8 @@ export const ViewGallery = () => {
             height={"70%"}
             playing={true}
             loop={true}
-            muted={true}
+            muted={false}
             className="react-player"
-            // vimeo options title
-            config={{
-              vimeo: {
-                playerOptions: {
-                  title: "true",
-                },
-              },
-            }}
           />
         </div>
       </section>
@@ -656,7 +621,6 @@ export const ViewGallery = () => {
                   </Item>
                 ))}
                 {loading && <div>Loading...</div>}
-                {!loading && !hasMore && <div>No more thumbnails to load</div>}
               </div>
             </CustomGallery>
           </div>

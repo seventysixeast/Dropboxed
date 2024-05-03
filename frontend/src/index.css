@@ -1292,10 +1292,12 @@ a:not([href]) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle closest-side at center,
-  rgba(0, 0, 0, 0.062) 0%,
-  rgba(0, 0, 0, 0.062) 50%,
-  rgba(0, 0, 0, 0.1) 10000%);
+  background: radial-gradient(
+    circle closest-side at center,
+    rgba(0, 0, 0, 0.062) 0%,
+    rgba(0, 0, 0, 0.062) 50%,
+    rgba(0, 0, 0, 0.1) 10000%
+  );
   z-index: 99999999;
   transition: all 0.3s ease;
   opacity: 0.7;
@@ -1317,26 +1319,28 @@ a:not([href]) {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-variant-numeric: lining-nums;
-  --placeholder: 'call-to-action';
+  --placeholder: "call-to-action";
   font-family: lato, sans-serif;
   font-weight: 500;
-  font-size: .6875rem;
+  font-size: 0.6875rem;
   line-height: 1rem;
-  letter-spacing: .15em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  transition: color .25s ease-out, background-color .25s ease-out, border-color .25s ease-out;
+  transition: color 0.25s ease-out, background-color 0.25s ease-out,
+    border-color 0.25s ease-out;
 }
 
 .collection-cover__scroll-button:hover {
   border-color: white;
   color: black;
-  background-color: white
+  background-color: white;
 }
 
 .collection-cover__scroll-button:focus {
   outline: none;
 }
-.button-reset, .input-reset {
+.button-reset,
+.input-reset {
   -webkit-appearance: none;
   -moz-appearance: none;
 }
@@ -1344,7 +1348,6 @@ a:not([href]) {
 .image-gallery {
   transition: margin-top 1s ease;
 }
-
 
 .player-wrapper {
   position: relative;
@@ -1364,7 +1367,6 @@ a:not([href]) {
 }
 
 @media (max-width: 1000px) {
-
   .banner-collection-name {
     margin-top: 10rem;
     font-size: 2rem;
@@ -1405,7 +1407,6 @@ a:not([href]) {
   }
 }
 
-
 @media (max-width: 768px) {
   .player-wrapper {
     padding-top: 60%; /* Adjusted height for smaller screens */
@@ -1434,7 +1435,6 @@ a:not([href]) {
 }
 
 @media (max-width: 600px) {
-
   .banner-collection-name {
     margin-top: 10rem;
     font-size: 1.25rem;
@@ -1475,11 +1475,11 @@ a:not([href]) {
   }
 }
 
-
-.overlay-to-links{
-    background: radial-gradient(circle closest-side at center,
-                               rgba(0, 0, 0, 0.062) 0%,
-                               rgba(0, 0, 0, 0.062) 50%,
-                               rgba(0, 0, 0, 0.1) 10000%);
+.overlay-to-links {
+  background: radial-gradient(
+    circle closest-side at center,
+    rgba(0, 0, 0, 0.062) 0%,
+    rgba(0, 0, 0, 0.062) 50%,
+    rgba(0, 0, 0, 0.1) 10000%
+  );
 }
-
