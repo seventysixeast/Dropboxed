@@ -143,7 +143,9 @@ export const ViewGallery = () => {
   };
 
   const fetchBatchThumbnails = async (entries, data) => {
-    const tokens = await getRefreshToken(data);
+    // if collectionRefresh is not empty string then user collection refresh instead of data
+    const refreshToken = collectionRefresh !== "" ? collectionRefresh : data;
+    const tokens = await getRefreshToken(refreshToken);
     const urls = [];
     try {
       const response = await axios.post(
@@ -181,10 +183,8 @@ export const ViewGallery = () => {
   };
 
   const handleScroll = () => {
-    const windowHeight =
-      "innerHeight" in window
-        ? window.innerHeight
-        : document.documentElement.offsetHeight;
+    console.log("Scrolling...");
+    const windowHeight = window.innerHeight;
     const body = document.body;
     const html = document.documentElement;
     const docHeight = Math.max(
@@ -195,13 +195,15 @@ export const ViewGallery = () => {
       html.offsetHeight
     );
     const windowBottom = windowHeight + window.pageYOffset;
-
+  
     if (windowBottom >= docHeight) {
+      console.log("Reached the bottom of the page.");
       loadMoreThumbnails();
     }
   };
-
+  
   const loadMoreThumbnails = () => {
+    console.log("Loading more thumbnails...");
     if (!loading && hasMore) {
       page.current += 1;
       fetchImages();
@@ -215,7 +217,8 @@ export const ViewGallery = () => {
         window.removeEventListener("scroll", handleScroll);
       };
     }
-  }, []);
+  }, [handleScroll]);
+  
 
   const handleDownload = async () => {
     const tokens = await getRefreshToken(collectionRefresh);
@@ -536,7 +539,7 @@ export const ViewGallery = () => {
             position: "absolute",
             zIndex: 2,
             textAlign: "center",
-            marginTop: showAnimation ? "-50px" : "0px",
+            marginTop: showAnimation ? "-10rem" : "0px",
             transition: "margin-top 0.5s ease",
           }}
         >
@@ -634,7 +637,7 @@ export const ViewGallery = () => {
                             <p className="icon-links" style={{backgroundColor:"black"}}>
                               <a>
                                 <span
-                                  className="feather icon-download primary"
+                                  className="feather icon-download "
                                   onClick={(event) => {
                                     event.stopPropagation();
                                     setSelectedImageUrl(image.path_display);
@@ -643,7 +646,7 @@ export const ViewGallery = () => {
                                 ></span>
                               </a>
                               <a>
-                                <span className="feather icon-edit primary"></span>
+                                <span className="feather icon-edit "></span>
                               </a>
                             </p>
                           </div>

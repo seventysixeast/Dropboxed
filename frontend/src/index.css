@@ -1483,14 +1483,3 @@ a:not([href]) {
                                rgba(0, 0, 0, 0.1) 10000%);
 }
 
-
-.icon-links {
-  background-color: rgba(0, 0, 0, 0.5) !important;
-  padding: 10px !important;
-}
-
-.icon-links a {
-  color: white !important;
-}
-
-
