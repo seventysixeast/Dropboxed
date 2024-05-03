@@ -211,7 +211,11 @@
       type="text/css"
       href="/app-assets/css/pages/app-todo.css"
     />
-    <link rel="stylesheet" type="text/css" href="/app-assets/css/plugins/forms/wizard.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/app-assets/css/plugins/forms/wizard.css"
+    />
 
     <!-- BEGIN: Custom CSS-->
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
@@ -322,7 +326,14 @@
 
         function checkRoute() {
           const currentPath = window.location.pathname;
-          if (currentPath === "/login" || currentPath === "/signup" || currentPath === "/auth/dropbox" || currentPath === "/auth/google" || currentPath === "/view-gallery" || currentPath === "/view-gallery/*" ) {
+          if (
+            currentPath === "/login" ||
+            currentPath === "/signup" ||
+            currentPath === "/auth/dropbox" ||
+            currentPath === "/auth/google" ||
+            currentPath === "/view-gallery" ||
+            currentPath === "/view-gallery/*"
+          ) {
             removeClasses();
           } else {
             addClasses();
@@ -335,6 +346,8 @@
 
         window.addEventListener("popstate", checkRoute);
       });
+    </script>
+    <script>
     </script>
   </body>
 </html>
