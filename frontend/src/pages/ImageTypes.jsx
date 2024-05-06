@@ -62,6 +62,13 @@ const ImageTypes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const existingImageType = imagesTypes.find(
+        (type) => type.type === formData.type
+      );
+      if (existingImageType) {
+        toast.error("Image type already exists!");
+        return;
+      }
       const formDataToSend = new FormData();
       formDataToSend.append("id", formData.id);
       formDataToSend.append("type", formData.type);
@@ -109,11 +116,22 @@ const ImageTypes = () => {
 
   const columns = React.useMemo(
     () => [
-      { Header: "S.No.", accessor: "id" },
       { Header: "Type", accessor: "type" },
       { Header: "Price", accessor: "price" },
-      { Header: "Status", accessor: "status" },
-      { Header: "Gallery Status", accessor: "gallery_status" },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ row }) => (
+          <span>{row.original.status || "Active"}</span>
+        )
+      },
+      {
+        Header: "Gallery Status",
+        accessor: "gallery_status",
+        Cell: ({ row }) => (
+          <span>{row.original.gallery_status || "Image"}</span>
+        )
+      },
       {
         Header: "Action",
         Cell: ({ row }) => (
@@ -217,7 +235,7 @@ const ImageTypes = () => {
                               <fieldset className="form-group floating-label-form-group">
                                 <label>Price *</label>
                                 <input
-                                  type="text"
+                                  type="number"
                                   className="form-control"
                                   name="price"
                                   value={formData.price}

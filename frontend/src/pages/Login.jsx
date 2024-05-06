@@ -156,7 +156,6 @@ const Login = () => {
             setValidationErrors(validationErrors);
         } else {
             console.error("Login failed:", error.message);
-            toast.error("Login failed");
         }
     }
 };

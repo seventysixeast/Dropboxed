@@ -3,8 +3,12 @@ import * as Yup from "yup";
 import { toast } from 'react-toastify';
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { signup } from "../api/authApis";
+import TermsOfServiceModal from "../components/TermsOfServiceModal";
+import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 
 const SignUp = () => {
+  const [showTermsOfServiceModal, setShowTermsOfServiceModal] = useState(false);
+  const [showPrivacyPolicyModal, setShowPrivacyPolicyModal] = useState(false);
   const [userData, setUserData] = useState({
     studioName: "",
     email: "",
@@ -19,11 +23,11 @@ const SignUp = () => {
     studioName: Yup.string()
       .required("Studio Name is required")
       .max(63, "Studio Name must be at most 63 characters")
-    .matches(/^[a-zA-Z0-9\s-]+$/, "Invalid Studio Name format"),
+      .matches(/^[a-zA-Z0-9\s-]+$/, "Invalid Studio Name format"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
-    .required("Password is required")
-    .matches(passwordRegex, "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"),
+      .required("Password is required")
+      .matches(passwordRegex, "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"),
     country: Yup.string().required("Country is required"),
     agreedToTerms: Yup.boolean().oneOf(
       [true],
@@ -48,7 +52,7 @@ const SignUp = () => {
       // Create a new object with studioName replaced
       const updatedUserData = { ...userData, studioName: subdomainValue };
       const response = await signup(updatedUserData);
-      if(response.success){
+      if (response.success) {
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -183,7 +187,10 @@ const SignUp = () => {
                               className="custom-control-label"
                               htmlFor="customCheck2"
                             >
-                              I agree to the Terms of Service and Privacy Policy
+                              I agree to the
+                              <a onClick={() => { setShowTermsOfServiceModal(true) }} style={{ color: '#009c9f' }}> Terms of Service </a>
+                              and
+                              <a onClick={() => { setShowPrivacyPolicyModal(true) }} style={{ color: '#009c9f' }}> Privacy Policy </a>
                               for this site.
                             </label>
                           </div>
@@ -212,6 +219,14 @@ const SignUp = () => {
           </section>
         </div>
       </div>
+      <TermsOfServiceModal
+        isOpen={showTermsOfServiceModal}
+        onClose={() => setShowTermsOfServiceModal(false)}
+      />
+      <PrivacyPolicyModal
+        isOpen={showPrivacyPolicyModal}
+        onClose={() => setShowPrivacyPolicyModal(false)}
+      />
     </div>
   );
 };

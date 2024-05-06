@@ -1,21 +1,37 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from '../context/authContext';
 import logoLight from "../assets/images/dropboxed-logo-wt.png";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
-import avatar2 from "../app-assets/images/portrait/small/avatar-s-2.png";
-import avatar3 from "../app-assets/images/portrait/small/avatar-s-3.png";
-import avatar4 from "../app-assets/images/portrait/small/avatar-s-6.png";
+import { getClient } from "../api/clientApis";
 
 const Header = () => {
   const { authData } = useAuth();
   const { logout } = useAuth();
   const { user } = authData;
-  console.log(user);
 
   const handleLogout = (e) => {
-      e.preventDefault();
-      logout();
-      window.location.href = '/login';
+    e.preventDefault();
+    logout();
+    window.location.href = '/login';
+  };
+
+  useEffect(() => {
+    checkUserStatus();
+  }, []);
+
+  const checkUserStatus = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', user.id);
+      let res = await getClient(formDataToSend);
+      console.log("res.data.status",res.data.status);
+      if (res.data.status == "Inactive") {
+        logout();
+        window.location.href = '/login';
+      }
+    } catch (error) {
+      console.error('Error checking user status:', error);
+    }
   };
 
   return (
@@ -116,7 +132,7 @@ const Header = () => {
                   </a>
                   <div className="dropdown-divider"></div>
                   <a className="dropdown-item" href="#" onClick={handleLogout}>
-                      <i className="feather icon-power"></i> Logout
+                    <i className="feather icon-power"></i> Logout
                   </a>
                 </div>
               </li>
