@@ -1,7 +1,7 @@
 import React from "react";
 import { useTable, useFilters, useGlobalFilter, useSortBy, usePagination } from "react-table";
 
-const TableCustom = ({ data, columns }) => { 
+const TableCustom = ({ data, columns }) => {
   const {
     getTableProps,
     getTableBodyProps,
@@ -23,13 +23,12 @@ const TableCustom = ({ data, columns }) => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, sortBy: [{ id: columns[0].accessor, desc: true }]}
-      
+      initialState: { pageIndex: 0, pageSize: 10 } // Set initial page size here
     },
     useFilters,
     useGlobalFilter,
     useSortBy,
-    usePagination,
+    usePagination
   );
 
   return (
@@ -48,7 +47,9 @@ const TableCustom = ({ data, columns }) => {
                           <span> Show{" "}
                             <select
                               value={pageSize}
-                              onChange={(e) => setPageSize(Number(e.target.value))}
+                              onChange={(e) => {
+                                setPageSize(Number(e.target.value));
+                              }}
                               className="custom-select custom-select-sm form-control form-control-sm  w-25"
                             >
                               {[10, 25, 50, 100].map((pageSize) => (
@@ -79,7 +80,7 @@ const TableCustom = ({ data, columns }) => {
                                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                                   {column.render("Header")}
                                   <span>
-                                    {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc"/> : <i className="fa fa-sort-asc"/>) : ''}
+                                    {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc" /> : <i className="fa fa-sort-asc" />) : ''}
                                   </span>
                                 </th>
                               ))}
@@ -105,7 +106,7 @@ const TableCustom = ({ data, columns }) => {
                   <div className="justify-content-between px-2 dataTables_wrapper dt-bootstrap4">
                     <div className="col-xs-12 col-sm-12 col-md-5">
                       <div className="dataTables_info" role="status" aria-live="polite">
-                        Showing {(pageIndex * 10) + 1} to {Math.min((pageIndex + 1) * 10, data.length)} of {data.length} entries
+                        Showing {(pageIndex * pageSize) + 1} to {Math.min((pageIndex + 1) * pageSize, data.length)} of {data.length} entries
                       </div>
                     </div>
                     <div className="col-sm-12 col-md-7 float-right">
@@ -117,37 +118,11 @@ const TableCustom = ({ data, columns }) => {
                           <li className={`paginate_button page-item previous ${!canPreviousPage ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => previousPage()}>Previous</button>
                           </li>
-                          {pageOptions.slice(Math.max(pageIndex - 1, 0), Math.min(pageIndex + 2, pageCount)).map((page, index) => (
-                            <li key={index} className={`paginate_button page-item ${pageIndex === page ? 'active' : ''}`}>
+                          {pageOptions.map((page) => (
+                            <li key={page} className={`paginate_button page-item ${pageIndex === page ? 'active' : ''}`}>
                               <button className="page-link" onClick={() => gotoPage(page)}>{page + 1}</button>
                             </li>
                           ))}
-                          <li className="paginate_button page-item">
-                            <input
-                              type="text"
-                              placeholder="..."
-                              onChange={(e) => {
-                                const pageNumber = e.target.value ? Number(e.target.value) - 1 : 0;
-                                gotoPage(pageNumber);
-                              }}
-                              className="page-link"
-                              style={{ width: '50px', textAlign: 'center' }}
-                            />
-                          </li>
-
-
-                          {pageCount > 2 && (
-                            <>
-                              <li className="paginate_button page-item">
-                                <button className="page-link" onClick={() => gotoPage(pageCount - 2)}>{pageCount - 1}</button>
-                              </li>
-                              <li className="paginate_button page-item">
-                                <button className="page-link" onClick={() => gotoPage(pageCount - 1)}>{pageCount}</button>
-                              </li>
-                            </>
-                          )}
-
-
                           <li className={`paginate_button page-item next ${!canNextPage ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => nextPage()}>Next</button>
                           </li>
