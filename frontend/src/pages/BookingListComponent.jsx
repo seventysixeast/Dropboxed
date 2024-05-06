@@ -302,7 +302,17 @@ export const BookingListComponent = () => {
         let editable = true;
         let status = booking.booking_status;
 
+        let bookingStart = new Date(`${booking.booking_date}T${booking.booking_time}`);
+        let currentTime = new Date();
+
+        let timeDifference = bookingStart.getTime() - currentTime.getTime();
+
+        let timeDifferenceInHours = timeDifference / (1000 * 3600);
+
         if (roleId === 3) {
+          if (timeDifferenceInHours < 3) {
+            editable = false;
+          }
           if (booking.user_id !== userId) {
             title = "Limited Availability";
             color = "gray";
@@ -338,6 +348,7 @@ export const BookingListComponent = () => {
         };
       });
       setEvents(events);
+
     } catch (error) {
       setBookingsData([]);
       setEvents([]);
@@ -866,6 +877,7 @@ export const BookingListComponent = () => {
       Header: "Action",
       accessor: "action",
       Cell: (props) => (
+
         <div className="d-flex">
           <button
             type="button"
@@ -874,6 +886,11 @@ export const BookingListComponent = () => {
             data-toggle="modal"
             data-target="#appointment"
             title="Edit Booking"
+            disabled={
+              roleId === 3 ?
+                (new Date(props.row.original.booking_date + "T" + props.row.original.booking_time) - new Date() < 1000 * 60 * 60 * 3) : false
+            }
+
           >
             <i className="feather white icon-edit"></i>
           </button>
@@ -888,6 +905,12 @@ export const BookingListComponent = () => {
             data-toggle="modal"
             data-target="#deleteModal"
             title="Delete Booking"
+            disabled={
+              roleId === 3 ?
+                (new Date(props.row.original.booking_date + "T" + props.row.original.booking_time) - new Date() < 1000 * 60 * 60 * 3) : false
+
+            }
+
           >
             <i className="feather white icon-trash"></i>
           </button>
@@ -1809,10 +1832,19 @@ export const BookingListComponent = () => {
                           }}
                           eventResize={handleEventResize}
                           firstDay={1}
-                          dateClick={handleDateClick}
+                          dateClick={(info) => {
+                            console.log(info);
+                            if (info.allDay === true) {
+                              return;
+                            }
+                            handleDateClick(info);
+                          }}
                           initialView="timeGridWeek"
                           eventClick={(info) => {
-                            if (info.event.backgroundColor === "gray") {
+                            if (info.event.allDay) {
+                              return;
+                            }
+                            if (info.event.backgroundColor === "gray" || info.event.startEditable === false) {
                               return;
                             }
                             handleEventClick(info);
