@@ -40,9 +40,8 @@ const ToDo = () => {
     taskTags: [],
     comment: "",
     status: 0,
-    isFavourite: 1,
+    isFavourite: 0,
   });
-  console.log(taskData.comment, selectedClient);
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState();
   const getTasks = async () => {
@@ -82,17 +81,10 @@ const ToDo = () => {
       taskTags: [],
       comment: "",
       status: 0,
-      isFavourite: 1,
+      isFavourite: 0,
     });
     setSelectedClient([]);
     setSelectedTags([]);
-  };
-
-  const handleModalClose = (event) => {
-    if (modalRef.current && !modalRef.current.contains(event.target)) {
-      setNewTaskModalOpen(false);
-    }
-
   };
 
   useEffect(() => {
@@ -157,7 +149,7 @@ const ToDo = () => {
           taskTags: [],
           comment: "",
           status: 0,
-          isFavourite: 1,
+          isFavourite: 0,
         });
         setSelectedClient([]);
         setSelectedTags([]);
@@ -195,7 +187,7 @@ const ToDo = () => {
           taskTags: [],
           comment: "",
           status: 0,
-          isFavourite: 1,
+          isFavourite: 0,
         });
         toggleNewTaskModal();
       } else {
@@ -346,7 +338,6 @@ const ToDo = () => {
 
   };
 
-
   const onDragEnd = (result) => {
     if (!result.destination) return;
     const items = Array.from(filteredTasks);
@@ -354,8 +345,6 @@ const ToDo = () => {
     items.splice(result.destination.index, 0, reorderedItem);
     setFilteredTasks(items);
   };
-
-
 
   return (
     <div className="todo-application">
