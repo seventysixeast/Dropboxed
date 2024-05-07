@@ -222,17 +222,7 @@ const AddService = () => {
   }));
 
   const CustomOption = ({ data, innerRef, innerProps }) => (
-    <CustomTooltip
-      title={`Price: $${data.price}, Video: ${
-        data.isVideo !== undefined
-          ? data.isVideo.toLowerCase().includes("image")
-            ? false
-            : true
-          : false
-      }`}
-      arrow
-      placement="left"
-    >
+    <CustomTooltip title={`Price: $${data.price}`} arrow placement="left">
       <div
         ref={innerRef}
         {...innerProps}
@@ -371,7 +361,7 @@ const AddService = () => {
                                   value={
                                     serviceData.imageTypeDetails[index].label
                                   }
-                                  placeholder="Enter Image Type Label"
+                                  placeholder="Enter Type Label"
                                   onChange={(e) =>
                                     handleImageTypeLabelChange(
                                       index,
@@ -388,7 +378,7 @@ const AddService = () => {
                                   value={
                                     serviceData.imageTypeDetails[index].count
                                   }
-                                  placeholder="Enter Image Count"
+                                  placeholder="Enter Count"
                                   onChange={(e) =>
                                     handleImageCountChange(
                                       index,
@@ -419,12 +409,12 @@ const AddService = () => {
                           <div className="row">
                             <label
                               htmlFor="status"
-                              className="form-label col-md-2 col-sm-3"
+                              className="form-label col-md-2 col-sm-6"
                             >
                               Status
                             </label>
                             <Select
-                              className="select2 col-md-3 col-sm-3 mr-1 mb-1  p-0"
+                              className="select2 col-md-3 col-sm-6 mr-1 mb-1  p-0"
                               name="status"
                               value={statusOptions.find(
                                 (option) => option.value === serviceData.status
@@ -433,6 +423,11 @@ const AddService = () => {
                               options={statusOptions}
                               isSearchable
                             />
+                            <label
+                              htmlFor="totalPrice"
+                              className="form-label col-md-3 col-sm-6"
+                            ></label>
+                            <p className="form-control col-md-3 col-sm-6 mr-1 mb-1">{`$ ${serviceData.totalPrice}`}</p>
                           </div>
                         </div>
                       </form>

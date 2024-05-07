@@ -9,5 +9,7 @@ router.post(
   todoController.getAllTasks
 );
 
+router.post("/createTask", authenticateToken, todoController.createTask);
+
 
 module.exports = router;

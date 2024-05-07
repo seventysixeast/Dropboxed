@@ -3,7 +3,7 @@ import { deleteService, getAllServices } from "../api/serviceApis";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const CardsPackages = () => {
   const { authData } = useAuth();
@@ -86,15 +86,15 @@ const CardsPackages = () => {
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group">
-                    {roleId !== 3 &&
+                    {roleId !== 3 && (
                       <a
-                      type="button"
-                      className="btn btn-outline-primary btn-block"
-                      href="/services/add-service"
-                    >
-                      Add Service
-                    </a>
-                    }
+                        type="button"
+                        className="btn btn-outline-primary btn-block"
+                        href="/services/add-service"
+                      >
+                        Add Service
+                      </a>
+                    )}
 
                     <div
                       className="modal fade text-left"
@@ -194,49 +194,52 @@ const CardsPackages = () => {
             </div>
           </div>
           <div className="row">
-            {servicesData.map((service) => (
-              <div className="col-xl-3 col-md-6 col-sm-12" key={service.id}>
-                <div className="card d-flex flex-column">
-                  <div className="card-content flex-grow-1">
-                    <div className="card-body text-center package-card">
-                      <h4 className="card-title">{service.package_name}</h4>
-                      <h1 className="card-title">
-                        ${service.package_price.toFixed(2)}
-                      </h1>
-                      <ul className="list-unstyled mt-2 mb-2">
-                        {service.image_type_details.map((imageType) => (
-                          <li key={imageType.image_type}>
-                            {imageType.image_type_count}{" "}
-                            {imageType.image_type_label}
-                          </li>
-                        ))}
-                      </ul>
+            {servicesData.length > 0 ? (
+              servicesData.map((service) => (
+                <div className="col-xl-3 col-md-6 col-sm-12" key={service.id}>
+                  <div className="card d-flex flex-column">
+                    <div className="card-content flex-grow-1">
+                      <div className="card-body text-center package-card">
+                        <h1 className="card-title" style={{fontSize:'1.5rem'}}>{service.package_name}</h1>
+                        <h1 className="card-title" style={{fontSize:'1.5rem'}}>
+                          ${service.package_price.toFixed(2)}
+                        </h1>
+                        <ul className="list-unstyled">
+                          {service.image_type_details.map((imageType) => (
+                            <li key={imageType.image_type}>
+                              {imageType.image_type_count}{" "}
+                              {imageType.image_type_label}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
+                    {roleId !== 3 && (
+                      <div className="card-footer d-flex justify-content-between">
+                        <>
+                          <button
+                            className="btn btn-primary"
+                            onClick={() => handleEditService(service)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-primary"
+                            onClick={() => handleDeleteService(service)}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      </div>
+                    )}
                   </div>
-                  {roleId !== 3 &&
-                  <div className="card-footer d-flex justify-content-between">
-                  
-                  <>
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => handleEditService(service)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => handleDeleteService(service)}
-                    >
-                      Delete
-                    </button>
-                  </>
-
-                  </div>
-                  }
-
                 </div>
+              ))
+            ) : (
+              <div className="col-12 text-center">
+                <p>No services found.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

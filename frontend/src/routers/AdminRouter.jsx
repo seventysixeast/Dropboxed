@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, useRoutes } from "react-router-dom";
+import { Navigate, useLocation, useRoutes } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SideNav from "../components/SideNav";
@@ -26,10 +26,13 @@ import EditProfile from "../pages/EditProfile";
 import SignUp from "../pages/SignUp";
 import { useAuth } from "../context/authContext";
 import AddService from "../pages/AddService";
+import DropboxOAuth from "../pages/DropboxAuth";
+import GoogleOAuth from "../pages/GoogleOAuth";
 
 const AdminRouter = () => {
   const { authData } = useAuth();
   const { user } = authData;
+  const location = useLocation();
   
   const route = useRoutes([
     { path: "/dashboard", element: <Dashboard /> },
@@ -57,14 +60,16 @@ const AdminRouter = () => {
     { path: "/services/add-service", element: <AddService /> },
     { path: "/services/edit-service/:id", element: <AddService /> },
     { path: "/services/*", element: <AddService /> },
-
+    { path: "/auth/dropbox", element: <DropboxOAuth /> },
+    { path: "/auth/google", element: <GoogleOAuth /> }
 
   ]);
+  const shouldRenderHeaderAndSideNav = !location.pathname.startsWith('/view-gallery');
 
   return (
     <div className="wrapper-foot">
-      <Header />
-      <SideNav />
+      {shouldRenderHeaderAndSideNav && <Header />}
+      {shouldRenderHeaderAndSideNav && <SideNav />}
       <div id="script-warning"></div>
       <div className="content-foot">{route}</div>
       <Footer />

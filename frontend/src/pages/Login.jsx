@@ -7,10 +7,13 @@ import { login } from "../api/authApis";
 import { encryptToken } from "../helpers/tokenUtils";
 import { getSubdomainFromUrl } from "../helpers/utils";
 import { Link } from "react-router-dom";
+import { decryptToken } from "../helpers/tokenUtils";
+import { verifyToken } from "../api/authApis";
 
 const Login = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
+  console.log("subdomain>>>",subdomain,window.location.href);
   const [userData, setUserData] = useState({
     userName: "",
     password: "",
@@ -25,6 +28,51 @@ const Login = () => {
       .required("Password is required")
       .min(6, "Password must be at least 6 characters"),
   });
+
+  useEffect(() => {
+    const getTokenFromUrl = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('token');
+    };
+
+    const handleTokenVerification = async (token) => {
+        try {
+            const decryptedToken = decryptToken(token);
+            const { success, accessToken, user, message } = await verifyToken(decryptedToken);
+            console.log("success", success)
+            if (success) {
+                // Save user data and access token in localStorage
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('isAuth', true);
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                // Show success toast
+                // toast.success('Token verification successful');
+                
+                // Redirect to dashboard
+                window.location.href = '/dashboard';
+            } else {
+                // Show error toast
+                toast.error(`Token verification failed: ${message}`);
+                // Redirect to login page
+                window.location.href = '/login';
+            }
+        } catch (error) {
+            console.error("Token verification failed:", error.message);
+            // Show error toast
+            toast.error('Token verification failed');
+            // Redirect to login page
+            window.location.href = '/login';
+        }
+    };
+
+    const token = getTokenFromUrl();
+
+    if (token) {
+        handleTokenVerification(token);
+    }
+
+}, []);
 
   useEffect(() => {
     document.body.classList.remove("vertical-layout", "vertical-menu-modern", "2-columns", "fixed-navbar");
@@ -94,7 +142,7 @@ const Login = () => {
           const encryptedToken = encryptToken(accessToken);
           // Construct the redirection URL
          
-          const redirectUrl = `${window.location.protocol}//${userSubdomain}.${window.location.host}?token=${encodeURIComponent(encryptedToken)}`;
+          const redirectUrl = `${window.location.protocol}//${userSubdomain}.${window.location.host}/login?token=${encodeURIComponent(encryptedToken)}`;
           //console.log("redirectUrl",redirectUrl)
           window.location.href = redirectUrl; // Redirecting to subdomain
         }
