@@ -40,8 +40,8 @@ const getAllTasks = async (req, res) => {
           },
           {
             model: Users,
-            as: "author", // Alias for the Users model
-            attributes: ["id", "user_name", "profile_photo"], // Specify attributes to retrieve
+            as: "author",
+            attributes: ["id", "user_name", "profile_photo"],
           },
         ],
         order: [["task_order", "DESC"]],
@@ -76,13 +76,12 @@ const createTask = async (req, res) => {
       task_assigndate,
       task_description,
       task_tags,
-      comment,
+      comments,
       status,
       is_favourite,
     } = req.body;
 
     if (id === "") {
-      console.log("Creating new task");
       newTask = await TaskTodo.create({
         user_id,
         subdomain_id,
@@ -92,12 +91,11 @@ const createTask = async (req, res) => {
         task_assigndate,
         task_tags,
         task_description,
-        comment,
+        comments,
         status,
         is_favourite,
       });
     } else {
-      console.log("Updating existing task");
       await TaskTodo.update(
         {
           task_title,
@@ -105,7 +103,7 @@ const createTask = async (req, res) => {
           task_assigndate,
           task_tags,
           task_description,
-          comment,
+          comments,
           status,
           is_favourite,
         },
@@ -114,12 +112,12 @@ const createTask = async (req, res) => {
       newTask = await TaskTodo.findByPk(id);
     }
 
-    if (comment.trim() !== "") {
+    if (comments.trim() !== "") {
       console.log("Adding new comment");
       newComment = await TaskComment.create({
         user_id,
         task_id: newTask.id,
-        comments: comment,
+        comments: comments,
         subdomain_id,
       });
     }
@@ -131,4 +129,72 @@ const createTask = async (req, res) => {
   }
 };
 
-module.exports = { getAllTasks, createTask };
+const addComment = async (req, res) => {
+  try {
+    const { task_id, user_id, comments, subdomain_id } = req.body;
+    const newComment = await TaskComment.create({
+      task_id,
+      user_id,
+      comments,
+      subdomain_id,
+    });
+    res.status(201).json({ success: true, comment: newComment });
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ error: "Failed to add comment" });
+  }
+};
+
+const setTaskStatus = async (req, res) => {
+  try {
+    const { id, status } = req.body;
+    await TaskTodo.update({ status }, { where: { id } });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    res.status(500).json({ error: "Failed to update task status" });
+  }
+};
+
+const setTaskFavorite = async (req, res) => {
+  try {
+    const { id, is_favourite } = req.body;
+    await TaskTodo.update({ is_favourite }, { where: { id } });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error updating task favorite:", error);
+    res.status(500).json({ error: "Failed to update task favorite" });
+  }
+};
+
+const deleteTask = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    await TaskComment.destroy({
+      where: {
+        task_id: id,
+      },
+    });
+
+    await TaskTodo.destroy({
+      where: {
+        id: id,
+      },
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    res.status(500).json({ error: "Failed to delete task" });
+  }
+};
+
+module.exports = {
+  getAllTasks,
+  createTask,
+  addComment,
+  setTaskStatus,
+  setTaskFavorite,
+  deleteTask,
+};

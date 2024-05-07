@@ -908,9 +908,7 @@ export const BookingListComponent = () => {
             disabled={
               roleId === 3 ?
                 (new Date(props.row.original.booking_date + "T" + props.row.original.booking_time) - new Date() < 1000 * 60 * 60 * 3) : false
-
             }
-
           >
             <i className="feather white icon-trash"></i>
           </button>

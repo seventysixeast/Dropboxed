@@ -1483,3 +1483,8 @@ a:not([href]) {
     rgba(0, 0, 0, 0.1) 10000%
   );
 }
+
+/* .item-todo {
+  animation: fadeIn 0.5s linear;
+  animation-fill-mode: both;
+} */
