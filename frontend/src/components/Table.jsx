@@ -23,8 +23,9 @@ const TableCustom = ({ data, columns }) => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 10 } // Set initial page size here
+      initialState: { pageIndex: 0, pageSize: 10, sortBy: [{ id: columns[0].accessor, desc: true }] } // Set initial page size here
     },
+
     useFilters,
     useGlobalFilter,
     useSortBy,
@@ -105,9 +106,9 @@ const TableCustom = ({ data, columns }) => {
                   </div>
                   <div className="justify-content-between px-2 dataTables_wrapper dt-bootstrap4">
                     <div className="col-xs-12 col-sm-12 col-md-5">
-                      <div className="dataTables_info" role="status" aria-live="polite">
+                      {/* <div className="dataTables_info" role="status" aria-live="polite">
                         Showing {(pageIndex * pageSize) + 1} to {Math.min((pageIndex + 1) * pageSize, data.length)} of {data.length} entries
-                      </div>
+                      </div> */}
                     </div>
                     <div className="col-sm-12 col-md-7 float-right">
                       <div className="dataTables_paginate paging_full_numbers float-right">
