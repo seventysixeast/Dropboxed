@@ -19,12 +19,12 @@ const createPhotographer = async (data) => {
         'Content-Type': 'multipart/form-data',
       },
     });
-    if (!response.status === 200) {
+    if (response.status !== 200) {
       throw new Error('Failed to create photographer');
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data.error;
   }
 };
 

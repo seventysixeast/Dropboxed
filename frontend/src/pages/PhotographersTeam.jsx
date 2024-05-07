@@ -15,7 +15,7 @@ const PhotographersTeam = () => {
     name: "",
     email: "",
     phone: "",
-    bussiness_name: "",
+    business_name: "",
     profile_photo: "",
     status: "Active"
   });
@@ -46,8 +46,8 @@ const PhotographersTeam = () => {
       photographer.email = value;
     } else if (name === "phone") {
       photographer.phone = value;
-    } else if (name === "bussiness_name") {
-      photographer.bussiness_name = value;
+    } else if (name === "business_name") {
+      photographer.business_name = value;
     } else if (name === "status") {
       photographer.status = value;
     }
@@ -81,8 +81,8 @@ const PhotographersTeam = () => {
       name: "",
       email: "",
       phone: "",
-      bussiness_name: "",
-      profile_photo: null,
+      business_name: "",
+      profile_photo: "",
       status: "Active"
     });
     setPreviewImage(null);
@@ -96,16 +96,19 @@ const PhotographersTeam = () => {
       formDataToSend.append("name", formData.name);
       formDataToSend.append("email", formData.email);
       formDataToSend.append("phone", formData.phone);
-      formDataToSend.append("bussiness_name", formData.bussiness_name);
+      formDataToSend.append("business_name", formData.business_name);
       formDataToSend.append('profile_photo', formData.profile_photo);
       formDataToSend.append("status", formData.status);
       formDataToSend.append('role_id', 2);
-
       let res = await createPhotographer(formDataToSend);
-      toast.success(res.message);
-      resetFormData();
-      document.getElementById("closeModal").click();
-      getAllPhotographersData();
+      if (res.success) {
+        toast.success(res.message);
+        resetFormData();
+        document.getElementById('closeModal').click();
+        getAllPhotographersData();
+      } else {
+        toast.error(res);
+      }
     } catch (error) {
       toast.error(error);
     }
@@ -154,11 +157,11 @@ const PhotographersTeam = () => {
           <span>
             <img
               src={
-                row.profile_photo
-                  ? `${IMAGE_URL}/${row.profile_photo}`
+                row.original.profile_photo && row.original.profile_photo !== "null"
+                  ? `${IMAGE_URL}/${row.original.profile_photo}`
                   : "../../../app-assets/images/portrait/medium/dummy.png"
               }
-              className="rounded-circle width-50"
+              className="rounded-circle width-50 height-50"
               alt="Photographer image"
             />
           </span>
@@ -238,7 +241,7 @@ const PhotographersTeam = () => {
                       data-toggle="modal"
                       data-target="#bootstrap"
                     >
-                      Add New
+                      Add New Photographer
                     </button>
 
                     <div
@@ -290,7 +293,7 @@ const PhotographersTeam = () => {
                               <fieldset className="form-group floating-label-form-group">
                                 <label>Phone *</label>
                                 <input
-                                  type="phone"
+                                  type="number"
                                   className="form-control"
                                   name="phone"
                                   value={formData.phone}
@@ -299,18 +302,17 @@ const PhotographersTeam = () => {
                                 />
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Bussiness Name *</label>
+                                <label>Bussiness Name</label>
                                 <input
                                   type="text"
                                   className="form-control"
-                                  name="bussiness_name"
-                                  value={formData.bussiness_name}
+                                  name="business_name"
+                                  value={formData.business_name}
                                   onChange={handleInputChange}
-                                  required
                                 />
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Status *</label>
+                                <label>Status</label>
                                 <select
                                   className="select2 form-control"
                                   name="status"

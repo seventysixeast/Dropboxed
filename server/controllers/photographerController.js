@@ -38,14 +38,18 @@ const createPhotographer = async (req, res) => {
         }
       });
     }
-
     let photographer;
     if (req.body.id) {
       photographer = await User.findOne({ where: { id: req.body.id } });
       if (!photographer) {
         return res.status(404).json({ error: 'Photographer not found' });
       }
+      // Update photographer
       await photographer.update(photographerData);
+      res.status(200).json({
+        success: true,
+        message: "Photographer updated successfully"
+      });
     } else {
       if (req.body.email !== '') {
         const existingEmail = await User.findOne({ where: { email: req.body.email } });
@@ -59,8 +63,12 @@ const createPhotographer = async (req, res) => {
           return res.status(400).json({ error: 'Phone number already exists' });
         }
       }
-      // Create the photographer
+      // Create photographer
       photographer = await User.create(photographerData);
+      res.status(200).json({
+        success: true,
+        message: "Photographer added successfully"
+      });
     }
   } catch (error) {
     res.status(500).json({ error: "Failed to add/update photographer" });
