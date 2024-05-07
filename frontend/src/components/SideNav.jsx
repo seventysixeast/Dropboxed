@@ -103,6 +103,14 @@ const SideNav = () => {
                   </span>
                 </Link>
               </li>
+              <li className=" nav-item">
+                <Link to="/photographers-team">
+                  <i className="feather icon-file-text"></i>
+                  <span className="menu-title" data-i18n="Photographers Team">
+                    Photographers Team
+                  </span>
+                </Link>
+              </li>
             </>
           )}
           {roleId === 3 && (
