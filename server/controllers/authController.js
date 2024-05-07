@@ -30,10 +30,17 @@ exports.login = async (req, res) => {
       },
     });
 
+    console.log("user.status============>",user.status);
+
     if (!user) {
       return res
         .status(200)
         .json({ success: false, message: "Invalid email or password" });
+    }
+
+    // Check if the user is active
+    if (user.status == "inactive") {
+      return res.status(200).json({ success: false, message: 'Your account is deactivated. Please contact support for assistance.' });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
