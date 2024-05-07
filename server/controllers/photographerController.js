@@ -1,5 +1,7 @@
 const User = require('../models/Users');
+const BusinessClients = require('../models/BusinessClients');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 
 const getAllPhotographers = async (req, res) => {
   try {
@@ -18,7 +20,8 @@ const getAllPhotographers = async (req, res) => {
 const createPhotographer = async (req, res) => {
   try {
     let imageName = req.files && req.files.profile_photo.name;
-    let password = '123456';
+    // Generate random password
+    let password = Math.random().toString(36).slice(-8);
     let hashedPassword = await bcrypt.hash(password, 10);
     let photographerData = {
       name: req.body.name,
@@ -65,15 +68,53 @@ const createPhotographer = async (req, res) => {
       }
       // Create photographer
       photographer = await User.create(photographerData);
+
+      // Link the photographer to the subdomain
+      await BusinessClients.create({
+        business_id: req.body.subdomainId,
+        client_id: photographer.id,
+        status: 1
+      });
+
+      // Send password to the user's email
+      sendPasswordByEmail(req.body.email, password);
       res.status(200).json({
         success: true,
-        message: "Photographer added successfully"
+        message: "Photographer added successfully. Password sent to his email."
       });
     }
   } catch (error) {
     res.status(500).json({ error: "Failed to add/update photographer" });
   }
 };
+
+// Function to send password to user's email
+function sendPasswordByEmail(email, password) {
+  console.log("email",email);
+  console.log("password",password);
+  let transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'your_email@gmail.com',
+      pass: 'your_password'
+    }
+  });
+
+  let mailOptions = {
+    from: 'your_email@gmail.com',
+    to: email,
+    subject: 'Your New Password',
+    text: `Your new password is: ${password}. Please change it after logging in.`
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+}
 
 const getPhotographer = async (req, res) => {
   try {

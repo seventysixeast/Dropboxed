@@ -17,7 +17,7 @@ const SideNav = () => {
           id="main-menu-navigation"
           data-menu="menu-navigation"
         >
-          {(roleId === 2 || roleId === 5) && (
+          {(roleId === 5) && (
             <>
               <li className=" navigation-header">
                 <span>Photographers</span>
@@ -113,6 +113,96 @@ const SideNav = () => {
               </li>
             </>
           )}
+
+          {(roleId === 2) && (
+            <>
+              <li className=" navigation-header">
+                <span>Photographers</span>
+                <i
+                  className=" feather icon-minus"
+                  data-toggle="tooltip"
+                  data-placement="right"
+                  data-original-title="Photographers"
+                ></i>
+              </li>
+              <li className=" nav-item">
+                <Link to="/dashboard">
+                  <i className="feather icon-home"></i>
+                  <span className="menu-title" data-i18n="Dashboard">
+                    Dashboard
+                  </span>
+                </Link>
+              </li>
+              <li className=" nav-item">
+                <Link to="/booking-list-calendar">
+                  <i className="feather icon-zap"></i>
+                  <span className="menu-title" data-i18n="Starter kit">
+                    Booking List/Calendar
+                  </span>
+                  {/* <span className="badge badge badge-primary badge-pill float-right mr-2">
+                2
+              </span> */}
+                </Link>
+              </li>
+              <li className=" nav-item">
+                <Link to="/todo">
+                  <i className="feather icon-check-square"></i>
+                  <span className="menu-title" data-i18n="Todo Application">
+                    To Do
+                  </span>
+                </Link>
+              </li>
+              <li className=" nav-item">
+                <Link to="/collections">
+                  <i className="feather icon-layout"></i>
+                  <span className="menu-title" data-i18n="Layouts">
+                    Collections
+                  </span>
+                </Link>
+              </li>
+              <li className=" nav-item">
+                <Link to="/clients">
+                  <i className="feather icon-users"></i>
+                  <span className="menu-title" data-i18n="Clients">
+                    Clients
+                  </span>
+                </Link>
+              </li>
+              {/* <li className=" nav-item">
+            <Link to="/orders">
+              <i className="feather icon-layout"></i>
+              <span className="menu-title" data-i18n="Layouts">
+                Orders
+              </span>
+            </Link>
+          </li> */}
+              <li className=" nav-item">
+                <Link to="/invoice">
+                  <i className="feather icon-file-text"></i>
+                  <span className="menu-title" data-i18n="Invoice">
+                    Invoice List
+                  </span>
+                </Link>
+              </li>
+              <li className=" nav-item">
+                <Link to="/services">
+                  <i className="feather icon-file-text"></i>
+                  <span className="menu-title" data-i18n="Services">
+                    Services
+                  </span>
+                </Link>
+              </li>
+              <li className=" nav-item">
+                <Link to="/image-types">
+                  <i className="feather icon-file-text"></i>
+                  <span className="menu-title" data-i18n="Image Types">
+                    Image Types
+                  </span>
+                </Link>
+              </li>
+            </>
+          )}
+
           {roleId === 3 && (
             <>
               <li className=" navigation-header">

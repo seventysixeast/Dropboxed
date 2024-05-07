@@ -62,8 +62,8 @@ exports.login = async (req, res) => {
       subdomain_id = user.id;
     }
 
-    // Check if the user's role is client (role_id = 3)
-    if (user.role_id === 3) {
+    // Check if the user's roles are photographer (role_id = 2) and client (role_id = 3)
+    if (user.role_id === 2 || user.role_id === 3) {
       console.log(">>>>>>>");
       // Check if the client is connected to the provided subdomain
       const businessClient = await BusinessClients.findOne({

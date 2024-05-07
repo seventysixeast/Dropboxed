@@ -3,9 +3,13 @@ import { getAllPhotographers, createPhotographer, getPhotographer, deletePhotogr
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
+import { useAuth } from "../context/authContext";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const PhotographersTeam = () => {
+  const { authData } = useAuth();
+  const user = authData.user;
+  const subdomainId = user.subdomain_id
   const [photographers, setPhotographers] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
@@ -92,6 +96,7 @@ const PhotographersTeam = () => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
+      formDataToSend.append('subdomainId', subdomainId);
       formDataToSend.append("id", formData.id);
       formDataToSend.append("name", formData.name);
       formDataToSend.append("email", formData.email);
@@ -302,7 +307,7 @@ const PhotographersTeam = () => {
                                 />
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Bussiness Name</label>
+                                <label>Business Name</label>
                                 <input
                                   type="text"
                                   className="form-control"
