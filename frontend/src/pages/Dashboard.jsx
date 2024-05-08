@@ -194,6 +194,10 @@ export const Dashboard = () => {
       formDataToSend.append('lock_gallery', isGalleryLocked);
       formDataToSend.append('notify_client', isNotifyChecked);
       formDataToSend.append('subdomainId', subdomainId);
+      // if formData.id is empty string then add this dropbox_refresh from user
+      if (formData.id === '') {
+        formDataToSend.append('dropbox_refresh', user.dropbox_refresh);
+      }
 
       let res = await addGallery(formDataToSend);
       if (res.success) {

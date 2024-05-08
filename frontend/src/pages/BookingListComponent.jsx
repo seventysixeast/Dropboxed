@@ -1877,22 +1877,29 @@ export const BookingListComponent = () => {
                                 <span
                                   style={{ fontSize: "10px", fontWeight: "" }}
                                 >
-                                  {arg.event.start
-                                    .toLocaleTimeString([], {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                      hour12: true,
-                                    })
-                                    .toUpperCase()}{" "}
-                                  -{" "}
-                                  {arg.event.end
-                                    .toLocaleTimeString([], {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                      hour12: true,
-                                    })
-                                    .toUpperCase()}
+                                  {arg.event.start && arg.event.end ? (
+                                    <>
+                                      {arg.event.start
+                                        .toLocaleTimeString([], {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                          hour12: true,
+                                        })
+                                        .toUpperCase()}{" "}
+                                      -{" "}
+                                      {arg.event.end
+                                        .toLocaleTimeString([], {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                          hour12: true,
+                                        })
+                                        .toUpperCase()}
+                                    </>
+                                  ) : (
+                                    "N/A"
+                                  )}
                                 </span>
+
                                 <br />
                                 <b>{arg.event.title}</b>
                               </div>

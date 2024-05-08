@@ -94,6 +94,12 @@ export const ViewGallery = () => {
 
     }
   };
+  const handleTextChange = (value) => {
+    setTaskData({
+        ...taskData,
+        taskDescription: value
+    });
+};
 
   const getClients = async () => {
     const formData = new FormData();
@@ -629,11 +635,10 @@ export const ViewGallery = () => {
     const link = sharedLinkData.url;
     setTaskData({
       ...taskData,
-      taskDescription: link,
-      taskTitle: image.path_display
+      taskDescription: `<p>Image Name: ${image.path_display}</p>
+      <p>Image Link: <a href=${link} rel="noopener noreferrer" target="_blank">Image Link</a></p>`,
     });
   };
-
 
 
   return (
@@ -663,6 +668,7 @@ export const ViewGallery = () => {
                 setComments={setComments}
                 handleSubmit={handleSubmit}
                 toggleModal={toggleModal}
+                handleTextChange={handleTextChange}
               />
             </div>
           </div>

@@ -1569,3 +1569,8 @@ a:not([href]) {
   object-position: center center;
   -webkit-font-smoothing: antialiased;
 }
+
+
+/* .ql-editor {
+  margin: 1rem !important
+} */

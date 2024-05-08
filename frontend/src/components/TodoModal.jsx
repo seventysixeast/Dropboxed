@@ -4,6 +4,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import _ from "lodash";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
 const TodoModal = ({
     isNewTaskModalOpen,
@@ -22,7 +24,8 @@ const TodoModal = ({
     taskAuthor,
     comments,
     handleComment,
-    modalRef
+    modalRef,
+    handleTextChange
 }) => {
     return (
         <>
@@ -156,20 +159,10 @@ const TodoModal = ({
 
                             <div className="card-body border-bottom task-description">
                                 <div className="form-group">
-                                    <textarea
-                                        name="description"
-                                        className="form-control task-title"
-                                        cols={1}
-                                        rows={2}
-                                        placeholder="Add description"
+                                    <ReactQuill
                                         value={taskData.taskDescription}
-                                        required
-                                        onChange={(e) => {
-                                            setTaskData({
-                                                ...taskData,
-                                                taskDescription: e.target.value,
-                                            });
-                                        }}
+                                        onChange={handleTextChange}
+                                        placeholder="Add description"
                                     />
                                 </div>
                                 <div className="tag d-flex justify-content-between align-items-center pt-1">

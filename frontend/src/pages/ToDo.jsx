@@ -10,6 +10,8 @@ import _ from "lodash";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import DeleteModal from "../components/DeleteModal";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
 const ToDo = () => {
   const { authData } = useAuth();
@@ -60,13 +62,24 @@ const ToDo = () => {
 
   const getClients = async () => {
     const formData = new FormData();
-    formData.append("subdomain_id", subdomainId);
+    if (subdomainId === "") {
+      formData.append("subdomain_id", user.id)
+    } else {
+      formData.append("subdomain_id", subdomainId);
+    }
     const response = await getClientPhotographers(formData);
     if (response.success) {
       setClients(response.data);
     } else {
       toast.error("Failed to get clients!");
     }
+  };
+
+  const handleTextChange = (value) => {
+    setTaskData({
+      ...taskData,
+      taskDescription: value
+    });
   };
 
   const toggleNewTaskModal = () => {
@@ -553,20 +566,10 @@ const ToDo = () => {
 
                     <div className="card-body border-bottom task-description">
                       <div className="form-group">
-                        <textarea
-                          name="description"
-                          className="form-control task-title"
-                          cols={1}
-                          rows={2}
-                          placeholder="Add description"
+                        <ReactQuill
                           value={taskData.taskDescription}
-                          required
-                          onChange={(e) => {
-                            setTaskData({
-                              ...taskData,
-                              taskDescription: e.target.value,
-                            });
-                          }}
+                          onChange={handleTextChange}
+                          placeholder="Add description"
                         />
                       </div>
                       <div className="tag d-flex justify-content-between align-items-center pt-1">
@@ -598,7 +601,6 @@ const ToDo = () => {
                     </div>
 
                     <div className="card-body pb-1 d-none">
-                      {/* quill editor for  Dummy comment */}
                       <div className="snow-container border rounded p-50 d-none dummy">
                         <div className="comment-editor mx-75 ql-container ql-snow">
                           <div

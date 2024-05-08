@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Switch from '@mui/material/Switch';
-import { getAllClients, getClientPhotographers } from "../api/clientApis";
+import { getAllClients } from "../api/clientApis";
 import { getAllBookingTitles, getAllServices, getAllPhotographers } from "../api/bookingApis";
 import { addGallery, getAllCollections, getCollection, deleteCollection } from "../api/collectionApis";
 import { toast } from 'react-toastify';
@@ -9,11 +9,14 @@ import { useAuth } from "../context/authContext";
 import TableCustom from "../components/Table";
 import DeleteModal from "../components/DeleteModal";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
+const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
+const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 
 const Collections = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id
+  const userId = user.id
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [bookingTitles, setBookingTitles] = useState([]);
@@ -26,8 +29,7 @@ const Collections = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [allPhotographers, setAllPhotographers] = useState([]);
-  console.log(allPhotographers);
+
   const [formData, setFormData] = useState({
     id: '',
     client: '',
@@ -45,8 +47,18 @@ const Collections = () => {
   useEffect(() => {
     getClients();
     getAllCollectionsData();
-    getCliPhotographers();
   }, [])
+
+  const currentUrl = window.location.href;
+  const url2 = new URL(currentUrl);
+  url2.pathname = url2.pathname.replace('/dashboard', '');
+
+  const url = new URL(currentUrl);
+
+  url.searchParams.set('userId', userId);
+  const scopes = encodeURIComponent('account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read');
+
+  const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
 
   useEffect(() => {
     if (formData.client !== '' && formData.booking_title !== '') {
@@ -55,14 +67,6 @@ const Collections = () => {
       getBookingTitles(formData.client);
     }
   }, [formData.client, formData.booking_title])
-
-  const getCliPhotographers = () => {
-    getClientPhotographers({ subdomain_id: `${subdomainId}` }).then((res) => {
-      setAllPhotographers(res.data);
-    }).catch((err) => {
-      console.log(err);
-    })
-  }
 
   const getClients = async () => {
     try {
@@ -247,13 +251,11 @@ const Collections = () => {
       } else {
         setPreviewImage(null)
       }
-
-      console.log(collectionData.data);
       const initialFormData = {
         id: collectionData.data.id,
         client: collectionData.data.client_id,
-        booking_title: collectionData.data.name,
-        serviceIds: collectionData.data.package_ids,
+        booking_title: collectionData.data.client_address,
+        serviceIds: collectionData.data.services,
         photographerIds: collectionData.data.photographers,
         gallery_title: collectionData.data.name,
         dropbox_link: collectionData.data.dropbox_link,
@@ -380,12 +382,18 @@ const Collections = () => {
             <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
               <ul className="list-inline mb-0">
                 <li>
-                  <div className="form-group">
+                  <div className="form-group d-flex">
+                    {user.dropbox_refresh == null &&
+                      <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{ paddingTop: "10px" }}>Link Your Dropbox</a>
+                    }
                     <button
                       type="button"
-                      className="btn btn-outline-primary btn-block"
+                      className="btn btn-outline-primary"
                       data-toggle="modal"
                       data-target="#bootstrap"
+                      // title conditional 
+                      title={user.dropbox_refresh == null ? "Dropbox Not Linked" : "Add Collection"}
+                      disabled={user.dropbox_refresh == null}
                       onClick={() => {
                         setShowAddGalleryModal(true);
                       }}
