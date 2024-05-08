@@ -24,7 +24,6 @@ const Header = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('id', user.id);
       let res = await getClient(formDataToSend);
-      console.log("res.data.status",res.data.status);
       if (res.data.status == "Inactive") {
         logout();
         window.location.href = '/login';

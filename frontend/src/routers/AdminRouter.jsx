@@ -11,6 +11,7 @@ import Clients from "../pages/Clients";
 import Invoice from "../pages/Invoice";
 import CardsPackages from "../pages/Services";
 import ImageTypes from "../pages/ImageTypes";
+import PhotographersTeam from "../pages/PhotographersTeam";
 import { ViewGallery } from "../pages/ViewGallery";
 import { AddBooking } from "../pages/AddBooking";
 import Services from "../pages/Services";
@@ -41,6 +42,7 @@ const AdminRouter = () => {
     { path: "/clients", element: <Clients /> },
     { path: "/invoice", element: <Invoice /> },
     { path: "/image-types", element: <ImageTypes /> },
+    { path: "/photographers-team", element: <PhotographersTeam /> },
     { path: "/view-gallery/:id", element: <ViewGallery /> },
     { path: "/view-gallery", element: <ViewGallery /> },
 
