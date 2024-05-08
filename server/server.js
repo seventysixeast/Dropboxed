@@ -7,6 +7,7 @@ const bookingRouter = require('./routes/bookingRoutes');
 const imageTypeRoutes = require('./routes/imageTypeRoutes');
 const photographerRoutes = require('./routes/photographerRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
+const photographerandsubdomainRoutes = require('./routes/photographer&subdomainRoutes');
 const todoRoutes = require('./routes/todoRoutes');
 const userRoutes = require('./routes/userRoutes');
 //const calenderRoutes = require('./routes/')
@@ -58,6 +59,7 @@ app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
 app.use('/photographer', photographerRoutes);
 app.use('/collection', collectionRoutes);
+app.use('/photographerandsubdomain', photographerandsubdomainRoutes);
 app.use('/todo', todoRoutes);
 app.use('/user', userRoutes);
 //app.use('/calender', calenderRoutes);

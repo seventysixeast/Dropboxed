@@ -3,27 +3,27 @@ const BusinessClients = require('../models/BusinessClients');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 
-const getAllPhotographers = async (req, res) => {
+const getAllPhotographersAndSubdomains = async (req, res) => {
   try {
-    let photographers = await User.findAll({
+    let users = await User.findAll({
       where: {
-        role_id: 2
+        role_id: [2, 5]
       },
       order: [['created', 'DESC']]
     });
-    res.status(200).json({ success: true, data: photographers });
+    res.status(200).json({ success: true, data: users });
   } catch (error) {
-    res.status(500).json({ error: "Failed to list photographers" });
+    res.status(500).json({ error: "Failed to list users" });
   }
 };
 
-const createPhotographer = async (req, res) => {
+const createPhotographerAndSubdomain = async (req, res) => {
   try {
     let imageName = req.files && req.files.profile_photo.name;
     // Generate random password
     let password = Math.random().toString(36).slice(-8);
     let hashedPassword = await bcrypt.hash(password, 10);
-    let photographerData = {
+    let data = {
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
@@ -41,17 +41,17 @@ const createPhotographer = async (req, res) => {
         }
       });
     }
-    let photographer;
+    let user;
     if (req.body.id) {
-      photographer = await User.findOne({ where: { id: req.body.id } });
-      if (!photographer) {
-        return res.status(404).json({ error: 'Photographer not found' });
+      user = await User.findOne({ where: { id: req.body.id } });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
-      // Update photographer
-      await photographer.update(photographerData);
+      // Update user
+      await user.update(data);
       res.status(200).json({
         success: true,
-        message: "Photographer updated successfully"
+        message: "User updated successfully"
       });
     } else {
       if (req.body.email !== '') {
@@ -66,32 +66,25 @@ const createPhotographer = async (req, res) => {
           return res.status(400).json({ error: 'Phone number already exists' });
         }
       }
-      // Create photographer
-      photographer = await User.create(photographerData);
-
-      // Link the photographer to the subdomain
-      await BusinessClients.create({
-        business_id: req.body.subdomainId,
-        client_id: photographer.id,
-        status: 1
-      });
+      // Create user
+      user = await User.create(data);
 
       // Send password to the user's email
       sendPasswordByEmail(req.body.email, password);
       res.status(200).json({
         success: true,
-        message: "Photographer added successfully. Password sent to his email."
+        message: "User added successfully. Password sent to his email."
       });
     }
   } catch (error) {
-    res.status(500).json({ error: "Failed to add/update photographer" });
+    res.status(500).json({ error: "Failed to add/update user" });
   }
 };
 
 // Function to send password to user's email
 function sendPasswordByEmail(email, password) {
-  console.log("email",email);
-  console.log("password",password);
+  console.log("email", email);
+  console.log("password", password);
   let transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -116,27 +109,27 @@ function sendPasswordByEmail(email, password) {
   });
 }
 
-const getPhotographer = async (req, res) => {
+const getPhotographerAndSubdomain = async (req, res) => {
   try {
-    const photographerData = await User.findOne({ where: { id: req.body.id } });
-    res.status(200).json({ success: true, data: photographerData });
+    const data = await User.findOne({ where: { id: req.body.id } });
+    res.status(200).json({ success: true, data: data });
   } catch (error) {
-    res.status(500).json({ error: "Failed to data of photographer" });
+    res.status(500).json({ error: "Failed to data of user" });
   }
 };
 
-const deletePhotographer = async (req, res) => {
+const deletePhotographerAndSubdomain = async (req, res) => {
   try {
-    const photographerId = req.body.id;
-    const photographer = await User.findByPk(photographerId);
-    if (!photographer) {
-      return res.status(404).json({ success: false, message: "Photographer not found" });
+    const userId = req.body.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    await User.update({ status: 'Deleted', deleted_at: new Date() }, { where: { id: photographerId } });
+    await User.update({ status: 'Deleted', deleted_at: new Date() }, { where: { id: userId } });
     res.status(200).json({ success: true, message: "Action successful. Record will be removed permanently after 30 days." });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update photographer status" });
+    res.status(500).json({ error: "Failed to update user status" });
   }
 };
 
-module.exports = { getAllPhotographers, createPhotographer, getPhotographer, deletePhotographer };
+module.exports = { getAllPhotographersAndSubdomains, createPhotographerAndSubdomain, getPhotographerAndSubdomain, deletePhotographerAndSubdomain };
