@@ -22,7 +22,11 @@ const CardsPackages = () => {
 
   const getServices = async () => {
     const formData = new FormData();
+    if (subdomainId !== '') {
     formData.append("subdomain_id", subdomainId);
+    } else {
+      formData.append("subdomain_id", user.id);
+    }
     formData.append("role_id", roleId);
     const response = await getAllServices(formData);
     if (response.success) {
