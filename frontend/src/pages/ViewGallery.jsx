@@ -89,7 +89,9 @@ export const ViewGallery = () => {
       setFilteredTasks(response.tasks);
       setTags(response.tags);
     } else {
-      toast.error("Failed to get tasks!");
+      // toast.error("Failed to get tasks!");
+      console.log(response.data);
+
     }
   };
 
@@ -100,7 +102,8 @@ export const ViewGallery = () => {
     if (response.success) {
       setClients(response.data);
     } else {
-      toast.error("Failed to get clients!");
+      // toast.error("Failed to get clients!");
+      console.log(response.data);
     }
   };
   const handleClientChange = (selectedOption) => {
@@ -158,6 +161,7 @@ export const ViewGallery = () => {
         toast.error("Failed to create task!");
       }
     } catch (error) {
+      toast.error("Failed to create task!");
       console.error("Error creating task:", error);
     }
     getTasks();
@@ -205,7 +209,8 @@ export const ViewGallery = () => {
       setBanner(res.data.banner);
       setCollection(res.data);
     } else {
-      toast.error("Failed to get collection...");
+      // toast.error("Failed to get collection...");
+      console.log(res.data);
     }
     setRunning(false);
     setLoading(false);
@@ -437,7 +442,7 @@ export const ViewGallery = () => {
         toast.success("Folder copied successfully.");
       } else {
         const errorData = await copyResponse.json();
-        toast.error(`Error copying folder: ${errorData.error_summary}`);
+        console.log("Error copying folder:", errorData.error_summary);
       }
     }
     setDownloadOptions({ device: "device", size: "original" });
@@ -552,7 +557,7 @@ export const ViewGallery = () => {
       } else {
         const errorData = await copyResponse.json();
         if ((errorData.error_summary = "to/conflict/folder/.")) {
-          toast.error(`Error copying folder: ${errorData.error_summary}`);
+          console.error('Error copying folder:', errorData.error_summary);
         }
       }
     }
@@ -669,11 +674,13 @@ export const ViewGallery = () => {
                 style={{
                   position: "relative",
                   maxWidth: `calc(100vw - ${scrollbarWidth}px)`,
+                  objectFit: 'cover',
+                  height: '100vh',
                   display: "flex",
                   justifyContent: "center",
                 }}
               >
-                <div style={{ position: "relative" }}>
+                <div style={{ position: "relative" }} className="cover-overlay">
                   <img
                     className="gallery-cover"
                     src={
@@ -681,32 +688,22 @@ export const ViewGallery = () => {
                       banner !== "" &&
                       `${REACT_APP_GALLERY_IMAGE_URL}/${banner}`
                     }
-                    style={{ width: `calc(100vw - ${scrollbarWidth}px)`, height: "auto" }}
-                  />
-                  <div
-                    id="cover-overlay"
                     style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      backgroundColor: "rgba(0, 0, 0, 0.5)",
-                      zIndex: 1,
+                      width: `calc(100vw - ${scrollbarWidth}px)`,
+                      objectFit: "cover",
+                      imageRendering: "auto"
                     }}
-                  ></div>
+                  />
+
+
+                  {/* <div className="cover-overlay"
+                  ></div> */}
+
                 </div>
               </div>
               <div
                 className="banner-detail"
-                style={{
-                  maxWidth: `calc(100vw - ${scrollbarWidth}px)`,
-                  position: "absolute",
-                  zIndex: 2,
-                  textAlign: "center",
-                  marginTop: showAnimation ? "-8rem " : "0px",
-                  transition: "margin-top 0.5s ease",
-                }}
+                
               >
                 <h1 className="banner-collection-name mb-1">{collection.name}</h1>
                 <button
@@ -790,7 +787,6 @@ export const ViewGallery = () => {
                               onClick={open}
                             >
                               <a
-                                href={image.url}
                                 className="hovereffect"
                                 itemProp="contentUrl"
                               >

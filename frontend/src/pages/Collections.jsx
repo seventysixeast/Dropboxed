@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Switch from '@mui/material/Switch';
-import { getAllClients } from "../api/clientApis";
+import { getAllClients, getClientPhotographers } from "../api/clientApis";
 import { getAllBookingTitles, getAllServices, getAllPhotographers } from "../api/bookingApis";
 import { addGallery, getAllCollections, getCollection, deleteCollection } from "../api/collectionApis";
 import { toast } from 'react-toastify';
@@ -26,7 +26,8 @@ const Collections = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
+  const [allPhotographers, setAllPhotographers] = useState([]);
+  console.log(allPhotographers);
   const [formData, setFormData] = useState({
     id: '',
     client: '',
@@ -44,6 +45,7 @@ const Collections = () => {
   useEffect(() => {
     getClients();
     getAllCollectionsData();
+    getCliPhotographers();
   }, [])
 
   useEffect(() => {
@@ -53,6 +55,14 @@ const Collections = () => {
       getBookingTitles(formData.client);
     }
   }, [formData.client, formData.booking_title])
+
+  const getCliPhotographers = () => {
+    getClientPhotographers({ subdomain_id: `${subdomainId}` }).then((res) => {
+      setAllPhotographers(res.data);
+    }).catch((err) => {
+      console.log(err);
+    })
+  }
 
   const getClients = async () => {
     try {
@@ -237,11 +247,13 @@ const Collections = () => {
       } else {
         setPreviewImage(null)
       }
+
+      console.log(collectionData.data);
       const initialFormData = {
         id: collectionData.data.id,
         client: collectionData.data.client_id,
-        booking_title: collectionData.data.client_address,
-        serviceIds: collectionData.data.services,
+        booking_title: collectionData.data.name,
+        serviceIds: collectionData.data.package_ids,
         photographerIds: collectionData.data.photographers,
         gallery_title: collectionData.data.name,
         dropbox_link: collectionData.data.dropbox_link,
