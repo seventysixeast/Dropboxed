@@ -193,8 +193,6 @@
         .todo-application .content-right .todo-app-list-wrapper .todo-app-list .todo-task-list .todo-task-list-wrapper .todo-item {
           /* todo item */
           cursor: pointer;
-          animation: fadeIn 0.5s linear;
-          animation-fill-mode: both;
           position: relative;
           padding: .8rem 1rem .4rem .5rem;
           border-top: 1px solid #E6E6E6; }

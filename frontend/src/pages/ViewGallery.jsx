@@ -14,6 +14,9 @@ import { CustomGallery, Item, DefaultLayout } from "react-photoswipe-gallery";
 import "photoswipe/dist/photoswipe.css";
 import "photoswipe/dist/default-skin/default-skin.css";
 import ReactPlayer from "react-player";
+import TodoModal from "../components/TodoModal";
+import { getAlltasks, createTask, addComment, setTaskStatus, deleteTask, setTaskFavorite } from "../api/todoApis";
+import { getClientPhotographers } from "../api/clientApis";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 export const ViewGallery = () => {
@@ -21,6 +24,7 @@ export const ViewGallery = () => {
   const user = authData.user;
   const subdomainId = user.subdomain_id;
   const userId = user.id;
+  const roleId = user.role_id;
   const [dropboxAccess, setDropboxAccess] = useState("");
   const dropboxRefresh = user.dropbox_refresh;
   const [collectionRefresh, setCollectionRefresh] = useState("");
@@ -47,6 +51,134 @@ export const ViewGallery = () => {
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const imageGalleryRef = useRef(null);
+  // TODO modal
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const modalRef = useRef(null);
+  const [taskData, setTaskData] = useState({
+    id: "",
+    userId: "",
+    taskTitle: "",
+    assignUser: "",
+    taskAssigndate: new Date(),
+    taskDescription: "",
+    taskTags: [],
+    comment: "",
+    status: 0,
+    isFavourite: 0,
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [taskAuthor, setTaskAuthor] = useState();
+  const [tasks, setTasks] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState(tasks);
+  const toggleNewTaskModal = () => {
+    setIsNewTaskModalOpen(!isNewTaskModalOpen);
+  };
+
+  const getTasks = async () => {
+    const formData = new FormData();
+    formData.append("subdomain_id", subdomainId);
+    formData.append("role_id", roleId);
+    const response = await getAlltasks(formData);
+    if (response.success) {
+      setTasks(response.tasks);
+      setFilteredTasks(response.tasks);
+      setTags(response.tags);
+    } else {
+      // toast.error("Failed to get tasks!");
+      console.log(response.data);
+
+    }
+  };
+  const handleTextChange = (value) => {
+    setTaskData({
+        ...taskData,
+        taskDescription: value
+    });
+};
+
+  const getClients = async () => {
+    const formData = new FormData();
+    formData.append("subdomain_id", subdomainId);
+    const response = await getClientPhotographers(formData);
+    if (response.success) {
+      setClients(response.data);
+    } else {
+      // toast.error("Failed to get clients!");
+      console.log(response.data);
+    }
+  };
+  const handleClientChange = (selectedOption) => {
+    setSelectedClient(selectedOption);
+  };
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+
+    if (taskData.userId === "") {
+      formData.append("user_id", userId);
+    } else {
+      formData.append("user_id", taskData.userId);
+    }
+
+    const formattedTags = selectedTags.map((tag) => tag.value).join(",");
+    formData.append("id", taskData.id);
+    formData.append("task_tags", formattedTags);
+    formData.append("subdomain_id", subdomainId);
+    formData.append("role_id", roleId);
+    formData.append("task_title", taskData.taskTitle);
+    formData.append("assign_user", selectedClient.value);
+    formData.append("task_assigndate", taskData.taskAssigndate);
+    formData.append("task_description", taskData.taskDescription);
+    formData.append("comments", taskData.comment);
+    formData.append("status", taskData.status);
+    formData.append("is_favourite", taskData.isFavourite);
+
+    try {
+      const response = await createTask(formData);
+      if (response.success) {
+        if (taskData.id == "") {
+          toast.success("Task created successfully!");
+        } else {
+          toast.success("Task updated successfully!");
+        }
+        setTaskData({
+          id: "",
+          userId: "",
+          taskTitle: "",
+          assignUser: "",
+          taskAssigndate: new Date(),
+          taskDescription: "",
+          taskTags: [],
+          comment: "",
+          status: 0,
+          isFavourite: 0,
+        });
+        setSelectedClient([]);
+        setSelectedTags([]);
+        setComments([]);
+        setTaskAuthor();
+        setIsNewTaskModalOpen(false);
+      } else {
+        toast.error("Failed to create task!");
+      }
+    } catch (error) {
+      toast.error("Failed to create task!");
+      console.error("Error creating task:", error);
+    }
+    getTasks();
+  };
+
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  // Todo End
 
   useEffect(() => {
     if (fileList.current && fileList.current.length === 0) {
@@ -62,6 +194,10 @@ export const ViewGallery = () => {
       "fixed-navbar",
       "menu-expanded"
     );
+    if (tasks.length === 0) {
+      getTasks();
+      getClients();
+    }
   }, []);
 
   const fetchCollection = async () => {
@@ -72,7 +208,6 @@ export const ViewGallery = () => {
     formDataToSend.append("id", id);
     let res = await getCollection(formDataToSend);
     if (res.success) {
-      console.log("res", res);
       setCollectionRefresh(res.data.dropbox_refresh);
       setDropboxLink(res.data.dropbox_link);
       fetchFileList(res.data.dropbox_refresh, res.data.dropbox_link);
@@ -80,7 +215,8 @@ export const ViewGallery = () => {
       setBanner(res.data.banner);
       setCollection(res.data);
     } else {
-      toast.error("Failed to get collection...");
+      // toast.error("Failed to get collection...");
+      console.log(res.data);
     }
     setRunning(false);
     setLoading(false);
@@ -113,6 +249,7 @@ export const ViewGallery = () => {
       );
 
       const entries = listResponse.data.entries;
+      console.log(listResponse);
       const fileEntries = entries.filter((entry) => entry[".tag"] === "file");
       fileList.current = fileEntries;
       fetchImages(data);
@@ -126,27 +263,24 @@ export const ViewGallery = () => {
       const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
       const endIndex = Math.min(startIndex + fetchSize, totalFiles);
-  
+
       if (startIndex >= totalFiles) {
         setHasMore(false);
         return;
       }
-  
+
       const batchEntries = fileList.current.slice(startIndex, endIndex);
       const batchUrls = await fetchBatchThumbnails(batchEntries, data);
       setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
-  
-      // Increment page for the next batch
+
       page.current++;
-  
-      // If there are more images to fetch, fetch the next batch
+
       if (endIndex < totalFiles) {
         fetchImages(data);
       } else {
-        // If there are no more images, set hasMore to false
         setHasMore(false);
       }
-  
+
       setLoading(false);
     } catch (error) {
       console.error("Error fetching images:", error);
@@ -180,13 +314,24 @@ export const ViewGallery = () => {
       );
       for (const entry of response.data.entries) {
         const url = "data:image/jpeg;base64," + entry.thumbnail;
-        const path_display = entry.metadata.path_display;
-        const imgObj = {
-          url,
-          path_display,
+        const image = new Image();
+
+        image.onload = () => {
+          const width = image.width;
+          const height = image.height;
+          const path_display = entry.metadata.path_display;
+          const imgObj = {
+            url,
+            path_display,
+            width,
+            height,
+          };
+          urls.push(imgObj);
         };
-        urls.push(imgObj);
+
+        image.src = url;
       }
+
     } catch (error) {
       console.error("Error fetching batch thumbnails:", error);
     }
@@ -303,7 +448,7 @@ export const ViewGallery = () => {
         toast.success("Folder copied successfully.");
       } else {
         const errorData = await copyResponse.json();
-        toast.error(`Error copying folder: ${errorData.error_summary}`);
+        console.log("Error copying folder:", errorData.error_summary);
       }
     }
     setDownloadOptions({ device: "device", size: "original" });
@@ -418,7 +563,7 @@ export const ViewGallery = () => {
       } else {
         const errorData = await copyResponse.json();
         if ((errorData.error_summary = "to/conflict/folder/.")) {
-          toast.error(`Error copying folder: ${errorData.error_summary}`);
+          console.error('Error copying folder:', errorData.error_summary);
         }
       }
     }
@@ -467,187 +612,249 @@ export const ViewGallery = () => {
       });
     }
   };
-  
+  const handleShareImage = async (image) => {
+    const tokens = await getRefreshToken(collectionRefresh);
+    setDropboxAccess(tokens.access_token);
+    const sharedLinkResponse = await fetch(
+      'https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings',
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokens.access_token}`,
+        },
+        body: JSON.stringify({
+          path: image.path_display,
+          settings: {
+            requested_visibility: "public",
+          },
+        }),
+      }
+    );
+    const sharedLinkData = await sharedLinkResponse.json();
+    const link = sharedLinkData.url;
+    setTaskData({
+      ...taskData,
+      taskDescription: `<p>Image Name: ${image.path_display}</p>
+      <p>Image Link: <a href=${link} rel="noopener noreferrer" target="_blank">Image Link</a></p>`,
+    });
+  };
+
 
   return (
     <>
       <LoadingOverlay loading={loading} />
-      <section id="gallery-banner" style={{ position: "relative" }}>
-        <div
-          style={{
-            position: "relative",
-            maxWidth: `calc(100vw - ${scrollbarWidth}px)`,
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <div style={{ position: "relative" }}>
-            <img
-              className="gallery-cover"
-              src={
-                banner !== null &&
-                banner !== "" &&
-                `${REACT_APP_GALLERY_IMAGE_URL}/${banner}`
-              }
-              style={{ width: `calc(100vw - ${scrollbarWidth}px)`, height: "auto" }}
-            />
-            <div
-              id="cover-overlay"
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                zIndex: 1,
-              }}
-            ></div>
+      <div class="todo-application">
+        <div class="app-content content" style={{ overflow: "hidden" }}>
+          <div class="sidebar-left ">
+            <div class="sidebar">
+              <TodoModal
+                isNewTaskModalOpen={isNewTaskModalOpen}
+                toggleNewTaskModal={toggleNewTaskModal}
+                modalRef={modalRef}
+                taskData={taskData}
+                setTaskData={setTaskData}
+                tags={tags}
+                setTags={setTags}
+                clients={clients}
+                setClients={setClients}
+                selectedClient={selectedClient}
+                handleClientChange={handleClientChange}
+                selectedTags={selectedTags}
+                handleSelectedTags={setSelectedTags}
+                taskAuthor={taskAuthor}
+                setTaskAuthor={setTaskAuthor}
+                comments={comments}
+                setComments={setComments}
+                handleSubmit={handleSubmit}
+                toggleModal={toggleModal}
+                handleTextChange={handleTextChange}
+              />
+            </div>
           </div>
-        </div>
-        <div
-          className="banner-detail"
-          style={{
-            maxWidth: `calc(100vw - ${scrollbarWidth}px)`,
-            position: "absolute",
-            zIndex: 2,
-            textAlign: "center",
-            marginTop: showAnimation ? "-10rem" : "0px",
-            transition: "margin-top 0.5s ease",
-          }}
-        >
-          <h1 className="banner-collection-name mb-3">{collection.name}</h1>
-          <button
-            onClick={handleScrollToGallery}
-            className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${showAnimation ? "slide-down" : ""
-              }`}
-            style={{ animationDelay: showAnimation ? "0.5s" : "0s" }}
+          <div class="" style={{ width: "100%" }}
           >
-            View Gallery
-          </button>
-        </div>
+            <div class="content-overlay"></div>
+            <section id="gallery-banner" style={{ position: "relative" }}>
+              <div
+                style={{
+                  position: "relative",
+                  maxWidth: `calc(100vw - ${scrollbarWidth}px)`,
+                  objectFit: 'cover',
+                  height: '100vh',
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <div style={{ position: "relative" }} className="cover-overlay">
+                  <img
+                    className="gallery-cover"
+                    src={
+                      banner !== null &&
+                      banner !== "" &&
+                      `${REACT_APP_GALLERY_IMAGE_URL}/${banner}`
+                    }
+                    style={{
+                      width: `calc(100vw - ${scrollbarWidth}px)`,
+                      objectFit: "cover",
+                      imageRendering: "auto"
+                    }}
+                  />
 
-      </section>
-      <div
-        id="sticky-bar"
-        ref={imageGalleryRef} 
-        className="py-2 px-1"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          opacity: showAnimation ? 1 : 0,
-          transition: "opacity 0.5s ease",
-          position: "sticky",
-          top: 0,
-          zIndex: 999,
-          backgroundColor: "white",
-        }}
-      >
-        <div className="">
-          <h1 className="text-class-h1">{collection.name}</h1>
-        </div>
-        <div>
-          <span
-            className="text-right feather icon-download black"
-            title="Download"
-            onClick={() => {
-              setDownloadGalleryModal(true);
-            }}
-          ></span>
+
+                  {/* <div className="cover-overlay"
+                  ></div> */}
+
+                </div>
+              </div>
+              <div
+                className="banner-detail"
+                
+              >
+                <h1 className="banner-collection-name mb-1">{collection.name}</h1>
+                <button
+                  onClick={handleScrollToGallery}
+                  className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${showAnimation ? "slide-down" : ""
+                    }`}
+                  style={{ animationDelay: showAnimation ? "0.5s" : "0s" }}
+                >
+                  View Gallery
+                </button>
+              </div>
+
+            </section>
+            <div
+              id="sticky-bar"
+              ref={imageGalleryRef}
+              className="py-2 px-1"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                opacity: showAnimation ? 1 : 0,
+                transition: "opacity 0.5s ease",
+                position: "sticky",
+                top: 0,
+                zIndex: 5,
+                backgroundColor: "white",
+              }}
+            >
+              <div className="">
+                <h1 className="text-class-h1">{collection.name}</h1>
+              </div>
+              <div>
+                <span
+                  className="text-right feather icon-download black"
+                  title="Download"
+                  onClick={() => {
+                    setDownloadGalleryModal(true);
+                  }}
+                ></span>
+              </div>
+            </div>
+            <section id="video-player" style={{ position: "relative" }}>
+              <div className="player-wrapper">
+                <ReactPlayer
+                  url={videoLink}
+                  controls
+                  width={`calc(100vw - ${scrollbarWidth}px)`}
+                  height={"70%"}
+                  playing={true}
+                  loop={true}
+                  muted={false}
+                  className="react-player"
+                />
+              </div>
+            </section>
+
+            {isNewTaskModalOpen ? (
+              <div className="app-content-overlay show overlay-working"></div>
+            ) : (
+              <div className="app-content-overlay"></div>
+            )}
+            <section id="image-gallery" className="image-gallery">
+              <div className="card-content collapse show">
+                <div className="card-body my-gallery">
+                  <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
+                    <div className="row">
+                      {imageUrls.map((image, index) => (
+                        <Item
+                          key={index}
+                          original={image.url}
+                          thumbnail={image.url}
+                          width={image.width}
+                          height={image.height}
+                        >
+                          {({ ref, open }) => (
+                            <figure
+                              ref={ref}
+                              className="col-lg-3 col-md-6 col-12"
+                              style={{ paddingLeft: '7px', paddingLeft: '7px' }}
+                              onClick={open}
+                            >
+                              <a
+                                className="hovereffect"
+                                itemProp="contentUrl"
+                              >
+                                <img className="equal-image" src={image.url} alt="" />
+                                <div className="overlay overlay-to-links">
+                                  <p className="icon-links" style={{ backgroundColor: "black" }}>
+                                    <a>
+                                      <span
+                                        className="feather icon-download "
+                                        onClick={(event) => {
+                                          event.stopPropagation();
+                                          setSelectedImageUrl(image.path_display);
+                                          setDownloadImageModal(true);
+                                        }}
+                                      ></span>
+                                    </a>
+                                    <a>
+                                      <span className="feather icon-edit " onClick={(event) => {
+                                        event.stopPropagation();
+                                        toggleNewTaskModal();
+                                        handleShareImage(image);
+                                      }}></span>
+                                    </a>
+                                  </p>
+                                </div>
+                              </a>
+                            </figure>
+                          )}
+                        </Item>
+                      ))}
+                      {loading && <div>Loading...</div>}
+                    </div>
+                  </CustomGallery>
+                </div>
+              </div>
+            </section>
+            <DefaultLayout
+              shareButton={true}
+              fullscreenButton={false}
+              zoomButton={false}
+              ref={layoutRef}
+            />
+
+            <DownloadGalleryModal
+              isOpen={showDownloadGalleryModal}
+              onClose={() => setDownloadGalleryModal(false)}
+              onConfirm={handleAllDownload}
+              downloadOptions={downloadOptions}
+              setDownloadOptions={setDownloadOptions}
+            />
+
+            <DownloadImageModal
+              isOpen={showDownloadImageModal}
+              onClose={() => setDownloadImageModal(false)}
+              onConfirm={handleDownload}
+              downloadOptions={downloadOptions}
+              setDownloadOptions={setDownloadOptions}
+            />
+          </div>
         </div>
       </div>
-      <section id="video-player" style={{ position: "relative" }}>
-        <div className="player-wrapper">
-          <ReactPlayer
-            url={videoLink}
-            controls
-            width={`calc(100vw - ${scrollbarWidth}px)`}
-            height={"70%"}
-            playing={true}
-            loop={true}
-            muted={false}
-            className="react-player"
-          />
-        </div>
-      </section>
 
-
-      <section id="image-gallery" className="image-gallery">
-        <div className="card-content collapse show">
-          <div className="card-body my-gallery">
-            <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
-              <div className="row">
-                {imageUrls.map((image, index) => (
-                  <Item
-                    key={index}
-                    original={image.url}
-                    thumbnail={image.url}
-                    width="1024"
-                    height="576"
-                  >
-                    {({ ref, open }) => (
-                      <figure
-                        ref={ref}
-                        className="col-lg-3 col-md-6 col-12"
-                        onClick={open}
-                      >
-                        <a
-                          href={image.url}
-                          className="hovereffect"
-                          itemProp="contentUrl"
-                        >
-                          <img className="equal-image" src={image.url} alt="" />
-                          <div className="overlay overlay-to-links">
-                            <p className="icon-links" style={{backgroundColor:"black"}}>
-                              <a>
-                                <span
-                                  className="feather icon-download "
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    setSelectedImageUrl(image.path_display);
-                                    setDownloadImageModal(true);
-                                  }}
-                                ></span>
-                              </a>
-                              <a>
-                                <span className="feather icon-edit "></span>
-                              </a>
-                            </p>
-                          </div>
-                        </a>
-                      </figure>
-                    )}
-                  </Item>
-                ))}
-                {loading && <div>Loading...</div>}
-              </div>
-            </CustomGallery>
-          </div>
-        </div>
-      </section>
-      <DefaultLayout
-        shareButton={true}
-        fullscreenButton={false}
-        zoomButton={false}
-        ref={layoutRef}
-      />
-
-      <DownloadGalleryModal
-        isOpen={showDownloadGalleryModal}
-        onClose={() => setDownloadGalleryModal(false)}
-        onConfirm={handleAllDownload}
-        downloadOptions={downloadOptions}
-        setDownloadOptions={setDownloadOptions}
-      />
-
-      <DownloadImageModal
-        isOpen={showDownloadImageModal}
-        onClose={() => setDownloadImageModal(false)}
-        onConfirm={handleDownload}
-        downloadOptions={downloadOptions}
-        setDownloadOptions={setDownloadOptions}
-      />
     </>
   );
 };

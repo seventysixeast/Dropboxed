@@ -32,7 +32,7 @@ const Clients = () => {
 
   useEffect(() => {
     getAllClientsData();
-    getClientData();
+    // getClientData();
   }, [])
 
   useEffect(() => {
@@ -45,22 +45,39 @@ const Clients = () => {
 
   const getAllClientsData = async () => {
     try {
-      let allClients = await getAllClients({ subdomainId: subdomainId });
-      setClients(allClients.data);
-
-      let activeClients = [];
-      let inactiveClients = [];
-
-      allClients.data.forEach(client => {
-        if (client.status === "Active") {
-          activeClients.push(client);
-        } else {
-          inactiveClients.push(client);
-        }
-      });
-
-      setActiveClients(activeClients);
-      setInactiveClients(inactiveClients);
+      if (subdomainId === "") {
+        let allClients = await getAllClients({ subdomainId: user.id });
+        setClients(allClients.data);
+        let activeClients = [];
+        let inactiveClients = [];
+  
+        allClients.data.forEach(client => {
+          if (client.status === "Active") {
+            activeClients.push(client);
+          } else {
+            inactiveClients.push(client);
+          }
+        });
+  
+        setActiveClients(activeClients);
+        setInactiveClients(inactiveClients);
+      } else {
+        let allClients = await getAllClients({ subdomainId: subdomainId });
+        setClients(allClients.data);
+        let activeClients = [];
+        let inactiveClients = [];
+  
+        allClients.data.forEach(client => {
+          if (client.status === "Active") {
+            activeClients.push(client);
+          } else {
+            inactiveClients.push(client);
+          }
+        });
+  
+        setActiveClients(activeClients);
+        setInactiveClients(inactiveClients);
+      }
     } catch (error) {
       toast.error(error);
     }

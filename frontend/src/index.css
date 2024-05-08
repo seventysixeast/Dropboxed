@@ -992,6 +992,26 @@ html body .content .content-wrapper {
   text-align: center;
 }
 
+.text-class-h1 {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: lining-nums;
+  font-family: raleway, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-size: 1.0125rem;
+  margin: 0;
+  display: inline-block;
+  max-width: 20rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  color: var(--theme-text-primary);
+  color: #000000ce;
+}
+
 @media (max-width: 1200px) {
   .fc-toolbar-title {
     font-size: 1rem !important;
@@ -1055,6 +1075,26 @@ html body .content .content-wrapper {
   }
   .form-group .btn .btn-outline-primary {
     font-size: 8px !important;
+  }
+
+  .text-class-h1 {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: lining-nums;
+    font-family: raleway, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-size: 0.8125rem;
+    margin: 0;
+    display: inline-block;
+    max-width: 20rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+    color: var(--theme-text-primary);
+    color: #000000ce;
   }
 }
 
@@ -1214,12 +1254,13 @@ a:not([href]) {
 }
 
 .banner-detail {
-  text-align: center;
-  color: #fff;
-  position: absolute;
-  top: 50%;
-  z-index: 9;
-  transform: translateY(-50%);
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    z-index: 9;
+    transform: translateY(-50%);
 }
 
 .banner-collection-name {
@@ -1265,43 +1306,45 @@ a:not([href]) {
     border-color 0.25s ease-out;
 }
 
-.text-class-h1 {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-variant-numeric: lining-nums;
-  font-family: raleway, sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  font-size: 1.0125rem;
-  margin: 0;
-  display: inline-block;
-  max-width: 20rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: bottom;
-  color: var(--theme-text-primary);
-  color: #000000ce;
+.cover-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
-#cover-overlay {
-  position: fixed;
-  pointer-events: none;
+.cover-overlay::before {
+  transition: all 100ms ease-out;
+  content: " ";
+  display: block;
+  position: absolute;
+  z-index: 1;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(
-    circle closest-side at center,
-    rgba(0, 0, 0, 0.062) 0%,
-    rgba(0, 0, 0, 0.062) 50%,
-    rgba(0, 0, 0, 0.1) 10000%
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.cover-overlay::after {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: 0;
+  height: 300px;
+  width: 100%;
+  content: " ";
+  display: block;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(0, 0, 0, 0) 5%,
+    rgba(0, 0, 0, 0.08) 45%,
+    rgba(0, 0, 0, 0.5) 90%,
+    rgba(0, 0, 0, 0.7) 100%
   );
-  z-index: 99999999;
-  transition: all 0.3s ease;
-  opacity: 0.7;
-  color: var(--theme-text-primary);
+  transition: all 100ms ease-out;
 }
 
 .collection-cover__scroll-button {
@@ -1483,3 +1526,51 @@ a:not([href]) {
     rgba(0, 0, 0, 0.1) 10000%
   );
 }
+
+/* .item-todo {
+  animation: fadeIn 0.5s linear;
+  animation-fill-mode: both;
+} */
+
+.overlay-working {
+  visibility: visible;
+  transition: all 0.3s ease;
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 0.25rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: absolute;
+  display: block;
+  z-index: 6;
+  transition: all 0.3s ease;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+}
+
+.gallery-cover {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  object-fit: cover;
+  object-position: center center;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+/* .ql-editor {
+  margin: 1rem !important
+} */

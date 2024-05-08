@@ -3,12 +3,15 @@ import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../context/authContext";
-import { getAlltasks, createTask } from "../api/todoApis";
+import { getAlltasks, createTask, addComment, setTaskStatus, deleteTask, setTaskFavorite } from "../api/todoApis";
 import Select from "react-select";
 import { getClientPhotographers } from "../api/clientApis";
 import _ from "lodash";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
-import { Switch } from "@mui/material";
+import DeleteModal from "../components/DeleteModal";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
 const ToDo = () => {
   const { authData } = useAuth();
@@ -16,14 +19,18 @@ const ToDo = () => {
   const userId = user.id;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-
+  const [taskId, setTaskId] = useState('')
   const [tasks, setTasks] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState(tasks);
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [theSortOrder, setTheSortOrder] = useState('');
   const [tags, setTags] = useState([]);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [isNewTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [show, setShow] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const modalRef = useRef(null);
   const [taskData, setTaskData] = useState({
     id: "",
@@ -35,12 +42,10 @@ const ToDo = () => {
     taskTags: [],
     comment: "",
     status: 0,
-    isFavourite: 1,
+    isFavourite: 0,
   });
-
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState();
-  console.log(taskAuthor);
   const getTasks = async () => {
     const formData = new FormData();
     formData.append("subdomain_id", subdomainId);
@@ -48,6 +53,7 @@ const ToDo = () => {
     const response = await getAlltasks(formData);
     if (response.success) {
       setTasks(response.tasks);
+      setFilteredTasks(response.tasks);
       setTags(response.tags);
     } else {
       toast.error("Failed to get tasks!");
@@ -56,7 +62,11 @@ const ToDo = () => {
 
   const getClients = async () => {
     const formData = new FormData();
-    formData.append("subdomain_id", subdomainId);
+    if (subdomainId === "") {
+      formData.append("subdomain_id", user.id)
+    } else {
+      formData.append("subdomain_id", subdomainId);
+    }
     const response = await getClientPhotographers(formData);
     if (response.success) {
       setClients(response.data);
@@ -65,14 +75,15 @@ const ToDo = () => {
     }
   };
 
-  const toggleNewTaskModal = () => {
-    setNewTaskModalOpen(!isNewTaskModalOpen);
+  const handleTextChange = (value) => {
+    setTaskData({
+      ...taskData,
+      taskDescription: value
+    });
   };
 
-  const handleModalClose = (event) => {
-    if (modalRef.current && !modalRef.current.contains(event.target)) {
-      setNewTaskModalOpen(false);
-    }
+  const toggleNewTaskModal = () => {
+    setNewTaskModalOpen(!isNewTaskModalOpen);
     setTaskData({
       id: "",
       userId: "",
@@ -83,7 +94,7 @@ const ToDo = () => {
       taskTags: [],
       comment: "",
       status: 0,
-      isFavourite: 1,
+      isFavourite: 0,
     });
     setSelectedClient([]);
     setSelectedTags([]);
@@ -114,9 +125,6 @@ const ToDo = () => {
   const handleSubmit = async () => {
     const formData = new FormData();
 
-    if (taskData.id !== "") {
-      formData.append("id", taskData.id);
-    }
     if (taskData.userId === "") {
       formData.append("user_id", userId);
     } else {
@@ -124,22 +132,26 @@ const ToDo = () => {
     }
 
     const formattedTags = selectedTags.map((tag) => tag.value).join(",");
+    formData.append("id", taskData.id);
     formData.append("task_tags", formattedTags);
     formData.append("subdomain_id", subdomainId);
     formData.append("role_id", roleId);
     formData.append("task_title", taskData.taskTitle);
-    formData.append("assign_user", taskData.assignUser);
+    formData.append("assign_user", selectedClient.value);
     formData.append("task_assigndate", taskData.taskAssigndate);
     formData.append("task_description", taskData.taskDescription);
-    formData.append("comment", taskData.comment);
+    formData.append("comments", taskData.comment);
     formData.append("status", taskData.status);
     formData.append("is_favourite", taskData.isFavourite);
 
     try {
       const response = await createTask(formData);
       if (response.success) {
-        toast.success("Task created successfully!");
-        getTasks();
+        if (taskData.id == "") {
+          toast.success("Task created successfully!");
+        } else {
+          toast.success("Task updated successfully!");
+        }
         setTaskData({
           id: "",
           userId: "",
@@ -150,7 +162,7 @@ const ToDo = () => {
           taskTags: [],
           comment: "",
           status: 0,
-          isFavourite: 1,
+          isFavourite: 0,
         });
         setSelectedClient([]);
         setSelectedTags([]);
@@ -163,7 +175,43 @@ const ToDo = () => {
     } catch (error) {
       console.error("Error creating task:", error);
     }
+    getTasks();
   };
+
+  const handleComment = async () => {
+    const formData = new FormData();
+    formData.append("task_id", taskData.id);
+    formData.append("user_id", userId);
+    formData.append("comments", taskData.comment);
+    formData.append("subdomain_id", subdomainId)
+    try {
+      const response = await addComment(formData);
+      if (response.success) {
+        toast.success("Comment added successfully!");
+        getTasks();
+        setTaskData({
+
+          id: "",
+          userId: "",
+          taskTitle: "",
+          assignUser: "",
+          taskAssigndate: new Date(),
+          taskDescription: "",
+          taskTags: [],
+          comment: "",
+          status: 0,
+          isFavourite: 0,
+        });
+        toggleNewTaskModal();
+      } else {
+        toast.error("Failed to add comment!");
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
+
+  console.log(taskData);
 
   const handleTaskClick = async (task) => {
     setTaskData({
@@ -175,16 +223,35 @@ const ToDo = () => {
       taskDescription: task.task_description,
       taskTags: task.task_tags,
       status: task.status,
+      comment: "",
       isFavourite: task.is_favourite,
     });
 
     const client = clients.find((c) => c.id === task.assign_user);
 
+    console.log(task.assign_user, client);
+
     if (client) {
       setSelectedClient({ value: client.id, label: client.name });
     }
 
-    const selectedTags = tags.filter((tag) => task.task_tags.includes(tag.id));
+    const selectedTags = task.task_tags.split(",").map((tagId) => {
+      tagId = tagId.trim();
+
+      if (tagId === "" || isNaN(tagId)) {
+        return null;
+      }
+
+      const tag = tags.find((t) => t.id === parseInt(tagId));
+
+      return tag ? tag : null;
+    }).filter(tag => tag !== null);
+
+
+
+    console.log(selectedTags);
+
+    // const selectedTags = tags.filter((tag) => task.task_tags.includes(tag.id));
 
     if (client) {
       setSelectedTags(
@@ -213,6 +280,85 @@ const ToDo = () => {
     });
   };
 
+  const handleStatusCheckbox = async (data) => {
+    let task = data;
+    let formData = new FormData();
+    formData.append("id", task.id);
+    let newstatus = task.status === 1 ? 0 : 1;
+    formData.append("status", newstatus);
+
+    const response = await setTaskStatus(formData);
+    if (response.success) {
+      toast.success("Status updated successfully!");
+      getTasks();
+    } else {
+      toast.error("Failed to update status!");
+    }
+  };
+
+  const handleTaskDelete = async () => {
+    let formData = new FormData();
+    formData.append("id", taskId);
+    const response = await deleteTask(formData);
+    if (response.success) {
+      toast.success("Task deleted successfully!");
+      getTasks();
+      setShowDeleteModal(false);
+    } else {
+      toast.error("Failed to delete task!");
+    }
+  };
+
+  const handleTaskFavorite = async (data) => {
+    console.log(data);
+    let formData = new FormData();
+    formData.append("id", data.id);
+    let newstatus = data.is_favourite === 1 ? 0 : 1;
+    formData.append("is_favourite", newstatus);
+
+    const response = await setTaskFavorite(formData);
+    if (response.success) {
+      getTasks();
+      setShowDeleteModal(false);
+    } else {
+      toast.error("Failed to update favorite status!");
+    }
+  };
+
+  const filterTasks = (filter, sortOrder) => {
+    let filteredList = tasks;
+
+    if (typeof filter !== 'undefined') {
+      if (filter === 'All') {
+        setFilteredTasks(tasks);
+      } else if (filter === 'Favorites') {
+        filteredList = tasks.filter(task => task.is_favourite === 1);
+      } else if (filter === 'Done') {
+        filteredList = tasks.filter(task => task.status === 1);
+      }
+      setActiveFilter(filter);
+    }
+
+    if (typeof sortOrder !== 'undefined') {
+      if (sortOrder === "Ascending") {
+        filteredList = filteredList.slice().sort((a, b) => a.task_title.localeCompare(b.task_title));
+      } else if (sortOrder === "Descending") {
+        filteredList = filteredList.slice().sort((a, b) => b.task_title.localeCompare(a.task_title));
+      }
+      setTheSortOrder(sortOrder);
+    }
+    setFilteredTasks(filteredList);
+
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const items = Array.from(filteredTasks);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    setFilteredTasks(items);
+  };
+
   return (
     <div className="todo-application">
       <div className="app-content content">
@@ -239,10 +385,9 @@ const ToDo = () => {
                 </div>
                 <div className="sidebar-menu-list">
                   <div className="list-group">
-                    <a href="#" className="list-group-item border-0 active">
-                      <span className="fonticon-wrap mr-50">
-                        <i className="feather icon-align-justify"></i>
-                      </span>
+                    <a href="#" className={`list-group-item border-0 ${activeFilter === 'All' ? 'active' : ''}`} onClick={() => filterTasks('All')}>                      <span className="fonticon-wrap mr-50">
+                      <i className="feather icon-align-justify"></i>
+                    </span>
                       <span> All</span>
                     </a>
                   </div>
@@ -250,23 +395,19 @@ const ToDo = () => {
                     Filters
                   </label>
                   <div className="list-group">
-                    <a href="#" className="list-group-item border-0">
+
+
+                    <a href="#" className={`list-group-item border-0 ${activeFilter === 'Favorites' ? 'active' : ''}`} onClick={() => filterTasks('Favorites')}>
                       <span className="fonticon-wrap mr-50">
                         <i className="feather icon-star"></i>
                       </span>
                       <span>Favourites</span>
                     </a>
-                    <a href="#" className="list-group-item border-0">
+                    <a href="#" className={`list-group-item border-0 ${activeFilter === 'Done' ? 'active' : ''}`} onClick={() => filterTasks('Done')}>
                       <span className="fonticon-wrap mr-50">
                         <i className="feather icon-check"></i>
                       </span>
                       <span>Done</span>
-                    </a>
-                    <a href="#" className="list-group-item border-0">
-                      <span className="fonticon-wrap mr-50">
-                        <i className="feather icon-trash-2"></i>
-                      </span>
-                      <span>Deleted</span>
                     </a>
                   </div>
                   <label className="filter-label mt-2 mb-1 pt-25">Labels</label>
@@ -291,9 +432,8 @@ const ToDo = () => {
               </div>
             </div>
             <div
-              className={`todo-new-task-sidebar ${
-                isNewTaskModalOpen ? "show" : ""
-              }`}
+              className={`todo-new-task-sidebar ${isNewTaskModalOpen ? "show" : ""
+                }`}
               style={{ maxHeight: "inherit", overflowY: "auto" }}
               ref={modalRef}
             >
@@ -389,6 +529,7 @@ const ToDo = () => {
                                   options: value.map((client) => ({
                                     value: client.id,
                                     label: client.name,
+
                                   })),
                                 }))
                                 .value()}
@@ -425,20 +566,10 @@ const ToDo = () => {
 
                     <div className="card-body border-bottom task-description">
                       <div className="form-group">
-                        <textarea
-                          name="description"
-                          className="form-control task-title"
-                          cols={1}
-                          rows={2}
-                          placeholder="Add description"
+                        <ReactQuill
                           value={taskData.taskDescription}
-                          required
-                          onChange={(e) => {
-                            setTaskData({
-                              ...taskData,
-                              taskDescription: e.target.value,
-                            });
-                          }}
+                          onChange={handleTextChange}
+                          placeholder="Add description"
                         />
                       </div>
                       <div className="tag d-flex justify-content-between align-items-center pt-1">
@@ -470,7 +601,6 @@ const ToDo = () => {
                     </div>
 
                     <div className="card-body pb-1 d-none">
-                      {/* quill editor for  Dummy comment */}
                       <div className="snow-container border rounded p-50 d-none dummy">
                         <div className="comment-editor mx-75 ql-container ql-snow">
                           <div
@@ -761,7 +891,7 @@ const ToDo = () => {
                             {Math.floor(
                               (new Date() -
                                 new Date("2024-03-14T00:00:00.000Z")) /
-                                (1000 * 60 * 60 * 24)
+                              (1000 * 60 * 60 * 24)
                             )}{" "}
                             days ago
                           </small>
@@ -795,31 +925,36 @@ const ToDo = () => {
                           <button
                             type="button"
                             className="btn btn-sm btn-primary comment-btn"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleComment();
+                            }}
+
+
                           >
                             <span>Comment</span>
                           </button>
                         </div>
                       </div>
                       <div className="mt-1 d-flex justify-content-between">
-                        <button
+                        {taskData.id == "" ? <button
                           type="button"
                           onClick={handleSubmit}
                           className="btn btn-outline-danger add-todo"
                         >
                           Add Task
-                        </button>
-                        <button
+                        </button> : <button
                           type="button"
                           onClick={handleSubmit}
                           className="btn btn-outline-danger update-todo"
                         >
                           Save Changes
                         </button>
+                        }
                       </div>
                     </div>
                   </div>
                 </form>
-                {/* form start end*/}
               </div>
             </div>
           </div>
@@ -873,39 +1008,44 @@ const ToDo = () => {
                           className="dropdown-menu dropdown-menu-right"
                           aria-labelledby="sortDropdown"
                         >
-                          <a className="dropdown-item ascending" href="#">
+                          <a className="dropdown-item ascending" href="#" onClick={() => filterTasks(activeFilter, "Ascending")}>
                             Ascending
                           </a>
-                          <a className="dropdown-item descending" href="#">
+                          <a className="dropdown-item descending" href="#" onClick={() => filterTasks(activeFilter, "Descending")}>
                             Descending
                           </a>
+
                         </div>
                       </div>
                     </div>
                     <div className="todo-task-list list-group">
-                      <ul
+                      {/* <ul
                         className="todo-task-list-wrapper list-unstyled"
                         id="todo-task-list-drag"
                       >
-                        {tasks.map((task, index) => (
+                        {filteredTasks.map((task, index) => (
                           <li
                             key={index}
                             className="todo-item"
                             data-name={task.assign_user}
                           >
-                            <div className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center ${tasks[index].status === 1 ? 'linethrough' : ''}`}>
+                            <div className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center ${filteredTasks[index].status === 1 ? 'linethrough' : ''}`}>
                               <div className="todo-title-area d-flex">
                                 <i className="feather icon-more-vertical handle"></i>
-                                {/* map status on checkbox */}
 
                                 <div className="custom-control custom-checkbox">
                                   <input
                                     type="checkbox"
                                     className="custom-control-input"
                                     id={`checkbox${index}`}
-                                    checked={tasks[index].status === 1}
-
+                                    checked={filteredTasks[index].status === 1}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleStatusCheckbox(filteredTasks[index]);
+                                    }}
                                   />
+
+
                                   <label
                                     className="custom-control-label"
                                     htmlFor={`checkbox${index}`}
@@ -953,17 +1093,168 @@ const ToDo = () => {
                                     width="30"
                                   />
                                 </div>
-                                <a className="todo-item-favorite ml-75">
-                                  <i className="feather icon-star"></i>
+                                <a className="todo-item-favorite ml-75" onClick={() => handleTaskFavorite(filteredTasks[index])}>
+                                  {filteredTasks[index].is_favourite == 0 ? (
+                                    <i className="feather icon-star "></i>
+                                  ) : (
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width={16}
+                                      height={16}
+                                      viewBox="0 0 24 24"
+                                      fill="orange"
+                                      stroke="orange"
+                                      strokeWidth={2}
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      className="feather feather-star"
+                                    >
+                                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                    </svg>
+
+                                  )}
                                 </a>
+
+
                                 <a className="todo-item-delete ml-75">
-                                  <i className="feather icon-trash-2"></i>
+                                  <i className="feather icon-trash-2" onClick={(e) => {
+                                    e.preventDefault();
+                                    setTaskId(task.id)
+                                    setShowDeleteModal(true);
+                                  }}></i>
                                 </a>
                               </div>
                             </div>
                           </li>
                         ))}
-                      </ul>
+                      </ul> */}
+
+                      <DragDropContext onDragEnd={onDragEnd}>
+                        <Droppable droppableId="todo-task-list-drag">
+                          {(provided) => (
+                            <ul
+                              className="todo-task-list-wrapper list-unstyled"
+                              {...provided.droppableProps}
+                              ref={provided.innerRef}
+                            >
+                              {filteredTasks.map((task, index) => (
+                                <Draggable key={task.id.toString()} draggableId={task.id.toString()} index={index}>
+
+                                  {(provided) => (
+                                    <li
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      className="todo-item item-todo"
+                                      data-name={task.assign_user}
+                                    >
+                                      <div className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center`}>
+                                        <div className="todo-title-area d-flex">
+                                          <i className="feather icon-more-vertical handle"></i>
+
+                                          <div className="custom-control custom-checkbox">
+                                            <input
+                                              type="checkbox"
+                                              className="custom-control-input"
+                                              id={`checkbox${index}`}
+                                              checked={filteredTasks[index].status === 1}
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                handleStatusCheckbox(filteredTasks[index]);
+                                              }}
+                                            />
+
+
+                                            <label
+                                              className="custom-control-label"
+                                              htmlFor={`checkbox${index}`}
+                                            ></label>
+                                          </div>
+
+                                          <div>
+                                            <p
+                                              className={`todo-title mx-50 m-0 truncate `}
+                                              onClick={() => handleTaskClick(task)}
+                                              style={{ textDecoration: task.status === 1 ? "line-through" : "none" }}
+
+                                            >
+                                              {task.task_title}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className="todo-item-action d-flex align-items-center">
+                                          <div className="todo-badge-wrapper d-flex">
+                                            {task.task_tags.split(",").map((tagId) => {
+                                              const tag = tags.find(
+                                                (tag) => tag.id === parseInt(tagId)
+                                              );
+                                              if (tag) {
+                                                return (
+                                                  <span
+                                                    key={tag.id}
+                                                    className="badge badge-primary badge-pill"
+                                                    style={{
+                                                      backgroundColor: `${getBulletClass(
+                                                        tag.id
+                                                      )}`,
+                                                    }}
+                                                  >
+                                                    {tag.tasktag_title}
+                                                  </span>
+                                                );
+                                              }
+                                              return null;
+                                            })}
+                                          </div>
+                                          <div className="avatar ml-1">
+                                            <img
+                                              src="/app-assets/images/portrait/small/avatar-s-1.png"
+                                              alt="avatar"
+                                              height="30"
+                                              width="30"
+                                            />
+                                          </div>
+                                          <a className="todo-item-favorite ml-75" onClick={() => handleTaskFavorite(filteredTasks[index])}>
+                                            {filteredTasks[index].is_favourite == 0 ? (
+                                              <i className="feather icon-star "></i>
+                                            ) : (
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width={16}
+                                                height={16}
+                                                viewBox="0 0 24 24"
+                                                fill="orange"
+                                                stroke="orange"
+                                                strokeWidth={2}
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className="feather feather-star"
+                                              >
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                              </svg>
+
+                                            )}
+                                          </a>
+
+
+                                          <a className="todo-item-delete ml-75">
+                                            <i className="feather icon-trash-2" onClick={(e) => {
+                                              e.preventDefault();
+                                              setTaskId(task.id)
+                                              setShowDeleteModal(true);
+                                            }}></i>
+                                          </a>
+                                        </div>
+                                      </div>
+                                    </li>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </ul>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
                       <div className="no-results">
                         <h5>No Items Found</h5>
                       </div>
@@ -977,6 +1268,13 @@ const ToDo = () => {
       </div>
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
+
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleTaskDelete}
+        message="Are you sure you want to delete this task?"
+      />
     </div>
   );
 };
