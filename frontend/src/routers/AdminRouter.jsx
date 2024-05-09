@@ -21,7 +21,7 @@ import Collections from "../pages/Collections";
 import Download from "../pages/Download";
 import Users from "../pages/Users";
 import Login from "../pages/Login";
-import ManagePhotographersSubdomains from "../pages/ManagePhotographersSubdomains";
+import ManagePhotographerAdmins from "../pages/ManagePhotographerAdmins";
 import EditProfile from "../pages/EditProfile";
 import SignUp from "../pages/SignUp";
 import { useAuth } from "../context/authContext";
@@ -49,7 +49,7 @@ const AdminRouter = () => {
     { path: "/booking-for-photography", element: <AddBooking /> },
     { path: "/services", element: <Services /> },
     { path: "/notifications-of-booking", element: <NotificationComponent /> },
-    { path: "/manage-photographers-subdomains", element: <ManagePhotographersSubdomains /> },
+    { path: "/manage-photographer-admins", element: <ManagePhotographerAdmins /> },
     { path: "/edit-profile", element: <EditProfile /> },
     //{ path: "/login", element: <Login /> },
     //{ path: "/signup", element: <SignUp /> },

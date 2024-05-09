@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { getAllPhotographersAndSubdomains, createPhotographerAndSubdomain, getPhotographerAndSubdomain, deletePhotographerAndSubdomain } from "../api/photographerAndSubdomainApis";
+import { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin } from "../api/photographerAdminApis";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
-const ManagePhotographersSubdomains = () => {
-  const [photographers, setPhotographers] = useState([]);
+const ManagePhotographerAdmins = () => {
+  const [photographerAdmins, setPhotographerAdmins] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [formData, setFormData] = useState({
     id: "",
     name: "",
-    email: "",
     phone: "",
     business_name: "",
     profile_photo: "",
@@ -21,16 +20,16 @@ const ManagePhotographersSubdomains = () => {
   });
 
   useEffect(() => {
-    getAllPhotographersData();
+    getAllPhotographerAdminsData();
   }, []);
 
-  const getAllPhotographersData = async () => {
+  const getAllPhotographerAdminsData = async () => {
     try {
-      let allPhotographers = await getAllPhotographersAndSubdomains();
-      if (allPhotographers && allPhotographers.data) {
-        setPhotographers(allPhotographers.data);
+      let res = await getAllPhotographerAdmins();
+      if (res && res.data) {
+        setPhotographerAdmins(res.data);
       } else {
-        setPhotographers("");
+        setPhotographerAdmins("");
       }
     } catch (error) {
       console.error("Failed to:", error.message);
@@ -39,19 +38,17 @@ const ManagePhotographersSubdomains = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    let photographer = { ...formData };
+    let photographerAdmin = { ...formData };
     if (name === "name") {
-      photographer.name = value;
-    } else if (name === "email") {
-      photographer.email = value;
+      photographerAdmin.name = value;
     } else if (name === "phone") {
-      photographer.phone = value;
+      photographerAdmin.phone = value;
     } else if (name === "business_name") {
-      photographer.business_name = value;
+      photographerAdmin.business_name = value;
     } else if (name === "status") {
-      photographer.status = value;
+      photographerAdmin.status = value;
     }
-    setFormData(photographer);
+    setFormData(photographerAdmin);
   };
 
   const handlePhotoChange = (event) => {
@@ -75,37 +72,21 @@ const ManagePhotographersSubdomains = () => {
     }
   };
 
-  const resetFormData = async () => {
-    setFormData({
-      id: "",
-      name: "",
-      email: "",
-      phone: "",
-      business_name: "",
-      profile_photo: "",
-      status: "Active"
-    });
-    setPreviewImage(null);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", formData.id);
       formDataToSend.append("name", formData.name);
-      formDataToSend.append("email", formData.email);
       formDataToSend.append("phone", formData.phone);
       formDataToSend.append("business_name", formData.business_name);
       formDataToSend.append('profile_photo', formData.profile_photo);
       formDataToSend.append("status", formData.status);
-      formDataToSend.append('role_id', 2);
-      let res = await createPhotographerAndSubdomain(formDataToSend);
+      let res = await updatePhotographerAdmin(formDataToSend);
       if (res.success) {
         toast.success(res.message);
-        resetFormData();
         document.getElementById('closeModal').click();
-        getAllPhotographersData();
+        getAllPhotographerAdminsData();
       } else {
         toast.error(res);
       }
@@ -114,32 +95,32 @@ const ManagePhotographersSubdomains = () => {
     }
   };
 
-  const getPhotographerData = async (id) => {
+  const getPhotographerAdminData = async (id) => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", id);
-      let photographerData = await getPhotographerAndSubdomain(formDataToSend);
-      if (photographerData.data.profile_photo !== "") {
-        let path = `${IMAGE_URL}/${photographerData.data.profile_photo}`
+      let res = await getPhotographerAdmin(formDataToSend);
+      if (res.data.profile_photo !== "") {
+        let path = `${IMAGE_URL}/${res.data.profile_photo}`
         setPreviewImage(path)
       } else {
         setPreviewImage(null)
       }
-      setFormData(photographerData.data);
+      setFormData(res.data);
     } catch (error) {
       console.error("Failed to get photographer:", error.message);
     }
   };
 
-  const deletePhotographerData = async () => {
+  const deletePhotographerAdminData = async () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", imageTypeIdToDelete);
-      let res = await deletePhotographerAndSubdomain(formDataToSend);
+      let res = await deletePhotographerAdmin(formDataToSend);
       if (res.success) {
         toast.success(res.message);
         setShowDeleteModal(false);
-        getAllPhotographersData();
+        getAllPhotographerAdminsData();
       } else {
         toast.error(res.message);
       }
@@ -157,12 +138,12 @@ const ManagePhotographersSubdomains = () => {
           <span>
             <img
               src={
-                row.original.profile_photo && row.original.profile_photo !== "null"
+                row.original.profile_photo
                   ? `${IMAGE_URL}/${row.original.profile_photo}`
                   : "../../../app-assets/images/portrait/medium/dummy.png"
               }
               className="rounded-circle width-50 height-50"
-              alt="Photographer image"
+              alt="profile"
             />
           </span>
         )
@@ -186,7 +167,7 @@ const ManagePhotographersSubdomains = () => {
             <button
               className="btn btn-icon btn-outline-secondary mr-1 mb-1"
               title="Edit"
-              onClick={() => getPhotographerData(row.original.id)}
+              onClick={() => getPhotographerAdminData(row.original.id)}
               data-toggle="modal"
               data-target="#bootstrap"
             >
@@ -209,7 +190,7 @@ const ManagePhotographersSubdomains = () => {
     []
   );
 
-  const data = React.useMemo(() => photographers, [photographers]);
+  const data = React.useMemo(() => photographerAdmins, [photographerAdmins]);
 
   return (
     <>
@@ -217,15 +198,15 @@ const ManagePhotographersSubdomains = () => {
         <div className={`content-overlay`}></div>
         <div className="content-wrapper">
           <div className="content-header row mt-2">
-            <div className="content-header-left col-md-6 col-6">
-              <h3 className="content-header-title mb-0">Manage Photographers Subdomains</h3>
+            <div className="content-header-left col-md-6 col-6 mb-2">
+              <h3 className="content-header-title mb-0">Manage Photographer Admins</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
                       <a href="/dashboard">Home</a>
                     </li>
-                    <li className="breadcrumb-item active">Manage Photographers Subdomains</li>
+                    <li className="breadcrumb-item active">Manage Photographer Admins</li>
                   </ol>
                 </div>
               </div>
@@ -234,15 +215,6 @@ const ManagePhotographersSubdomains = () => {
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group">
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary"
-                      data-toggle="modal"
-                      data-target="#bootstrap"
-                    >
-                      Add New
-                    </button>
-
                     <div
                       className="modal fade text-left"
                       id="bootstrap"
@@ -255,7 +227,7 @@ const ManagePhotographersSubdomains = () => {
                       <div className="modal-dialog" role="document">
                         <div className="modal-content">
                           <div className="modal-header">
-                            <h3 className="card-title">Add Photographer & subdomain</h3>
+                            <h3 className="card-title">Update Photographer</h3>
                             <button
                               type="button"
                               className="close"
@@ -274,17 +246,6 @@ const ManagePhotographersSubdomains = () => {
                                   className="form-control"
                                   name="name"
                                   value={formData.name}
-                                  onChange={handleInputChange}
-                                  required
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Email *</label>
-                                <input
-                                  type="email"
-                                  className="form-control"
-                                  name="email"
-                                  value={formData.email}
                                   onChange={handleInputChange}
                                   required
                                 />
@@ -348,12 +309,11 @@ const ManagePhotographersSubdomains = () => {
                                 className="btn btn-secondary"
                                 data-dismiss="modal"
                                 value="Close"
-                                onClick={() => resetFormData()}
                               />
                               <input
                                 type="submit"
                                 className="btn btn-primary btn"
-                                value={formData.id ? "Update" : "Add"}
+                                value="Update"
                               />
                             </div>
                           </form>
@@ -370,8 +330,8 @@ const ManagePhotographersSubdomains = () => {
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={deletePhotographerData}
-        message="Are you sure you want to delete this photographer?"
+        onConfirm={deletePhotographerAdminData}
+        message="Are you sure you want to delete this photographer admin?"
       />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
@@ -380,4 +340,4 @@ const ManagePhotographersSubdomains = () => {
   );
 };
 
-export default ManagePhotographersSubdomains;
+export default ManagePhotographerAdmins;
