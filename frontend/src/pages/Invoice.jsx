@@ -58,19 +58,100 @@ const Invoice = () => {
         const paidStatus = row.paid_status;
         const sendInvoice = row.send_invoice;
         if (paidStatus && sendInvoice) {
-          return "Paid & Sent";
+          return <p className="badge btn-success">Paid</p>;
         } else if (paidStatus) {
-          return "Paid";
+          return <p className="badge btn-success">Paid</p>;
         } else if (sendInvoice) {
-          return "Sent";
+          return <p className="badge btn-primary">Sent</p>;
         } else {
-          return "Not Paid";
+          return <p className="badge btn-orange">Pending</p>;
         }
       },
     },
     {
       Header: "Action",
       accessor: "action",
+      Cell: ({ row }) => {
+        const { original } = row;
+        const { id, paid_status, send_invoice } = original;
+        const isPaid = paid_status === 1;
+        const isSent = send_invoice === 1;
+
+        const handleEdit = () => {
+          console.log("Edit invoice", id);
+        };
+        const handleDelete = () => {
+          console.log("Delete invoice", id);
+        };
+        const handleUpload = () => {
+          console.log("Upload invoice", id);
+        };
+        const handlePaid = () => {
+          console.log("Paid invoice", id);
+        };
+        const handleSend = () => {
+          console.log("Send invoice", id);
+        };
+        const handleDownload = () => {
+          console.log("Download invoice", id);
+        };
+
+        return (
+          <div className="align-items-center">
+            <div>
+            <button
+              type="button"
+              className="btn btn-icon btn-outline-primary"
+              onClick={handleEdit}
+              title="Edit Invoice"
+            >
+              <i className="feather white icon-edit"></i>
+            </button>
+            <button
+              type="button"
+              className="btn btn-icon btn-outline-primary"
+              onClick={handleDelete}
+              title="Delete Invoice"
+            >
+              <MdDelete fill='white' />
+            </button>
+            </div>
+            <div>
+            <button
+              type="button"
+              className="btn btn-icon btn-outline-primary"
+              onClick={handleUpload}
+            >
+              <FaUpload fill='white' />
+            </button>
+            {!isPaid && (
+              <button
+                type="button"
+                className="btn btn-icon btn-outline-primary text-white"
+                onClick={handlePaid}
+              >
+                Paid
+              </button>
+            )}
+            </div>
+            {/* {!isSent && (
+              <button
+                className="btn btn-icon btn-light-warning btn-sm me-1"
+                onClick={handleSend}
+              >
+                Send
+              </button>
+            )}
+
+            <button
+              className="btn btn-icon btn-light-secondary btn-sm"
+              onClick={handleDownload}
+            >
+              Download
+            </button> */}
+          </div>
+        );
+      }
     },
   ];
 
