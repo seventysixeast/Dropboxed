@@ -112,7 +112,6 @@ const getRefreshToken = async (data) => {
             }),
         });
         const resp = await response.json();
-        console.log(resp);
         return resp;
     } catch (error) {
         throw new Error(error.message);

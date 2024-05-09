@@ -50,8 +50,8 @@ const Order = () => {
                         <td>$195</td>
                         <td>18-03-2024</td>
                         <td>
-                          <button type="button" class="btn btn-primary btn-min-width mr-1 mb-1 text-white">Delete Order</button>
-                          <button type="button" class="btn btn-danger btn-min-width mr-1 mb-1 text-white">Create Invoice</button>
+                          <button type="button" className="btn btn-primary btn-min-width mr-1 mb-1 text-white">Delete Order</button>
+                          <button type="button" className="btn btn-danger btn-min-width mr-1 mb-1 text-white">Create Invoice</button>
                         </td>
                         <td className="d-none">No</td>
                       </tr>
@@ -65,8 +65,8 @@ const Order = () => {
                         <td>$195</td>
                         <td>18-03-2024</td>
                         <td>
-                          <button type="button" class="btn btn-primary btn-min-width mr-1 mb-1 text-white">Delete Order</button>
-                          <button type="button" class="btn btn-danger btn-min-width mr-1 mb-1 text-white">Create Invoice</button>
+                          <button type="button" className="btn btn-primary btn-min-width mr-1 mb-1 text-white">Delete Order</button>
+                          <button type="button" className="btn btn-danger btn-min-width mr-1 mb-1 text-white">Create Invoice</button>
                         </td>
                         <td className="d-none">No</td>
                       </tr>

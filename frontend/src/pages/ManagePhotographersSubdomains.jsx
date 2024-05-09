@@ -27,7 +27,7 @@ const ManagePhotographersSubdomains = () => {
             <div className="card-content">
               <div className="card-body">
                 <div className="table-responsive">
-                  <table class="table table-striped table-bordered zero-configuration">
+                  <table className="table table-striped table-bordered zero-configuration">
                     <thead>
                       <tr>
                         <th>S.No.</th>
@@ -51,10 +51,10 @@ const ManagePhotographersSubdomains = () => {
                         <td>76east.dropboxed.com</td>
                         <td className="d-flex justify-content-between">
                           <div className="btnsrow">
-                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                               <i className="fa fa-remove"></i>
                             </button>
                           </div>
@@ -74,10 +74,10 @@ const ManagePhotographersSubdomains = () => {
                         <td>abc.dropboxed.com</td>
                         <td className="d-flex justify-content-between">
                           <div className="btnsrow">
-                            <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                            <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                            <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                               <i className="fa fa-remove"></i>
                             </button>
                           </div>

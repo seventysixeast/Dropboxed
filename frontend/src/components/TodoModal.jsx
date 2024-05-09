@@ -29,7 +29,7 @@ const TodoModal = ({
 }) => {
     return (
         <>
-            <div class={`todo-new-task-sidebar ${isNewTaskModalOpen ? 'show' : ''}`} style={{ maxHeight: 'inherit', overflowY: 'auto', position: 'fixed', marginBottom: '1rem', height: '95%' }}>
+            <div className={`todo-new-task-sidebar ${isNewTaskModalOpen ? 'show' : ''}`} style={{ maxHeight: 'inherit', overflowY: 'auto', position: 'fixed', marginBottom: '1rem', height: '95%' }}>
                 <div className="card shadow-none p-0 m-0">
                     <div className="card-header border-bottom py-75">
                         <div className="task-header d-flex justify-content-between align-items-center">
@@ -107,7 +107,6 @@ const TodoModal = ({
                                             className="select-box mr-1"
                                             style={{ width: "10rem" }}
                                         >
-                                            {console.log(taskData)}
                                             <Select
                                                 className="select2 font-sm"
                                                 name="tags"

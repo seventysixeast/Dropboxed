@@ -164,7 +164,7 @@ const SignUp = () => {
                             <option value="Singapore">Singapore</option>
                           </select>
                           <div className="form-control-position">
-                            <i class="fa fa-chevron-down"></i>
+                            <i className="fa fa-chevron-down"></i>
                           </div>
                           <small className="text-danger">{validationErrors.country}</small>
 

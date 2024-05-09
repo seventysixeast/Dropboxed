@@ -1,8 +1,6 @@
 import API from "./baseApi";
 
 const getAllServices = async (data) => {
-  console.log(data);
-
   try {
     const response = await API.post("/service/getAllservices", data);
     if (response.status === 200) {
@@ -17,7 +15,6 @@ const getAllServices = async (data) => {
 };
 
 const getService = async (data) => {
-  console.log(data);
   try {
     const response = await API.post("/service/getService", data);
     if (response.status === 200) {

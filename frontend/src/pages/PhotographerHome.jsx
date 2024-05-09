@@ -19,9 +19,9 @@ export const PhotographerHome = () => {
             </button>
           </div>
         </div>
-        <div class="cover-logo-wrapper">
+        <div className="cover-logo-wrapper">
           <a
-            class="text-white"
+            className="text-white"
             href="https://www.mediadrive.com.au"
             target="_blank"
             rel="noopener noreferrer"

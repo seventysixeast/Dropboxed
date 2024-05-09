@@ -359,14 +359,14 @@ export const Dashboard = () => {
                 </div>
               </div>
               <div className="card-deck-wrapper">
-                <div class="grid-hover row">
+                <div className="grid-hover row">
                   {collections && collections.map(item => (
-                    <div className="col-md-3 mb-3">
+                    <div className="col-md-3 mb-3" key={item.id}>
                       <a
                         href={`${url2}view-gallery/${item.id}`}
                         className="gallery-link"
                       >
-                        <figure class="effect-zoe">
+                        <figure className="effect-zoe">
                           <img
                             className="gallery-thumbnail"
                             src={
@@ -377,10 +377,10 @@ export const Dashboard = () => {
                           />
                           <figcaption>
                             <h2><span>{item.client_name}</span></h2>
-                            <p class="icon-links">
-                              <a onClick={() => navigate(`/view-gallery/${item.id}`)} title="View Gallery"><i class="feather icon-eye"></i></a>
+                            <p className="icon-links">
+                              <a onClick={() => navigate(`/view-gallery/${item.id}`)} title="View Gallery"><i className="feather icon-eye"></i></a>
                             </p>
-                            <p class="description">{item.name}</p>
+                            <p className="description">{item.name}</p>
                           </figcaption>
                         </figure>
                       </a>
@@ -397,7 +397,7 @@ export const Dashboard = () => {
                   <div className="card-body">
                     {/* datatable start */}
                     <div className="table-responsive">
-                      <table class="table table-striped table-bordered zero-configuration">
+                      <table className="table table-striped table-bordered zero-configuration">
                         <thead>
                           <tr>
                             <th>Order.No.</th>
@@ -426,10 +426,10 @@ export const Dashboard = () => {
                             <td>$5</td>
                             <td>$25</td>
                             <td>
-                              <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
                                 <i className="fa fa-pencil"></i>
                               </button>
-                              <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                                 <i className="fa fa-remove"></i>
                               </button>
                             </td>
@@ -448,10 +448,10 @@ export const Dashboard = () => {
                             <td>$5 </td>
                             <td>$25</td>
                             <td>
-                              <button class="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
                                 <i className="fa fa-pencil"></i>
                               </button>
-                              <button class="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
                                 <i className="fa fa-remove"></i>
                               </button>
                             </td>

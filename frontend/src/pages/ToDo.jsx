@@ -211,8 +211,6 @@ const ToDo = () => {
     }
   };
 
-  console.log(taskData);
-
   const handleTaskClick = async (task) => {
     setTaskData({
       id: task.id,
@@ -229,8 +227,6 @@ const ToDo = () => {
 
     const client = clients.find((c) => c.id === task.assign_user);
 
-    console.log(task.assign_user, client);
-
     if (client) {
       setSelectedClient({ value: client.id, label: client.name });
     }
@@ -246,12 +242,6 @@ const ToDo = () => {
 
       return tag ? tag : null;
     }).filter(tag => tag !== null);
-
-
-
-    console.log(selectedTags);
-
-    // const selectedTags = tags.filter((tag) => task.task_tags.includes(tag.id));
 
     if (client) {
       setSelectedTags(
@@ -310,7 +300,6 @@ const ToDo = () => {
   };
 
   const handleTaskFavorite = async (data) => {
-    console.log(data);
     let formData = new FormData();
     formData.append("id", data.id);
     let newstatus = data.is_favourite === 1 ? 0 : 1;
@@ -514,7 +503,6 @@ const ToDo = () => {
                             className="select-box mr-1"
                             style={{ width: "10rem" }}
                           >
-                            {console.log(taskData)}
                             <Select
                               className="select2 font-sm"
                               name="tags"
@@ -1019,116 +1007,6 @@ const ToDo = () => {
                       </div>
                     </div>
                     <div className="todo-task-list list-group">
-                      {/* <ul
-                        className="todo-task-list-wrapper list-unstyled"
-                        id="todo-task-list-drag"
-                      >
-                        {filteredTasks.map((task, index) => (
-                          <li
-                            key={index}
-                            className="todo-item"
-                            data-name={task.assign_user}
-                          >
-                            <div className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center ${filteredTasks[index].status === 1 ? 'linethrough' : ''}`}>
-                              <div className="todo-title-area d-flex">
-                                <i className="feather icon-more-vertical handle"></i>
-
-                                <div className="custom-control custom-checkbox">
-                                  <input
-                                    type="checkbox"
-                                    className="custom-control-input"
-                                    id={`checkbox${index}`}
-                                    checked={filteredTasks[index].status === 1}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      handleStatusCheckbox(filteredTasks[index]);
-                                    }}
-                                  />
-
-
-                                  <label
-                                    className="custom-control-label"
-                                    htmlFor={`checkbox${index}`}
-                                  ></label>
-                                </div>
-
-                                <div>
-                                  <p
-                                    className="todo-title mx-50 m-0 truncate"
-                                    onClick={() => handleTaskClick(task)}
-                                  >
-                                    {task.task_title}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="todo-item-action d-flex align-items-center">
-                                <div className="todo-badge-wrapper d-flex">
-                                  {task.task_tags.split(",").map((tagId) => {
-                                    const tag = tags.find(
-                                      (tag) => tag.id === parseInt(tagId)
-                                    );
-                                    if (tag) {
-                                      return (
-                                        <span
-                                          key={tag.id}
-                                          className="badge badge-primary badge-pill"
-                                          style={{
-                                            backgroundColor: `${getBulletClass(
-                                              tag.id
-                                            )}`,
-                                          }}
-                                        >
-                                          {tag.tasktag_title}
-                                        </span>
-                                      );
-                                    }
-                                    return null;
-                                  })}
-                                </div>
-                                <div className="avatar ml-1">
-                                  <img
-                                    src="/app-assets/images/portrait/small/avatar-s-1.png"
-                                    alt="avatar"
-                                    height="30"
-                                    width="30"
-                                  />
-                                </div>
-                                <a className="todo-item-favorite ml-75" onClick={() => handleTaskFavorite(filteredTasks[index])}>
-                                  {filteredTasks[index].is_favourite == 0 ? (
-                                    <i className="feather icon-star "></i>
-                                  ) : (
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width={16}
-                                      height={16}
-                                      viewBox="0 0 24 24"
-                                      fill="orange"
-                                      stroke="orange"
-                                      strokeWidth={2}
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      className="feather feather-star"
-                                    >
-                                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                                    </svg>
-
-                                  )}
-                                </a>
-
-
-                                <a className="todo-item-delete ml-75">
-                                  <i className="feather icon-trash-2" onClick={(e) => {
-                                    e.preventDefault();
-                                    setTaskId(task.id)
-                                    setShowDeleteModal(true);
-                                  }}></i>
-                                </a>
-                              </div>
-                            </div>
-                          </li>
-                        ))}
-                      </ul> */}
-
                       <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="todo-task-list-drag">
                           {(provided) => (
@@ -1158,7 +1036,7 @@ const ToDo = () => {
                                               className="custom-control-input"
                                               id={`checkbox${index}`}
                                               checked={filteredTasks[index].status === 1}
-                                              onClick={(e) => {
+                                              onChange={(e) => {
                                                 e.preventDefault();
                                                 handleStatusCheckbox(filteredTasks[index]);
                                               }}

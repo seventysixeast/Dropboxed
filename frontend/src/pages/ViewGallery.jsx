@@ -79,6 +79,9 @@ export const ViewGallery = () => {
     setIsNewTaskModalOpen(!isNewTaskModalOpen);
   };
 
+  const [folderPath, setFolderPath] = useState('');
+  const [entriesList, setEntriesList] = useState();
+
   const getTasks = async () => {
     const formData = new FormData();
     formData.append("subdomain_id", subdomainId);
@@ -90,16 +93,16 @@ export const ViewGallery = () => {
       setTags(response.tags);
     } else {
       // toast.error("Failed to get tasks!");
-      console.log(response.data);
+      console.error(response.data);
 
     }
   };
   const handleTextChange = (value) => {
     setTaskData({
-        ...taskData,
-        taskDescription: value
+      ...taskData,
+      taskDescription: value
     });
-};
+  };
 
   const getClients = async () => {
     const formData = new FormData();
@@ -237,6 +240,8 @@ export const ViewGallery = () => {
           },
         }
       );
+      setFolderPath(sharedData.data.path_lower);
+
       const listResponse = await axios.post(
         "https://api.dropboxapi.com/2/files/list_folder",
         { path: sharedData.data.path_lower },
@@ -249,7 +254,8 @@ export const ViewGallery = () => {
       );
 
       const entries = listResponse.data.entries;
-      console.log(listResponse);
+
+      setEntriesList(entries);
       const fileEntries = entries.filter((entry) => entry[".tag"] === "file");
       fileList.current = fileEntries;
       fetchImages(data);
@@ -454,34 +460,53 @@ export const ViewGallery = () => {
     setDownloadOptions({ device: "device", size: "original" });
   };
 
+  const downloadFolderAsZip = async (accessToken) => {
+    setLoading(true)
+    const apiUrl = 'https://content.dropboxapi.com/2/files/download_zip';
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Dropbox-API-Arg': JSON.stringify({
+            path: folderPath,
+          }),
+          'Content-Type': 'application/octet-stream',
+        },
+      });
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Studiio.zip';
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success('Folder downloaded successfully.');
+      setDownloadGalleryModal(false);
+      setDownloadOptions({ device: "device", size: "original" });
+      setRunning(false);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error downloading folder as zip:', error);
+    }
+    setLoading(false)
+
+  };
+
+
   const handleAllDownload = async () => {
     const tokens = await getRefreshToken(collectionRefresh);
     setDropboxAccess(tokens.access_token);
-    if (downloadOptions.device == "device") {
+    const zip = new JSZip();
+
+    if (downloadOptions.device === "device") {
       try {
-        const zip = new JSZip();
         for (const imageData of imageUrls) {
           let imageBlob;
           if (downloadOptions.size === "original") {
-            const {
-              data: { link },
-            } = await axios.post(
-              "https://api.dropboxapi.com/2/files/get_temporary_link",
-              { path: imageData.path_display },
-              {
-                headers: {
-                  Authorization: `Bearer ${tokens.access_token}`,
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-            const response = await axios.get(link, {
-              responseType: "blob",
-              headers: {
-                Authorization: `Bearer ${tokens.access_token}`,
-              },
-            });
-            imageBlob = response.data;
+            await downloadFolderAsZip(dropboxAccess)
+            return;
           } else {
             const response = await axios.post(
               "https://content.dropboxapi.com/2/files/get_thumbnail_batch",
@@ -491,7 +516,7 @@ export const ViewGallery = () => {
                     path: imageData.path_display,
                     format: "jpeg",
                     mode: "strict",
-                    quality: "quality_90",
+                    quality: "quality_80",
                     size: "w2048h1536",
                   },
                 ],
@@ -513,7 +538,7 @@ export const ViewGallery = () => {
         const zipUrl = window.URL.createObjectURL(zipBlob);
         const linkElement = document.createElement("a");
         linkElement.href = zipUrl;
-        linkElement.setAttribute("download", "downloaded_images.zip");
+        linkElement.setAttribute("download", "web_size.zip");
         document.body.appendChild(linkElement);
         linkElement.click();
         window.URL.revokeObjectURL(zipUrl);
@@ -522,6 +547,7 @@ export const ViewGallery = () => {
       } catch (error) {
         console.error("Error downloading images from Dropbox:", error);
       }
+
     } else if (downloadOptions.device == "dropbox") {
       const tokens = await getRefreshToken(collectionRefresh);
       setDropboxAccess(tokens.access_token);
@@ -615,8 +641,12 @@ export const ViewGallery = () => {
   const handleShareImage = async (image) => {
     const tokens = await getRefreshToken(collectionRefresh);
     setDropboxAccess(tokens.access_token);
-    const sharedLinkResponse = await fetch(
-      'https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings',
+    
+    let sharedLinkData;
+  
+    // Check if the shared link already exists
+    const existingLinkResponse = await fetch(
+      'https://api.dropboxapi.com/2/sharing/list_shared_links',
       {
         method: "POST",
         headers: {
@@ -625,29 +655,51 @@ export const ViewGallery = () => {
         },
         body: JSON.stringify({
           path: image.path_display,
-          settings: {
-            requested_visibility: "public",
-          },
         }),
       }
     );
-    const sharedLinkData = await sharedLinkResponse.json();
-    const link = sharedLinkData.url;
+    const existingLinkData = await existingLinkResponse.json();
+    
+    if (existingLinkData.links.length > 0) {
+      sharedLinkData = existingLinkData.links[0];
+    } else {
+      const sharedLinkResponse = await fetch(
+        'https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings',
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokens.access_token}`,
+          },
+          body: JSON.stringify({
+            path: image.path_display,
+            settings: {
+              requested_visibility: "public",
+            },
+          }),
+        }
+      );
+      
+      sharedLinkData = await sharedLinkResponse.json();
+    }
+
+    const link = sharedLinkData.url || sharedLinkData.links[0].url;
     setTaskData({
       ...taskData,
       taskDescription: `<p>Image Name: ${image.path_display}</p>
       <p>Image Link: <a href=${link} rel="noopener noreferrer" target="_blank">Image Link</a></p>`,
     });
   };
+  
 
 
   return (
     <>
       <LoadingOverlay loading={loading} />
-      <div class="todo-application">
-        <div class="app-content content" style={{ overflow: "hidden" }}>
-          <div class="sidebar-left ">
-            <div class="sidebar">
+      <div className="todo-application">
+        <div className="app-content content" style={{ overflow: "hidden" }}>
+          <div className="sidebar-left ">
+            <div className="sidebar">
               <TodoModal
                 isNewTaskModalOpen={isNewTaskModalOpen}
                 toggleNewTaskModal={toggleNewTaskModal}
@@ -672,9 +724,9 @@ export const ViewGallery = () => {
               />
             </div>
           </div>
-          <div class="" style={{ width: "100%" }}
+          <div className="" style={{ width: "100%" }}
           >
-            <div class="content-overlay"></div>
+            <div className="content-overlay"></div>
             <section id="gallery-banner" style={{ position: "relative" }}>
               <div
                 style={{
@@ -690,9 +742,9 @@ export const ViewGallery = () => {
                   <img
                     className="gallery-cover"
                     src={
-                      banner !== null &&
-                      banner !== "" &&
-                      `${REACT_APP_GALLERY_IMAGE_URL}/${banner}`
+                      banner !== null && banner !== "" ?
+                        `${REACT_APP_GALLERY_IMAGE_URL}/${banner}` :
+                        ""
                     }
                     style={{
                       width: `calc(100vw - ${scrollbarWidth}px)`,
@@ -702,6 +754,7 @@ export const ViewGallery = () => {
                   />
 
 
+
                   {/* <div className="cover-overlay"
                   ></div> */}
 
@@ -709,7 +762,7 @@ export const ViewGallery = () => {
               </div>
               <div
                 className="banner-detail"
-                
+
               >
                 <h1 className="banner-collection-name mb-1">{collection.name}</h1>
                 <button
@@ -792,7 +845,7 @@ export const ViewGallery = () => {
                               style={{ paddingLeft: '7px', paddingLeft: '7px' }}
                               onClick={open}
                             >
-                              <a
+                              <div
                                 className="hovereffect"
                                 itemProp="contentUrl"
                               >
@@ -818,7 +871,7 @@ export const ViewGallery = () => {
                                     </a>
                                   </p>
                                 </div>
-                              </a>
+                              </div>
                             </figure>
                           )}
                         </Item>
