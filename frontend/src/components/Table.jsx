@@ -33,17 +33,17 @@ const TableCustom = ({ data, columns }) => {
   );
 
 
-  const MAX_VISIBLE_PAGES = 5; // Adjust as needed
+  const MAX_VISIBLE_PAGES = 5;
 
   const displayedPages = Math.min(
     MAX_VISIBLE_PAGES,
     pageCount
-  ); // Ensure displayed pages doesn't exceed total pages
+  );
 
   const startIndex = Math.max(
     Math.min(pageIndex - Math.floor(displayedPages / 2), pageCount - displayedPages),
     0
-  ); // Calculate starting index for displayed pages
+  );
 
   return (
     <div className="app-content content">

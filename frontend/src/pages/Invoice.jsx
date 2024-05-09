@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import React from "react";
-import { FaEdit, FaUpload } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import TableCustom from "../components/Table";
-import { getAllInvoices } from "./../api/invoiceApis";
+import { deleteInvoiceById, getAllInvoices } from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
+import DeleteModal from '../components/DeleteModal';
+import { toast } from "react-toastify";
+import TableInvoice from '../components/TableInvoice';
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -12,6 +14,17 @@ const Invoice = () => {
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
   const [invoiceList, setInvoiceList] = useState([]);
+  const [invoiceId, setInvoiceId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDeleteModalClose = () => {
+    setShowDeleteModal(false);
+    resetData();
+  };
+
+  const resetData = async () => {
+    setInvoiceId(null);
+  };
 
   const columns = [
     {
@@ -30,7 +43,8 @@ const Invoice = () => {
             {formattedDate}
           </div>
         );
-      }
+      },
+      headerStyle: { width: "200px" },
     },
     {
       Header: "Order #",
@@ -40,10 +54,6 @@ const Invoice = () => {
       Header: "Client",
       accessor: "user_name",
     },
-    // {
-    //   Header: "Username",
-    //   accessor: "user_name",
-    // },
     {
       Header: "Address",
       accessor: "user_address",
@@ -77,82 +87,48 @@ const Invoice = () => {
         const isPaid = paid_status === 1;
         const isSent = send_invoice === 1;
 
-        const handleEdit = () => {
-          console.log("Edit invoice", id);
-        };
-        const handleDelete = () => {
-          console.log("Delete invoice", id);
-        };
-        const handleUpload = () => {
-          console.log("Upload invoice", id);
-        };
-        const handlePaid = () => {
-          console.log("Paid invoice", id);
-        };
-        const handleSend = () => {
-          console.log("Send invoice", id);
-        };
-        const handleDownload = () => {
-          console.log("Download invoice", id);
-        };
-
         return (
           <div className="align-items-center">
             <div>
-            <button
-              type="button"
-              className="btn btn-icon btn-outline-primary"
-              onClick={handleEdit}
-              title="Edit Invoice"
-            >
-              <i className="feather white icon-edit"></i>
-            </button>
-            <button
-              type="button"
-              className="btn btn-icon btn-outline-primary"
-              onClick={handleDelete}
-              title="Delete Invoice"
-            >
-              <MdDelete fill='white' />
-            </button>
-            </div>
-            <div>
-            <button
-              type="button"
-              className="btn btn-icon btn-outline-primary"
-              onClick={handleUpload}
-            >
-              <FaUpload fill='white' />
-            </button>
-            {!isPaid && (
               <button
                 type="button"
-                className="btn btn-icon btn-outline-primary text-white"
-                onClick={handlePaid}
+                className="btn btn-icon btn-outline-primary"
+                onClick={() => handleEdit(id)}
+                title="Edit Invoice"
               >
-                Paid
+                <i className="feather white icon-edit"></i>
               </button>
-            )}
-            </div>
-            {/* {!isSent && (
               <button
-                className="btn btn-icon btn-light-warning btn-sm me-1"
-                onClick={handleSend}
+                type="button"
+                className="btn btn-icon btn-outline-primary"
+                onClick={() => handleDelete(id)}
+                title="Delete Invoice"
               >
-                Send
+                <MdDelete fill="white" />
               </button>
-            )}
-
-            <button
-              className="btn btn-icon btn-light-secondary btn-sm"
-              onClick={handleDownload}
-            >
-              Download
-            </button> */}
+            </div>
+            <div>
+              <button
+                type="button"
+                className="btn btn-icon btn-outline-primary"
+                onClick={() => handleUpload(id)}
+              >
+                <FaUpload fill="white" />
+              </button>
+              {!isPaid && (
+                <button
+                  type="button"
+                  className="btn btn-icon btn-outline-primary text-white"
+                  onClick={() => handlePaid(id)}
+                >
+                  Paid
+                </button>
+              )}
+            </div>
           </div>
         );
-      }
-    },
+      },
+    }
   ];
 
   useEffect(() => {
@@ -165,13 +141,46 @@ const Invoice = () => {
       formData.append('role_id', roleId);
       formData.append('subdomain_id', subdomainId)
       const response = await getAllInvoices(formData);
-      setInvoiceList(response);
+      setInvoiceList(response.data);
     } catch (error) {
       console.error('Error fetching invoice list:', error);
     }
   }
 
-  console.log(invoiceList);
+  const deleteInvoice = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('id', invoiceId);
+      const response = await deleteInvoiceById(formData);
+      if (response.status === 200) {
+        toast.success('Invoice deleted successfully!');
+      }
+      setShowDeleteModal(false);
+      resetData();
+      getInvoiceList();
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+    }
+  }
+
+  const handleEdit = (id) => {
+    console.log("Edit invoice", id);
+    setInvoiceId(id);
+  };
+
+  const handleDelete = (id) => {
+    console.log("Delete invoice", id);
+    setInvoiceId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleUpload = (id) => {
+    console.log("Upload invoice", id);
+  };
+
+  const handlePaid = (id) => {
+    console.log("Paid invoice", id);
+  };
 
   return (
     <>
@@ -196,61 +205,15 @@ const Invoice = () => {
               <a href="#" className="btn btn-outline-primary">Create Invoice</a>
             </div>
           </div>
-          {/* <div className="users-list-table">
-          <div className="card">
-            <div className="card-content">
-              <div className="card-body">
-                <div className="table-responsive">
-                  <table className="table table-striped table-bordered zero-configuration">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Order #</th>
-                        <th>Client</th>
-                        <th>Username</th>
-                        <th>Address</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Invoice Link</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>2024-03-20</td>
-                        <td>12345</td>
-                        <td>John Doe</td>
-                        <td>johndoe123</td>
-                        <td>123 Main St, Cityville</td>
-                        <td>$150</td>
-                        <td>Shipped</td>
-                        <td>
-                          <a href="#">View Invoice</a>
-                        </td>
-
-                      </tr>
-                      <tr>
-                        <td>2024-03-21</td>
-                        <td>67890</td>
-                        <td>Jane Smith</td>
-                        <td>janesmith456</td>
-                        <td>456 Elm St, Townsville</td>
-                        <td>$200</td>
-                        <td>Processing</td>
-                        <td>
-                          <a href="#">View Invoice</a>
-                        </td>
-
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
         </div>
       </div>
-      <TableCustom data={invoiceList} columns={columns} />
+      <TableInvoice data={invoiceList} columns={columns} />
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteModalClose}
+        onConfirm={deleteInvoice}
+        message="Are you sure you want to delete this appointment?"
+      />
     </>
   );
 };

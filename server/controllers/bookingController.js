@@ -138,6 +138,11 @@ async function addevent(data) {
       });
       const calendarId = user.calendar_id;
 
+      const calendarInfo = await calendar.calendars.get({
+        calendarId: calendarId,
+      });
+      console.log('timeZone==========>>>>', calendarInfo.data.timeZone);
+      const timeZone = calendarInfo.data.timeZone;
       const id = `123${data.id}`;
 
       const events = await calendar.events.list({
@@ -149,19 +154,24 @@ async function addevent(data) {
 
       const existingEvent = events.data.items.find((event) => event.id === id);
 
-      // Construct booking date and time
-      const bookingDate = moment(data.booking_date).set({
+      const date = moment(data.booking_date).set({
         hour: data.booking_time.split(":")[0],
         minute: data.booking_time.split(":")[1],
         second: 0,
       });
-      const bookingDateTo = moment(data.booking_date).set({
+
+      
+      const dateTo = moment(data.booking_date).set({
         hour: data.booking_time_to.split(":")[0],
         minute: data.booking_time_to.split(":")[1],
         second: 0,
       });
 
-      // Update or insert event
+      const bookingDate = date.tz(timeZone).utc();
+
+      const bookingDateTo = dateTo.tz(timeZone).utc();
+      console.log('bookingDate===========>>>>', date, bookingDate );
+
       if (existingEvent && existingEvent.status !== "cancelled") {
         const resp = await updateEvent(
           calendar,
@@ -234,15 +244,16 @@ async function insertEvent(calendar, calendarId, eventId, data, start, end) {
       summary: data.booking_title || "Untitled Event",
       start: {
         dateTime: start.toISOString(),
-        timeZone: "UTC",
+        timeZone: "Australia/Sydney",
       },
       end: {
         dateTime: end.toISOString(),
-        timeZone: "UTC",
+        timeZone: "Australia/Sydney",
       },
       status: "confirmed",
     },
   });
+
 }
 
 async function deleteevent(bookingId, userId) {
