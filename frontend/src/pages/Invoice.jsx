@@ -3,7 +3,7 @@ import React from "react";
 import { FaEdit, FaUpload } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import TableCustom from "../components/Table";
-import { getAllInvoices } from "../api/invoiceApis";
+import { getAllInvoices } from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
 
 const Invoice = () => {
@@ -16,31 +16,57 @@ const Invoice = () => {
   const columns = [
     {
       Header: "Date",
-      accessor: "date",
+      accessor: "updated_at",
+      Cell: ({ value }) => {
+        const date = new Date(value);
+        const formattedDate = date.toLocaleDateString("en-Au", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        });
+
+        return (
+          <div className="badge badge-pill badge-light-primary">
+            {formattedDate}
+          </div>
+        );
+      }
     },
     {
       Header: "Order #",
-      accessor: "order",
+      accessor: "order_id",
     },
     {
       Header: "Client",
-      accessor: "client",
+      accessor: "user_name",
     },
-    {
-      Header: "Username",
-      accessor: "username",
-    },
+    // {
+    //   Header: "Username",
+    //   accessor: "user_name",
+    // },
     {
       Header: "Address",
-      accessor: "address",
+      accessor: "user_address",
     },
     {
       Header: "Amount",
-      accessor: "amount",
+      accessor: "total_price",
     },
     {
       Header: "Status",
-      accessor: "status",
+      accessor: (row) => {
+        const paidStatus = row.paid_status;
+        const sendInvoice = row.send_invoice;
+        if (paidStatus && sendInvoice) {
+          return "Paid & Sent";
+        } else if (paidStatus) {
+          return "Paid";
+        } else if (sendInvoice) {
+          return "Sent";
+        } else {
+          return "Not Paid";
+        }
+      },
     },
     {
       Header: "Action",
@@ -143,7 +169,7 @@ const Invoice = () => {
         </div> */}
         </div>
       </div>
-      <TableCustom data={[]} columns={columns} />
+      <TableCustom data={invoiceList} columns={columns} />
     </>
   );
 };
