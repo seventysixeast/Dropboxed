@@ -126,7 +126,15 @@ const Login = () => {
         //const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${userSubdomain}.` : "";
         //console.log("redirectToSubdomain",redirectToSubdomain, "<-->",currentSubdomain); return false
         //console.log("redirectToSubdomain",redirectToSubdomain)
-        
+        if (user.role_id === 1) {
+          // Save user data and access token in localStorage
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('isAuth', true);
+          localStorage.setItem('user', JSON.stringify(user));
+          const redirectUrl = `/dashboard`;
+          window.location.href = redirectUrl;
+          return;
+        }
         if(subdomain){
            // Save user data and access token in localStorage
           localStorage.setItem('accessToken', accessToken);
