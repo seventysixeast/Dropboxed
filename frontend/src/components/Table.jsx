@@ -81,7 +81,7 @@ const TableCustom = ({ data, columns }) => {
                                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                                   {column.render("Header")}
                                   <span>
-                                    {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc" /> : <i className="fa fa-sort-asc" />) : ''}
+                                    {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc" style={{marginLeft: '10px'}} /> : <i className="fa fa-sort-asc" style={{marginLeft: '10px'}}/>) : ''}
                                   </span>
                                 </th>
                               ))}
