@@ -13,7 +13,7 @@ const getAllPhotographers = async (req, res) => {
     });
     res.status(200).json({ success: true, data: photographers });
   } catch (error) {
-    res.status(500).json({ error: "Failed to list clients" });
+    res.status(500).json({ error: "Failed to list photographers" });
   }
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useAuth } from '../context/authContext';
-import logoLight from "../assets/images/dropboxed-logo-wt.png";
+import logoLight from "../assets/images/studiio-logo.png";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import { getClient } from "../api/clientApis";
 

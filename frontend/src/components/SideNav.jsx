@@ -288,10 +288,10 @@ const SideNav = () => {
                 ></i>
               </li>
               <li className=" nav-item">
-                <Link to="/manage-photographers-subdomains">
+                <Link to="/manage-photographer-admins">
                   <i className="feather icon-layout"></i>
                   <span className="menu-title" data-i18n="Layouts">
-                    Manage Photographers & Subdomains
+                    Manage Photographer Admins
                   </span>
                 </Link>
               </li>

@@ -30,7 +30,7 @@ exports.login = async (req, res) => {
       },
     });
 
-    console.log("user.status============>",user.status);
+    console.log("user.status============>", user.status);
 
     if (!user) {
       return res
@@ -50,8 +50,8 @@ exports.login = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
-    // Check if the user's role is business owner (role_id = 5)
-    if (user.role_id === 5) {
+    // Check if the user's roles are administrator (role_id = 1) and business owner (role_id = 5)
+    if (user.role_id === 1 || user.role_id === 5) {
       // Verify if the user's subdomain matches the provided subdomain
       if (subdomain && user.subdomain !== subdomain) {
         return res
@@ -172,7 +172,7 @@ async function createCalendar(data) {
   try {
     const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
     const calendarlist = await calendar.calendarList.list();
-    console.log(calendarlist.data.items); 
+    console.log(calendarlist.data.items);
     const calendars = calendarlist.data.items;
 
     // [
@@ -239,7 +239,7 @@ async function createCalendar(data) {
     //     conferenceProperties: { allowedConferenceSolutionTypes: [Array] }
     //   }
     // ]
-    
+
 
     // in calendars find items which has primary true
 
