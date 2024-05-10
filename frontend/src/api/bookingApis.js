@@ -1,11 +1,8 @@
 import API from "./baseApi";
 
 const newBooking = async (bookingData) => {
-
-  console.log(bookingData);
   try {
     const response = await API.post('/booking/new-booking', bookingData);
-    console.log(response);
     if (response.status !== 200) {
       throw new Error('Failed to add booking');
     }

@@ -71,11 +71,11 @@ const GoogleOAuth = () => {
                                 <h2 className="mb-4">Authorization in progress...</h2>
                                 {loading && (
                                     <div
-                                        class="spinner-grow"
+                                        className="spinner-grow"
                                         style={{ color: "#00b5b8" }}
                                         role="status"
                                     >
-                                        <span class="sr-only">Loading...</span>
+                                        <span className="sr-only">Loading...</span>
                                     </div>
                                 )}
                             </div>

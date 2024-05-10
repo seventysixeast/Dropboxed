@@ -1574,3 +1574,8 @@ a:not([href]) {
 /* .ql-editor {
   margin: 1rem !important
 } */
+
+.todo-application .todo-new-task-sidebar .ql-editor {
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+}

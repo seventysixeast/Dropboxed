@@ -65,7 +65,7 @@ const Users = () => {
                         <td>Manpreet Singh</td>
                         <td>Administrator</td>
                         <td><input type="color" id="colorcode" name="colorcode" value="#000000" /></td>
-                        <td><span class="badge badge-success">Active</span></td>
+                        <td><span className="badge badge-success">Active</span></td>
                         <td>
                           <a href="../../../html/ltr/vertical-menu-template/page-users-edit.html">
                             <i className="feather icon-edit-1" />
@@ -109,7 +109,7 @@ const Users = () => {
                         <td>Shannon</td>
                         <td>Client</td>
                         <td><input type="color" id="colorcode" name="colorcode" value="#fffb00" /></td>
-                        <td><span class="badge badge-success">Active</span></td>
+                        <td><span className="badge badge-success">Active</span></td>
                         <td>
                           <a href="../../../html/ltr/vertical-menu-template/page-users-edit.html">
                             <i className="feather icon-edit-1" />

@@ -19,6 +19,7 @@ const Login = () => {
     password: "",
     rememberMe: false
   });
+  const [loading, setLoading] = useState(false);
 
   const [validationErrors, setValidationErrors] = useState({});
 
@@ -37,9 +38,11 @@ const Login = () => {
 
     const handleTokenVerification = async (token) => {
         try {
+            setLoading(true); // Show loader
             const decryptedToken = decryptToken(token);
             const { success, accessToken, user, message } = await verifyToken(decryptedToken);
             console.log("success", success)
+            
             if (success) {
                 // Save user data and access token in localStorage
                 localStorage.setItem('accessToken', accessToken);
@@ -51,13 +54,16 @@ const Login = () => {
                 
                 // Redirect to dashboard
                 window.location.href = '/dashboard';
+                setLoading(false);
             } else {
                 // Show error toast
                 toast.error(`Token verification failed: ${message}`);
                 // Redirect to login page
                 window.location.href = '/login';
+                setLoading(false);
             }
         } catch (error) {
+            setLoading(false);
             console.error("Token verification failed:", error.message);
             // Show error toast
             toast.error('Token verification failed');
@@ -99,13 +105,16 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+        setLoading(true); // Show loader
         await validationSchema.validate(userData, { abortEarly: false });
         console.log("subdomain1>>>",subdomain)
         const loginData = subdomain ? { ...userData, subdomain } : userData;
         const { success, message, accessToken, user } = await login(loginData);
         //const { success, message, accessToken, user } = await login(userData);
         if(success){
-          toast.success('Login successful');
+          if(!accessToken){
+            toast.success('Login successful');
+          }
           // Set rememberMe cookie if checked
           if (userData.rememberMe) {
             Cookies.set("rememberMe", userData.userName, { expires: 30 }); // Expires in 30 days
@@ -126,8 +135,18 @@ const Login = () => {
         //const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${userSubdomain}.` : "";
         //console.log("redirectToSubdomain",redirectToSubdomain, "<-->",currentSubdomain); return false
         //console.log("redirectToSubdomain",redirectToSubdomain)
-        
+        if (user.role_id === 1) {
+          setLoading(false);
+          // Save user data and access token in localStorage
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('isAuth', true);
+          localStorage.setItem('user', JSON.stringify(user));
+          const redirectUrl = `/dashboard`;
+          window.location.href = redirectUrl;
+          return;
+        }
         if(subdomain){
+          setLoading(false);
            // Save user data and access token in localStorage
           localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('isAuth', true);
@@ -139,6 +158,7 @@ const Login = () => {
           const redirectUrl = `/dashboard`;
           window.location.href = redirectUrl;
         } else {
+          setLoading(false);
           const encryptedToken = encryptToken(accessToken);
           // Construct the redirection URL
          
@@ -148,6 +168,7 @@ const Login = () => {
         }
         
     } catch (error) {
+        setLoading(false);
         if (error.name === "ValidationError") {
             const validationErrors = {};
             error.inner.forEach((err) => {
@@ -164,6 +185,12 @@ const Login = () => {
 
   return (
     <div className="bg-full-screen-image" style={{ height: "110vh" }}>
+      {/* Loader overlay */}
+    {loading && (
+      <div className="loader-overlay">
+        <div className="loader"></div>
+      </div>
+    )}
       <div className="content-overlay" />
       <div className="content-wrapper">
         <div className="content-header row"></div>

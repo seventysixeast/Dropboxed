@@ -31,7 +31,6 @@ const createTask = async (data) => {
 const addComment = async (data) => {
   try {
     const response = await API.post("/todo/addComment", data);
-    console.log(response);
     if (response.status === 201) {
       return response.data;
     } else {

@@ -348,7 +348,7 @@ const Collections = () => {
             >
               <i className="feather white icon-trash"></i>
             </button>
-            <button class="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
+            <button className="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
               <i className="feather white icon-copy"></i>
             </button>
           </div>

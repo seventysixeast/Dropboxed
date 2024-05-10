@@ -100,11 +100,11 @@ const DropboxOAuth = () => {
 
                                 {running && (
                                     <div
-                                        class="spinner-grow"
+                                        className="spinner-grow"
                                         style={{ color: "#00b5b8" }}
                                         role="status"
                                     >
-                                        <span class="sr-only">Loading...</span>
+                                        <span className="sr-only">Loading...</span>
                                     </div>
                                 )}
                             </div>

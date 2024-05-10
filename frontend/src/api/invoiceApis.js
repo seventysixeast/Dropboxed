@@ -1,0 +1,20 @@
+import API from "./baseApi";
+
+const getAllInvoices = async (data) => {
+    try {
+        const response = await API.post(`/invoice/getAllInvoices`, data, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.status !== 200) {
+            throw new Error("Failed to get all invoices");
+        }
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+export { getAllInvoices };
+
