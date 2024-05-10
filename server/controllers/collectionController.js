@@ -58,6 +58,7 @@ const addGallery = async (req, res) => {
 };
 
 const getAllCollections = async (req, res) => {
+  console.log('req.body', req.body);
   try {
     let collectionsData = await Collection.findAll({
       where: {
