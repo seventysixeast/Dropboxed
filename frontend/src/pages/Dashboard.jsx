@@ -5,7 +5,11 @@ import {
   getAllServices,
   getAllPhotographers,
 } from "../api/bookingApis";
-import { addGallery, getAllCollections, getDropboxRefreshToken } from "../api/collectionApis";
+import {
+  addGallery,
+  getAllCollections,
+  getDropboxRefreshToken,
+} from "../api/collectionApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
@@ -35,7 +39,7 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const currentUrl = window.location.href;
   const [subdomainDropbox, setSubdomainDropbox] = useState(null);
-  
+
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
@@ -86,20 +90,21 @@ export const Dashboard = () => {
   };
 
   const getDropboxRefresh = async () => {
-    const formDataToSend = new FormData()
-    formDataToSend.append('id', user.subdomain_id);
+    const formDataToSend = new FormData();
+    formDataToSend.append("id", user.subdomain_id);
 
-  try {
-    const response = await getDropboxRefreshToken(formDataToSend);
-    if (response.success) {
-      setSubdomainDropbox(response.data);
-    } else {
-      console.log(response.message);
+    try {
+      const response = await getDropboxRefreshToken(formDataToSend);
+      if (response.success) {
+        setSubdomainDropbox(response.data);
+      } else {
+        console.log(response.message);
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
-  }
-}
+  };
+  console.log(subdomainDropbox);
 
   const getBookingTitles = async (client) => {
     setLoading(true);
@@ -367,25 +372,39 @@ export const Dashboard = () => {
                   <ul className="list-inline mb-0">
                     <li>
                       <div className="form-group d-flex">
-                      {subdomainDropbox == null && user.role_id === 5 || subdomainDropbox == 'undefined' && user.role_id === 5 &&
-                      <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{ paddingTop: "10px" }}>Link Your Dropbox</a>
-                    }
-                    {user.role_id !== 3 && 
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary"
-                      data-toggle="modal"
-                      data-target="#bootstrap"
-                      // title conditional 
-                      title={subdomainDropbox == null || subdomainDropbox == 'undefined' ? "Dropbox Not Linked" : "Add Collection"}
-                      disabled={subdomainDropbox == null || subdomainDropbox == 'undefined'}
-                      onClick={() => {
-                        setShowAddGalleryModal(true);
-                      }}
-                    >
-                      New Collection
-                    </button>
-                    }
+                        {user.role_id == 5 && (
+                          <>
+                            {subdomainDropbox == null && (
+                              <a
+                                href={`${dropboxAuthUrl}`}
+                                className="btn btn-primary mr-1"
+                                style={{ paddingTop: "10px" }}
+                              >
+                                Link Your Dropbox
+                              </a>
+                            )}
+                          </>
+                        )}
+                        {user.role_id !== 3 && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary"
+                            data-toggle="modal"
+                            data-target="#bootstrap"
+                            // title conditional
+                            title={
+                              subdomainDropbox == null
+                                ? "Add Collection"
+                                : "Dropbox Not Linked"
+                            }
+                            disabled={subdomainDropbox == null}
+                            onClick={() => {
+                              setShowAddGalleryModal(true);
+                            }}
+                          >
+                            New Collection
+                          </button>
+                        )}
                       </div>
                     </li>
                   </ul>
