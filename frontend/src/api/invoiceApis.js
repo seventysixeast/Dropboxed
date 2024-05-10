@@ -16,5 +16,22 @@ const getAllInvoices = async (data) => {
     }
 };
 
-export { getAllInvoices };
+const deleteInvoiceById = async (data) => {
+    try {
+        const response = await API.post(`/invoice/deleteInvoice`, data, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.status !== 200) {
+            throw new Error("Failed to delete Invoice!");
+        }
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+
+export { getAllInvoices, deleteInvoiceById };
 

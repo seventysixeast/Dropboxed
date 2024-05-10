@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from "react";
-import Switch from '@mui/material/Switch';
+import Switch from "@mui/material/Switch";
 import { getAllClients } from "../api/clientApis";
-import { getAllBookingTitles, getAllServices, getAllPhotographers } from "../api/bookingApis";
-import { addGallery, getAllCollections, getCollection, deleteCollection } from "../api/collectionApis";
-import { toast } from 'react-toastify';
+import {
+  getAllBookingTitles,
+  getAllServices,
+  getAllPhotographers,
+} from "../api/bookingApis";
+import {
+  addGallery,
+  getAllCollections,
+  getCollection,
+  deleteCollection,
+  getDropboxRefreshToken,
+} from "../api/collectionApis";
+import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
 import TableCustom from "../components/Table";
@@ -15,8 +25,8 @@ const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 const Collections = () => {
   const { authData } = useAuth();
   const user = authData.user;
-  const subdomainId = user.subdomain_id
-  const userId = user.id
+  const subdomainId = user.subdomain_id;
+  const userId = user.id;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [bookingTitles, setBookingTitles] = useState([]);
@@ -29,44 +39,49 @@ const Collections = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
+  const [subdomainDropbox, setSubdomainDropbox] = useState(null);
   const [formData, setFormData] = useState({
-    id: '',
-    client: '',
-    booking_title: '',
-    services: '',
-    photographers: '',
-    gallery_title: '',
-    dropbox_link: '',
-    vimeo_video_link: '',
+    id: "",
+    client: "",
+    booking_title: "",
+    services: "",
+    photographers: "",
+    gallery_title: "",
+    dropbox_link: "",
+    vimeo_video_link: "",
     banner: null,
-    lock_gallery: '',
-    notify_client: ''
+    lock_gallery: "",
+    notify_client: "",
   });
+
+  console.log(subdomainDropbox);
 
   useEffect(() => {
     getClients();
     getAllCollectionsData();
-  }, [])
+    getDropboxRefresh();
+  }, []);
 
   const currentUrl = window.location.href;
   const url2 = new URL(currentUrl);
-  url2.pathname = url2.pathname.replace('/dashboard', '');
+  url2.pathname = url2.pathname.replace("/dashboard", "");
 
   const url = new URL(currentUrl);
 
-  url.searchParams.set('userId', userId);
-  const scopes = encodeURIComponent('account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read');
+  url.searchParams.set("userId", userId);
+  const scopes = encodeURIComponent(
+    "account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read"
+  );
 
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
 
   useEffect(() => {
-    if (formData.client !== '' && formData.booking_title !== '') {
+    if (formData.client !== "" && formData.booking_title !== "") {
       getServices(formData.client, formData.booking_title);
       getPhotographers(formData.client, formData.booking_title);
       getBookingTitles(formData.client);
     }
-  }, [formData.client, formData.booking_title])
+  }, [formData.client, formData.booking_title]);
 
   const getClients = async () => {
     try {
@@ -78,23 +93,28 @@ const Collections = () => {
   };
 
   const getBookingTitles = async (client) => {
-    setLoading(true)
+    setLoading(true);
     try {
       let bookingTitles = await getAllBookingTitles({ clientId: client });
       setBookingTitles(bookingTitles.data);
     } catch (error) {
       toast.error(error);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const getServices = async (client, booking_title) => {
     try {
-      let services = await getAllServices({ clientId: client, booking_title: booking_title });
-      let servicesData = services && services.data.map((pkg) => ({
-        label: pkg.package_name,
-        value: pkg.id
-      }))
+      let services = await getAllServices({
+        clientId: client,
+        booking_title: booking_title,
+      });
+      let servicesData =
+        services &&
+        services.data.map((pkg) => ({
+          label: pkg.package_name,
+          value: pkg.id,
+        }));
       setServices(servicesData);
     } catch (error) {
       toast.error(error);
@@ -103,11 +123,16 @@ const Collections = () => {
 
   const getPhotographers = async (client, booking_title) => {
     try {
-      let photographers = await getAllPhotographers({ clientId: client, booking_title: booking_title });
-      let photographersData = photographers && photographers.data.map((photographer) => ({
-        label: photographer.name,
-        value: photographer.id
-      }))
+      let photographers = await getAllPhotographers({
+        clientId: client,
+        booking_title: booking_title,
+      });
+      let photographersData =
+        photographers &&
+        photographers.data.map((photographer) => ({
+          label: photographer.name,
+          value: photographer.id,
+        }));
       setPhotographers(photographersData);
     } catch (error) {
       toast.error(error);
@@ -131,22 +156,22 @@ const Collections = () => {
     } else if (name === "booking_title") {
       gallery.booking_title = value;
       gallery.gallery_title = value;
-    } else if (name === 'services') {
-      gallery.services = value
-    } else if (name === 'photographers') {
-      gallery.photographers = value
-    } else if (name === 'gallery_title') {
-      gallery.gallery_title = value
-    } else if (name === 'dropbox_link') {
-      gallery.dropbox_link = value
-    } else if (name === 'vimeo_video_link') {
-      gallery.vimeo_video_link = value
-    } else if (name === 'banner') {
-      gallery.banner = value
-    } else if (name === 'lock_gallery') {
-      gallery.lock_gallery = value
-    } else if (name === 'notify_client') {
-      gallery.notify_client = value
+    } else if (name === "services") {
+      gallery.services = value;
+    } else if (name === "photographers") {
+      gallery.photographers = value;
+    } else if (name === "gallery_title") {
+      gallery.gallery_title = value;
+    } else if (name === "dropbox_link") {
+      gallery.dropbox_link = value;
+    } else if (name === "vimeo_video_link") {
+      gallery.vimeo_video_link = value;
+    } else if (name === "banner") {
+      gallery.banner = value;
+    } else if (name === "lock_gallery") {
+      gallery.lock_gallery = value;
+    } else if (name === "notify_client") {
+      gallery.notify_client = value;
     }
     setFormData(gallery);
   };
@@ -159,7 +184,7 @@ const Collections = () => {
         setPreviewImage(reader.result);
         setFormData({
           ...formData,
-          banner: file
+          banner: file,
         });
       };
       reader.readAsDataURL(file);
@@ -167,24 +192,24 @@ const Collections = () => {
       setPreviewImage(null);
       setFormData({
         ...formData,
-        banner: ''
+        banner: "",
       });
     }
   };
 
   const resetFormData = async () => {
     setFormData({
-      id: '',
-      client: '',
-      booking_title: '',
-      services: '',
-      photographers: '',
-      gallery_title: '',
-      dropbox_link: '',
-      vimeo_video_link: '',
+      id: "",
+      client: "",
+      booking_title: "",
+      services: "",
+      photographers: "",
+      gallery_title: "",
+      dropbox_link: "",
+      vimeo_video_link: "",
       banner: null,
-      lock_gallery: '',
-      notify_client: '',
+      lock_gallery: "",
+      notify_client: "",
     });
     setServices([]);
     setPhotographers([]);
@@ -197,28 +222,28 @@ const Collections = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      let serviceIds = services && services.map(item => item.value)
-      let photographerIds = photographers && photographers.map(item => item.value)
+      let serviceIds = services && services.map((item) => item.value);
+      let photographerIds =
+        photographers && photographers.map((item) => item.value);
       const formDataToSend = new FormData();
-      formDataToSend.append('id', formData.id);
-      formDataToSend.append('client', formData.client);
-      formDataToSend.append('booking_title', formData.booking_title);
-      formDataToSend.append('services', serviceIds);
-      formDataToSend.append('photographers', photographerIds);
-      formDataToSend.append('gallery_title', formData.gallery_title);
-      formDataToSend.append('dropbox_link', formData.dropbox_link);
-      formDataToSend.append('vimeo_video_link', formData.vimeo_video_link);
-      formDataToSend.append('banner', formData.banner);
-      formDataToSend.append('lock_gallery', isGalleryLocked);
-      formDataToSend.append('notify_client', isNotifyChecked);
-      formDataToSend.append('subdomainId', subdomainId);
+      formDataToSend.append("id", formData.id);
+      formDataToSend.append("client", formData.client);
+      formDataToSend.append("booking_title", formData.booking_title);
+      formDataToSend.append("services", serviceIds);
+      formDataToSend.append("photographers", photographerIds);
+      formDataToSend.append("gallery_title", formData.gallery_title);
+      formDataToSend.append("dropbox_link", formData.dropbox_link);
+      formDataToSend.append("vimeo_video_link", formData.vimeo_video_link);
+      formDataToSend.append("banner", formData.banner);
+      formDataToSend.append("lock_gallery", isGalleryLocked);
+      formDataToSend.append("notify_client", isNotifyChecked);
+      formDataToSend.append("subdomainId", subdomainId);
 
       let res = await addGallery(formDataToSend);
       if (res.success) {
         toast.success(res.message);
-        document.getElementById('closeModalButton').click();
-        resetFormData();
-        getAllCollectionsData();
+        document.getElementById("closeModalButton").click();
+        window.location.reload();
       } else {
         toast.error(res);
       }
@@ -229,7 +254,9 @@ const Collections = () => {
 
   const getAllCollectionsData = async () => {
     try {
-      let allCollections = await getAllCollections({ subdomainId: subdomainId });
+      let allCollections = await getAllCollections({
+        subdomainId: subdomainId,
+      });
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
       } else {
@@ -240,16 +267,32 @@ const Collections = () => {
     }
   };
 
+  const getDropboxRefresh = async () => {
+    const formDataToSend = new FormData();
+    formDataToSend.append("id", user.subdomain_id);
+
+    try {
+      const response = await getDropboxRefreshToken(formDataToSend);
+      if (response.success) {
+        setSubdomainDropbox(response.data);
+      } else {
+        console.log(response.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const getCollectionData = async (id) => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", id);
       let collectionData = await getCollection(formDataToSend);
       if (collectionData.data.banner !== "") {
-        let path = `${IMAGE_URL}/${collectionData.data.banner}`
-        setPreviewImage(path)
+        let path = `${IMAGE_URL}/${collectionData.data.banner}`;
+        setPreviewImage(path);
       } else {
-        setPreviewImage(null)
+        setPreviewImage(null);
       }
       const initialFormData = {
         id: collectionData.data.id,
@@ -260,7 +303,7 @@ const Collections = () => {
         gallery_title: collectionData.data.name,
         dropbox_link: collectionData.data.dropbox_link,
         vimeo_video_link: collectionData.data.video_link,
-        banner: collectionData.data.banner
+        banner: collectionData.data.banner,
       };
       setFormData(initialFormData);
       setIsGalleryLocked(collectionData.data.lock_gallery);
@@ -295,9 +338,7 @@ const Collections = () => {
         Header: "Banner",
         Cell: ({ row }) => (
           <img
-            src={
-              row.original.banner && `${IMAGE_URL}/${row.original.banner}`
-            }
+            src={row.original.banner && `${IMAGE_URL}/${row.original.banner}`}
             className="width-100"
             alt="Banner"
           />
@@ -313,17 +354,16 @@ const Collections = () => {
         Cell: ({ row }) => (
           <Switch
             checked={row.original.lock_gallery}
-            inputProps={{ 'aria-label': 'controlled' }}
+            inputProps={{ "aria-label": "controlled" }}
           />
         ),
       },
       {
         Header: "Notify",
-        Cell: ({ row }) => (
+        Cell: ({ row }) =>
           row.original.notify_client ? (
             <div className="badge badge-pill badge-light-primary">Notify</div>
-          ) : null
-        ),
+          ) : null,
       },
       {
         Header: "Action",
@@ -348,7 +388,10 @@ const Collections = () => {
             >
               <i className="feather white icon-trash"></i>
             </button>
-            <button className="btn btn-icon btn-outline-warning mr-1 mb-1" title="Copy Url">
+            <button
+              className="btn btn-icon btn-outline-warning mr-1 mb-1"
+              title="Copy Url"
+            >
               <i className="feather white icon-copy"></i>
             </button>
           </div>
@@ -383,23 +426,39 @@ const Collections = () => {
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group d-flex">
-                    {user.dropbox_refresh == null &&
-                      <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{ paddingTop: "10px" }}>Link Your Dropbox</a>
-                    }
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary"
-                      data-toggle="modal"
-                      data-target="#bootstrap"
-                      // title conditional 
-                      title={user.dropbox_refresh == null ? "Dropbox Not Linked" : "Add Collection"}
-                      disabled={user.dropbox_refresh == null}
-                      onClick={() => {
-                        setShowAddGalleryModal(true);
-                      }}
-                    >
-                      New Collection
-                    </button>
+                    {user.role_id == 5 && (
+                      <>
+                        {subdomainDropbox == null && (
+                          <a
+                            href={`${dropboxAuthUrl}`}
+                            className="btn btn-primary mr-1"
+                            style={{ paddingTop: "10px" }}
+                          >
+                            Link Your Dropbox
+                          </a>
+                        )}
+                      </>
+                    )}
+                    {user.role_id !== 3 && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        data-toggle="modal"
+                        data-target="#bootstrap"
+                        // title conditional
+                        title={
+                          subdomainDropbox == null
+                            ? "Add Collection"
+                            : "Dropbox Not Linked"
+                        }
+                        disabled={subdomainDropbox == null}
+                        onClick={() => {
+                          setShowAddGalleryModal(true);
+                        }}
+                      >
+                        New Collection
+                      </button>
+                    )}
                   </div>
                 </li>
               </ul>

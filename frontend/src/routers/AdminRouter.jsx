@@ -61,9 +61,10 @@ const AdminRouter = () => {
     // { path: "/*", element: <Navigate to="/dashboard" /> },
     { path: "/services/add-service", element: <AddService /> },
     { path: "/services/edit-service/:id", element: <AddService /> },
+    
     { path: "/services/*", element: <AddService /> },
-    { path: "/auth/dropbox", element: <DropboxOAuth /> },
-    { path: "/auth/google", element: <GoogleOAuth /> }
+    { path: "/dropbox", element: <DropboxOAuth /> },
+    { path: "/google", element: <GoogleOAuth /> }
 
   ]);
   const shouldRenderHeaderAndSideNav = !location.pathname.startsWith('/view-gallery');

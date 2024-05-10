@@ -88,7 +88,7 @@ export const BookingListComponent = () => {
   const currentUrl = window.location.href;
   const url = new URL(currentUrl);
 
-  const authUrl = `${REACT_APP_BASE_URL}/auth/google?userId=${encodeURIComponent(userId)}&url=${encodeURIComponent(url)}`;
+  const authUrl = `${REACT_APP_BASE_URL}/google?userId=${encodeURIComponent(userId)}&url=${encodeURIComponent(url)}`;
 
 
   const handleSubmit = async (e) => {
