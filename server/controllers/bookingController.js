@@ -149,19 +149,26 @@ async function addevent(data) {
 
       const existingEvent = events.data.items.find((event) => event.id === id);
 
-      // Construct booking date and time
-      const bookingDate = moment(data.booking_date).set({
+      const calendarInfo = await calendar.calendars.get({ calendarId: calendarId });
+
+      const timezone = calendarInfo.data.timeZone;
+
+      const date = moment.tz(data.booking_date, timezone).set({
         hour: data.booking_time.split(":")[0],
         minute: data.booking_time.split(":")[1],
         second: 0,
       });
-      const bookingDateTo = moment(data.booking_date).set({
+
+      const dateTo = moment.tz(data.booking_date, timezone).set({
         hour: data.booking_time_to.split(":")[0],
         minute: data.booking_time_to.split(":")[1],
         second: 0,
       });
 
-      // Update or insert event
+      const bookingDate = date.clone().utc();
+      const bookingDateTo = dateTo.clone().utc();
+
+      console.log(bookingDate);
       if (existingEvent && existingEvent.status !== "cancelled") {
         const resp = await updateEvent(
           calendar,
@@ -196,6 +203,8 @@ async function updateEvent(calendar, calendarId, eventId, data, start, end) {
   if (!eventId) {
     throw new Error("Missing required parameter: eventId");
   }
+
+  console.log(start);
 
   try {
     const response = await calendar.events.update({
