@@ -354,7 +354,6 @@ export const BookingListComponent = () => {
       setEvents([]);
     }
   };
-  
 
   const getBookingData = (data) => {
     let array = [];
