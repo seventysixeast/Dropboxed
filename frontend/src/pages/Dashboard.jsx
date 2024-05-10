@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getAllClients } from "../api/clientApis";
-import { getAllBookingTitles, getAllServices, getAllPhotographers } from "../api/bookingApis";
-import { addGallery, getAllCollections } from "../api/collectionApis";
-import { toast } from 'react-toastify';
+import {
+  getAllBookingTitles,
+  getAllServices,
+  getAllPhotographers,
+} from "../api/bookingApis";
+import { addGallery, getAllCollections, getDropboxRefreshToken } from "../api/collectionApis";
+import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { getRefreshToken, verifyToken } from "../api/authApis";
-
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
@@ -17,8 +20,8 @@ export const Dashboard = () => {
   const { authData } = useAuth();
   console.log(authData);
   const user = authData.user;
-  const subdomainId = user.subdomain_id
-  const userId = user.id
+  const subdomainId = user.subdomain_id;
+  const userId = user.id;
   const accessToken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
@@ -31,44 +34,47 @@ export const Dashboard = () => {
   const [collections, setCollections] = useState([]);
   const navigate = useNavigate();
   const currentUrl = window.location.href;
-
-
+  const [subdomainDropbox, setSubdomainDropbox] = useState(null);
+  
   const url2 = new URL(currentUrl);
-  url2.pathname = url2.pathname.replace('/dashboard', '');
+  url2.pathname = url2.pathname.replace("/dashboard", "");
 
   const url = new URL(currentUrl);
 
-  url.searchParams.set('userId', userId);
-  const scopes = encodeURIComponent('account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read');
+  url.searchParams.set("userId", userId);
+  const scopes = encodeURIComponent(
+    "account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read"
+  );
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
 
   const [formData, setFormData] = useState({
-    id: '',
-    client: '',
-    booking_title: '',
-    services: '',
-    photographers: '',
-    gallery_title: '',
-    dropbox_link: '',
-    vimeo_video_link: '',
-    banner: '',
-    lock_gallery: '',
-    notify_client: ''
+    id: "",
+    client: "",
+    booking_title: "",
+    services: "",
+    photographers: "",
+    gallery_title: "",
+    dropbox_link: "",
+    vimeo_video_link: "",
+    banner: "",
+    lock_gallery: "",
+    notify_client: "",
   });
 
   useEffect(() => {
     getClients();
     getAllCollectionsData();
     verifyToken(accessToken);
-    getRefreshToken(user.dropbox_refresh)
-  }, [])
+    getRefreshToken(user.dropbox_refresh);
+    getDropboxRefresh();
+  }, []);
 
   useEffect(() => {
-    if (formData.client !== '' && formData.booking_title !== '') {
+    if (formData.client !== "" && formData.booking_title !== "") {
       getServices(formData.client, formData.booking_title);
       getPhotographers(formData.client, formData.booking_title);
     }
-  }, [formData.client, formData.booking_title])
+  }, [formData.client, formData.booking_title]);
 
   const getClients = async () => {
     try {
@@ -79,24 +85,45 @@ export const Dashboard = () => {
     }
   };
 
+  const getDropboxRefresh = async () => {
+    const formDataToSend = new FormData()
+    formDataToSend.append('id', user.subdomain_id);
+
+  try {
+    const response = await getDropboxRefreshToken(formDataToSend);
+    if (response.success) {
+      setSubdomainDropbox(response.data);
+    } else {
+      console.log(response.message);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
   const getBookingTitles = async (client) => {
-    setLoading(true)
+    setLoading(true);
     try {
       let bookingTitles = await getAllBookingTitles({ clientId: client });
       setBookingTitles(bookingTitles.data);
     } catch (error) {
       toast.error(error);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const getServices = async (client, booking_title) => {
     try {
-      let services = await getAllServices({ clientId: client, booking_title: booking_title });
-      let servicesData = services && services.data.map((pkg) => ({
-        label: pkg.package_name,
-        value: pkg.id
-      }))
+      let services = await getAllServices({
+        clientId: client,
+        booking_title: booking_title,
+      });
+      let servicesData =
+        services &&
+        services.data.map((pkg) => ({
+          label: pkg.package_name,
+          value: pkg.id,
+        }));
       setServices(servicesData);
     } catch (error) {
       toast.error(error);
@@ -105,11 +132,16 @@ export const Dashboard = () => {
 
   const getPhotographers = async (client, booking_title) => {
     try {
-      let photographers = await getAllPhotographers({ clientId: client, booking_title: booking_title });
-      let photographersData = photographers && photographers.data.map((photographer) => ({
-        label: photographer.name,
-        value: photographer.id
-      }))
+      let photographers = await getAllPhotographers({
+        clientId: client,
+        booking_title: booking_title,
+      });
+      let photographersData =
+        photographers &&
+        photographers.data.map((photographer) => ({
+          label: photographer.name,
+          value: photographer.id,
+        }));
       setPhotographers(photographersData);
     } catch (error) {
       toast.error(error);
@@ -133,22 +165,22 @@ export const Dashboard = () => {
     } else if (name === "booking_title") {
       gallery.booking_title = value;
       gallery.gallery_title = value;
-    } else if (name === 'services') {
-      gallery.services = value
-    } else if (name === 'photographers') {
-      gallery.photographers = value
-    } else if (name === 'gallery_title') {
-      gallery.gallery_title = value
-    } else if (name === 'dropbox_link') {
-      gallery.dropbox_link = value
-    } else if (name === 'vimeo_video_link') {
-      gallery.vimeo_video_link = value
-    } else if (name === 'banner') {
-      gallery.banner = value
-    } else if (name === 'lock_gallery') {
-      gallery.lock_gallery = value
-    } else if (name === 'notify_client') {
-      gallery.notify_client = value
+    } else if (name === "services") {
+      gallery.services = value;
+    } else if (name === "photographers") {
+      gallery.photographers = value;
+    } else if (name === "gallery_title") {
+      gallery.gallery_title = value;
+    } else if (name === "dropbox_link") {
+      gallery.dropbox_link = value;
+    } else if (name === "vimeo_video_link") {
+      gallery.vimeo_video_link = value;
+    } else if (name === "banner") {
+      gallery.banner = value;
+    } else if (name === "lock_gallery") {
+      gallery.lock_gallery = value;
+    } else if (name === "notify_client") {
+      gallery.notify_client = value;
     }
     setFormData(gallery);
   };
@@ -156,56 +188,53 @@ export const Dashboard = () => {
   const handleBannerChange = (e) => {
     setFormData({
       ...formData,
-      banner: e.target.files[0]
+      banner: e.target.files[0],
     });
   };
 
   const resetFormData = async () => {
     setFormData({
-      id: '',
-      client: '',
-      booking_title: '',
-      services: '',
-      photographers: '',
-      gallery_title: '',
-      dropbox_link: '',
-      vimeo_video_link: '',
-      banner: '',
-      lock_gallery: '',
-      notify_client: ''
+      id: "",
+      client: "",
+      booking_title: "",
+      services: "",
+      photographers: "",
+      gallery_title: "",
+      dropbox_link: "",
+      vimeo_video_link: "",
+      banner: "",
+      lock_gallery: "",
+      notify_client: "",
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      let serviceIds = services && services.map(item => item.value)
-      let photographerIds = photographers && photographers.map(item => item.value)
+      let serviceIds = services && services.map((item) => item.value);
+      let photographerIds =
+        photographers && photographers.map((item) => item.value);
       const formDataToSend = new FormData();
-      formDataToSend.append('id', formData.id);
-      formDataToSend.append('client', formData.client);
-      formDataToSend.append('booking_title', formData.booking_title);
-      formDataToSend.append('services', serviceIds);
-      formDataToSend.append('photographers', photographerIds);
-      formDataToSend.append('gallery_title', formData.gallery_title);
-      formDataToSend.append('dropbox_link', formData.dropbox_link);
-      formDataToSend.append('vimeo_video_link', formData.vimeo_video_link);
-      formDataToSend.append('banner', formData.banner);
-      formDataToSend.append('lock_gallery', isGalleryLocked);
-      formDataToSend.append('notify_client', isNotifyChecked);
-      formDataToSend.append('subdomainId', subdomainId);
-      // if formData.id is empty string then add this dropbox_refresh from user
-      if (formData.id === '') {
-        formDataToSend.append('dropbox_refresh', user.dropbox_refresh);
-      }
+      formDataToSend.append("id", formData.id);
+      formDataToSend.append("client", formData.client);
+      formDataToSend.append("booking_title", formData.booking_title);
+      formDataToSend.append("services", serviceIds);
+      formDataToSend.append("photographers", photographerIds);
+      formDataToSend.append("gallery_title", formData.gallery_title);
+      formDataToSend.append("dropbox_link", formData.dropbox_link);
+      formDataToSend.append("vimeo_video_link", formData.vimeo_video_link);
+      formDataToSend.append("banner", formData.banner);
+      formDataToSend.append("lock_gallery", isGalleryLocked);
+      formDataToSend.append("notify_client", isNotifyChecked);
+      formDataToSend.append("subdomainId", subdomainId);
 
       let res = await addGallery(formDataToSend);
       if (res.success) {
         toast.success(res.message);
         resetFormData();
-        setShowAddGalleryModal(false)
+        setShowAddGalleryModal(false);
         getAllCollectionsData();
-        setShowAddGalleryModal(false)
+        setShowAddGalleryModal(false);
       } else {
         toast.error(res);
       }
@@ -216,7 +245,9 @@ export const Dashboard = () => {
 
   const getAllCollectionsData = async () => {
     try {
-      let allCollections = await getAllCollections({ subdomainId: subdomainId });
+      let allCollections = await getAllCollections({
+        subdomainId: subdomainId,
+      });
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
       } else {
@@ -336,23 +367,25 @@ export const Dashboard = () => {
                   <ul className="list-inline mb-0">
                     <li>
                       <div className="form-group d-flex">
-                        {user.dropbox_refresh == null &&
-                          <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{ paddingTop: "10px" }}>Link Your Dropbox</a>
-                        }
-                        <button
-                          type="button"
-                          className="btn btn-outline-primary"
-                          data-toggle="modal"
-                          data-target="#bootstrap"
-                          // title conditional 
-                          title={user.dropbox_refresh == null ? "Dropbox Not Linked" : "Add Collection"}
-                          disabled={user.dropbox_refresh == null}
-                          onClick={() => {
-                            setShowAddGalleryModal(true);
-                          }}
-                        >
-                          New Collection
-                        </button>
+                      {subdomainDropbox == null && user.role_id === 5 || subdomainDropbox == 'undefined' && user.role_id === 5 &&
+                      <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{ paddingTop: "10px" }}>Link Your Dropbox</a>
+                    }
+                    {user.role_id !== 3 && 
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      data-toggle="modal"
+                      data-target="#bootstrap"
+                      // title conditional 
+                      title={subdomainDropbox == null || subdomainDropbox == 'undefined' ? "Dropbox Not Linked" : "Add Collection"}
+                      disabled={subdomainDropbox == null || subdomainDropbox == 'undefined'}
+                      onClick={() => {
+                        setShowAddGalleryModal(true);
+                      }}
+                    >
+                      New Collection
+                    </button>
+                    }
                       </div>
                     </li>
                   </ul>
@@ -360,32 +393,42 @@ export const Dashboard = () => {
               </div>
               <div className="card-deck-wrapper">
                 <div className="grid-hover row">
-                  {collections && collections.map(item => (
-                    <div className="col-md-3 mb-3" key={item.id}>
-                      <a
-                        href={`${url2}view-gallery/${item.id}`}
-                        className="gallery-link"
-                      >
-                        <figure className="effect-zoe">
-                          <img
-                            className="gallery-thumbnail"
-                            src={
-                              item.banner
-                                ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
-                                : "../../../app-assets/images/gallery/9.jpg"
-                            }
-                          />
-                          <figcaption>
-                            <h2><span>{item.client_name}</span></h2>
-                            <p className="icon-links">
-                              <a onClick={() => navigate(`/view-gallery/${item.id}`)} title="View Gallery"><i className="feather icon-eye"></i></a>
-                            </p>
-                            <p className="description">{item.name}</p>
-                          </figcaption>
-                        </figure>
-                      </a>
-                    </div>
-                  ))}
+                  {collections &&
+                    collections.map((item) => (
+                      <div className="col-md-3 mb-3" key={item.id}>
+                        <a
+                          href={`${url2}view-gallery/${item.id}`}
+                          className="gallery-link"
+                        >
+                          <figure className="effect-zoe">
+                            <img
+                              className="gallery-thumbnail"
+                              src={
+                                item.banner
+                                  ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
+                                  : "../../../app-assets/images/gallery/9.jpg"
+                              }
+                            />
+                            <figcaption>
+                              <h2>
+                                <span>{item.client_name}</span>
+                              </h2>
+                              <p className="icon-links">
+                                <a
+                                  onClick={() =>
+                                    navigate(`/view-gallery/${item.id}`)
+                                  }
+                                  title="View Gallery"
+                                >
+                                  <i className="feather icon-eye"></i>
+                                </a>
+                              </p>
+                              <p className="description">{item.name}</p>
+                            </figcaption>
+                          </figure>
+                        </a>
+                      </div>
+                    ))}
                 </div>
               </div>
             </section>
@@ -426,10 +469,16 @@ export const Dashboard = () => {
                             <td>$5</td>
                             <td>$25</td>
                             <td>
-                              <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <button
+                                className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                title="Edit"
+                              >
                                 <i className="fa fa-pencil"></i>
                               </button>
-                              <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <button
+                                className="btn btn-sm btn-outline-danger mr-1 mb-1"
+                                title="Delete"
+                              >
                                 <i className="fa fa-remove"></i>
                               </button>
                             </td>
@@ -448,10 +497,16 @@ export const Dashboard = () => {
                             <td>$5 </td>
                             <td>$25</td>
                             <td>
-                              <button className="btn btn-sm btn-outline-secondary mr-1 mb-1" title="Edit">
+                              <button
+                                className="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                title="Edit"
+                              >
                                 <i className="fa fa-pencil"></i>
                               </button>
-                              <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
+                              <button
+                                className="btn btn-sm btn-outline-danger mr-1 mb-1"
+                                title="Delete"
+                              >
                                 <i className="fa fa-remove"></i>
                               </button>
                             </td>

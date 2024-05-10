@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Switch from '@mui/material/Switch';
 import { getAllClients } from "../api/clientApis";
 import { getAllBookingTitles, getAllServices, getAllPhotographers } from "../api/bookingApis";
-import { addGallery, getAllCollections, getCollection, deleteCollection } from "../api/collectionApis";
+import { addGallery, getAllCollections, getCollection, deleteCollection, getDropboxRefreshToken } from "../api/collectionApis";
 import { toast } from 'react-toastify';
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
@@ -29,7 +29,7 @@ const Collections = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
+  const [subdomainDropbox, setSubdomainDropbox] = useState(null);
   const [formData, setFormData] = useState({
     id: '',
     client: '',
@@ -44,9 +44,12 @@ const Collections = () => {
     notify_client: ''
   });
 
+  console.log(subdomainDropbox);
+
   useEffect(() => {
     getClients();
     getAllCollectionsData();
+    getDropboxRefresh();
   }, [])
 
   const currentUrl = window.location.href;
@@ -76,6 +79,8 @@ const Collections = () => {
       toast.error(error);
     }
   };
+
+
 
   const getBookingTitles = async (client) => {
     setLoading(true)
@@ -212,9 +217,6 @@ const Collections = () => {
       formDataToSend.append('lock_gallery', isGalleryLocked);
       formDataToSend.append('notify_client', isNotifyChecked);
       formDataToSend.append('subdomainId', subdomainId);
-      if(formData.id !== '') {
-        formDataToSend.append('dropbox_refresh', user.dropbox_refresh);
-      }
 
       let res = await addGallery(formDataToSend);
       if (res.success) {
@@ -241,6 +243,24 @@ const Collections = () => {
       toast.error(error);
     }
   };
+
+  const getDropboxRefresh = async () => {
+    const formDataToSend = new FormData()
+    formDataToSend.append('id', user.subdomain_id);
+
+  try {
+    const response = await getDropboxRefreshToken(formDataToSend);
+    if (response.success) {
+      setSubdomainDropbox(response.data);
+    } else {
+      console.log(response.message);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+console.log(subdomainDropbox);
 
   const getCollectionData = async (id) => {
     try {
@@ -385,23 +405,25 @@ const Collections = () => {
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group d-flex">
-                    {user.dropbox_refresh == null &&
+                    {subdomainDropbox == null && user.role_id === 5 || subdomainDropbox == 'undefined' && user.role_id === 5 &&
                       <a href={`${dropboxAuthUrl}`} className="btn btn-primary mr-1" style={{ paddingTop: "10px" }}>Link Your Dropbox</a>
                     }
+                    {user.role_id !== 3 && 
                     <button
                       type="button"
                       className="btn btn-outline-primary"
                       data-toggle="modal"
                       data-target="#bootstrap"
                       // title conditional 
-                      title={user.dropbox_refresh == null ? "Dropbox Not Linked" : "Add Collection"}
-                      disabled={user.dropbox_refresh == null}
+                      title={subdomainDropbox == null || subdomainDropbox == 'undefined' ? "Dropbox Not Linked" : "Add Collection"}
+                      disabled={subdomainDropbox == null || subdomainDropbox == 'undefined'}
                       onClick={() => {
                         setShowAddGalleryModal(true);
                       }}
                     >
                       New Collection
                     </button>
+                    }
                   </div>
                 </li>
               </ul>

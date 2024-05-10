@@ -44,6 +44,22 @@ const getCollection = async (data) => {
   }
 };
 
+const getDropboxRefreshToken = async (data) => {
+  try {
+    const response = await API.post('/collection/getDropboxRefresh', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('No refresh token found');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 const deleteCollection = async (data) => {
   try {
     const response = await API.post('/collection/deleteCollection', data, {
@@ -60,4 +76,4 @@ const deleteCollection = async (data) => {
   }
 };
 
-export { addGallery, getAllCollections, getCollection, deleteCollection };
+export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, deleteCollection };

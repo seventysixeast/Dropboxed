@@ -3,6 +3,10 @@ const User = require('../models/Users');
 const Package = require('../models/Packages');
 
 const addGallery = async (req, res) => {
+  const user = await User.findOne({
+    attributes: ['dropbox_refresh'],
+    where: { id: req.body.subdomainId },
+  });
   try {
     let imageName = req.files && req.files.banner.name;
     let collectionData = {
@@ -17,7 +21,7 @@ const addGallery = async (req, res) => {
       lock_gallery: req.body.lock_gallery,
       notify_client: req.body.notify_client,
       subdomain_id: req.body.subdomainId,
-      dropbox_refresh: req.body.dropbox_refresh,
+      dropbox_refresh: user.dropbox_refresh,
     };
 
     if (req.files && Object.keys(req.files).length) {
@@ -121,7 +125,6 @@ const getAllCollections = async (req, res) => {
 };
 
 const getCollection = async (req, res) => {
-  console.log(req.body);
   try {
     let collectionData = await Collection.findOne({
       where: {
@@ -134,6 +137,18 @@ const getCollection = async (req, res) => {
     res.status(500).json({ error: "Failed to list collection" });
   }
 };
+
+const getDropboxRefresh = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      attributes: ['dropbox_refresh'],
+      where: { id: req.body.id },
+    });
+    res.status(200).json({ success: true, data: user.dropbox_refresh });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to find Refresh Token." });
+  }
+}
 
 const deleteCollection = async (req, res) => {
   try {
@@ -151,4 +166,4 @@ const deleteCollection = async (req, res) => {
   }
 };
 
-module.exports = { addGallery, getAllCollections, getCollection, deleteCollection };
+module.exports = { addGallery, getAllCollections, getCollection, getDropboxRefresh, deleteCollection };
