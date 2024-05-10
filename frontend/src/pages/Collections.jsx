@@ -212,13 +212,15 @@ const Collections = () => {
       formDataToSend.append('lock_gallery', isGalleryLocked);
       formDataToSend.append('notify_client', isNotifyChecked);
       formDataToSend.append('subdomainId', subdomainId);
+      if(formData.id !== '') {
+        formDataToSend.append('dropbox_refresh', user.dropbox_refresh);
+      }
 
       let res = await addGallery(formDataToSend);
       if (res.success) {
         toast.success(res.message);
         document.getElementById('closeModalButton').click();
-        resetFormData();
-        getAllCollectionsData();
+        window.location.reload();
       } else {
         toast.error(res);
       }

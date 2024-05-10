@@ -17,6 +17,7 @@ const addGallery = async (req, res) => {
       lock_gallery: req.body.lock_gallery,
       notify_client: req.body.notify_client,
       subdomain_id: req.body.subdomainId,
+      dropbox_refresh: req.body.dropbox_refresh,
     };
 
     if (req.files && Object.keys(req.files).length) {
