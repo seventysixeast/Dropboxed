@@ -289,9 +289,17 @@ const SideNav = () => {
               </li>
               <li className=" nav-item">
                 <Link to="/manage-photographer-admins">
-                  <i className="feather icon-layout"></i>
+                  <i className="feather icon-users"></i>
                   <span className="menu-title" data-i18n="Layouts">
                     Manage Photographer Admins
+                  </span>
+                </Link>
+              </li>
+              <li className=" nav-item">
+                <Link to="/change-password">
+                  <i className="fa fa-key"></i>
+                  <span className="menu-title" data-i18n="Layouts">
+                    Change Password
                   </span>
                 </Link>
               </li>

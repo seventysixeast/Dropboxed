@@ -1,5 +1,6 @@
 const User = require("../models/Users");
 const BusinessClients = require("../models/BusinessClients");
+const Collections = require("../models/Collections");
 const redis = require("ioredis");
 const redisClient = new redis();
 
@@ -66,26 +67,45 @@ const updateRedisCache = async (subdomain_id) => {
 
 const getAllClients = async (req, res) => {
   try {
-    const clients = await BusinessClients.findAll({
-      where: {
-        business_id: req.body.subdomainId,
-      },
-      attributes: ["client_id"],
-    });
-    const clientIds = clients.map((client) => client.client_id);
-    const clientsData = await User.findAll({
-      where: {
-        role_id: 3,
-        id: clientIds,
-      },
-      order: [["created", "DESC"]],
-    });
-    res.status(200).json({ success: true, data: clientsData });
+    const checkUser = await User.findOne({ where: { id: req.body.subdomainId } });
+    if (checkUser.role_id === 2) {
+      const clients = await Collections.findAll({
+        where: {
+          photographer_ids: req.body.subdomainId
+        },
+        attributes: ['client_id']
+      });
+      const clientIdsSet = new Set(clients.map(client => client.client_id));
+      const clientIds = [...clientIdsSet];
+      const clientsData = await User.findAll({
+        where: {
+          role_id: 3,
+          id: clientIds
+        },
+        order: [["created", "DESC"]]
+      });
+      res.status(200).json({ success: true, data: clientsData });
+    } else {
+      const clients = await BusinessClients.findAll({
+        where: {
+          business_id: req.body.subdomainId,
+        },
+        attributes: ["client_id"]
+      });
+      const clientIds = clients.map((client) => client.client_id);
+      const clientsData = await User.findAll({
+        where: {
+          role_id: 3,
+          id: clientIds
+        },
+        order: [["created", "DESC"]]
+      });
+      res.status(200).json({ success: true, data: clientsData });
+    }
   } catch (error) {
     res.status(500).json({ error: "Failed to list clients" });
   }
 };
-
 
 const getClientPhotographers = async (req, res) => {
   try {

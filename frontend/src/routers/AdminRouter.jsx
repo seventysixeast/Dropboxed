@@ -23,6 +23,7 @@ import Users from "../pages/Users";
 import Login from "../pages/Login";
 import ManagePhotographerAdmins from "../pages/ManagePhotographerAdmins";
 import EditProfile from "../pages/EditProfile";
+import ChangePassword from "../pages/ChangePassword";
 import SignUp from "../pages/SignUp";
 import { useAuth } from "../context/authContext";
 import AddService from "../pages/AddService";
@@ -33,7 +34,7 @@ const AdminRouter = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const location = useLocation();
-  
+
   const route = useRoutes([
     { path: "/dashboard", element: <Dashboard /> },
     { path: "/booking-list-calendar", element: <BookingListComponent /> },
@@ -51,6 +52,7 @@ const AdminRouter = () => {
     { path: "/notifications-of-booking", element: <NotificationComponent /> },
     { path: "/manage-photographer-admins", element: <ManagePhotographerAdmins /> },
     { path: "/edit-profile", element: <EditProfile /> },
+    { path: "/change-password", element: <ChangePassword /> },
     //{ path: "/login", element: <Login /> },
     //{ path: "/signup", element: <SignUp /> },
     { path: "/collections", element: <Collections /> },

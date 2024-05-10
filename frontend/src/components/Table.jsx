@@ -23,7 +23,7 @@ const TableCustom = ({ data, columns }) => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 10, sortBy: [{ id: columns[0].accessor, desc: true }] } // Set initial page size here
+      initialState: { pageIndex: 0, pageSize: 10 } // Set initial page size here
     },
 
     useFilters,

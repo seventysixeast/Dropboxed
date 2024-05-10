@@ -157,7 +157,9 @@ const ManagePhotographerAdmins = () => {
         Header: "Status",
         accessor: "status",
         Cell: ({ row }) => (
-          <span>{row.original.status || "Active"}</span>
+          <span className={row.original.status === "Deleted" ? "text-danger" : ""}>
+            {row.original.status || "Active"}
+          </span>
         )
       },
       {
@@ -190,7 +192,13 @@ const ManagePhotographerAdmins = () => {
     []
   );
 
-  const data = React.useMemo(() => photographerAdmins, [photographerAdmins]);
+  const sortedData = React.useMemo(() => {
+    return [...photographerAdmins].sort((a, b) => {
+      if (a.status === "Deleted" && b.status !== "Deleted") return 1;
+      if (a.status !== "Deleted" && b.status === "Deleted") return -1;
+      return 0;
+    });
+  }, [photographerAdmins]);
 
   return (
     <>
@@ -335,7 +343,7 @@ const ManagePhotographerAdmins = () => {
       />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
-      <TableCustom data={data} columns={columns} />
+      <TableCustom data={sortedData} columns={columns} />
     </>
   );
 };
