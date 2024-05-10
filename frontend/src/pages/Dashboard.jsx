@@ -377,7 +377,7 @@ export const Dashboard = () => {
                             {subdomainDropbox == null && (
                               <a
                                 href={`${dropboxAuthUrl}`}
-                                className="btn btn-primary mr-1"
+                                className="btn btn-primary"
                                 style={{ paddingTop: "10px" }}
                               >
                                 Link Your Dropbox
@@ -391,7 +391,6 @@ export const Dashboard = () => {
                             className="btn btn-outline-primary"
                             data-toggle="modal"
                             data-target="#bootstrap"
-                            // title conditional
                             title={
                               subdomainDropbox == null
                                 ? "Add Collection"
@@ -414,7 +413,7 @@ export const Dashboard = () => {
                 <div className="grid-hover row">
                   {collections &&
                     collections.map((item) => (
-                      <div className="col-md-3 mb-3" key={item.id}>
+                      <div className="col-md-3 mb-3 mr-3" key={item.id}>
                         <a
                           href={`${url2}view-gallery/${item.id}`}
                           className="gallery-link"

@@ -338,6 +338,8 @@ const createBooking = async (req, res) => {
       booking = await Booking.create(data);
     }
 
+    console.log(booking);
+
     try {
       await addevent(booking);
     } catch (error) {
