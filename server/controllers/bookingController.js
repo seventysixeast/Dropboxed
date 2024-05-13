@@ -116,7 +116,6 @@ async function addevent(data) {
     let userIds = [data.subdomain_id];
     photographers.forEach((photographer) => userIds.push(photographer.id));
     clients.forEach((client) => userIds.push(client.id));
-    console.log("userIds==============>>", userIds);
     const theUsers = await Users.findAll({ where: { id: userIds } });
 
     const authResponses = await Promise.all(
@@ -168,7 +167,6 @@ async function addevent(data) {
       const bookingDate = date.clone().utc();
       const bookingDateTo = dateTo.clone().utc();
 
-      console.log(bookingDate);
       if (existingEvent && existingEvent.status !== "cancelled") {
         const resp = await updateEvent(
           calendar,
@@ -203,8 +201,6 @@ async function updateEvent(calendar, calendarId, eventId, data, start, end) {
   if (!eventId) {
     throw new Error("Missing required parameter: eventId");
   }
-
-  console.log(start);
 
   try {
     const response = await calendar.events.update({
@@ -338,7 +334,7 @@ const createBooking = async (req, res) => {
       booking = await Booking.create(data);
     }
 
-    console.log(booking);
+    console.log('booking=========>>>', booking);
 
     try {
       await addevent(booking);
@@ -468,7 +464,6 @@ const deleteBooking = async (req, res) => {
     let userIds = [bookingData.subdomain_id];
     photographers.forEach((photographer) => userIds.push(photographer.id));
     clients.forEach((client) => userIds.push(client.id));
-    console.log("userIds==============>>", userIds);
     const theUsers = await Users.findAll({ where: { id: userIds } });
 
     const authResponses = await Promise.all(
