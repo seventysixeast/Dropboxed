@@ -18,7 +18,8 @@ const AuthRouter = () => {
     { path: "/client-signup", element: <ClientSignup /> },
     { path: "/", element: <Navigate to="/login" /> },
     { path: "/dropbox", element: <DropboxOAuth /> },
-    { path: "/google", element: <GoogleOAuth /> }
+    { path: "/google", element: <GoogleOAuth /> },
+    { path: "*", element: <Navigate to="/login" /> }
   ]);
 
   return <>{route}</>;
