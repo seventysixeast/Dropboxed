@@ -880,6 +880,7 @@ export const ViewGallery = () => {
                                                 );
                                               }
                                             }}
+                                            
                                           ></span>
                                         </a>
                                         <a>
