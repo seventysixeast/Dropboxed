@@ -146,7 +146,7 @@ const Login = () => {
           window.location.href = redirectUrl;
           return;
         }
-        if(subdomain){
+        if(userSubdomain){
           setLoading(false);
            // Save user data and access token in localStorage
           localStorage.setItem('accessToken', accessToken);
