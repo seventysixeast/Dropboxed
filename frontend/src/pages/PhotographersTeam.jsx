@@ -30,7 +30,7 @@ const PhotographersTeam = () => {
 
   const getAllPhotographersData = async () => {
     try {
-      let allPhotographers = await getAllPhotographers();
+      let allPhotographers = await getAllPhotographers({ subdomainId: user.id });
       if (allPhotographers && allPhotographers.data) {
         setPhotographers(allPhotographers.data);
       } else {

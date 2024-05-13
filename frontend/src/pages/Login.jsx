@@ -137,10 +137,11 @@ const Login = () => {
         //console.log("redirectToSubdomain",redirectToSubdomain)
         if (user.role_id === 1) {
           setLoading(false);
+          const userDataWithProfilePhoto = { ...user, profile_photo: user.profile_photo || '' };
           // Save user data and access token in localStorage
           localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('isAuth', true);
-          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('user', JSON.stringify(userDataWithProfilePhoto));
           const redirectUrl = `/dashboard`;
           window.location.href = redirectUrl;
           return;

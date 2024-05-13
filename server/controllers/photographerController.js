@@ -5,13 +5,21 @@ const nodemailer = require('nodemailer');
 
 const getAllPhotographers = async (req, res) => {
   try {
-    let photographers = await User.findAll({
+    const photographers = await BusinessClients.findAll({
       where: {
-        role_id: 2
+        business_id: req.body.subdomainId,
       },
-      order: [['created', 'DESC']]
+      attributes: ["client_id"],
     });
-    res.status(200).json({ success: true, data: photographers });
+    const photographerIds = photographers.map((client) => client.client_id);
+    const photographersData = await User.findAll({
+      where: {
+        role_id: 2,
+        id: photographerIds,
+      },
+      order: [["created", "DESC"]],
+    });
+    res.status(200).json({ success: true, data: photographersData });
   } catch (error) {
     res.status(500).json({ error: "Failed to list photographers" });
   }
@@ -90,8 +98,8 @@ const createPhotographer = async (req, res) => {
 
 // Function to send password to user's email
 function sendPasswordByEmail(email, password) {
-  console.log("email",email);
-  console.log("password",password);
+  console.log("email", email);
+  console.log("password", password);
   let transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {

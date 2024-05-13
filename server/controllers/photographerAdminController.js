@@ -2,13 +2,14 @@ const User = require('../models/Users');
 
 const getAllPhotographerAdmins = async (req, res) => {
   try {
-    let data = await User.findAll({
+    let photographerAdmins = await User.findAll({
       where: {
         role_id: 5
       },
       order: [['created', 'DESC']]
     });
-    res.status(200).json({ success: true, data: data });
+    res.status(200).json({ success: true, data: photographerAdmins });
+
   } catch (error) {
     res.status(500).json({ error: "Failed to list photographer admins" });
   }

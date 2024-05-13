@@ -102,6 +102,12 @@ const EditProfile = () => {
       let res = await updateUser(formDataToSend);
       if (res.success) {
         toast.success(res.message);
+        const updatedUser = {
+          ...user,
+          userName: formData.name,
+          profilePhoto: formData.profile_photo.name || user.profile_photo
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         getUserData();
       } else {
         toast.error(res);
@@ -133,7 +139,6 @@ const EditProfile = () => {
   }
 
   const handlePasswordSubmit = async (e) => {
-    console.log("changePasswordData", changePasswordData);
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
@@ -158,6 +163,19 @@ const EditProfile = () => {
     <div className="app-content content">
       <div className="content-overlay" />
       <div className="content-wrapper">
+        <div className="content-header-left col-md-6 col-6 mb-2 mt-2">
+          <h3 className="content-header-title mb-0">Edit Profile</h3>
+          <div className="row breadcrumbs-top">
+            <div className="breadcrumb-wrapper col-12">
+              <ol className="breadcrumb">
+                <li className="breadcrumb-item">
+                  <a href="/dashboard">Home</a>
+                </li>
+                <li className="breadcrumb-item">Edit Profile</li>
+              </ol>
+            </div>
+          </div>
+        </div>
         <div className="content-body">
           <section className="users-edit">
             <div className="card">
@@ -165,13 +183,15 @@ const EditProfile = () => {
                 <div className="card-body">
                   <form onSubmit={handleSubmit}>
                     <div className="media mb-2">
-                      {previewImage && (
-                        <img
-                          src={previewImage}
-                          className="rounded-circle height-100 width-100 mt-2"
-                          alt="Preview"
-                        />
-                      )}
+                      <img
+                        src={
+                          previewImage
+                            ? previewImage
+                            : "../../../app-assets/images/portrait/medium/dummy.png"
+                        }
+                        className="rounded-circle height-100 width-100 mt-2"
+                        alt="Preview"
+                      />
                       <div className="media-body mt-3 ml-2">
                         <h4 className="media-heading">Profile Photo</h4>
                         <input
@@ -185,17 +205,6 @@ const EditProfile = () => {
                     </div>
                     <div className="row">
                       <div className="col-12 col-sm-6">
-                        <div className="form-group">
-                          <label>Username</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleInputChange}
-                          />
-                          <div className="help-block" />
-                        </div>
                         <div className="form-group">
                           <div className="controls">
                             <label>Name</label>
@@ -245,7 +254,7 @@ const EditProfile = () => {
                             onChange={handleInputChange}
                           />
                         </div>
-                        <div className="form-group">
+                        {/* <div className="form-group">
                           <label>Subdomain</label>
                           <input
                             className="form-control"
@@ -254,7 +263,7 @@ const EditProfile = () => {
                             onChange={handleInputChange}
                             disabled
                           />
-                        </div>
+                        </div> */}
                       </div>
                       <div className="col-12 d-flex flex-sm-row flex-column justify-content-end mt-1">
                         <button type="submit" className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1">Save Changes</button>

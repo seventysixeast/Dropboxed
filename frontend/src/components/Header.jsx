@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
 import { useAuth } from '../context/authContext';
 import logoLight from "../assets/images/studiio-logo.png";
-import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import { getClient } from "../api/clientApis";
+const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const Header = () => {
   const { authData } = useAuth();
   const { logout } = useAuth();
   const { user } = authData;
+  const roleId = user.role_id;
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -120,16 +121,28 @@ const Header = () => {
                   data-toggle="dropdown"
                 >
                   <div className="avatar avatar-online">
-                    <img src={avatar1} alt="avatar" />
+                    <img
+                      src={
+                        user.profilePhoto
+                          ? `${IMAGE_URL}/${user.profilePhoto}`
+                          : "../app-assets/images/portrait/medium/dummy.png"
+                      }
+                      style={{ width: "50px", height: "30px" }}
+                      alt="profile"
+                    />
                     <i></i>
                   </div>
                   <span className="user-name">{user.userName}</span>
                 </a>
                 <div className="dropdown-menu dropdown-menu-right">
-                  <a className="dropdown-item" href="/edit-profile">
-                    <i className="feather icon-user"></i> Edit Profile
-                  </a>
-                  <div className="dropdown-divider"></div>
+                  {(roleId === 2 || roleId === 3 || roleId === 4 || roleId === 5) && (
+                    <>
+                      <a className="dropdown-item" href="/edit-profile">
+                        <i className="feather icon-user"></i> Edit Profile
+                      </a>
+                      <div className="dropdown-divider"></div>
+                    </>
+                  )}
                   <a className="dropdown-item" href="#" onClick={handleLogout}>
                     <i className="feather icon-power"></i> Logout
                   </a>
