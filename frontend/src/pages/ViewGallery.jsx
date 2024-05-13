@@ -15,18 +15,13 @@ import "photoswipe/dist/photoswipe.css";
 import "photoswipe/dist/default-skin/default-skin.css";
 import ReactPlayer from "react-player";
 import TodoModal from "../components/TodoModal";
-import { getAlltasks, createTask, addComment, setTaskStatus, deleteTask, setTaskFavorite } from "../api/todoApis";
+import { getAlltasks, createTask } from "../api/todoApis";
 import { getClientPhotographers } from "../api/clientApis";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 export const ViewGallery = () => {
   const { authData } = useAuth();
-  // const user = authData.user;
-  // const subdomainId = user.subdomain_id;
-  // const userId = user.id;
-  // const roleId = user.role_id;
   const [dropboxAccess, setDropboxAccess] = useState("");
-  // const dropboxRefresh = user.dropbox_refresh;
   const [collectionRefresh, setCollectionRefresh] = useState("");
   const [showDownloadGalleryModal, setDownloadGalleryModal] = useState(false);
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
@@ -52,7 +47,6 @@ export const ViewGallery = () => {
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const imageGalleryRef = useRef(null);
-  // TODO modal
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const modalRef = useRef(null);
   const [taskData, setTaskData] = useState({
@@ -80,7 +74,7 @@ export const ViewGallery = () => {
     setIsNewTaskModalOpen(!isNewTaskModalOpen);
   };
 
-  const [folderPath, setFolderPath] = useState('');
+  const [folderPath, setFolderPath] = useState("");
   const [entriesList, setEntriesList] = useState();
   console.log(authData);
   const getTasks = async () => {
@@ -101,12 +95,12 @@ export const ViewGallery = () => {
   const handleTextChange = (value) => {
     setTaskData({
       ...taskData,
-      taskDescription: value
+      taskDescription: value,
     });
   };
 
   const getClients = async () => {
-    if(authData.user === null) return; 
+    if (authData.user === null) return;
     const formData = new FormData();
     formData.append("subdomain_id", authData.user.subdomain_id);
     const response = await getClientPhotographers(formData);
@@ -178,12 +172,12 @@ export const ViewGallery = () => {
     getTasks();
   };
 
-
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
 
   useEffect(() => {
+    if (authData.user === null) return;
     if (fileList.current && fileList.current.length === 0) {
       if (!running) {
         fetchCollection();
@@ -247,9 +241,9 @@ export const ViewGallery = () => {
       let thePath = "";
 
       if (sharedData.data.path_lower == undefined) {
-        thePath = ""
+        thePath = "";
       } else {
-        thePath = sharedData.data.path_lower
+        thePath = sharedData.data.path_lower;
       }
       const listResponse = await axios.post(
         "https://api.dropboxapi.com/2/files/list_folder",
@@ -274,7 +268,7 @@ export const ViewGallery = () => {
   };
 
   const fetchImages = async (data) => {
-    setLoading(true)
+    setLoading(true);
     try {
       const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
@@ -290,7 +284,6 @@ export const ViewGallery = () => {
       setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
 
       page.current++;
-      
 
       if (endIndex < totalFiles) {
         fetchImages(data);
@@ -348,7 +341,6 @@ export const ViewGallery = () => {
 
         image.src = url;
       }
-
     } catch (error) {
       console.error("Error fetching batch thumbnails:", error);
     }
@@ -472,39 +464,37 @@ export const ViewGallery = () => {
   };
 
   const downloadFolderAsZip = async (accessToken) => {
-    setLoading(true)
-    const apiUrl = 'https://content.dropboxapi.com/2/files/download_zip';
+    setLoading(true);
+    const apiUrl = "https://content.dropboxapi.com/2/files/download_zip";
 
     try {
       const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Dropbox-API-Arg': JSON.stringify({
+          "Dropbox-API-Arg": JSON.stringify({
             path: folderPath,
           }),
-          'Content-Type': 'application/octet-stream',
+          "Content-Type": "application/octet-stream",
         },
       });
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'Studiio.zip';
+      link.download = "Studiio.zip";
       link.click();
       URL.revokeObjectURL(url);
-      toast.success('Folder downloaded successfully.');
+      toast.success("Folder downloaded successfully.");
       setDownloadGalleryModal(false);
       setDownloadOptions({ device: "device", size: "original" });
       setRunning(false);
       setLoading(false);
     } catch (error) {
-      console.error('Error downloading folder as zip:', error);
+      console.error("Error downloading folder as zip:", error);
     }
-    setLoading(false)
-
+    setLoading(false);
   };
-
 
   const handleAllDownload = async () => {
     if (authData.user === null) {
@@ -520,7 +510,7 @@ export const ViewGallery = () => {
         for (const imageData of imageUrls) {
           let imageBlob;
           if (downloadOptions.size === "original") {
-            await downloadFolderAsZip(dropboxAccess)
+            await downloadFolderAsZip(dropboxAccess);
             return;
           } else {
             const response = await axios.post(
@@ -562,7 +552,6 @@ export const ViewGallery = () => {
       } catch (error) {
         console.error("Error downloading images from Dropbox:", error);
       }
-
     } else if (downloadOptions.device == "dropbox") {
       const tokens = await getRefreshToken(collectionRefresh);
       setDropboxAccess(tokens.access_token);
@@ -604,7 +593,7 @@ export const ViewGallery = () => {
       } else {
         const errorData = await copyResponse.json();
         if ((errorData.error_summary = "to/conflict/folder/.")) {
-          console.error('Error copying folder:', errorData.error_summary);
+          console.error("Error copying folder:", errorData.error_summary);
         }
       }
     }
@@ -656,12 +645,12 @@ export const ViewGallery = () => {
   const handleShareImage = async (image) => {
     const tokens = await getRefreshToken(collectionRefresh);
     setDropboxAccess(tokens.access_token);
-    
+
     let sharedLinkData;
-  
+
     // Check if the shared link already exists
     const existingLinkResponse = await fetch(
-      'https://api.dropboxapi.com/2/sharing/list_shared_links',
+      "https://api.dropboxapi.com/2/sharing/list_shared_links",
       {
         method: "POST",
         headers: {
@@ -674,12 +663,12 @@ export const ViewGallery = () => {
       }
     );
     const existingLinkData = await existingLinkResponse.json();
-    
+
     if (existingLinkData.links.length > 0) {
       sharedLinkData = existingLinkData.links[0];
     } else {
       const sharedLinkResponse = await fetch(
-        'https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings',
+        "https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings",
         {
           method: "POST",
           headers: {
@@ -694,7 +683,7 @@ export const ViewGallery = () => {
           }),
         }
       );
-      
+
       sharedLinkData = await sharedLinkResponse.json();
     }
 
@@ -705,8 +694,6 @@ export const ViewGallery = () => {
       <p>Image Link: <a href=${link} rel="noopener noreferrer" target="_blank">Image Link</a></p>`,
     });
   };
-  
-
 
   return (
     <>
@@ -739,16 +726,15 @@ export const ViewGallery = () => {
               />
             </div>
           </div>
-          <div className="" style={{ width: "100%" }}
-          >
+          <div className="" style={{ width: "100%" }}>
             <div className="content-overlay"></div>
             <section id="gallery-banner" style={{ position: "relative" }}>
               <div
                 style={{
                   position: "relative",
                   maxWidth: `calc(100vw - ${scrollbarWidth}px)`,
-                  objectFit: 'cover',
-                  height: '100vh',
+                  objectFit: "cover",
+                  height: "100vh",
                   display: "flex",
                   justifyContent: "center",
                 }}
@@ -757,39 +743,35 @@ export const ViewGallery = () => {
                   <img
                     className="gallery-cover"
                     src={
-                      banner !== null && banner !== "" ?
-                        `${REACT_APP_GALLERY_IMAGE_URL}/${banner}` :
-                        ""
+                      banner !== null && banner !== ""
+                        ? `${REACT_APP_GALLERY_IMAGE_URL}/${banner}`
+                        : ""
                     }
                     style={{
                       width: `calc(100vw - ${scrollbarWidth}px)`,
                       objectFit: "cover",
-                      imageRendering: "auto"
+                      imageRendering: "auto",
                     }}
                   />
 
-
-
                   {/* <div className="cover-overlay"
                   ></div> */}
-
                 </div>
               </div>
-              <div
-                className="banner-detail"
-
-              >
-                <h1 className="banner-collection-name mb-1">{collection.name}</h1>
+              <div className="banner-detail">
+                <h1 className="banner-collection-name mb-1">
+                  {collection.name}
+                </h1>
                 <button
                   onClick={handleScrollToGallery}
-                  className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${showAnimation ? "slide-down" : ""
-                    }`}
+                  className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${
+                    showAnimation ? "slide-down" : ""
+                  }`}
                   style={{ animationDelay: showAnimation ? "0.5s" : "0s" }}
                 >
                   View Gallery
                 </button>
               </div>
-
             </section>
             <div
               id="sticky-bar"
@@ -811,15 +793,19 @@ export const ViewGallery = () => {
                 <h1 className="text-class-h1">{collection.name}</h1>
               </div>
               <div>
-                {authData.user !== null &&
-                <span
-                  className="text-right feather icon-download black"
-                  title="Download"
-                  onClick={() => {
-                    setDownloadGalleryModal(true);
-                  }}
-                ></span>
-              }
+                {authData.user !== null && (
+                  <span
+                    className="text-right feather icon-download black"
+                    title="Download"
+                    onClick={() => {
+                      if (collection.lock_gallery == false) {
+                        setDownloadGalleryModal(true);
+                      } else {
+                        toast.error("Gallery is locked! Please contact admin.");
+                      }
+                    }}
+                  ></span>
+                )}
               </div>
             </div>
             <section id="video-player" style={{ position: "relative" }}>
@@ -859,37 +845,55 @@ export const ViewGallery = () => {
                             <figure
                               ref={ref}
                               className="col-lg-3 col-md-6 col-12"
-                              style={{ paddingLeft: '7px', paddingLeft: '7px' }}
+                              style={{ paddingLeft: "7px", paddingLeft: "7px" }}
                               onClick={open}
                             >
                               <div
                                 className="hovereffect"
                                 itemProp="contentUrl"
                               >
-                                <img className="equal-image" src={image.url} alt="" />
+                                <img
+                                  className="equal-image"
+                                  src={image.url}
+                                  alt=""
+                                />
                                 <div className="overlay overlay-to-links">
-                                  <p className="icon-links" style={{ backgroundColor: "black" }}>
-                                    {authData.user !== null &&
-                                    <>
-                                    <a>
-                                      <span
-                                        className="feather icon-download "
-                                        onClick={(event) => {
-                                          event.stopPropagation();
-                                          setSelectedImageUrl(image.path_display);
-                                          setDownloadImageModal(true);
-                                        }}
-                                      ></span>
-                                    </a>
-                                    <a>
-                                      <span className="feather icon-edit " onClick={(event) => {
-                                        event.stopPropagation();
-                                        toggleNewTaskModal();
-                                        handleShareImage(image);
-                                      }}></span>
-                                    </a>
-                                    </>
-                                    }
+                                  <p
+                                    className="icon-links"
+                                    style={{ backgroundColor: "black" }}
+                                  >
+                                    {authData.user !== null && (
+                                      <>
+                                        <a>
+                                          <span
+                                            className="feather icon-download "
+                                            onClick={(event) => {
+                                              event.stopPropagation();
+                                              setSelectedImageUrl(
+                                                image.path_display
+                                              );
+                                              if (collection.lock_gallery == false) {
+                                                setDownloadImageModal(true);
+                                              } else {
+                                                toast.error(
+                                                  "Gallery is locked! Please contact admin."
+                                                );
+                                              }
+                                            }}
+                                          ></span>
+                                        </a>
+                                        <a>
+                                          <span
+                                            className="feather icon-edit "
+                                            onClick={(event) => {
+                                              event.stopPropagation();
+                                              toggleNewTaskModal();
+                                              handleShareImage(image);
+                                            }}
+                                          ></span>
+                                        </a>
+                                      </>
+                                    )}
                                   </p>
                                 </div>
                               </div>
@@ -928,7 +932,6 @@ export const ViewGallery = () => {
           </div>
         </div>
       </div>
-
     </>
   );
 };

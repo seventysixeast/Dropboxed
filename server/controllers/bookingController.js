@@ -401,16 +401,51 @@ const providers = async (req, res) => {
 
 const getAllBookings = async (req, res) => {
   try {
-    let bookings = await Booking.findAll({
-      where: { subdomain_id: req.body.subdomainId },
-      include: [
-        {
-          model: User,
-          attributes: ["name", "colorcode", "address"],
+    if (req.body.roleId == 5) {
+      let bookings = await Booking.findAll({
+        where: { subdomain_id: req.body.subdomainId },
+        include: [
+          {
+            model: User,
+            attributes: ["name", "colorcode", "address"],
+          },
+        ],
+      });
+      res.status(200).json({ success: true, data: bookings });
+    } else if (req.body.roleId == 3) {
+      let bookings = await Booking.findAll({
+        where: {
+          subdomain_id: req.body.subdomainId,
+          user_id: req.body.userId
         },
-      ],
-    });
-    res.status(200).json({ success: true, data: bookings });
+        include: [
+          {
+            model: User,
+            attributes: ["name", "colorcode", "address"],
+          },
+        ],
+      });
+      res.status(200).json({ success: true, data: bookings });
+    } else if (req.body.roleId == 2) {
+      let bookings = await Booking.findAll({
+        where: {
+          subdomain_id: req.body.subdomainId,
+        },
+        include: [
+          {
+            model: User,
+            attributes: ["name", "colorcode", "address"],
+          },
+        ],
+      });
+
+      bookings = bookings.filter((booking) => {
+        return booking.photographer_id.includes(req.body.userId);
+      });
+
+      res.status(200).json({ success: true, data: bookings });
+    }
+
   } catch (error) {
     res.status(500).json({ error: "Failed to list bookings" });
   }
