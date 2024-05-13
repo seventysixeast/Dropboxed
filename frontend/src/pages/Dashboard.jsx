@@ -416,7 +416,7 @@ export const Dashboard = () => {
                     collections.map((item) => (
                       <div className="col-md-3 mb-3 mr-3" key={item.id}>
                         <a
-                          href={`${url2}view-gallery/${item.id}`}
+                          href={`${url2}view-gallery/${item.slug}`}
                           className="gallery-link"
                           target="_blank" rel="noopener noreferrer"
                           >
@@ -435,7 +435,7 @@ export const Dashboard = () => {
                               </h2>
                               <p className="icon-links">
                                 <a
-                                  href={`${url2}view-gallery/${item.id}`}
+                                  href={`${url2}view-gallery/${item.slug}`}
                                   className="gallery-link"
                                   target="_blank" rel="noopener noreferrer"
                                 >

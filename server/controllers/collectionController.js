@@ -2,11 +2,18 @@ const Collection = require('../models/Collections');
 const User = require('../models/Users');
 const Package = require('../models/Packages');
 
+function createSlug(title) {
+  return title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+}
+
 const addGallery = async (req, res) => {
   const user = await User.findOne({
     attributes: ['dropbox_refresh'],
     where: { id: req.body.subdomainId },
   });
+
+  let slug = createSlug(req.body.gallery_title);
+
   try {
     let imageName = req.files && req.files.banner.name;
     let collectionData = {
@@ -43,6 +50,11 @@ const addGallery = async (req, res) => {
       }
       await collection.update(collectionData);
     } else {
+      const existingCollection = await Collection.findOne({ where: { slug } });
+      if (existingCollection) {
+        slug += '-' + Math.floor(Math.random() * 100);
+        collectionData.slug = slug;
+      }
       collection = await Collection.create(collectionData);
     }
 
@@ -254,7 +266,7 @@ const getCollection = async (req, res) => {
   try {
     let collectionData = await Collection.findOne({
       where: {
-        id: req.body.id
+        slug: req.body.slug
       },
       order: [['created', 'DESC']]
     });

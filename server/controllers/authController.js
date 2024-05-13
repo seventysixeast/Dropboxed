@@ -425,7 +425,7 @@ exports.verifyToken = async (req, res) => {
       if (businessClient) {
         const businessOwner = await User.findByPk(businessClient.business_id);
         if (businessOwner && businessOwner.role_id === 5) {
-          subdomain_id = businessOwner.id; // Set subdomain_id to the business owner's id if role is 3 (client)
+          subdomain_id = businessOwner.id;
           user.subdomain = businessOwner.subdomain;
         }
       }
