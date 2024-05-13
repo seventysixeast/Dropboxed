@@ -26,6 +26,7 @@ export const Dashboard = () => {
   const user = authData.user;
   const subdomainId = user.subdomain_id;
   const userId = user.id;
+  const roleId = user.roleId;
   const accessToken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
@@ -249,10 +250,12 @@ export const Dashboard = () => {
   };
 
   const getAllCollectionsData = async () => {
+    const formData = new FormData();
+    formData.append("subdomainId", subdomainId);
+    formData.append("roleId", user.role_id);
+    formData.append("userId", user.id);
     try {
-      let allCollections = await getAllCollections({
-        subdomainId: subdomainId,
-      });
+      let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
       } else {
