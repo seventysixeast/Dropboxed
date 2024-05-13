@@ -412,12 +412,12 @@ exports.verifyToken = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    let subdomain_id = ""; // Initialize subdomain_id
+    let subdomain_id = "";
 
     // Check user's role
     if (user.role_id === 5) {
       subdomain_id = user.id; // Set subdomain_id to the user's id if role is 5 (business owner)
-    } else if (user.role_id === 3) {
+    } else if (user.role_id === 3 || user.role_id === 2) {
       // Find the business owner associated with the client
       const businessClient = await BusinessClients.findOne({
         where: { client_id: user.id },
@@ -425,7 +425,7 @@ exports.verifyToken = async (req, res) => {
       if (businessClient) {
         const businessOwner = await User.findByPk(businessClient.business_id);
         if (businessOwner && businessOwner.role_id === 5) {
-          subdomain_id = businessOwner.id; // Set subdomain_id to the business owner's id if role is 3 (client)
+          subdomain_id = businessOwner.id;
           user.subdomain = businessOwner.subdomain;
         }
       }

@@ -8,6 +8,7 @@ import SignUp from "../pages/SignUp";
 import ClientSignup from "../pages/ClientSignup";
 import DropboxOAuth from "../pages/DropboxAuth";
 import GoogleOAuth from "../pages/GoogleOAuth";
+import { ViewGallery } from "../pages/ViewGallery";
 
 const AuthRouter = () => {
   const route = useRoutes([
@@ -20,6 +21,7 @@ const AuthRouter = () => {
     { path: "/dropbox", element: <DropboxOAuth /> },
     { path: "/google", element: <GoogleOAuth /> },
     { path: "*", element: <Navigate to="/login" /> }
+    { path: "/view-gallery/:id", element: <ViewGallery /> }
   ]);
 
   return <>{route}</>;

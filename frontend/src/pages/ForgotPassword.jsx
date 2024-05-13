@@ -18,20 +18,24 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (user.email) {
-        let email = user.email
-        let res = await forgotPassword({email:email});
-        if (res.success) {
-          toast.success(res.message);
-          window.location.href = `/reset?email=${user.email}`;
-        } else {
-          toast.error(res);
+        if (!user.email) {
+            toast.error("Email is required.");
+            return;
         }
-      }
+
+        const res = await forgotPassword({ email: user.email });
+        if (res.success) {
+            toast.success(res.message);
+            window.location.href = `/reset?email=${encodeURIComponent(user.email)}`;
+        } else {
+            toast.error("Password reset request failed. Please try again later.");
+        }
     } catch (error) {
-      toast.error(error);
+        console.error("An error occurred:", error);
+        toast.error("An error occurred. Please try again later.");
     }
-  };
+};
+
 
   return (
     <div className="bg-full-screen-image" style={{ height: "110vh" }}>

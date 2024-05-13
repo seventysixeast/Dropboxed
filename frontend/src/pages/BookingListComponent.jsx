@@ -27,6 +27,7 @@ import { Switch } from "@mui/material";
 import LoadingOverlay from "../components/Loader";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
+import moment from "moment";
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 export const BookingListComponent = () => {
@@ -87,9 +88,9 @@ export const BookingListComponent = () => {
   });
   const currentUrl = window.location.href;
   const url = new URL(currentUrl);
-
-  const authUrl = `${REACT_APP_BASE_URL}/google?userId=${encodeURIComponent(userId)}&url=${encodeURIComponent(url)}`;
-
+  const authUrl = `${REACT_APP_BASE_URL}/google?userId=${encodeURIComponent(
+    userId
+  )}&url=${encodeURIComponent(url)}`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -195,6 +196,15 @@ export const BookingListComponent = () => {
       fetchProviders();
     }
   }, [subdomainId]);
+
+  // const handleDateTestChange = () => {
+  //   const utcDate = moment.utc(bookingData.prefferedDate).toString()
+  //   console.log(utcDate);
+  // };
+
+  // useEffect(() => {
+  //   handleDateTestChange();
+  // }, [bookingData]);
 
   const fetchProviders = async () => {
     if (providers.length === 0) {
@@ -302,7 +312,9 @@ export const BookingListComponent = () => {
         let editable = true;
         let status = booking.booking_status;
 
-        let bookingStart = new Date(`${booking.booking_date}T${booking.booking_time}`);
+        let bookingStart = new Date(
+          `${booking.booking_date}T${booking.booking_time}`
+        );
         let currentTime = new Date();
 
         let timeDifference = bookingStart.getTime() - currentTime.getTime();
@@ -348,7 +360,6 @@ export const BookingListComponent = () => {
         };
       });
       setEvents(events);
-
     } catch (error) {
       setBookingsData([]);
       setEvents([]);
@@ -877,7 +888,6 @@ export const BookingListComponent = () => {
       Header: "Action",
       accessor: "action",
       Cell: (props) => (
-
         <div className="d-flex">
           <button
             type="button"
@@ -887,10 +897,16 @@ export const BookingListComponent = () => {
             data-target="#appointment"
             title="Edit Booking"
             disabled={
-              roleId === 3 ?
-                (new Date(props.row.original.booking_date + "T" + props.row.original.booking_time) - new Date() < 1000 * 60 * 60 * 3) : false
+              roleId === 3
+                ? new Date(
+                    props.row.original.booking_date +
+                      "T" +
+                      props.row.original.booking_time
+                  ) -
+                    new Date() <
+                  1000 * 60 * 60 * 3
+                : false
             }
-
           >
             <i className="feather white icon-edit"></i>
           </button>
@@ -906,8 +922,15 @@ export const BookingListComponent = () => {
             data-target="#deleteModal"
             title="Delete Booking"
             disabled={
-              roleId === 3 ?
-                (new Date(props.row.original.booking_date + "T" + props.row.original.booking_time) - new Date() < 1000 * 60 * 60 * 3) : false
+              roleId === 3
+                ? new Date(
+                    props.row.original.booking_date +
+                      "T" +
+                      props.row.original.booking_time
+                  ) -
+                    new Date() <
+                  1000 * 60 * 60 * 3
+                : false
             }
           >
             <i className="feather white icon-trash"></i>
@@ -1054,7 +1077,6 @@ export const BookingListComponent = () => {
     }
   };
 
-
   const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
@@ -1147,7 +1169,9 @@ export const BookingListComponent = () => {
                         <></>
                       ) : (
                         <a
-                          className={`btn btn-outline-primary mx-1 ${calendarSub === 1 ? 'd-none' : ''}`}
+                          className={`btn btn-outline-primary mx-1 ${
+                            calendarSub === 1 ? "d-none" : ""
+                          }`}
                           disabled={calendarSub === 1}
                           href={`${authUrl}`}
                         >
@@ -1831,7 +1855,7 @@ export const BookingListComponent = () => {
                           eventResize={handleEventResize}
                           firstDay={1}
                           dateClick={(info) => {
-                            console.log(info);
+                            // console.log(info);
                             if (info.allDay === true) {
                               return;
                             }
@@ -1842,7 +1866,10 @@ export const BookingListComponent = () => {
                             if (info.event.allDay) {
                               return;
                             }
-                            if (info.event.backgroundColor === "gray" || info.event.startEditable === false) {
+                            if (
+                              info.event.backgroundColor === "gray" ||
+                              info.event.startEditable === false
+                            ) {
                               return;
                             }
                             handleEventClick(info);
