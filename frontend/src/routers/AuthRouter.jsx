@@ -20,6 +20,7 @@ const AuthRouter = () => {
     { path: "/", element: <Navigate to="/login" /> },
     { path: "/dropbox", element: <DropboxOAuth /> },
     { path: "/google", element: <GoogleOAuth /> },
+    { path: "*", element: <Navigate to="/login" /> },
     { path: "/view-gallery/:id", element: <ViewGallery /> }
   ]);
 
