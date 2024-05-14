@@ -3,29 +3,29 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Create a Nodemailer transporter
-/*const transporter = nodemailer.createTransport(
-{
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secureConnection: true, // Use SSL/TLS
-    auth: {
-        user: process.env.SMTP_USERNAME,
-        pass: process.env.SMTP_PASSWORD,
-    },
-    tls: {
-        rejectUnauthorized: false
+const transporter = nodemailer.createTransport(
+    {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        secureConnection: true, // Use SSL/TLS
+        auth: {
+            user: process.env.SMTP_USERNAME,
+            pass: process.env.SMTP_PASSWORD,
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
     }
-}
-);*/
-const transporter = nodemailer.createTransport({
+);
+ /*const transporter = nodemailer.createTransport({
     host: "smtp.ethereal.email",
     port: 587,
     secure: false, // Use `true` for port 465, `false` for all other ports
     auth: {
-      user: "maddison53@ethereal.email",
-      pass: "jn7jnAPss4f63QBp6D",
+        user: "maddison53@ethereal.email",
+        pass: "jn7jnAPss4f63QBp6D",
     },
-  });
+});*/
 
 // Function to send an email
 exports.sendEmail = function (to, subject, html) {

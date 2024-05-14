@@ -13,7 +13,6 @@ import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
-import toolIcons from "../assets/images/i.png";
 import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
@@ -27,7 +26,7 @@ import { Switch } from "@mui/material";
 import LoadingOverlay from "../components/Loader";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
-import moment from "moment";
+const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 export const BookingListComponent = () => {
@@ -293,8 +292,15 @@ export const BookingListComponent = () => {
             (booking) => booking.user_id === userId
           ),
         };
+        // filter based on booking_date. latest to oldest
+        allBookingData.data.sort((a, b) => {
+          return new Date(b.booking_date) - new Date(a.booking_date);
+        });
         setBookingsData(allBookingData.data);
       } else {
+        allBookingData.data.sort((a, b) => {
+          return new Date(b.booking_date) - new Date(a.booking_date);
+        });
         setBookingsData(allBookingData.data);
       }
 
@@ -1053,7 +1059,7 @@ export const BookingListComponent = () => {
   };
 
   const handleNotifyCheckbox = (event) => {
-    setNotifyCheckbox(event.target.checked);
+    setNotifyCheckbox(!notifyCheckbox);
   };
 
   const handleToTimeChange = (event) => {
@@ -1295,6 +1301,7 @@ export const BookingListComponent = () => {
                                               (provider) => ({
                                                 label: provider.name,
                                                 value: provider.id,
+                                                image: provider.profile_photo
                                               })
                                             )}
                                             isSearchable
@@ -1317,8 +1324,9 @@ export const BookingListComponent = () => {
                                                 >
                                                   <img
                                                     src={
-                                                      data.profile_photo ||
-                                                      avatar1
+                                                      data.image
+                                                        ? `${IMAGE_URL}/${data.image}`
+                                                        : "../app-assets/images/portrait/medium/dummy.png"
                                                     }
                                                     alt="Profile"
                                                     style={{
@@ -1654,7 +1662,6 @@ export const BookingListComponent = () => {
                                             inputProps={{
                                               "aria-label": "controlled",
                                             }}
-                                            disabled={notifyDisabled}
                                           />
                                         </div>
                                       )}
@@ -1709,6 +1716,7 @@ export const BookingListComponent = () => {
                                             .map((client) => ({
                                               value: client.id,
                                               label: client.name,
+                                              image: client.profile_photo
                                             }))}
                                           isSearchable
                                           components={{
@@ -1728,10 +1736,10 @@ export const BookingListComponent = () => {
                                                 className="customOptionClass"
                                               >
                                                 <img
-                                                  src={
-                                                    data.profile_photo ||
-                                                    avatar1
-                                                  }
+                                                  src={data.image
+                                                    ? `${IMAGE_URL}/${data.image}`
+                                                    : "../app-assets/images/portrait/medium/dummy.png"
+                                                }
                                                   alt="Profile"
                                                   style={{
                                                     marginRight: "10px",
