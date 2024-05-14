@@ -86,6 +86,7 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
+
   const currentUrl = window.location.href;
   const url = new URL(currentUrl);
   const authUrl = `${REACT_APP_BASE_URL}/google?userId=${encodeURIComponent(
@@ -197,15 +198,6 @@ export const BookingListComponent = () => {
     }
   }, [subdomainId]);
 
-  // const handleDateTestChange = () => {
-  //   const utcDate = moment.utc(bookingData.prefferedDate).toString()
-  //   console.log(utcDate);
-  // };
-
-  // useEffect(() => {
-  //   handleDateTestChange();
-  // }, [bookingData]);
-
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {
@@ -290,6 +282,7 @@ export const BookingListComponent = () => {
     const datatosend = {
       subdomainId: subdomainId,
       roleId: roleId,
+      userId: userId
     };
     try {
       let allBookingData = await getAllBookings(datatosend);

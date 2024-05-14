@@ -17,11 +17,8 @@ const addGallery = async (galleryData) => {
 };
 
 const getAllCollections = async (data) => {
-
-  console.log(data);
   try {
     const response = await API.post('/collection/getAllCollections', data);
-    console.log('response.data========>', response.data);
     if (response.status !== 200) {
       throw new Error('Failed to get collections');
     }
@@ -29,8 +26,18 @@ const getAllCollections = async (data) => {
   } catch (error) {
     return error.response.data.error;
   }
+};
 
-
+const updateGalleryLock = async (data) => {
+  try {
+    const response = await API.post('/collection/updateGalleryLock', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to update Gallery');
+    }
+    return response.data;
+  } catch (error) {
+    return error.response.data.error;
+  }
 };
 
 const getCollection = async (data) => {
@@ -81,4 +88,4 @@ const deleteCollection = async (data) => {
   }
 };
 
-export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, deleteCollection };
+export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, updateGalleryLock, deleteCollection };

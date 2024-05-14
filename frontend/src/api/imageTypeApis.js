@@ -1,8 +1,8 @@
 import API from "./baseApi";
 
-const getAllImageTypes = async () => {
+const getAllImageTypes = async (data) => {
   try {
-    const response = await API.get('/imageType/getImageTypes', {
+    const response = await API.post('/imageType/getImageTypes', data, {
       headers: {
         'Content-Type': 'application/json',
       },

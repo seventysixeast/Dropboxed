@@ -12,6 +12,7 @@ import {
   getCollection,
   deleteCollection,
   getDropboxRefreshToken,
+  updateGalleryLock,
 } from "../api/collectionApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
@@ -51,11 +52,9 @@ const Collections = () => {
     dropbox_link: "",
     vimeo_video_link: "",
     banner: null,
-    lock_gallery: "",
+    lock_gallery: false,
     notify_client: "",
   });
-
-  console.log(subdomainDropbox);
 
   useEffect(() => {
     getClients();
@@ -140,9 +139,6 @@ const Collections = () => {
     }
   };
 
-  const handleGalleryLockChange = () => {
-    setIsGalleryLocked(!isGalleryLocked);
-  };
 
   const handleNotifyChange = () => {
     setIsNotifyChecked(!isNotifyChecked);
@@ -209,7 +205,7 @@ const Collections = () => {
       dropbox_link: "",
       vimeo_video_link: "",
       banner: null,
-      lock_gallery: "",
+      lock_gallery: false,
       notify_client: "",
     });
     setServices([]);
@@ -289,7 +285,7 @@ const Collections = () => {
   const getCollectionData = async (id) => {
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("id", id);
+      formDataToSend.append("slug", id);
       let collectionData = await getCollection(formDataToSend);
       if (collectionData.data.banner !== "") {
         let path = `${IMAGE_URL}/${collectionData.data.banner}`;
@@ -334,6 +330,28 @@ const Collections = () => {
     }
   };
 
+  const handleGalleryLockChange = async (data) => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", data.id);
+      formDataToSend.append("lock_gallery", !data.lock_gallery );
+      let res = await updateGalleryLock(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        let updatedCollections = collections.map((collection) =>
+          collection.id === data.id ? res.data : collection
+        );
+        setCollections(updatedCollections);
+
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+  
+
   const columns = React.useMemo(
     () => [
       { Header: "S.No.", accessor: "id" },
@@ -357,6 +375,7 @@ const Collections = () => {
         Cell: ({ row }) => (
           <Switch
             checked={row.original.lock_gallery}
+            onChange={()=> handleGalleryLockChange(row.original)}
             inputProps={{ "aria-label": "controlled" }}
           />
         ),
@@ -375,7 +394,7 @@ const Collections = () => {
             <button
               className="btn btn-icon btn-outline-secondary mr-1 mb-1"
               title="Edit"
-              onClick={() => getCollectionData(row.original.id)}
+              onClick={() => getCollectionData(row.original.slug)}
               data-toggle="modal"
               data-target="#bootstrap"
             >
