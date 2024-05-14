@@ -31,8 +31,6 @@ exports.login = async (req, res) => {
       },
     });
 
-    console.log("user.status============>", user.status);
-
     if (!user) {
       return res
         .status(200)
@@ -65,7 +63,6 @@ exports.login = async (req, res) => {
 
     // Check if the user's roles are photographer (role_id = 2) and client (role_id = 3)
     if (user.role_id === 2 || user.role_id === 3) {
-      console.log(">>>>>>>");
       // Check if the client is connected to the provided subdomain
       const businessClient = await BusinessClients.findOne({
         where: { client_id: user.id },
@@ -95,7 +92,7 @@ exports.login = async (req, res) => {
       const businessOwner = await User.findByPk(subdomain_id);
       let dropboxRefresh = businessOwner.dropbox_refresh
       let dropboxAccess = businessOwner.dropbox_access
-      console.log('businessOwner======>>', dropboxRefresh, dropboxAccess);
+      //console.log('businessOwner======>>', dropboxRefresh, dropboxAccess);
 
       return res.status(200).json({
         success: true,
@@ -159,7 +156,7 @@ exports.signup = async (req, res) => {
     if (existingDomain) {
       return res
         .status(200)
-        .json({ success: false, message: "Studio name already exists" });
+        .json({ success: false, message: "Studio name already in use. Please Use another name" });
     }
 
     // Hash the password
