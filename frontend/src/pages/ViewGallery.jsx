@@ -176,7 +176,6 @@ export const ViewGallery = () => {
   };
 
   useEffect(() => {
-    if (authData.user === null) return;
     if (fileList.current && fileList.current.length === 0) {
       if (!running) {
         fetchCollection();

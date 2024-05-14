@@ -450,7 +450,7 @@ const Collections = () => {
                   <div className="form-group d-flex">
                     {user.role_id == 5 && (
                       <>
-                        {subdomainDropbox == null && (
+                        {user.dropbox_refresh == null && (
                           <a
                             href={`${dropboxAuthUrl}`}
                             className="btn btn-primary mr-1"
