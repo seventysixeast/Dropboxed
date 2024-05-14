@@ -1,0 +1,236 @@
+.dropLogo {
+  height: 27px;
+}
+
+.assigned_gallery {
+  font-size: x-large;
+}
+
+.package_box {
+  border: 2px solid blue;
+  border-radius: 0.45rem;
+}
+
+.service_box {
+  border: 2px solid green;
+  border-radius: 0.45rem;
+}
+
+/* .black-logo{
+  height: 40px;
+} */
+
+
+.logo img {
+  width: 10rem;
+  height: auto;
+}
+
+.brand-logo {
+  width: 10rem;
+  height: auto;
+}
+
+.package-card {
+  display: flex;
+  flex-direction: column;
+  height: 240px;
+}
+
+
+.bg-full-screen-image {
+  background: url(../../app-assets/images/backgrounds/bg-2.jpg) no-repeat center center fixed;
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.card-body {
+  flex: 1;
+}
+
+.col-xl-3.col-md-6.col-sm-12 {
+  margin-bottom: 25px;
+}
+
+/* For mobile view only  */
+@media only screen and (max-width: 600px) {
+  h3.content-header-title.mb-0 {
+    font-size: 12px;
+  }
+
+  ol.breadcrumb {
+    font-size: 8px;
+  }
+
+  a.btn.btn-outline-primary,
+  button.btn.btn-outline-primary.btn-block,
+  button.btn.btn-outline-primary {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .fc-toolbar.fc-header-toolbar {
+    margin-bottom: unset;
+  }
+
+  .fc-toolbar {
+    display: unset;
+  }
+}
+
+.btn-social-icon {
+  cursor: pointer;
+}
+
+.btn-social-icon:hover {
+  opacity: 0.8;
+}
+
+.custom-card {
+  height: 80%;
+}
+
+.card.border-green.border-lighten-2.custom-card {
+  border: 1px solid green !important;
+}
+
+.card {
+  height: 95%;
+}
+
+.css-byenzh-MuiButtonBase-root-MuiSwitch-switchBase.Mui-checked {
+  color: #00b5b8 !important;
+}
+
+.dull-card {
+  color: lightgray !important;
+}
+
+.css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.Mui-checked,
+.css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.MuiCheckbox-indeterminate {
+  color: #00b5b8 !important;
+}
+
+.pb-4,
+.py-4 {
+  padding-bottom: 5.5rem !important;
+}
+
+figure.effect-ruby p {
+  border: none;
+}
+
+.grid-hover figure {
+  margin: 10px 0px;
+  background: unset;
+}
+
+i.feather {
+  cursor: pointer;
+}
+
+figure.effect-zoe p.description {
+  bottom: 6em !important;
+}
+
+figure.effect-zoe figcaption {
+  padding: 0.5em;
+  height: 2.75em;
+}
+
+figure.effect-zoe p.icon-links a {
+  margin-top: 4px;
+}
+
+/* CSS for image hover effects */
+
+.hovereffect .overlay {
+  width: 100%;
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: auto;
+  bottom: 0;
+  padding: 1em;
+  height: 4.75em;
+  background: #79FAC4;
+  color: #3c4a50;
+  -webkit-transition: -webkit-transform 0.35s;
+  transition: transform 0.35s;
+  -webkit-transform: translate3d(0, 100%, 0);
+  transform: translate3d(0, 100%, 0);
+  visibility: hidden;
+}
+
+.hovereffect p.icon-links a {
+  float: right;
+}
+
+.hovereffect h2,
+.hovereffect p.icon-links a {
+  -webkit-transition: -webkit-transform 0.35s;
+  transition: transform 0.35s;
+  -webkit-transform: translate3d(0, 200%, 0);
+  transform: translate3d(0, 200%, 0);
+  visibility: visible;
+}
+
+.hovereffect p.icon-links a span:before {
+  display: inline-block;
+  padding: 8px 10px;
+  speak: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hovereffect:hover .overlay,
+.hovereffect:hover h2,
+.hovereffect:hover p.icon-links a {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+span.feather {
+  color: white;
+  font-size: 20px;
+}
+
+.equal-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.loader {
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
