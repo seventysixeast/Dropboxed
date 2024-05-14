@@ -35,7 +35,9 @@ const AddService = () => {
 
   const getAllImageTypesData = async () => {
     try {
-      let allImageTypesData = await getAllImageTypes();
+      let formData = new FormData();
+      formData.append("subdomain_id", subdomainId);
+      let allImageTypesData = await getAllImageTypes(formData);
       setImageTypes(allImageTypesData.data);
     } catch (error) {
       console.error("Failed to:", error.message);

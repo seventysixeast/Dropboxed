@@ -410,13 +410,12 @@ export const Dashboard = () => {
                   </ul>
                 </div>
               </div>
-              <div className="card-deck-wrapper">
+              <div className="">
                 <div className="grid-hover row">
                   {collections &&
                     collections.map((item) => (
                       <div
-                        className="col-md-3 mb-3"
-                        style={{ marginRight: "80px" }}
+                        className="col-md-3 mb-3 mr-5"
                         key={item.id}
                       >
                         <a
