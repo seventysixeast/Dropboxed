@@ -185,7 +185,7 @@ const Login = () => {
   
 
   return (
-    <div className="bg-full-screen-image" style={{ height: "110vh" }}>
+    <div className="bg-full-screen-image" style={{ height: "120vh" }}>
       {/* Loader overlay */}
     {loading && (
       <div className="loader-overlay">
@@ -207,7 +207,7 @@ const Login = () => {
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
-                      <span>Login with Dropboxed</span>
+                      <span>Login with Studiio.au</span>
                     </h6>
                   </div>
                   <div className="card-content">
@@ -285,7 +285,7 @@ const Login = () => {
                       </form>
                     </div>
                     <p className="card-subtitle line-on-side text-muted text-center font-small-3 mx-2 my-1">
-                      <span>New to Dropboxed ?</span>
+                      <span>New to Studiio.au ?</span>
                     </p>
                     <div className="card-body">
                       <a

@@ -57,7 +57,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="bg-full-screen-image" style={{ height: "110vh" }}>
+    <div className="bg-full-screen-image" style={{ height: "120vh" }}>
       <div className="content-overlay" />
       <div className="content-wrapper">
         <div className="content-header row"></div>

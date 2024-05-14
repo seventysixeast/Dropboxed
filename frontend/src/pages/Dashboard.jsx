@@ -239,6 +239,8 @@ export const Dashboard = () => {
         setShowAddGalleryModal(false);
         getAllCollectionsData();
         setShowAddGalleryModal(false);
+        document.getElementById("closeModalButton").click();
+        window.location.reload();
       } else {
         toast.error(res);
       }
