@@ -36,8 +36,8 @@ const ClientSignup = () => {
         phone: Yup.string().required("Phone is required"),
         business_name: Yup.string().required("Business Name is required"),
         password: Yup.string()
-        .required("Password is required")
-        .matches(passwordRegex, "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"),
+            .required("Password is required")
+            .matches(passwordRegex, "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"),
         confirm_password: Yup.string().oneOf([Yup.ref('password'), null], "Passwords must match").required("Confirm Password is required"),
     });
 
@@ -76,25 +76,25 @@ const ClientSignup = () => {
     };
 
     return (
-        <div className="bg-full-screen-image" style={{ height: "130vh" }}>
-        <div className="content-overlay"></div>
-        <div className="content-wrapper">
-          <div className="content-header row"></div>
-          <div className="content-body">
-            <section className=" flexbox-container">
-              <div className="col-12 d-flex align-items-center justify-content-center">
-                <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-1 mb-1">
-                  <div className="card border-grey border-lighten-3 m-0">
-                    <div className="card-header border-0">
-                      <div className="card-title text-center">
-                        <div className="p-1 logo black-logo">
-                          <img src={logoLight} alt="branding logo" />
-                        </div>
-                      </div>
-                      <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
-                        <span>Sign Up with Studiio.au</span>
-                      </h6>
-                    </div>
+        <div className="bg-full-screen-image">
+            <div className="content-overlay"></div>
+            <div className="content-wrapper">
+                <div className="content-header row"></div>
+                <div className="content-body">
+                    <section className=" flexbox-container">
+                        <div className="col-12 d-flex align-items-center justify-content-center">
+                            <div className="col-lg-4 col-md-8 col-10 box-shadow-2 p-0 mt-1 mb-1">
+                                <div className="card border-grey border-lighten-3 m-0">
+                                    <div className="card-header border-0">
+                                        <div className="card-title text-center">
+                                            <div className="p-1 logo black-logo">
+                                                <img src={logoLight} alt="branding logo" />
+                                            </div>
+                                        </div>
+                                        <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
+                                            <span>Sign Up with Studiio.au</span>
+                                        </h6>
+                                    </div>
 
                                     <div className="card-content">
                                         <div className="card-body">

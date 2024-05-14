@@ -75,7 +75,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="bg-full-screen-image" style={{ height: "120vh" }}>
+    <div className="bg-full-screen-image">
       <div className="content-overlay"></div>
       <div className="content-wrapper">
         <div className="content-header row"></div>
