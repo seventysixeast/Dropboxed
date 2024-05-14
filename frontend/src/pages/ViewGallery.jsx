@@ -21,12 +21,12 @@ import { getClientPhotographers } from "../api/clientApis";
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 export const ViewGallery = () => {
   const { authData } = useAuth();
-  const user = authData.user;
-  const subdomainId = user.subdomain_id;
-  const userId = user.id;
-  const roleId = user.role_id;
+  // const user = authData.user;
+  // const subdomainId = user.subdomain_id;
+  // const userId = user.id;
+  // const roleId = user.role_id;
   const [dropboxAccess, setDropboxAccess] = useState("");
-  const dropboxRefresh = user.dropbox_refresh;
+  // const dropboxRefresh = user.dropbox_refresh;
   const [collectionRefresh, setCollectionRefresh] = useState("");
   const [showDownloadGalleryModal, setDownloadGalleryModal] = useState(false);
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
@@ -42,6 +42,7 @@ export const ViewGallery = () => {
   const fetchSize = 16;
   const fileList = useRef([]);
   const { id } = useParams();
+
   const [dropboxLink, setDropboxLink] = useState("");
   const [running, setRunning] = useState(false);
   const layoutRef = useRef();
@@ -81,22 +82,22 @@ export const ViewGallery = () => {
 
   const [folderPath, setFolderPath] = useState('');
   const [entriesList, setEntriesList] = useState();
-
+  console.log(authData);
   const getTasks = async () => {
+    if (authData.user === null) return;
     const formData = new FormData();
-    formData.append("subdomain_id", subdomainId);
-    formData.append("role_id", roleId);
+    formData.append("subdomain_id", authData.user.subdomain_id);
+    formData.append("role_id", authData.user.role_id);
     const response = await getAlltasks(formData);
     if (response.success) {
       setTasks(response.tasks);
       setFilteredTasks(response.tasks);
       setTags(response.tags);
     } else {
-      // toast.error("Failed to get tasks!");
       console.error(response.data);
-
     }
   };
+
   const handleTextChange = (value) => {
     setTaskData({
       ...taskData,
@@ -105,13 +106,13 @@ export const ViewGallery = () => {
   };
 
   const getClients = async () => {
+    if(authData.user === null) return; 
     const formData = new FormData();
-    formData.append("subdomain_id", subdomainId);
+    formData.append("subdomain_id", authData.user.subdomain_id);
     const response = await getClientPhotographers(formData);
     if (response.success) {
       setClients(response.data);
     } else {
-      // toast.error("Failed to get clients!");
       console.log(response.data);
     }
   };
@@ -120,10 +121,11 @@ export const ViewGallery = () => {
   };
 
   const handleSubmit = async () => {
+    if (authData.user === null) return;
     const formData = new FormData();
 
     if (taskData.userId === "") {
-      formData.append("user_id", userId);
+      formData.append("user_id", authData.user.user_id);
     } else {
       formData.append("user_id", taskData.userId);
     }
@@ -131,8 +133,8 @@ export const ViewGallery = () => {
     const formattedTags = selectedTags.map((tag) => tag.value).join(",");
     formData.append("id", taskData.id);
     formData.append("task_tags", formattedTags);
-    formData.append("subdomain_id", subdomainId);
-    formData.append("role_id", roleId);
+    formData.append("subdomain_id", authData.user.subdomain_id);
+    formData.append("role_id", authData.user.role_id);
     formData.append("task_title", taskData.taskTitle);
     formData.append("assign_user", selectedClient.value);
     formData.append("task_assigndate", taskData.taskAssigndate);
@@ -181,8 +183,6 @@ export const ViewGallery = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // Todo End
-
   useEffect(() => {
     if (fileList.current && fileList.current.length === 0) {
       if (!running) {
@@ -208,7 +208,7 @@ export const ViewGallery = () => {
     setLoading(true);
 
     const formDataToSend = new FormData();
-    formDataToSend.append("id", id);
+    formDataToSend.append("slug", id);
     let res = await getCollection(formDataToSend);
     if (res.success) {
       setCollectionRefresh(res.data.dropbox_refresh);
@@ -218,7 +218,6 @@ export const ViewGallery = () => {
       setBanner(res.data.banner);
       setCollection(res.data);
     } else {
-      // toast.error("Failed to get collection...");
       console.log(res.data);
     }
     setRunning(false);
@@ -240,11 +239,21 @@ export const ViewGallery = () => {
           },
         }
       );
-      setFolderPath(sharedData.data.path_lower);
+      if (sharedData.data.path_lower == undefined) {
+        setFolderPath("");
+      } else {
+        setFolderPath(sharedData.data.path_lower);
+      }
+      let thePath = "";
 
+      if (sharedData.data.path_lower == undefined) {
+        thePath = ""
+      } else {
+        thePath = sharedData.data.path_lower
+      }
       const listResponse = await axios.post(
         "https://api.dropboxapi.com/2/files/list_folder",
-        { path: sharedData.data.path_lower },
+        { path: thePath },
         {
           headers: {
             Authorization: `Bearer ${tokens.access_token}`,
@@ -265,6 +274,7 @@ export const ViewGallery = () => {
   };
 
   const fetchImages = async (data) => {
+    setLoading(true)
     try {
       const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
@@ -280,6 +290,7 @@ export const ViewGallery = () => {
       setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
 
       page.current++;
+      
 
       if (endIndex < totalFiles) {
         fetchImages(data);
@@ -433,7 +444,7 @@ export const ViewGallery = () => {
       const sharedLinkData = await sharedLinkResponse.json();
       const folderPath = sharedLinkData.path_lower;
 
-      const usertokens = await getRefreshToken(dropboxRefresh);
+      const usertokens = await getRefreshToken(authData.user.dropbox_refresh);
 
       const copyResponse = await fetch(
         `https://api.dropboxapi.com/2/files/copy_v2`,
@@ -496,6 +507,10 @@ export const ViewGallery = () => {
 
 
   const handleAllDownload = async () => {
+    if (authData.user === null) {
+      toast.error("Please login first.");
+      return;
+    }
     const tokens = await getRefreshToken(collectionRefresh);
     setDropboxAccess(tokens.access_token);
     const zip = new JSZip();
@@ -567,7 +582,7 @@ export const ViewGallery = () => {
       const sharedLinkData = await sharedLinkResponse.json();
       const folderPath = sharedLinkData.path_lower;
 
-      const usertokens = await getRefreshToken(dropboxRefresh);
+      const usertokens = await getRefreshToken(authData.user.dropbox_refresh);
 
       const copyResponse = await fetch(
         `https://api.dropboxapi.com/2/files/copy_v2`,
@@ -796,6 +811,7 @@ export const ViewGallery = () => {
                 <h1 className="text-class-h1">{collection.name}</h1>
               </div>
               <div>
+                {authData.user !== null &&
                 <span
                   className="text-right feather icon-download black"
                   title="Download"
@@ -803,6 +819,7 @@ export const ViewGallery = () => {
                     setDownloadGalleryModal(true);
                   }}
                 ></span>
+              }
               </div>
             </div>
             <section id="video-player" style={{ position: "relative" }}>
@@ -852,6 +869,8 @@ export const ViewGallery = () => {
                                 <img className="equal-image" src={image.url} alt="" />
                                 <div className="overlay overlay-to-links">
                                   <p className="icon-links" style={{ backgroundColor: "black" }}>
+                                    {authData.user !== null &&
+                                    <>
                                     <a>
                                       <span
                                         className="feather icon-download "
@@ -869,6 +888,8 @@ export const ViewGallery = () => {
                                         handleShareImage(image);
                                       }}></span>
                                     </a>
+                                    </>
+                                    }
                                   </p>
                                 </div>
                               </div>

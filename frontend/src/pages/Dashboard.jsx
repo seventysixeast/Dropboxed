@@ -22,10 +22,10 @@ const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 
 export const Dashboard = () => {
   const { authData } = useAuth();
-  console.log(authData);
   const user = authData.user;
   const subdomainId = user.subdomain_id;
   const userId = user.id;
+  const roleId = user.roleId;
   const accessToken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
@@ -104,7 +104,6 @@ export const Dashboard = () => {
       console.log(error);
     }
   };
-  console.log(subdomainDropbox);
 
   const getBookingTitles = async (client) => {
     setLoading(true);
@@ -249,10 +248,12 @@ export const Dashboard = () => {
   };
 
   const getAllCollectionsData = async () => {
+    const formData = new FormData();
+    formData.append("subdomainId", subdomainId);
+    formData.append("roleId", user.role_id);
+    formData.append("userId", user.id);
     try {
-      let allCollections = await getAllCollections({
-        subdomainId: subdomainId,
-      });
+      let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
       } else {
@@ -377,7 +378,7 @@ export const Dashboard = () => {
                             {subdomainDropbox == null && (
                               <a
                                 href={`${dropboxAuthUrl}`}
-                                className="btn btn-primary mr-1"
+                                className="btn btn-primary"
                                 style={{ paddingTop: "10px" }}
                               >
                                 Link Your Dropbox
@@ -391,7 +392,6 @@ export const Dashboard = () => {
                             className="btn btn-outline-primary"
                             data-toggle="modal"
                             data-target="#bootstrap"
-                            // title conditional
                             title={
                               subdomainDropbox == null
                                 ? "Add Collection"
@@ -414,11 +414,12 @@ export const Dashboard = () => {
                 <div className="grid-hover row">
                   {collections &&
                     collections.map((item) => (
-                      <div className="col-md-3 mb-3" key={item.id}>
+                      <div className="col-md-3 mb-3 mr-3" key={item.id}>
                         <a
-                          href={`${url2}view-gallery/${item.id}`}
+                          href={`${url2}view-gallery/${item.slug}`}
                           className="gallery-link"
-                        >
+                          target="_blank" rel="noopener noreferrer"
+                          >
                           <figure className="effect-zoe">
                             <img
                               className="gallery-thumbnail"
@@ -434,10 +435,9 @@ export const Dashboard = () => {
                               </h2>
                               <p className="icon-links">
                                 <a
-                                  onClick={() =>
-                                    navigate(`/view-gallery/${item.id}`)
-                                  }
-                                  title="View Gallery"
+                                  href={`${url2}view-gallery/${item.slug}`}
+                                  className="gallery-link"
+                                  target="_blank" rel="noopener noreferrer"
                                 >
                                   <i className="feather icon-eye"></i>
                                 </a>
