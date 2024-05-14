@@ -410,13 +410,14 @@ export const Dashboard = () => {
                   </ul>
                 </div>
               </div>
-              <div className="">
+              <div className="card-deck-wrapper">
                 <div className="grid-hover row">
                   {collections &&
                     collections.map((item) => (
                       <div
-                        className="col-md-3 mb-3 mr-5"
+                        className="col-md-3 mb-1"
                         key={item.id}
+                        style={{ maxWidth: "100%" }}
                       >
                         <a
                           href={`${url2}view-gallery/${item.slug}`}

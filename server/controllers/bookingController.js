@@ -158,7 +158,7 @@ async function addevent(data) {
       const bookingDateTo = dateTo.clone().utc();
 
       if (existingEvent && existingEvent.status !== "cancelled") {
-        const resp = await updateEvent(
+        const resp = updateEvent(
           calendar,
           calendarId,
           id,
@@ -167,7 +167,7 @@ async function addevent(data) {
           bookingDateTo
         );
       } else {
-        const resp = await insertEvent(
+        const resp = insertEvent(
           calendar,
           calendarId,
           id,
@@ -338,6 +338,7 @@ const createBooking = async (req, res) => {
       message: req.body.id
         ? "Booking updated successfully"
         : "Booking created successfully",
+      booking: booking
     });
   } catch (error) {
     console.error("Failed to add booking:", error.message);
@@ -452,43 +453,54 @@ const getBooking = async (req, res) => {
 
 const deleteBooking = async (req, res) => {
   try {
-    const bookingId = req.body.id;
+    const bookingId = parseInt(req.body.id);
     let bookingData = await Booking.findOne({ where: { id: bookingId } });
 
+    // Find photographer admin with calendar_sub = 1
     let photographerAdmin = await Users.findOne({
       attributes: ["calendar_sub"],
       where: { id: bookingData.subdomain_id, calendar_sub: 1 },
     });
 
+    // Find photographers with calendar_sub = 1
     let photographers = [];
     if (bookingData.photographer_id) {
       let photographerIds = bookingData.photographer_id
         .split(",")
         .map((id) => id.trim());
       photographers = await Users.findAll({
-        attributes: ["calendar_sub"],
+        attributes: ["id", "calendar_sub"],
         where: {
           id: photographerIds,
           calendar_sub: 1,
         },
       });
     }
-
+    // find client. client_id only has one client
     let clients = [];
-    if (bookingData.client_id) {
-      let clientId = bookingData.client_id.split(",").map((id) => id.trim());
-      clients = await Users.findAll({
+    if (bookingData.user_id) {
+      clients = await Users.findOne({
         attributes: ["calendar_sub"],
-        where: {
-          id: clientId,
-          calendar_sub: 1,
-        },
+        where: { id: bookingData.user_id, calendar_sub: 1 },
       });
     }
 
-    let userIds = [bookingData.subdomain_id];
-    photographers.forEach((photographer) => userIds.push(photographer.id));
-    clients.forEach((client) => userIds.push(client.id));
+    let userIds = [];
+
+    if (photographerAdmin) {
+      userIds.push(bookingData.subdomain_id);
+      console.log(bookingData.subdomain_id);
+    }
+    if (clients) {
+      userIds.push(bookingData.user_id);
+      console.log(bookingData.user_id);
+    }
+    if (photographers) {
+      photographers.forEach((photographer) => userIds.push(photographer.id));
+    }
+
+    console.log(userIds);
+
     const theUsers = await Users.findAll({ where: { id: userIds } });
 
     const authResponses = await Promise.all(
@@ -519,7 +531,7 @@ const deleteBooking = async (req, res) => {
       if (!existingEvent) {
         continue;
       }
-      const resp = await calendar.events.delete({
+      const resp = calendar.events.delete({
         calendarId: calendarId,
         eventId: eventId,
       });
@@ -566,7 +578,6 @@ const getAllBookingTitles = async (req, res) => {
     const bookingData = await Booking.findAll({
       where: { user_id: req.body.clientId },
     });
-    // filter the results so that on results with booking_status 1 are sent back
 
     const filteredResults = bookingData.filter((result) => {
       return result.booking_status == 1;
