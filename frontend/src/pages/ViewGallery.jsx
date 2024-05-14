@@ -26,6 +26,7 @@ export const ViewGallery = () => {
   const [showDownloadGalleryModal, setDownloadGalleryModal] = useState(false);
   const [showDownloadImageModal, setDownloadImageModal] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
+  const [loader, setLoader] = useState(false);
   const [downloadOptions, setDownloadOptions] = useState({
     size: "original",
     device: "device",
@@ -34,7 +35,7 @@ export const ViewGallery = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const page = useRef(1);
-  const fetchSize = 16;
+  const fetchSize = 12;
   const fileList = useRef([]);
   const { id } = useParams();
 
@@ -260,14 +261,14 @@ export const ViewGallery = () => {
       setEntriesList(entries);
       const fileEntries = entries.filter((entry) => entry[".tag"] === "file");
       fileList.current = fileEntries;
-      fetchImages(data);
+      fetchImages(data, tokens);
     } catch (error) {
       console.error("Error fetching file list:", error);
     }
   };
 
-  const fetchImages = async (data) => {
-    setLoading(true);
+  const fetchImages = async (data, tokens) => {
+    setLoader(true);
     try {
       const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
@@ -279,15 +280,16 @@ export const ViewGallery = () => {
       }
 
       const batchEntries = fileList.current.slice(startIndex, endIndex);
-      const batchUrls = await fetchBatchThumbnails(batchEntries, data);
+      const batchUrls = await fetchBatchThumbnails(batchEntries, data, tokens);
       setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
 
       page.current++;
 
       if (endIndex < totalFiles) {
-        fetchImages(data);
+        fetchImages(data, tokens);
       } else {
         setHasMore(false);
+        setLoader(false);
       }
 
       setLoading(false);
@@ -297,9 +299,9 @@ export const ViewGallery = () => {
     }
   };
 
-  const fetchBatchThumbnails = async (entries, data) => {
-    const refreshToken = collectionRefresh !== "" ? collectionRefresh : data;
-    const tokens = await getRefreshToken(refreshToken);
+  const fetchBatchThumbnails = async (entries, data, tokens) => {
+    // const refreshToken = collectionRefresh !== "" ? collectionRefresh : data;
+    // const tokens = await getRefreshToken(refreshToken);
     const urls = [];
     try {
       const response = await axios.post(
@@ -871,7 +873,9 @@ export const ViewGallery = () => {
                                               setSelectedImageUrl(
                                                 image.path_display
                                               );
-                                              if (collection.lock_gallery == false) {
+                                              if (
+                                                collection.lock_gallery == false
+                                              ) {
                                                 setDownloadImageModal(true);
                                               } else {
                                                 toast.error(
@@ -879,7 +883,6 @@ export const ViewGallery = () => {
                                                 );
                                               }
                                             }}
-                                            
                                           ></span>
                                         </a>
                                         <a>
@@ -901,7 +904,29 @@ export const ViewGallery = () => {
                           )}
                         </Item>
                       ))}
-                      {loading && <div>Loading...</div>}
+                      {loader && (
+                        <div
+                          style={{
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div
+                            style={{
+                              border: "8px solid #f3f3f3",
+                              borderTop: "8px solid #3498db",
+                              borderRadius: "50%",
+                              width: "50px",
+                              height: "50px",
+                              animation: "spin 2s linear infinite",
+                            }}
+                          ></div>
+                        </div>
+                      )}
                     </div>
                   </CustomGallery>
                 </div>
