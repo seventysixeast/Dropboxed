@@ -28,6 +28,18 @@ const getAllCollections = async (data) => {
   }
 };
 
+const updateGalleryLock = async (data) => {
+  try {
+    const response = await API.post('/collection/updateGalleryLock', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to update Gallery');
+    }
+    return response.data;
+  } catch (error) {
+    return error.response.data.error;
+  }
+};
+
 const getCollection = async (data) => {
   try {
     const response = await API.post('/collection/getCollection', data, {
@@ -76,4 +88,4 @@ const deleteCollection = async (data) => {
   }
 };
 
-export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, deleteCollection };
+export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, updateGalleryLock, deleteCollection };

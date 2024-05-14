@@ -37,7 +37,6 @@ const login = async (userData) => {
             throw new Error("Login failed");
         }
         const data = response.data;
-
         return data;
     } catch (error) {
         throw new Error(error.message);

@@ -88,6 +88,7 @@ export const BookingListComponent = () => {
     provider: "",
     customer: "",
   });
+
   const currentUrl = window.location.href;
   const url = new URL(currentUrl);
   const authUrl = `${REACT_APP_BASE_URL}/google?userId=${encodeURIComponent(
@@ -203,15 +204,6 @@ export const BookingListComponent = () => {
     }
   }, [subdomainId]);
 
-  // const handleDateTestChange = () => {
-  //   const utcDate = moment.utc(bookingData.prefferedDate).toString()
-  //   console.log(utcDate);
-  // };
-
-  // useEffect(() => {
-  //   handleDateTestChange();
-  // }, [bookingData]);
-
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {
@@ -296,6 +288,7 @@ export const BookingListComponent = () => {
     const datatosend = {
       subdomainId: subdomainId,
       roleId: roleId,
+      userId: userId,
     };
     try {
       let allBookingData = await getAllBookings(datatosend);
@@ -386,7 +379,6 @@ export const BookingListComponent = () => {
     }
 
     setNotifyCheckbox(data.booking_status);
-    setNotifyDisabled(data.booking_status);
     const selectedServices = array
       .map((id) => packages.find((pack) => pack.id === id))
       .filter(Boolean);
@@ -486,8 +478,30 @@ export const BookingListComponent = () => {
       );
       if (res.success) {
         toast.success(res.message);
+
+        setBookingAddress({ label: "", value: {} });
+        setBookingsData((prevData) =>
+          prevData.filter((booking) => booking.id !== bookingIdToDelete)
+        );
+        
+
+        setEvents((prevEvents) =>
+          prevEvents.filter((event) => event.id !== bookingIdToDelete)
+        );
         setShowDeleteModal(false);
-        getAllBookingsData();
+        setBookingIdToDelete(null);
+        setBookingData({
+          title: "",
+          package: 1,
+          services: "",
+          prefferedDate: new Date(),
+          fromTime: "",
+          toTime: "60",
+          client: "",
+          comment: "",
+          provider: "",
+          customer: "",
+        });
       } else {
         toast.error(res.message);
       }

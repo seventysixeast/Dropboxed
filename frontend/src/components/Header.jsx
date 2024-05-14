@@ -57,7 +57,6 @@ const Header = () => {
                   alt="stack admin logo"
                   src={logoLight}
                 />
-                {/* <h2 className="brand-text">Dropboxed</h2> */}
               </a>
             </li>
 

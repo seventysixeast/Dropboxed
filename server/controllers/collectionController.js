@@ -12,10 +12,18 @@ const addGallery = async (req, res) => {
     where: { id: req.body.subdomainId },
   });
 
-  let slug = createSlug(req.body.gallery_title);
-
   try {
     let imageName = req.files && req.files.banner.name;
+    let baseSlug = createSlug(req.body.gallery_title);
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Check if the slug already exists in the Collection
+    while (await Collection.findOne({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     let collectionData = {
       client_id: req.body.client,
       client_address: req.body.booking_title,
@@ -29,6 +37,7 @@ const addGallery = async (req, res) => {
       notify_client: req.body.notify_client,
       subdomain_id: req.body.subdomainId,
       dropbox_refresh: user.dropbox_refresh,
+      slug: slug, // Assign the unique slug
     };
 
     if (req.files && Object.keys(req.files).length) {
@@ -50,11 +59,6 @@ const addGallery = async (req, res) => {
       }
       await collection.update(collectionData);
     } else {
-      const existingCollection = await Collection.findOne({ where: { slug } });
-      if (existingCollection) {
-        slug += '-' + Math.floor(Math.random() * 100);
-        collectionData.slug = slug;
-      }
       collection = await Collection.create(collectionData);
     }
 
@@ -68,6 +72,7 @@ const addGallery = async (req, res) => {
     res.status(500).json({ error: "Failed to add/update gallery" });
   }
 };
+
 
 const getAllCollections = async (req, res) => {
 
@@ -137,10 +142,17 @@ const getAllCollections = async (req, res) => {
     } else if (req.body.roleId == 2) {
       let collectionsData = await Collection.findAll({
         where: {
-          subdomain_id: req.body.subdomainId
+          subdomain_id: req.body.subdomainId,
         },
         order: [['created', 'DESC']]
       });
+      
+      collectionsData = collectionsData.filter(collection => {
+        const photographerIds = collection.photographer_ids.split(',').map(id => id.trim());
+        return photographerIds.includes(req.body.userId);
+      });
+
+      console.log(collectionsData.length);
       let clientIds = collectionsData.map(collection => collection.client_id);
       let idsAsIntegers = clientIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
       let clientData = await User.findAll({
@@ -262,6 +274,23 @@ const getAllCollections = async (req, res) => {
   }
 };
 
+const updateGalleryLock = async (req, res) => {
+  try {
+    const collectionId = req.body.id;
+    const collection = await Collection.findByPk(collectionId);
+    if (collection) {
+      collection.lock_gallery = req.body.lock_gallery;
+      await collection.save();
+      const updatedCollection = await Collection.findByPk(collectionId);
+      res.status(200).json({ success: true, data: updatedCollection, message: "Collection updated successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "Collection not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update Collection" });
+  }
+}
+
 const getCollection = async (req, res) => {
   try {
     let collectionData = await Collection.findOne({
@@ -304,4 +333,4 @@ const deleteCollection = async (req, res) => {
   }
 };
 
-module.exports = { addGallery, getAllCollections, getCollection, getDropboxRefresh, deleteCollection };
+module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection };
