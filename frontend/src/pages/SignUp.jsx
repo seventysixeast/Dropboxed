@@ -54,11 +54,11 @@ const SignUp = () => {
       const response = await signup(updatedUserData);
       if (response.success) {
         toast.success(response.message);
+        // Redirect to subdomain
+        window.location.href = `http://${subdomainValue}.${window.location.host}/login`;
       } else {
         toast.error(response.message);
       }
-      // Redirect to subdomain
-      window.location.href = `http://${subdomainValue}.${window.location.host}/login`;
       //window.location.href = `http://${window.location.host}/login`;
     } catch (error) {
       if (error.name === "ValidationError") {
