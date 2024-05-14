@@ -35,7 +35,7 @@ export const ViewGallery = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const page = useRef(1);
-  const fetchSize = 16;
+  const fetchSize = 12;
   const fileList = useRef([]);
   const { id } = useParams();
 
@@ -215,6 +215,7 @@ export const ViewGallery = () => {
       console.log(res.data);
     }
     setRunning(false);
+    setLoading(false);
     setShowAnimation(true);
   };
 
@@ -260,14 +261,13 @@ export const ViewGallery = () => {
       setEntriesList(entries);
       const fileEntries = entries.filter((entry) => entry[".tag"] === "file");
       fileList.current = fileEntries;
-      fetchImages(data);
+      fetchImages(data, tokens);
     } catch (error) {
       console.error("Error fetching file list:", error);
     }
   };
 
-  const fetchImages = async (data) => {
-    setLoading(true);
+  const fetchImages = async (data, tokens) => {
     setLoader(true);
     try {
       const totalFiles = fileList.current.length;
@@ -280,17 +280,16 @@ export const ViewGallery = () => {
       }
 
       const batchEntries = fileList.current.slice(startIndex, endIndex);
-      const batchUrls = await fetchBatchThumbnails(batchEntries, data);
+      const batchUrls = await fetchBatchThumbnails(batchEntries, data, tokens);
       setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
 
       page.current++;
 
       if (endIndex < totalFiles) {
-        fetchImages(data);
+        fetchImages(data, tokens);
       } else {
         setHasMore(false);
-    setLoader(false);
-
+        setLoader(false);
       }
 
       setLoading(false);
@@ -300,9 +299,9 @@ export const ViewGallery = () => {
     }
   };
 
-  const fetchBatchThumbnails = async (entries, data) => {
-    const refreshToken = collectionRefresh !== "" ? collectionRefresh : data;
-    const tokens = await getRefreshToken(refreshToken);
+  const fetchBatchThumbnails = async (entries, data, tokens) => {
+    // const refreshToken = collectionRefresh !== "" ? collectionRefresh : data;
+    // const tokens = await getRefreshToken(refreshToken);
     const urls = [];
     try {
       const response = await axios.post(
