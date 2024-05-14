@@ -178,7 +178,7 @@ export const ViewGallery = () => {
 
   useEffect(() => {
     console.log("Inside useEffect");
-  
+
     if (fileList.current && fileList.current.length === 0) {
       console.log("File list is empty");
       if (!running) {
@@ -186,7 +186,7 @@ export const ViewGallery = () => {
         fetchCollection();
       }
     }
-  
+
     setTimeout(() => {
       document.body.classList.remove(
         "vertical-layout",
@@ -196,14 +196,13 @@ export const ViewGallery = () => {
         "menu-expanded"
       );
     }, 0);
-  
+
     if (tasks.length === 0) {
       console.log("Getting tasks and clients");
       getTasks();
       getClients();
     }
   }, []);
-  
 
   const fetchCollection = async () => {
     setRunning(true);
@@ -289,8 +288,9 @@ export const ViewGallery = () => {
 
       const batchEntries = fileList.current.slice(startIndex, endIndex);
       const batchUrls = await fetchBatchThumbnails(batchEntries, data, tokens);
-      setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
-
+      setTimeout(() => {
+        setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
+      }, 1);
       page.current++;
 
       if (endIndex < totalFiles) {
@@ -703,6 +703,8 @@ export const ViewGallery = () => {
       <p>Image Link: <a href=${link} rel="noopener noreferrer" target="_blank">Image Link</a></p>`,
     });
   };
+
+  console.log(imageUrls);
 
   return (
     <>
