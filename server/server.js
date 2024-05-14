@@ -85,8 +85,7 @@ app.get("/*", (req, res, next) => {
     req.url.includes("/assets/") ||
     req.url.includes("/todo/") ||
     req.url.includes("/user/") ||
-    req.url.includes("/invoice/") ||
-    req.url.endsWith(".css") // Exclude CSS files
+    req.url.includes("/invoice/")
 
   )
     return next();

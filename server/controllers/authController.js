@@ -10,6 +10,7 @@ const { OAuth2 } = google.auth;
 const axios = require("axios");
 const BusinessClients = require("../models/BusinessClients");
 const clientController = require("../controllers/clientController");
+const sequelize = require('../config/sequelize');
 
 const oAuth2Client = new OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -151,7 +152,7 @@ exports.signup = async (req, res) => {
     }
 
     const existingDomain = await User.findOne({
-      where: { subdomain: studioName },
+      where: sequelize.where(sequelize.fn('LOWER', sequelize.col('subdomain')), studioName.toLowerCase())
     });
     if (existingDomain) {
       return res
