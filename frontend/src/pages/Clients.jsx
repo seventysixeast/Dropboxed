@@ -5,6 +5,7 @@ import { getAllClients, createClient, getClient, deleteClient, activeInactiveCli
 import { toast } from 'react-toastify';
 import DeleteModal from "../components/DeleteModal";
 import { useAuth } from "../context/authContext";
+import { verifyToken } from "../api/authApis";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const Clients = () => {
@@ -12,6 +13,7 @@ const Clients = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id
+  const accessToken = authData.token;
   const [previewImage, setPreviewImage] = useState(null);
   const [filteredClients, setFilteredClients] = useState([]);
   const [clients, setClients] = useState([]);
@@ -32,6 +34,7 @@ const Clients = () => {
 
   useEffect(() => {
     getAllClientsData();
+    verifyToken(accessToken);
     // getClientData();
   }, [])
 
@@ -50,7 +53,7 @@ const Clients = () => {
         setClients(allClients.data);
         let activeClients = [];
         let inactiveClients = [];
-  
+
         allClients.data.forEach(client => {
           if (client.status === "Active") {
             activeClients.push(client);
@@ -58,7 +61,7 @@ const Clients = () => {
             inactiveClients.push(client);
           }
         });
-  
+
         setActiveClients(activeClients);
         setInactiveClients(inactiveClients);
       } else {
@@ -66,7 +69,7 @@ const Clients = () => {
         setClients(allClients.data);
         let activeClients = [];
         let inactiveClients = [];
-  
+
         allClients.data.forEach(client => {
           if (client.status === "Active") {
             activeClients.push(client);
@@ -74,7 +77,7 @@ const Clients = () => {
             inactiveClients.push(client);
           }
         });
-  
+
         setActiveClients(activeClients);
         setInactiveClients(inactiveClients);
       }

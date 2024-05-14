@@ -1,3 +1,4 @@
+import { redirect } from "react-router-dom";
 import API from "./baseApi";
 
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
@@ -44,17 +45,26 @@ const login = async (userData) => {
 };
 
 const verifyToken = async (token) => {
+    console.log("token", token);
     try {
         const response = await API.post("/auth/verify-token", { token });
         if (response.status !== 200) {
-            throw new Error("Token verification failed");
+            // throw new Error("Token verification failed");
+            const data = response.data;
+            const { accessToken, user } = data;
+            localStorage.removeItem("accessToken", accessToken);
+            localStorage.removeItem("isAuth", true);
+            localStorage.removeItem("user", JSON.stringify(user));
+            redirect("/login");
+        } else {
+            console.log("response222", response.status);
+            const data = response.data;
+            const { accessToken, user } = data;
+            localStorage.setItem("accessToken", accessToken);
+            localStorage.setItem("isAuth", true);
+            localStorage.setItem("user", JSON.stringify(user));
+            return data;
         }
-        const data = response.data;
-        const { accessToken, user } = data;
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("isAuth", true);
-        localStorage.setItem("user", JSON.stringify(user));
-        return data;
     } catch (error) {
         throw new Error(error.message);
     }

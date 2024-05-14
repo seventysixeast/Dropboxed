@@ -7,15 +7,21 @@ import { useAuth } from "../context/authContext";
 import DeleteModal from '../components/DeleteModal';
 import { toast } from "react-toastify";
 import TableInvoice from '../components/TableInvoice';
+import { verifyToken } from "../api/authApis";
 
 const Invoice = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
+  const accessToken = authData.token;
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceId, setInvoiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    verifyToken(accessToken);
+  }, []);
 
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);

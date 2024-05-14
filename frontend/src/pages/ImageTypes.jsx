@@ -8,8 +8,14 @@ import {
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
+import { useAuth } from "../context/authContext";
+import { verifyToken } from "../api/authApis";
 
 const ImageTypes = () => {
+  const { authData } = useAuth();
+  const user = authData.user;
+  const subdomainId = user.subdomain_id;
+  const accessToken = authData.token;
   const [imagesTypes, setImageTypes] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
@@ -23,12 +29,19 @@ const ImageTypes = () => {
 
   useEffect(() => {
     getAllImageTypesData();
+    verifyToken(accessToken);
   }, []);
 
   const getAllImageTypesData = async () => {
     try {
-      let allImageTypesData = await getAllImageTypes();
-      setImageTypes(allImageTypesData.data);
+      const formData = new FormData();
+      formData.append("subdomainId", subdomainId);
+      let allImageTypesData = await getAllImageTypes(formData);
+      if (allImageTypesData && allImageTypesData.success) {
+        setImageTypes(allImageTypesData.data);
+      } else {
+        setImageTypes([]);
+      }
     } catch (error) {
       console.error("Failed to:", error.message);
     }
@@ -75,6 +88,7 @@ const ImageTypes = () => {
       formDataToSend.append("price", formData.price);
       formDataToSend.append("status", formData.status);
       formDataToSend.append("gallery_status", formData.gallery_status);
+      formDataToSend.append("subdomain_id", subdomainId);
 
       let res = await createImageType(formDataToSend);
       toast.success(res.message);
@@ -161,7 +175,6 @@ const ImageTypes = () => {
     ],
     []
   );
-
 
   const data = React.useMemo(() => imagesTypes, [imagesTypes]);
 

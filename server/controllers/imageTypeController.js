@@ -3,9 +3,10 @@ const ImageType = require('../models/ImageTypes');
 const getImageTypes = async (req, res) => {
   try {
     const imagesTypes = await ImageType.findAll({
-      order: [
-        ['id', 'DESC']
-      ]
+      where: {
+        subdomain_id: req.body.subdomainId
+      },
+      order: [["id", "DESC"]]
     });
     res.status(200).json({ success: true, data: imagesTypes });
   } catch (error) {
@@ -15,7 +16,7 @@ const getImageTypes = async (req, res) => {
 
 const createImageType = async (req, res) => {
   try {
-    const { id, type, price, status, gallery_status } = req.body;
+    const { id, type, price, status, gallery_status, subdomain_id } = req.body;
     let imageType;
 
     const imageTypeData = {
@@ -23,6 +24,7 @@ const createImageType = async (req, res) => {
       price,
       status,
       gallery_status,
+      subdomain_id
     };
 
     if (id) {

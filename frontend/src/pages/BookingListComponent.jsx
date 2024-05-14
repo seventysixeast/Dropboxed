@@ -28,6 +28,7 @@ import LoadingOverlay from "../components/Loader";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import moment from "moment";
+import { verifyToken } from "../api/authApis";
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 export const BookingListComponent = () => {
@@ -36,6 +37,7 @@ export const BookingListComponent = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
+  const accessToken = authData.token;
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
@@ -91,6 +93,10 @@ export const BookingListComponent = () => {
   const authUrl = `${REACT_APP_BASE_URL}/google?userId=${encodeURIComponent(
     userId
   )}&url=${encodeURIComponent(url)}`;
+
+  useEffect(() => {
+    verifyToken(accessToken);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -899,12 +905,12 @@ export const BookingListComponent = () => {
             disabled={
               roleId === 3
                 ? new Date(
-                    props.row.original.booking_date +
-                      "T" +
-                      props.row.original.booking_time
-                  ) -
-                    new Date() <
-                  1000 * 60 * 60 * 3
+                  props.row.original.booking_date +
+                  "T" +
+                  props.row.original.booking_time
+                ) -
+                new Date() <
+                1000 * 60 * 60 * 3
                 : false
             }
           >
@@ -924,12 +930,12 @@ export const BookingListComponent = () => {
             disabled={
               roleId === 3
                 ? new Date(
-                    props.row.original.booking_date +
-                      "T" +
-                      props.row.original.booking_time
-                  ) -
-                    new Date() <
-                  1000 * 60 * 60 * 3
+                  props.row.original.booking_date +
+                  "T" +
+                  props.row.original.booking_time
+                ) -
+                new Date() <
+                1000 * 60 * 60 * 3
                 : false
             }
           >
@@ -1169,9 +1175,8 @@ export const BookingListComponent = () => {
                         <></>
                       ) : (
                         <a
-                          className={`btn btn-outline-primary mx-1 ${
-                            calendarSub === 1 ? "d-none" : ""
-                          }`}
+                          className={`btn btn-outline-primary mx-1 ${calendarSub === 1 ? "d-none" : ""
+                            }`}
                           disabled={calendarSub === 1}
                           href={`${authUrl}`}
                         >

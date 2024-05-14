@@ -4,13 +4,14 @@ import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import { useNavigate } from "react-router-dom";
+import { verifyToken } from "../api/authApis";
 
 const CardsPackages = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-
+  const accessToken = authData.token;
   const [servicesData, setServicesData] = useState([]);
   const [serviceId, setServiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -18,12 +19,13 @@ const CardsPackages = () => {
 
   useEffect(() => {
     getServices();
+    verifyToken(accessToken);
   }, []);
 
   const getServices = async () => {
     const formData = new FormData();
     if (subdomainId !== '') {
-    formData.append("subdomain_id", subdomainId);
+      formData.append("subdomain_id", subdomainId);
     } else {
       formData.append("subdomain_id", user.id);
     }
@@ -204,8 +206,8 @@ const CardsPackages = () => {
                   <div className="card d-flex flex-column">
                     <div className="card-content flex-grow-1">
                       <div className="card-body text-center package-card">
-                        <h1 className="card-title" style={{fontSize:'1.5rem'}}>{service.package_name}</h1>
-                        <h1 className="card-title" style={{fontSize:'1.5rem'}}>
+                        <h1 className="card-title" style={{ fontSize: '1.5rem' }}>{service.package_name}</h1>
+                        <h1 className="card-title" style={{ fontSize: '1.5rem' }}>
                           ${service.package_price.toFixed(2)}
                         </h1>
                         <ul className="list-unstyled">

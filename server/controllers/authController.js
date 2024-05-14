@@ -453,7 +453,7 @@ exports.verifyToken = async (req, res) => {
     // Handle token verification errors
     console.error("Error verifying token: ", error);
     res
-      .status(200)
+      .status(201)
       .json({ success: false, message: "Token verification failed" });
   }
 };

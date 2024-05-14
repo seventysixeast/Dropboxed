@@ -176,7 +176,6 @@ const PhotographersTeam = () => {
       { Header: "Email", accessor: "email" },
       { Header: "Phone", accessor: "phone" },
       { Header: "Business Name", accessor: "business_name" },
-      { Header: "Subdomain", accessor: "subdomain" },
       {
         Header: "Status",
         accessor: "status",

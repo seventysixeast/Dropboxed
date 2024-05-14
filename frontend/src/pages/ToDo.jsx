@@ -12,6 +12,7 @@ import DeleteModal from "../components/DeleteModal";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
+import { verifyToken } from "../api/authApis";
 
 const ToDo = () => {
   const { authData } = useAuth();
@@ -19,6 +20,7 @@ const ToDo = () => {
   const userId = user.id;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
+  const accessToken = authData.token;
   const [taskId, setTaskId] = useState('')
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState(tasks);
@@ -46,6 +48,11 @@ const ToDo = () => {
   });
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState();
+
+  useEffect(() => {
+    verifyToken(accessToken);
+  }, []);
+
   const getTasks = async () => {
     const formData = new FormData();
     formData.append("subdomain_id", subdomainId);
