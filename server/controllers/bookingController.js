@@ -100,10 +100,18 @@ async function addevent(data) {
       });
     }
 
+    // find user with data.user_id
+    let theUser = await User.findOne({
+      where: {
+        id: data.user_id,
+      },
+    })
+
     let userIds = [data.subdomain_id];
     photographers.forEach((photographer) => userIds.push(photographer.id));
-    userIds.push(parseInt(data.user_id));
-    console.log(userIds);
+    if (theUser.calendar_sub == 1) {
+      userIds.push(parseInt(data.user_id));
+    }
 
     const theUsers = await Users.findAll({ where: { id: userIds } });
 

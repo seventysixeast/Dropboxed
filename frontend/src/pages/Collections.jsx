@@ -335,6 +335,10 @@ const Collections = () => {
     }
   };
 
+  const handleChangeGalleryLockStatus = () => {
+    setIsGalleryLocked(!isGalleryLocked);
+  };
+
   const handleGalleryLockChange = async (data) => {
     try {
       setIsGalleryLocked(!isGalleryLocked);
@@ -457,7 +461,7 @@ const Collections = () => {
                   <div className="form-group d-flex">
                     {user.role_id == 5 && (
                       <>
-                        {subdomainDropbox == null && (
+                        {user.dropbox_refresh == null && (
                           <a
                             href={`${dropboxAuthUrl}`}
                             className="btn btn-primary mr-1"
@@ -510,7 +514,7 @@ const Collections = () => {
         loading={loading}
         handleInputChange={handleInputChange}
         handleBannerChange={handleBannerChange}
-        handleGalleryLockChange={handleGalleryLockChange}
+        handleGalleryLockChange={handleChangeGalleryLockStatus}
         handleNotifyChange={handleNotifyChange}
         handleSubmit={handleSubmit}
         onClose={resetFormData}
