@@ -21,6 +21,7 @@ exports.login = async (req, res) => {
   const { userName, password, subdomain } = req.body;
   let subdomain_id = "";
   let user_subdmain = "";
+
   try {
     const user = await User.findOne({
       where: {
@@ -87,27 +88,53 @@ exports.login = async (req, res) => {
       user_subdmain = businessOwner.subdomain;
     }
 
-    // Generate JWT token
     const accessToken = generateAccessToken(user.id);
 
-    // Return user information along with token
-    return res.status(200).json({
-      success: true,
-      accessToken,
-      user: {
-        id: user.id,
-        userName: user.name,
-        email: user.email,
-        profilePhoto: user.profile_photo,
-        subdomain: user_subdmain,
-        subdomain_id: subdomain_id,
-        calendarSub: user.calendar_sub,
-        role_id: user.role_id,
-        dropbox_refresh: user.dropbox_refresh,
-        dropbox_access: user.dropbox_access,
-      },
-      message: "Login successfull",
-    });
+    // if user.role_id = 2 then find the subdomain with subdomain_id and the get the dropbox_refresh
+    if (user.role_id === 2) {
+      const businessOwner = await User.findByPk(subdomain_id);
+      let dropboxRefresh = businessOwner.dropbox_refresh
+      let dropboxAccess = businessOwner.dropbox_access
+      console.log('businessOwner======>>', dropboxRefresh, dropboxAccess);
+
+      return res.status(200).json({
+        success: true,
+        accessToken,
+        user: {
+          id: user.id,
+          userName: user.name,
+          email: user.email,
+          profilePhoto: user.profile_photo,
+          subdomain: user_subdmain,
+          subdomain_id: subdomain_id,
+          calendarSub: user.calendar_sub,
+          role_id: user.role_id,
+          dropbox_refresh: dropboxRefresh,
+          dropbox_access: dropboxAccess,
+        },
+        message: "Login successfull",
+      });
+    } else {
+
+      // Return user information along with token
+      return res.status(200).json({
+        success: true,
+        accessToken,
+        user: {
+          id: user.id,
+          userName: user.name,
+          email: user.email,
+          profilePhoto: user.profile_photo,
+          subdomain: user_subdmain,
+          subdomain_id: subdomain_id,
+          calendarSub: user.calendar_sub,
+          role_id: user.role_id,
+          dropbox_refresh: user.dropbox_refresh,
+          dropbox_access: user.dropbox_access,
+        },
+        message: "Login successfull",
+      });
+    }
   } catch (error) {
     console.error("Error logging in: ", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -417,7 +444,7 @@ exports.verifyToken = async (req, res) => {
     // Check user's role
     if (user.role_id === 5) {
       subdomain_id = user.id; // Set subdomain_id to the user's id if role is 5 (business owner)
-    } else if (user.role_id === 3 || user.role_id === 2) {
+    } else if (user.role_id === 3) {
       // Find the business owner associated with the client
       const businessClient = await BusinessClients.findOne({
         where: { client_id: user.id },
@@ -429,9 +456,21 @@ exports.verifyToken = async (req, res) => {
           user.subdomain = businessOwner.subdomain;
         }
       }
+    } else if (user.role_id === 2) {
+      const businessClient = await BusinessClients.findOne({
+        where: { client_id: user.id },
+      });
+      if (businessClient) {
+        const businessOwner = await User.findByPk(businessClient.business_id);
+        if (businessOwner && businessOwner.role_id === 5) {
+          subdomain_id = businessOwner.id;
+          user.subdomain = businessOwner.subdomain;
+          user.dropbox_refresh = businessOwner.dropbox_refresh;
+          user.dropbox_access = businessOwner.dropbox_access;
+        }
+      }
     }
 
-    // Return user information along with token
     res.status(200).json({
       accessToken: token,
       user: {
