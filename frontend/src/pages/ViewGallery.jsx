@@ -177,24 +177,33 @@ export const ViewGallery = () => {
   };
 
   useEffect(() => {
+    console.log("Inside useEffect");
+  
     if (fileList.current && fileList.current.length === 0) {
+      console.log("File list is empty");
       if (!running) {
+        console.log("Fetching collection");
         fetchCollection();
       }
     }
-
-    document.body.classList.remove(
-      "vertical-layout",
-      "vertical-menu-modern",
-      "2-columns",
-      "fixed-navbar",
-      "menu-expanded"
-    );
+  
+    setTimeout(() => {
+      document.body.classList.remove(
+        "vertical-layout",
+        "vertical-menu-modern",
+        "2-columns",
+        "fixed-navbar",
+        "menu-expanded"
+      );
+    }, 0);
+  
     if (tasks.length === 0) {
+      console.log("Getting tasks and clients");
       getTasks();
       getClients();
     }
   }, []);
+  
 
   const fetchCollection = async () => {
     setRunning(true);
