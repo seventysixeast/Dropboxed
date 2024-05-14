@@ -139,7 +139,6 @@ const Collections = () => {
     }
   };
 
-
   const handleNotifyChange = () => {
     setIsNotifyChecked(!isNotifyChecked);
   };
@@ -332,17 +331,20 @@ const Collections = () => {
 
   const handleGalleryLockChange = async (data) => {
     try {
+      setIsGalleryLocked(!isGalleryLocked);
       const formDataToSend = new FormData();
       formDataToSend.append("id", data.id);
-      formDataToSend.append("lock_gallery", !data.lock_gallery );
+      formDataToSend.append("lock_gallery", !data.lock_gallery);
       let res = await updateGalleryLock(formDataToSend);
       if (res.success) {
         toast.success(res.message);
-        let updatedCollections = collections.map((collection) =>
-          collection.id === data.id ? res.data : collection
-        );
+        const updatedCollections = collections.map((collection) => {
+          if (collection.id === data.id) {
+            return { ...collection, lock_gallery: !data.lock_gallery };
+          }
+          return collection;
+        });
         setCollections(updatedCollections);
-
       } else {
         toast.error(res.message);
       }
@@ -350,7 +352,6 @@ const Collections = () => {
       toast.error(error);
     }
   };
-  
 
   const columns = React.useMemo(
     () => [
@@ -375,7 +376,7 @@ const Collections = () => {
         Cell: ({ row }) => (
           <Switch
             checked={row.original.lock_gallery}
-            onChange={()=> handleGalleryLockChange(row.original)}
+            onChange={() => handleGalleryLockChange(row.original)}
             inputProps={{ "aria-label": "controlled" }}
           />
         ),

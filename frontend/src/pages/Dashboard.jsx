@@ -375,7 +375,7 @@ export const Dashboard = () => {
                       <div className="form-group d-flex">
                         {user.role_id == 5 && (
                           <>
-                            {subdomainDropbox == null && (
+                            {user.dropbox_refresh == null && (
                               <a
                                 href={`${dropboxAuthUrl}`}
                                 className="btn btn-primary"
@@ -393,11 +393,11 @@ export const Dashboard = () => {
                             data-toggle="modal"
                             data-target="#bootstrap"
                             title={
-                              subdomainDropbox == null
+                              user.dropbox_refresh == null
                                 ? "Add Collection"
                                 : "Dropbox Not Linked"
                             }
-                            disabled={subdomainDropbox == null}
+                            disabled={user.dropbox_refresh == null}
                             onClick={() => {
                               setShowAddGalleryModal(true);
                             }}
@@ -410,13 +410,14 @@ export const Dashboard = () => {
                   </ul>
                 </div>
               </div>
-              <div className="">
+              <div className="card-deck-wrapper">
                 <div className="grid-hover row">
                   {collections &&
                     collections.map((item) => (
                       <div
-                        className="col-md-3 mb-3 mr-5"
+                        className="col-md-3 mb-1"
                         key={item.id}
+                        style={{ maxWidth: "100%" }}
                       >
                         <a
                           href={`${url2}view-gallery/${item.slug}`}
