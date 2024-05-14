@@ -85,7 +85,8 @@ app.get("/*", (req, res, next) => {
     req.url.includes("/assets/") ||
     req.url.includes("/todo/") ||
     req.url.includes("/user/")||
-    req.url.includes("/invoice/")
+    req.url.includes("/invoice/")||
+    req.url.includes("/view-gallery/")
 
   )
     return next();
