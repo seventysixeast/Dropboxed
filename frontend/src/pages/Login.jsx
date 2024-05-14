@@ -185,7 +185,7 @@ const Login = () => {
   
 
   return (
-    <div className="bg-full-screen-image" style={{ height: "120vh" }}>
+    <div className="bg-full-screen-image">
       {/* Loader overlay */}
     {loading && (
       <div className="loader-overlay">

@@ -40,13 +40,10 @@
 
 .bg-full-screen-image {
   background: url(../../app-assets/images/backgrounds/bg-2.jpg) no-repeat center center fixed;
-  /* Full height */
-  height: 100%;
-
-  /* Center and scale the image nicely */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  height: 150vh;
 }
 
 .card-body {
@@ -218,8 +215,10 @@ span.feather {
 }
 
 .loader {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #3498db; /* Blue */
+  border: 8px solid #f3f3f3;
+  /* Light grey */
+  border-top: 8px solid #3498db;
+  /* Blue */
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -231,6 +230,16 @@ span.feather {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+table.dataTable thead th,
+table.dataTable thead td {
+  padding: 10px 10px !important;
 }
