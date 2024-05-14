@@ -414,12 +414,17 @@ export const Dashboard = () => {
                 <div className="grid-hover row">
                   {collections &&
                     collections.map((item) => (
-                      <div className="col-md-3 mb-3 mr-3" key={item.id}>
+                      <div
+                        className="col-md-3 mb-3"
+                        style={{ marginRight: "80px" }}
+                        key={item.id}
+                      >
                         <a
                           href={`${url2}view-gallery/${item.slug}`}
                           className="gallery-link"
-                          target="_blank" rel="noopener noreferrer"
-                          >
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <figure className="effect-zoe">
                             <img
                               className="gallery-thumbnail"
@@ -437,7 +442,8 @@ export const Dashboard = () => {
                                 <a
                                   href={`${url2}view-gallery/${item.slug}`}
                                   className="gallery-link"
-                                  target="_blank" rel="noopener noreferrer"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                 >
                                   <i className="feather icon-eye"></i>
                                 </a>

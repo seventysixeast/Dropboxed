@@ -76,7 +76,6 @@ export const ViewGallery = () => {
 
   const [folderPath, setFolderPath] = useState("");
   const [entriesList, setEntriesList] = useState();
-  console.log(authData);
   const getTasks = async () => {
     if (authData.user === null) return;
     const formData = new FormData();

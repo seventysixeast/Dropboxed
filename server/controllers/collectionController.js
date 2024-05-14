@@ -273,7 +273,6 @@ const updateGalleryLock = async (req, res) => {
     if (collection) {
       collection.lock_gallery = req.body.lock_gallery;
       await collection.save();
-      // return updated collection
       const updatedCollection = await Collection.findByPk(collectionId);
       res.status(200).json({ success: true, data: updatedCollection, message: "Collection updated successfully" });
     } else {

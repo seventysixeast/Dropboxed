@@ -56,8 +56,6 @@ const Collections = () => {
     notify_client: "",
   });
 
-  console.log(subdomainDropbox);
-
   useEffect(() => {
     getClients();
     getAllCollectionsData();
