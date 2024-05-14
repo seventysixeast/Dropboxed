@@ -96,20 +96,18 @@ const createPhotographer = async (req, res) => {
   }
 };
 
-// Function to send password to user's email
 function sendPasswordByEmail(email, password) {
-  console.log("email", email);
-  console.log("password", password);
   let transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
     auth: {
-      user: 'your_email@gmail.com',
-      pass: 'your_password'
+      user: process.env.SMTP_USERNAME,
+      pass: process.env.SMTP_PASSWORD
     }
   });
 
   let mailOptions = {
-    from: 'your_email@gmail.com',
+    from: process.env.SMTP_EMAIL_FROM,
     to: email,
     subject: 'Your New Password',
     text: `Your new password is: ${password}. Please change it after logging in.`
