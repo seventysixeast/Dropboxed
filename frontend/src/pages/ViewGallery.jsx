@@ -183,7 +183,6 @@ export const ViewGallery = () => {
   };
 
   useEffect(() => {
-
     if (fileList.current && fileList.current.length === 0) {
       if (!running) {
         fetchCollection();
@@ -811,9 +810,12 @@ export const ViewGallery = () => {
                     className="text-right feather icon-download black"
                     title="Download"
                     onClick={() => {
-                      if (collection.lock_gallery == false) {
+                      if (authData.user.role_id !== 3) {
                         setDownloadGalleryModal(true);
-                      } else {
+                      } else if (
+                        (authData.user.role_id =
+                          3 && collection.lock_gallery == true)
+                      ) {
                         toast.error("Gallery is locked! Please contact admin.");
                       }
                     }}
@@ -904,17 +906,21 @@ export const ViewGallery = () => {
                                             </a>
                                             <a>
                                               <span
-                                                className="feather icon-download"
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  setSelectedImageUrl(
-                                                    image.path_display
-                                                  );
+                                                className="text-right feather icon-download black"
+                                                title="Download"
+                                                onClick={() => {
                                                   if (
-                                                    !collection.lock_gallery
+                                                    authData.user.role_id !== 3
                                                   ) {
-                                                    setDownloadImageModal(true);
-                                                  } else {
+                                                    setDownloadGalleryModal(
+                                                      true
+                                                    );
+                                                  } else if (
+                                                    (authData.user.role_id =
+                                                      3 &&
+                                                      collection.lock_gallery ==
+                                                        true)
+                                                  ) {
                                                     toast.error(
                                                       "Gallery is locked! Please contact admin."
                                                     );

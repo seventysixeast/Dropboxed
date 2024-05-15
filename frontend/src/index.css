@@ -1579,8 +1579,6 @@ a:not([href]) {
 }
 
 .my-masonry-grid {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   margin-left: 0px; /* gutter size offset */
   width: auto;
