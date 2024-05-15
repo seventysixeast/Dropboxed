@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import dropboxicon from "../assets/images/dropboxicon.svg";
 import { useAuth } from "../context/authContext";
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -15,6 +15,10 @@ const DownloadGalleryModal = ({
   const [selectedSize, setSelectedSize] = useState("original");
   const [selectedDownloadTo, setSelectedDownloadTo] = useState("device");
   const { authData } = useAuth();
+  const [dropboxAuthUrl, setDropboxAuthUrl] = useState("");
+  const [dropboxAccess, setDropboxAccess] = useState(false);
+
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   const handleSizeChange = (event) => {
     setSelectedSize(event.target.value);
@@ -25,20 +29,29 @@ const DownloadGalleryModal = ({
     setSelectedDownloadTo(event.target.value);
     setDownloadOptions({ ...downloadOptions, device: event.target.value });
   };
+  console.log(authData);
+  useEffect(() => {
+    if (authData.user !== null ) {
+    const currentUrl = window.location.href;
 
-  const currentUrl = window.location.href;
+    const url2 = new URL(currentUrl);
+    url2.pathname = url2.pathname.replace("/view-gallery/:id", "");
 
-  const url2 = new URL(currentUrl);
-  url2.pathname = url2.pathname.replace("/view-gallery/:id", "");
+    const url = new URL(currentUrl);
 
-  const url = new URL(currentUrl);
-
-  url.searchParams.set("userId", authData.user.id);
-  const scopes = encodeURIComponent(
-    "account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read"
-  );
-  const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
-
+    url.searchParams.set("userId", authData.user.id);
+    const scopes = encodeURIComponent(
+      "account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read"
+    );
+    setDropboxAuthUrl(`https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`);
+    }
+    if (authData.user !== null ) {
+      setIsSignedIn(true);
+    }
+    if (authData.user !== null &&  authData.user.dropbox_refresh !== null) {
+      setDropboxAccess(true)
+    }
+  }, [authData]);
   return (
     <div
       className={`modal fade ${isOpen ? "show" : ""}`}
@@ -123,9 +136,8 @@ const DownloadGalleryModal = ({
                     Save to Device
                   </label>
                 </div>
-                {authData !== null &&
-                authData.user !== null &&
-                authData.user.dropbox_refresh !== null ? (
+                {isSignedIn &&
+                dropboxAccess ? (
                   <div
                     className="form-check border photo-size-options mx-2 p-1 d-flex align-items-center"
                     style={{ marginBottom: "10px" }}

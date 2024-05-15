@@ -916,9 +916,7 @@ export const ViewGallery = () => {
                                                   if (
                                                     authData.user.role_id !== 3
                                                   ) {
-                                                    setDownloadImageModal(
-                                                      true
-                                                    );
+                                                    setDownloadImageModal(true);
                                                   } else if (
                                                     (authData.user.role_id =
                                                       3 &&
@@ -954,22 +952,25 @@ export const ViewGallery = () => {
               zoomButton={false}
               ref={layoutRef}
             />
+            {authData !== null && (
+              <>
+                <DownloadGalleryModal
+                  isOpen={showDownloadGalleryModal}
+                  onClose={() => setDownloadGalleryModal(false)}
+                  onConfirm={handleAllDownload}
+                  downloadOptions={downloadOptions}
+                  setDownloadOptions={setDownloadOptions}
+                />
 
-            <DownloadGalleryModal
-              isOpen={showDownloadGalleryModal}
-              onClose={() => setDownloadGalleryModal(false)}
-              onConfirm={handleAllDownload}
-              downloadOptions={downloadOptions}
-              setDownloadOptions={setDownloadOptions}
-            />
-
-            <DownloadImageModal
-              isOpen={showDownloadImageModal}
-              onClose={() => setDownloadImageModal(false)}
-              onConfirm={handleDownload}
-              downloadOptions={downloadOptions}
-              setDownloadOptions={setDownloadOptions}
-            />
+                <DownloadImageModal
+                  isOpen={showDownloadImageModal}
+                  onClose={() => setDownloadImageModal(false)}
+                  onConfirm={handleDownload}
+                  downloadOptions={downloadOptions}
+                  setDownloadOptions={setDownloadOptions}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
