@@ -906,13 +906,17 @@ export const ViewGallery = () => {
                                             </a>
                                             <a>
                                               <span
-                                                className="text-right feather icon-download black"
+                                                className="text-right feather icon-download"
                                                 title="Download"
-                                                onClick={() => {
+                                                onClick={(event) => {
+                                                  event.stopPropagation();
+                                                  setSelectedImageUrl(
+                                                    image.path_display
+                                                  );
                                                   if (
                                                     authData.user.role_id !== 3
                                                   ) {
-                                                    setDownloadGalleryModal(
+                                                    setDownloadImageModal(
                                                       true
                                                     );
                                                   } else if (
