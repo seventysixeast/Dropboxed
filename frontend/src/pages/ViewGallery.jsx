@@ -232,6 +232,8 @@ export const ViewGallery = () => {
     setShowAnimation(true);
   };
 
+  console.log(videoLink);
+
   const fetchFileList = async (data, link) => {
     try {
       const tokens = await getRefreshToken(data);
@@ -715,8 +717,6 @@ export const ViewGallery = () => {
     });
   };
 
-  console.log(imageUrls);
-
   return (
     <>
       <LoadingOverlay loading={loading} />
@@ -775,9 +775,6 @@ export const ViewGallery = () => {
                       imageRendering: "auto",
                     }}
                   />
-
-                  {/* <div className="cover-overlay"
-                  ></div> */}
                 </div>
               </div>
               <div className="banner-detail">
@@ -831,6 +828,7 @@ export const ViewGallery = () => {
               </div>
             </div>
             <section id="video-player" style={{ position: "relative" }}>
+              {videoLink !== "" && (
               <div
                 className="col-md-12"
                 style={{ display: "flex", justifyContent: "center" }}
@@ -846,6 +844,7 @@ export const ViewGallery = () => {
                   className="react-player"
                 />
               </div>
+              )}
             </section>
 
             {isNewTaskModalOpen ? (
