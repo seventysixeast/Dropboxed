@@ -31,25 +31,27 @@ const DownloadGalleryModal = ({
   };
   console.log(authData);
   useEffect(() => {
-    if (authData.user !== null ) {
-    const currentUrl = window.location.href;
+    if (authData.user !== null) {
+      const currentUrl = window.location.href;
 
-    const url2 = new URL(currentUrl);
-    url2.pathname = url2.pathname.replace("/view-gallery/:id", "");
+      const url2 = new URL(currentUrl);
+      url2.pathname = url2.pathname.replace("/view-gallery/:id", "");
 
-    const url = new URL(currentUrl);
+      const url = new URL(currentUrl);
 
-    url.searchParams.set("userId", authData.user.id);
-    const scopes = encodeURIComponent(
-      "account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read"
-    );
-    setDropboxAuthUrl(`https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`);
+      url.searchParams.set("userId", authData.user.id);
+      const scopes = encodeURIComponent(
+        "account_info.read files.metadata.write files.metadata.read files.content.write files.content.read sharing.write sharing.read file_requests.write file_requests.read"
+      );
+      setDropboxAuthUrl(
+        `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`
+      );
     }
-    if (authData.user !== null ) {
+    if (authData.user !== null) {
       setIsSignedIn(true);
     }
-    if (authData.user !== null &&  authData.user.dropbox_refresh !== null) {
-      setDropboxAccess(true)
+    if (authData.user !== null && authData.user.dropbox_refresh !== null) {
+      setDropboxAccess(true);
     }
   }, [authData]);
   return (
@@ -136,8 +138,7 @@ const DownloadGalleryModal = ({
                     Save to Device
                   </label>
                 </div>
-                {isSignedIn &&
-                dropboxAccess ? (
+                {isSignedIn && dropboxAccess ? (
                   <div
                     className="form-check border photo-size-options mx-2 p-1 d-flex align-items-center"
                     style={{ marginBottom: "10px" }}
@@ -194,17 +195,17 @@ const DownloadGalleryModal = ({
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-outline-secondary"
-              onClick={onClose}
+              className="btn btn-primary w-75"
+              onClick={onConfirm}
             >
-              Cancel
+              Download
             </button>
             <button
               type="button"
-              className="btn btn-outline-primary"
-              onClick={onConfirm}
+              className="btn btn-outline-secondary"
+              onClick={onClose}
             >
-              Start Download
+              Close
             </button>
           </div>
         </div>

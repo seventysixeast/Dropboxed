@@ -4,9 +4,9 @@ const getImageTypes = async (req, res) => {
   try {
     const imagesTypes = await ImageType.findAll({
       where: {
-        subdomain_id: req.body.subdomainId
+        subdomain_id: req.body.subdomain_id
       },
-      order: [["id", "DESC"]]
+      order: [["type", "DESC"]]
     });
     res.status(200).json({ success: true, data: imagesTypes });
   } catch (error) {
