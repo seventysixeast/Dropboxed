@@ -183,12 +183,9 @@ export const ViewGallery = () => {
   };
 
   useEffect(() => {
-    console.log("Inside useEffect");
 
     if (fileList.current && fileList.current.length === 0) {
-      console.log("File list is empty");
       if (!running) {
-        console.log("Fetching collection");
         fetchCollection();
       }
     }
@@ -204,7 +201,6 @@ export const ViewGallery = () => {
     }, 0);
 
     if (tasks.length === 0) {
-      console.log("Getting tasks and clients");
       getTasks();
       getClients();
     }
@@ -231,8 +227,6 @@ export const ViewGallery = () => {
     setLoading(false);
     setShowAnimation(true);
   };
-
-  console.log(videoLink);
 
   const fetchFileList = async (data, link) => {
     try {
@@ -469,7 +463,7 @@ export const ViewGallery = () => {
           },
           body: JSON.stringify({
             from_path: folderPath,
-            to_path: folderPath,
+            to_path: `${folderPath}_${Math.floor(Math.random() * 1000)}`,
           }),
         }
       );
@@ -478,7 +472,7 @@ export const ViewGallery = () => {
         toast.success("Folder copied successfully.");
       } else {
         const errorData = await copyResponse.json();
-        console.log("Error copying folder:", errorData.error_summary);
+        toast.error("Folder already exists.");
       }
     }
     setDownloadOptions({ device: "device", size: "original" });
@@ -605,7 +599,7 @@ export const ViewGallery = () => {
           },
           body: JSON.stringify({
             from_path: folderPath,
-            to_path: "folderPath",
+            to_path: `${folderPath}_${Math.floor(Math.random() * 1000)}`,
           }),
         }
       );
@@ -615,7 +609,7 @@ export const ViewGallery = () => {
       } else {
         const errorData = await copyResponse.json();
         if ((errorData.error_summary = "to/conflict/folder/.")) {
-          console.error("Error copying folder:", errorData.error_summary);
+          toast.error("Folder already exists.");
         }
       }
     }
@@ -829,21 +823,21 @@ export const ViewGallery = () => {
             </div>
             <section id="video-player" style={{ position: "relative" }}>
               {videoLink !== "" && (
-              <div
-                className="col-md-12"
-                style={{ display: "flex", justifyContent: "center" }}
-              >
-                <ReactPlayer
-                  url={videoLink}
-                  controls
-                  width={`calc(100vw - ${scrollbarWidth}px)`}
-                  height={`calc(70vh - ${scrollbarWidth}px)`}
-                  playing={true}
-                  loop={true}
-                  muted={false}
-                  className="react-player"
-                />
-              </div>
+                <div
+                  className="col-md-12"
+                  style={{ display: "flex", justifyContent: "center" }}
+                >
+                  <ReactPlayer
+                    url={videoLink}
+                    controls
+                    width={`calc(100vw - ${scrollbarWidth}px)`}
+                    height={`calc(70vh - ${scrollbarWidth}px)`}
+                    playing={true}
+                    loop={true}
+                    muted={false}
+                    className="react-player"
+                  />
+                </div>
               )}
             </section>
 
@@ -894,15 +888,13 @@ export const ViewGallery = () => {
                                   />
                                   {overlayVisible && (
                                     <div className="overlay">
-                                      <p
-                                        className="icon-links"
-                                      >
+                                      <p className="icon-links">
                                         {authData.user !== null && (
                                           <>
                                             <a>
                                               <span
                                                 className="feather icon-edit"
-                                                style={{marginRight:'8px'}}
+                                                style={{ marginRight: "8px" }}
                                                 onClick={(event) => {
                                                   event.stopPropagation();
                                                   toggleNewTaskModal();

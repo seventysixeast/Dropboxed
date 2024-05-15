@@ -24,7 +24,6 @@ export const Dashboard = () => {
   const user = authData.user;
   const subdomainId = user.subdomain_id;
   const userId = user.id;
-  const roleId = user.roleId;
   const accessToken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
@@ -67,7 +66,6 @@ export const Dashboard = () => {
     getAllCollectionsData();
     verifyToken(accessToken);
     getRefreshToken(user.dropbox_refresh);
-    // getDropboxRefresh();
   }, []);
 
   useEffect(() => {
@@ -85,22 +83,6 @@ export const Dashboard = () => {
       toast.error(error);
     }
   };
-
-  // const getDropboxRefresh = async () => {
-  //   const formDataToSend = new FormData();
-  //   formDataToSend.append("id", user.subdomain_id);
-
-  //   try {
-  //     const response = await getDropboxRefreshToken(formDataToSend);
-  //     if (response.success) {
-  //       setSubdomainDropbox(response.data);
-  //     } else {
-  //       console.log(response.message);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   const getBookingTitles = async (client) => {
     setLoading(true);
@@ -462,7 +444,6 @@ export const Dashboard = () => {
               <div className="card">
                 <div className="card-content">
                   <div className="card-body">
-                    {/* datatable start */}
                     <div className="table-responsive">
                       <table className="table table-striped table-bordered zero-configuration">
                         <thead>
