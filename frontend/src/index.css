@@ -1392,23 +1392,6 @@ a:not([href]) {
   transition: margin-top 1s ease;
 }
 
-.player-wrapper {
-  position: relative;
-  padding-top: 56.25%; /* Player ratio: 16:9 (1280 / 720 = 0.5625) */
-  margin-bottom: -15%;
-}
-
-.react-player {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 @media (max-width: 1000px) {
   .banner-collection-name {
     margin-top: 10rem;
@@ -1451,9 +1434,7 @@ a:not([href]) {
 }
 
 @media (max-width: 768px) {
-  .player-wrapper {
-    padding-top: 60%; /* Adjusted height for smaller screens */
-  }
+
   .banner-collection-name {
     margin-top: 10rem;
     font-size: 1.75rem;
@@ -1466,18 +1447,19 @@ a:not([href]) {
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
-
-  .react-player {
-    height: 100% !important;
-  }
-  .player-wrapper {
-    position: relative;
-    padding-top: 56.25%; /* Player ratio: 16:9 (1280 / 720 = 0.5625) */
-    margin-bottom: 1rem;
+  .react-player{
+    margin-bottom: -2%;
+    margin-top: -2%
   }
 }
 
+
+
 @media (max-width: 600px) {
+  .react-player{
+    margin-bottom: -12%;
+    margin-top: -8%
+  }
   .banner-collection-name {
     margin-top: 10rem;
     font-size: 1.25rem;
@@ -1518,7 +1500,14 @@ a:not([href]) {
   }
 }
 
-.overlay-to-links {
+@media (max-width: 460px) {
+  .react-player{
+    margin-bottom: -22%;
+    margin-top: -18%
+  }
+}
+
+/* .overlay-to-links {
   background: radial-gradient(
     circle closest-side at center,
     rgba(0, 0, 0, 0.062) 0%,
@@ -1546,7 +1535,7 @@ a:not([href]) {
   display: block;
   z-index: 6;
   transition: all 0.3s ease;
-}
+} */
 
 .image-container {
   position: relative;
@@ -1578,4 +1567,68 @@ a:not([href]) {
 .todo-application .todo-new-task-sidebar .ql-editor {
   padding-left: 5px !important;
   padding-right: 5px !important;
+}
+
+.css-4ob670-MuiPaper-root-MuiCard-root {
+  border-radius: 0% !important;
+}
+
+.css-1fnw80z-MuiMasonry-root>* {
+  box-sizing: border-box;
+  margin: 4px
+}
+
+.my-masonry-grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: 0px; /* gutter size offset */
+  width: auto;
+}
+.my-masonry-grid_column {
+  margin-left: 2px;
+  margin-right: 2px;
+  background-clip: padding-box;
+}
+
+
+.my-masonry-grid_column > div {
+  background: grey;
+  margin-bottom: 0px;
+}
+
+.image-container {
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(0, 0, 0, 0) 5%,
+    rgba(0, 0, 0, 0.08) 45%,
+    rgba(0, 0, 0, 0.1) 70%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.overlay p {
+  position: absolute;
+  bottom: 0;
+  right: 16px;
+}
+
+
+.image-container:hover .overlay {
+  opacity: 1;
 }

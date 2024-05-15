@@ -196,8 +196,8 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                           name="banner"
                           onChange={handleBannerChange}
                           accept="image/*"
+                          required
                         />
-                        {/* {formData.id && <img src={`${formData.banner ? `${IMAGE_URL}/${formData.banner}` : '../../../app-assets/images/portrait/medium/avatar-m-4.png'}`} className="rounded-circle height-150 mt-2" alt="Card image" />} */}
                         {previewImage && (
                           <img
                             src={previewImage}

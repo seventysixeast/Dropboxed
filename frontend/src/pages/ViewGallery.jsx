@@ -17,6 +17,7 @@ import ReactPlayer from "react-player";
 import TodoModal from "../components/TodoModal";
 import { getAlltasks, createTask } from "../api/todoApis";
 import { getClientPhotographers } from "../api/clientApis";
+import Masonry from "react-masonry-css";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 export const ViewGallery = () => {
@@ -38,7 +39,12 @@ export const ViewGallery = () => {
   const fetchSize = 12;
   const fileList = useRef([]);
   const { id } = useParams();
-
+  const breakpointColumnsObj = {
+    default: 4,
+    1100: 3,
+    700: 2,
+    500: 1,
+  };
   const [dropboxLink, setDropboxLink] = useState("");
   const [running, setRunning] = useState(false);
   const layoutRef = useRef();
@@ -74,7 +80,7 @@ export const ViewGallery = () => {
   const toggleNewTaskModal = () => {
     setIsNewTaskModalOpen(!isNewTaskModalOpen);
   };
-
+  const [overlayVisible, setOverlayVisible] = useState(true);
   const [folderPath, setFolderPath] = useState("");
   const [entriesList, setEntriesList] = useState();
   const getTasks = async () => {
@@ -280,33 +286,33 @@ export const ViewGallery = () => {
       const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
       const endIndex = Math.min(startIndex + fetchSize, totalFiles);
-  
+
       if (startIndex >= totalFiles) {
         setHasMore(false);
         return;
       }
-  
+
       const batchEntries = fileList.current.slice(startIndex, endIndex);
       const batchUrls = await fetchBatchThumbnails(batchEntries, data, tokens);
-      
+
       setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
-      
+
       page.current++;
-  
+
       if (endIndex < totalFiles) {
         fetchImages(data, tokens);
       } else {
         setHasMore(false);
         setLoader(false);
       }
-  
+
       setLoading(false);
     } catch (error) {
       console.error("Error fetching images:", error);
       setLoading(false);
     }
   };
-  
+
   const fetchBatchThumbnails = async (entries, data, tokens) => {
     const urls = [];
     try {
@@ -329,29 +335,31 @@ export const ViewGallery = () => {
           responseType: "json",
         }
       );
-  
-      await Promise.all(response.data.entries.map(async (entry) => {
-        const url = "data:image/jpeg;base64," + entry.thumbnail;
-        const image = new Image();
-  
-        return new Promise((resolve) => {
-          image.onload = () => {
-            const width = image.width;
-            const height = image.height;
-            const path_display = entry.metadata.path_display;
-            const imgObj = {
-              url,
-              path_display,
-              width,
-              height,
+
+      await Promise.all(
+        response.data.entries.map(async (entry) => {
+          const url = "data:image/jpeg;base64," + entry.thumbnail;
+          const image = new Image();
+
+          return new Promise((resolve) => {
+            image.onload = () => {
+              const width = image.width;
+              const height = image.height;
+              const path_display = entry.metadata.path_display;
+              const imgObj = {
+                url,
+                path_display,
+                width,
+                height,
+              };
+              urls.push(imgObj);
+              resolve();
             };
-            urls.push(imgObj);
-            resolve();
-          };
-  
-          image.src = url;
-        });
-      }));
+
+            image.src = url;
+          });
+        })
+      );
     } catch (error) {
       console.error("Error fetching batch thumbnails:", error);
     }
@@ -505,6 +513,7 @@ export const ViewGallery = () => {
       console.error("Error downloading folder as zip:", error);
     }
     setLoading(false);
+    setDownloadOptions({ device: "device", size: "original" });
   };
 
   const handleAllDownload = async () => {
@@ -822,12 +831,15 @@ export const ViewGallery = () => {
               </div>
             </div>
             <section id="video-player" style={{ position: "relative" }}>
-              <div className="player-wrapper">
+              <div
+                className="col-md-12"
+                style={{ display: "flex", justifyContent: "center" }}
+              >
                 <ReactPlayer
                   url={videoLink}
                   controls
                   width={`calc(100vw - ${scrollbarWidth}px)`}
-                  height={"70%"}
+                  height={`calc(70vh - ${scrollbarWidth}px)`}
                   playing={true}
                   loop={true}
                   muted={false}
@@ -846,99 +858,90 @@ export const ViewGallery = () => {
                 <div className="card-body my-gallery">
                   <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
                     <div className="row">
-                      {imageUrls.map((image, index) => (
-                        <Item
-                          key={index}
-                          original={image.url}
-                          thumbnail={image.url}
-                          width={image.width}
-                          height={image.height}
-                        >
-                          {({ ref, open }) => (
-                            <figure
-                              ref={ref}
-                              className="col-lg-3 col-md-6 col-12"
-                              style={{ paddingLeft: "7px", paddingLeft: "7px" }}
-                              onClick={open}
-                            >
-                              <div
-                                className="hovereffect"
-                                itemProp="contentUrl"
+                      <Masonry
+                        breakpointCols={breakpointColumnsObj}
+                        className="my-masonry-grid"
+                        columnClassName="my-masonry-grid_column"
+                      >
+                        {imageUrls.map((image, index) => (
+                          <Item
+                            key={index}
+                            original={image.url}
+                            thumbnail={image.url}
+                            width={image.width}
+                            height={image.height}
+                          >
+                            {({ ref, open }) => (
+                              <figure
+                                ref={ref}
+                                style={{
+                                  marginTop: "4px",
+                                  marginBottom: "4px",
+                                }}
+                                onClick={open}
                               >
-                                <img
-                                  className="equal-image"
-                                  src={image.url}
-                                  alt=""
-                                />
-                                <div className="overlay overlay-to-links">
-                                  <p
-                                    className="icon-links"
-                                    style={{ backgroundColor: "black" }}
-                                  >
-                                    {authData.user !== null && (
-                                      <>
-                                        <a>
-                                          <span
-                                            className="feather icon-download "
-                                            onClick={(event) => {
-                                              event.stopPropagation();
-                                              setSelectedImageUrl(
-                                                image.path_display
-                                              );
-                                              if (
-                                                collection.lock_gallery == false
-                                              ) {
-                                                setDownloadImageModal(true);
-                                              } else {
-                                                toast.error(
-                                                  "Gallery is locked! Please contact admin."
-                                                );
-                                              }
-                                            }}
-                                          ></span>
-                                        </a>
-                                        <a>
-                                          <span
-                                            className="feather icon-edit "
-                                            onClick={(event) => {
-                                              event.stopPropagation();
-                                              toggleNewTaskModal();
-                                              handleShareImage(image);
-                                            }}
-                                          ></span>
-                                        </a>
-                                      </>
-                                    )}
-                                  </p>
+                                <div
+                                  className="image-container"
+                                  itemProp=""
+                                  onMouseEnter={() => setOverlayVisible(true)}
+                                  onMouseLeave={() => setOverlayVisible(true)}
+                                >
+                                  <img
+                                    className=""
+                                    src={image.url}
+                                    alt=""
+                                    width={"100%"}
+                                    height={"auto"}
+                                  />
+                                  {overlayVisible && (
+                                    <div className="overlay">
+                                      <p
+                                        className="icon-links"
+                                      >
+                                        {authData.user !== null && (
+                                          <>
+                                            <a>
+                                              <span
+                                                className="feather icon-edit"
+                                                style={{marginRight:'8px'}}
+                                                onClick={(event) => {
+                                                  event.stopPropagation();
+                                                  toggleNewTaskModal();
+                                                  handleShareImage(image);
+                                                }}
+                                              ></span>
+                                            </a>
+                                            <a>
+                                              <span
+                                                className="feather icon-download"
+                                                onClick={(event) => {
+                                                  event.stopPropagation();
+                                                  setSelectedImageUrl(
+                                                    image.path_display
+                                                  );
+                                                  if (
+                                                    !collection.lock_gallery
+                                                  ) {
+                                                    setDownloadImageModal(true);
+                                                  } else {
+                                                    toast.error(
+                                                      "Gallery is locked! Please contact admin."
+                                                    );
+                                                  }
+                                                }}
+                                              ></span>
+                                            </a>
+                                          </>
+                                        )}
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
-                            </figure>
-                          )}
-                        </Item>
-                      ))}
-                      {loader && (
-                        <div
-                          style={{
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <div
-                            style={{
-                              border: "8px solid #f3f3f3",
-                              borderTop: "8px solid #3498db",
-                              borderRadius: "50%",
-                              width: "50px",
-                              height: "50px",
-                              animation: "spin 2s linear infinite",
-                            }}
-                          ></div>
-                        </div>
-                      )}
+                              </figure>
+                            )}
+                          </Item>
+                        ))}
+                      </Masonry>
                     </div>
                   </CustomGallery>
                 </div>
