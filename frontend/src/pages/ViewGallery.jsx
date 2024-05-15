@@ -363,7 +363,7 @@ export const ViewGallery = () => {
 
   const handleDownload = async () => {
     const tokens = await getRefreshToken(collectionRefresh);
-
+    setLoading(true);
     if (downloadOptions.device == "device") {
       try {
         if (downloadOptions.size === "original") {
@@ -468,13 +468,18 @@ export const ViewGallery = () => {
       );
 
       if (copyResponse.ok) {
-        toast.success("Folder copied successfully.");
+        toast.success(
+          `Folder copied successfully to ${folderPath}_${Math.floor(
+            Math.random() * 1000
+          )}`
+        );
       } else {
         const errorData = await copyResponse.json();
         toast.error("Folder already exists.");
       }
     }
     setDownloadOptions({ device: "device", size: "original" });
+    setDownloadGalleryModal(false);
   };
 
   const downloadFolderAsZip = async (accessToken) => {
@@ -499,7 +504,7 @@ export const ViewGallery = () => {
       link.download = "Studiio.zip";
       link.click();
       URL.revokeObjectURL(url);
-      toast.success("Folder downloaded successfully.");
+      toast.success("Files downloaded successfully.");
       setDownloadGalleryModal(false);
       setDownloadOptions({ device: "device", size: "original" });
       setRunning(false);
@@ -509,11 +514,15 @@ export const ViewGallery = () => {
     }
     setLoading(false);
     setDownloadOptions({ device: "device", size: "original" });
+    setRunning(false);
+    setDownloadGalleryModal(false);
   };
 
   const handleAllDownload = async () => {
+    setLoading(true);
     if (authData.user === null) {
       toast.error("Please login first.");
+      setLoading(false);
       return;
     }
     const tokens = await getRefreshToken(collectionRefresh);
@@ -604,15 +613,21 @@ export const ViewGallery = () => {
       );
 
       if (copyResponse.ok) {
-        toast.success("Folder copied successfully.");
+        toast.success(
+          `Files copied successfully to ${folderPath}_${Math.floor(
+            Math.random() * 1000
+          )}`
+        );
       } else {
         const errorData = await copyResponse.json();
         if ((errorData.error_summary = "to/conflict/folder/.")) {
-          toast.error("Folder already exists.");
+          toast.error("Files already exists.");
         }
       }
     }
     setDownloadOptions({ device: "device", size: "original" });
+    setDownloadGalleryModal(false);
+    setLoading(false);
   };
 
   const customOptions = {
@@ -916,9 +931,7 @@ export const ViewGallery = () => {
                                                   if (
                                                     authData.user.role_id !== 3
                                                   ) {
-                                                    setDownloadImageModal(
-                                                      true
-                                                    );
+                                                    setDownloadImageModal(true);
                                                   } else if (
                                                     (authData.user.role_id =
                                                       3 &&
@@ -954,22 +967,25 @@ export const ViewGallery = () => {
               zoomButton={false}
               ref={layoutRef}
             />
+            {authData !== null && (
+              <>
+                <DownloadGalleryModal
+                  isOpen={showDownloadGalleryModal}
+                  onClose={() => setDownloadGalleryModal(false)}
+                  onConfirm={handleAllDownload}
+                  downloadOptions={downloadOptions}
+                  setDownloadOptions={setDownloadOptions}
+                />
 
-            <DownloadGalleryModal
-              isOpen={showDownloadGalleryModal}
-              onClose={() => setDownloadGalleryModal(false)}
-              onConfirm={handleAllDownload}
-              downloadOptions={downloadOptions}
-              setDownloadOptions={setDownloadOptions}
-            />
-
-            <DownloadImageModal
-              isOpen={showDownloadImageModal}
-              onClose={() => setDownloadImageModal(false)}
-              onConfirm={handleDownload}
-              downloadOptions={downloadOptions}
-              setDownloadOptions={setDownloadOptions}
-            />
+                <DownloadImageModal
+                  isOpen={showDownloadImageModal}
+                  onClose={() => setDownloadImageModal(false)}
+                  onConfirm={handleDownload}
+                  downloadOptions={downloadOptions}
+                  setDownloadOptions={setDownloadOptions}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
