@@ -348,13 +348,7 @@ const Collections = () => {
       let res = await updateGalleryLock(formDataToSend);
       if (res.success) {
         toast.success(res.message);
-        const updatedCollections = collections.map((collection) => {
-          if (collection.id === data.id) {
-            return { ...collection, lock_gallery: !data.lock_gallery };
-          }
-          return collection;
-        });
-        setCollections(updatedCollections);
+        getAllCollectionsData();
       } else {
         toast.error(res.message);
       }

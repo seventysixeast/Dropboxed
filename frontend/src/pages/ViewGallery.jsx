@@ -280,36 +280,34 @@ export const ViewGallery = () => {
       const totalFiles = fileList.current.length;
       const startIndex = (page.current - 1) * fetchSize;
       const endIndex = Math.min(startIndex + fetchSize, totalFiles);
-
+  
       if (startIndex >= totalFiles) {
         setHasMore(false);
         return;
       }
-
+  
       const batchEntries = fileList.current.slice(startIndex, endIndex);
       const batchUrls = await fetchBatchThumbnails(batchEntries, data, tokens);
-      setTimeout(() => {
-        setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
-      }, 1);
+      
+      setImageUrls((prevUrls) => [...prevUrls, ...batchUrls]);
+      
       page.current++;
-
+  
       if (endIndex < totalFiles) {
         fetchImages(data, tokens);
       } else {
         setHasMore(false);
         setLoader(false);
       }
-
+  
       setLoading(false);
     } catch (error) {
       console.error("Error fetching images:", error);
       setLoading(false);
     }
   };
-
+  
   const fetchBatchThumbnails = async (entries, data, tokens) => {
-    // const refreshToken = collectionRefresh !== "" ? collectionRefresh : data;
-    // const tokens = await getRefreshToken(refreshToken);
     const urls = [];
     try {
       const response = await axios.post(
@@ -331,25 +329,29 @@ export const ViewGallery = () => {
           responseType: "json",
         }
       );
-      for (const entry of response.data.entries) {
+  
+      await Promise.all(response.data.entries.map(async (entry) => {
         const url = "data:image/jpeg;base64," + entry.thumbnail;
         const image = new Image();
-
-        image.onload = () => {
-          const width = image.width;
-          const height = image.height;
-          const path_display = entry.metadata.path_display;
-          const imgObj = {
-            url,
-            path_display,
-            width,
-            height,
+  
+        return new Promise((resolve) => {
+          image.onload = () => {
+            const width = image.width;
+            const height = image.height;
+            const path_display = entry.metadata.path_display;
+            const imgObj = {
+              url,
+              path_display,
+              width,
+              height,
+            };
+            urls.push(imgObj);
+            resolve();
           };
-          urls.push(imgObj);
-        };
-
-        image.src = url;
-      }
+  
+          image.src = url;
+        });
+      }));
     } catch (error) {
       console.error("Error fetching batch thumbnails:", error);
     }

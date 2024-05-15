@@ -13,7 +13,6 @@ import {
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import { useNavigate } from "react-router-dom";
 import { getRefreshToken, verifyToken } from "../api/authApis";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -36,9 +35,7 @@ export const Dashboard = () => {
   const [isNotifyChecked, setIsNotifyChecked] = useState(false);
   const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
   const [collections, setCollections] = useState([]);
-  const navigate = useNavigate();
   const currentUrl = window.location.href;
-  const [subdomainDropbox, setSubdomainDropbox] = useState(null);
 
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
@@ -70,7 +67,7 @@ export const Dashboard = () => {
     getAllCollectionsData();
     verifyToken(accessToken);
     getRefreshToken(user.dropbox_refresh);
-    getDropboxRefresh();
+    // getDropboxRefresh();
   }, []);
 
   useEffect(() => {
@@ -89,21 +86,21 @@ export const Dashboard = () => {
     }
   };
 
-  const getDropboxRefresh = async () => {
-    const formDataToSend = new FormData();
-    formDataToSend.append("id", user.subdomain_id);
+  // const getDropboxRefresh = async () => {
+  //   const formDataToSend = new FormData();
+  //   formDataToSend.append("id", user.subdomain_id);
 
-    try {
-      const response = await getDropboxRefreshToken(formDataToSend);
-      if (response.success) {
-        setSubdomainDropbox(response.data);
-      } else {
-        console.log(response.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //   try {
+  //     const response = await getDropboxRefreshToken(formDataToSend);
+  //     if (response.success) {
+  //       setSubdomainDropbox(response.data);
+  //     } else {
+  //       console.log(response.message);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const getBookingTitles = async (client) => {
     setLoading(true);

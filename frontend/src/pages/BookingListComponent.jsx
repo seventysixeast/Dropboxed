@@ -463,6 +463,8 @@ export const BookingListComponent = () => {
     });
   };
 
+  console.log(bookingData);
+
   const handleEventClick = (event) => {
     let id = event.event._def.publicId;
 
@@ -565,23 +567,17 @@ export const BookingListComponent = () => {
 
   const handleEventResize = (arg) => {
     let id = arg.event._def.publicId;
-    let newDate = new Date(arg.event.start + "Z");
-    let endDate = new Date(arg.event.end + "Z");
-    newDate.setDate(newDate.getDate());
+    // let newDate = new Date(arg.event.start + "Z");
+    // let endDate = new Date(arg.event.end + "Z");
+    // newDate.setDate(newDate.getDate());
 
-    let startTime = newDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      timeZone: "UTC",
-    });
-    let endTime = endDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      timeZone: "UTC",
-    });
-
+    let newDate = moment(arg.event.start, 'YYYY-MM-DD hh:mm:ss A').toDate();
+    let endDate = moment(arg.event.end, 'YYYY-MM-DD hh:mm:ss A').toDate();
+  
+    const newDateString = moment(newDate).format('YYYY-MM-DD');
+  
+    let startTime = moment(newDate).format('HH:mm:ss');
+    let endTime = moment(endDate).format('HH:mm:ss');
     let booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
     setUpdateData({
@@ -644,30 +640,20 @@ export const BookingListComponent = () => {
     }
   };
 
-  const handleDateChange = (arg) => {
-    let id = arg.event._def.publicId;
+const handleDateChange = async (arg) => {
+  let id = arg.event._def.publicId;
 
-    let newDate = new Date(arg.event.start + "Z");
-    let endDate = new Date(arg.event.end + "Z");
+  let newDate = moment(arg.event.start, 'YYYY-MM-DD hh:mm:ss A').toDate();
+  let endDate = moment(arg.event.end, 'YYYY-MM-DD hh:mm:ss A').toDate();
 
-    const newDateString = newDate.toISOString().split("T")[0];
+  const newDateString = moment(newDate).format('YYYY-MM-DD');
 
-    let startTime = newDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      timeZone: "UTC",
-    });
-    let endTime = endDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      timeZone: "UTC",
-    });
+  let startTime = moment(newDate).format('HH:mm:ss');
+  let endTime = moment(endDate).format('HH:mm:ss');
 
-    const booking = bookingsData.find((booking) => booking.id === parseInt(id));
+  const booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
-    setUpdateData({
+  setUpdateData({
       id: id,
       title: booking.booking_title,
       package: booking.package,
@@ -679,10 +665,12 @@ export const BookingListComponent = () => {
       comment: booking.comment,
       provider: booking.photographer_id,
       customer: booking.user_id,
-    });
+  });
 
-    setShowDateModel(true);
-  };
+  setShowDateModel(true);
+};
+
+  console.log(updateData);
 
   const handleNotifyChange = (data) => {
     setUpdateData({
