@@ -18,23 +18,23 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        if (!user.email) {
-            toast.error("Email is required.");
-            return;
-        }
+      if (!user.email) {
+        toast.error("Email is required.");
+        return;
+      }
 
-        const res = await forgotPassword({ email: user.email });
-        if (res.success) {
-            toast.success(res.message);
-            window.location.href = `/reset?email=${encodeURIComponent(user.email)}`;
-        } else {
-            toast.error("Password reset request failed. Please try again later.");
-        }
+      const res = await forgotPassword({ email: user.email });
+      if (res.success) {
+        toast.success(res.message);
+        window.location.href = `/reset?email=${encodeURIComponent(user.email)}`;
+      } else {
+        toast.error("Password reset request failed. Please try again later.");
+      }
     } catch (error) {
-        console.error("An error occurred:", error);
-        toast.error("An error occurred. Please try again later.");
+      console.error("An error occurred:", error);
+      toast.error("An error occurred. Please try again later.");
     }
-};
+  };
 
 
   return (

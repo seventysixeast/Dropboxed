@@ -2,6 +2,7 @@ const User = require('../models/Users');
 const BusinessClients = require('../models/BusinessClients');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
+const { SEND_NEW_PASSWORD } = require('../helpers/emailTemplate');
 
 const getAllPhotographers = async (req, res) => {
   try {
@@ -85,7 +86,7 @@ const createPhotographer = async (req, res) => {
       });
 
       // Send password to the user's email
-      sendPasswordByEmail(req.body.email, password);
+      sendPasswordByEmail(req.body.name, req.body.email, password);
       res.status(200).json({
         success: true,
         message: "Photographer added successfully. Password sent to his email."
@@ -96,7 +97,7 @@ const createPhotographer = async (req, res) => {
   }
 };
 
-function sendPasswordByEmail(email, password) {
+function sendPasswordByEmail(name, email, password) {
   let transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -110,7 +111,7 @@ function sendPasswordByEmail(email, password) {
     from: process.env.SMTP_EMAIL_FROM,
     to: email,
     subject: 'Your New Password',
-    text: `Your new password is: ${password}. Please change it after logging in.`
+    html: SEND_NEW_PASSWORD(name, email, password)
   };
 
   transporter.sendMail(mailOptions, function (error, info) {

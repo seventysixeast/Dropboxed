@@ -5,6 +5,7 @@ import Login from "../pages/Login";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import SignUp from "../pages/SignUp";
+import VerifyEmail from "../pages/VerifyEmail";
 import ClientSignup from "../pages/ClientSignup";
 import DropboxOAuth from "../pages/DropboxAuth";
 import GoogleOAuth from "../pages/GoogleOAuth";
@@ -16,6 +17,7 @@ const AuthRouter = () => {
     { path: "/forgot", element: <ForgotPassword /> },
     { path: "/reset", element: <ResetPassword /> },
     { path: "/signup", element: <SignUp /> },
+    { path: "/verify-email/:verificationToken", element: <VerifyEmail /> },
     { path: "/client-signup", element: <ClientSignup /> },
     { path: "/", element: <Navigate to="/login" /> },
     { path: "/dropbox", element: <DropboxOAuth /> },
