@@ -65,9 +65,10 @@ export const Dashboard = () => {
 
   useEffect(() => {
     getClients();
-    if (!collections) {
-      getCollection(collections[0].id);
+    if (collections.length == 0) {
+      getAllCollectionsData();
     }
+
     verifyToken(accessToken);
     getRefreshToken(user.dropbox_refresh);
   }, []);
@@ -538,7 +539,7 @@ export const Dashboard = () => {
                                   fontSize: "12px",
                                 }}
                               >
-                                {item.imageCount}
+                                {item.imageCount} images
                               </p>
                               <div
                                 className="col-6"
@@ -580,7 +581,7 @@ export const Dashboard = () => {
                               >
                                 {user.role_id !== 3 && (
                                   <a
-                                    type="button"
+                                    href="#"
                                     className="gallery-link"
                                     data-toggle="modal"
                                     data-target="#bootstrap"
