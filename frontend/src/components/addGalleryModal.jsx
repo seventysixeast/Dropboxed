@@ -92,6 +92,7 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                         value: pkg.value
                       }))}
                       isMulti
+                      isDisabled
                       hideSelectedOptions
                       components={{
                         Option: ({
@@ -129,6 +130,7 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                         value: photographer.value
                       }))}
                       isMulti
+                      isDisabled
                       hideSelectedOptions
                       components={{
                         Option: ({
@@ -196,7 +198,8 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                           name="banner"
                           onChange={handleBannerChange}
                           accept="image/*"
-                          required
+                          required={formData.banner ? false : true}
+                          
                         />
                         {previewImage && (
                           <img

@@ -71,8 +71,6 @@
   border: 1px solid var(--fc-border-color);
 }
 
-
-
 .fc-bg,
 .fc-row .fc-bgevent-skeleton,
 .fc-row .fc-highlight-skeleton {
@@ -945,7 +943,6 @@ a.fc-more:hover {
   box-shadow: none !important;
 }
 
-
 .fc .fc-button-group > .fc-button.fc-button-active {
   background-color: #00b5b8 !important;
   color: white !important;
@@ -954,8 +951,6 @@ a.fc-more:hover {
 .table-striped tbody tr:nth-of-type(even) {
   background-color: #00a5a8;
 }
-
-
 
 html body .content .content-wrapper {
   padding: 0%;
@@ -1116,13 +1111,11 @@ a:not([href]) {
   align-items: center;
   display: flex;
   padding: 0px 0px !important;
-
 }
 .fc-daygrid-dot-event:hover {
   align-items: center;
   display: flex;
   padding: 0px 0px !important;
-
 }
 
 .fc-event {
@@ -1235,13 +1228,13 @@ a:not([href]) {
 }
 
 .banner-detail {
-    width: 100%;
-    text-align: center;
-    color: #fff;
-    position: absolute;
-    top: 50%;
-    z-index: 9;
-    transform: translateY(-50%);
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  position: absolute;
+  top: 50%;
+  z-index: 9;
+  transform: translateY(-50%);
 }
 
 .banner-collection-name {
@@ -1415,7 +1408,6 @@ a:not([href]) {
 }
 
 @media (max-width: 768px) {
-
   .banner-collection-name {
     margin-top: 10rem;
     font-size: 1.75rem;
@@ -1428,18 +1420,16 @@ a:not([href]) {
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
-  .react-player{
+  .react-player {
     margin-bottom: -2%;
-    margin-top: -2%
+    margin-top: -2%;
   }
 }
 
-
-
 @media (max-width: 600px) {
-  .react-player{
+  .react-player {
     margin-bottom: -12%;
-    margin-top: -8%
+    margin-top: -8%;
   }
   .banner-collection-name {
     margin-top: 10rem;
@@ -1482,9 +1472,9 @@ a:not([href]) {
 }
 
 @media (max-width: 460px) {
-  .react-player{
+  .react-player {
     margin-bottom: -22%;
-    margin-top: -18%
+    margin-top: -18%;
   }
 }
 
@@ -1502,7 +1492,7 @@ a:not([href]) {
   display: block;
   z-index: 6;
   transition: all 0.3s ease;
-} 
+}
 
 .image-container {
   position: relative;
@@ -1526,7 +1516,6 @@ a:not([href]) {
   -webkit-font-smoothing: antialiased;
 }
 
-
 .todo-application .todo-new-task-sidebar .ql-editor {
   padding-left: 5px !important;
   padding-right: 5px !important;
@@ -1536,9 +1525,9 @@ a:not([href]) {
   border-radius: 0% !important;
 }
 
-.css-1fnw80z-MuiMasonry-root>* {
+.css-1fnw80z-MuiMasonry-root > * {
   box-sizing: border-box;
-  margin: 4px
+  margin: 4px;
 }
 
 .my-masonry-grid {
@@ -1553,7 +1542,6 @@ a:not([href]) {
   margin-right: 2px;
   background-clip: padding-box;
 }
-
 
 .my-masonry-grid_column > div {
   background: grey;
@@ -1591,7 +1579,32 @@ a:not([href]) {
   right: 16px;
 }
 
-
 .image-container:hover .overlay {
   opacity: 1;
 }
+
+.share-options {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.share-options p {
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.share-options a {
+  display: block;
+  margin-bottom: 5px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.share-options a:hover {
+  text-decoration: underline;
+}
+
+

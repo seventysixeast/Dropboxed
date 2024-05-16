@@ -8,14 +8,16 @@ import {
 import {
   addGallery,
   getAllCollections,
-  getDropboxRefreshToken,
+  getCollection,
 } from "../api/collectionApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
 import { getRefreshToken, verifyToken } from "../api/authApis";
+import axios from "axios";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
+const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 
@@ -27,15 +29,15 @@ export const Dashboard = () => {
   const accessToken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
-  const [bookingTitles, setBookingTitles] = useState([]);
   const [services, setServices] = useState([]);
   const [photographers, setPhotographers] = useState([]);
   const [isGalleryLocked, setIsGalleryLocked] = useState(false);
   const [isNotifyChecked, setIsNotifyChecked] = useState(false);
   const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
   const [collections, setCollections] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
   const currentUrl = window.location.href;
-
+  const [bookingTitles, setBookingTitles] = useState([]);
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
@@ -63,7 +65,10 @@ export const Dashboard = () => {
 
   useEffect(() => {
     getClients();
-    getAllCollectionsData();
+    if (collections.length == 0) {
+      getAllCollectionsData();
+    }
+
     verifyToken(accessToken);
     getRefreshToken(user.dropbox_refresh);
   }, []);
@@ -72,6 +77,7 @@ export const Dashboard = () => {
     if (formData.client !== "" && formData.booking_title !== "") {
       getServices(formData.client, formData.booking_title);
       getPhotographers(formData.client, formData.booking_title);
+      getBookingTitles(formData.client);
     }
   }, [formData.client, formData.booking_title]);
 
@@ -139,9 +145,13 @@ export const Dashboard = () => {
     setIsNotifyChecked(!isNotifyChecked);
   };
 
+  console.log(bookingTitles);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let gallery = { ...formData };
+
+    console.log(gallery);
     if (name === "client") {
       gallery.client = value;
       getBookingTitles(value);
@@ -190,6 +200,7 @@ export const Dashboard = () => {
       notify_client: "",
     });
   };
+  console.log(formData.banner);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -210,7 +221,6 @@ export const Dashboard = () => {
       formDataToSend.append("lock_gallery", isGalleryLocked);
       formDataToSend.append("notify_client", isNotifyChecked);
       formDataToSend.append("subdomainId", subdomainId);
-
       let res = await addGallery(formDataToSend);
       if (res.success) {
         toast.success(res.message);
@@ -242,6 +252,100 @@ export const Dashboard = () => {
       }
     } catch (error) {
       toast.error(error);
+    }
+  };
+
+  const textBeforeComma = (text) => {
+    if (typeof text === "string") {
+      return text.split(",")[0];
+    }
+    return text;
+  };
+
+  const getCollectionData = async (id) => {
+    setShowAddGalleryModal(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("slug", id);
+      let collectionData = await getCollection(formDataToSend);
+      if (collectionData.data.banner !== "") {
+        let path = `${IMAGE_URL}/${collectionData.data.banner}`;
+        setPreviewImage(path);
+      } else {
+        setPreviewImage(null);
+      }
+      const initialFormData = {
+        id: collectionData.data.id,
+        client: collectionData.data.client_id,
+        booking_title: collectionData.data.client_address,
+        serviceIds: collectionData.data.services,
+        photographerIds: collectionData.data.photographers,
+        gallery_title: collectionData.data.name,
+        dropbox_link: collectionData.data.dropbox_link,
+        vimeo_video_link: collectionData.data.video_link,
+        banner: collectionData.data.banner,
+      };
+      setFormData(initialFormData);
+      setIsGalleryLocked(collectionData.data.lock_gallery);
+      setIsNotifyChecked(collectionData.data.notify_client);
+      getAllCollectionsData();
+    } catch (error) {
+      console.error("Failed to get ImageTypes:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (collections) {
+      fetchFileList();
+    }
+  }, [collections]);
+
+  const fetchFileList = async () => {
+    try {
+      for (let i = 0; i < collections.length; i++) {
+        const collection = collections[i];
+        if (collection.imageCount == undefined) {
+          const tokens = await getRefreshToken(collection.dropbox_refresh);
+
+          const sharedData = await axios.post(
+            "https://api.dropboxapi.com/2/sharing/get_shared_link_metadata",
+            { url: collection.dropbox_link },
+            {
+              headers: {
+                Authorization: `Bearer ${tokens.access_token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          let thePath = "";
+          if (sharedData.data.path_lower !== undefined) {
+            thePath = sharedData.data.path_lower;
+          }
+
+          const listResponse = await axios.post(
+            "https://api.dropboxapi.com/2/files/list_folder",
+            { path: thePath },
+            {
+              headers: {
+                Authorization: `Bearer ${tokens.access_token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          const entries = listResponse.data.entries;
+          const itemCount = entries.length;
+          const updatedCollection = {
+            ...collection,
+            imageCount: itemCount,
+          };
+          collections[i] = updatedCollection;
+          setCollections(collections);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching file list:", error);
     }
   };
 
@@ -408,25 +512,107 @@ export const Dashboard = () => {
                         >
                           <figure className="effect-zoe">
                             <img
-                              className="gallery-thumbnail"
+                              className="gallery-thumbnail equal-image"
                               src={
                                 item.banner
                                   ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
                                   : "../../../app-assets/images/gallery/9.jpg"
                               }
                             />
-                            <figcaption>
-                              <h2>
-                                <span>{item.client_name}</span>
-                              </h2>
-                              <p className="icon-links">
+
+                            <figcaption
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              {item.imageCount !== undefined  ? (
+                              <p
+                                style={{
+                                  position: "absolute",
+                                  bottom: "4rem",
+                                  right: "5px",
+                                  background: "rgba(0, 0, 0, 0.5)",
+                                  color: "#fff",
+                                  padding: "5px 10px",
+                                  borderRadius: "5px",
+                                  fontSize: "12px",
+                                }}
+                              >
+                                {item.imageCount} images
+                              </p>
+                              ): <></>}
+                              <div
+                                className="col-6"
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "flex-start",
+                                }}
+                              >
+                                <h2
+                                  className=""
+                                  style={{
+                                    fontSize: "1rem",
+                                    fontWeight: "bolder",
+                                    whiteSpace: "normal",
+                                    lineHeight: "1.2",
+                                    textTransform: "capitalize",
+                                  }}
+                                >
+                                  {textBeforeComma(item.name)}
+                                </h2>
+                                <h2
+                                  className=""
+                                  style={{
+                                    fontSize: "0.8rem",
+                                    fontWeight: "bold",
+                                    whiteSpace: "normal",
+                                    lineHeight: "1.2",
+                                    textTransform: "capitalize",
+                                    color: "#6f8189",
+                                  }}
+                                >
+                                  {item.client_name}
+                                </h2>
+                              </div>
+                              <p
+                                className="icon-links"
+                                style={{ marginBottom: "10px" }}
+                              >
+                                {user.role_id !== 3 && (
+                                  <a
+                                    href="#"
+                                    className="gallery-link"
+                                    data-toggle="modal"
+                                    data-target="#bootstrap"
+                                    onClick={() => {
+                                      getCollectionData(item.slug);
+                                    }}
+                                  >
+                                    <i className="feather icon-settings"></i>
+                                  </a>
+                                )}
                                 <a
-                                  href={`${url2}view-gallery/${item.slug}`}
-                                  className="gallery-link"
+                                  href={item.dropbox_link}
+                                  className="gallery-link mx-1"
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
-                                  <i className="feather icon-eye"></i>
+                                  <i className="feather icon-box"></i>
+                                </a>
+                                <a
+                                  href="#"
+                                  className="gallery-link"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    navigator.clipboard.writeText(
+                                      item.dropbox_link
+                                    );
+                                  }}
+                                >
+                                  <i className="feather icon-copy"></i>
                                 </a>
                               </p>
                               <p className="description">{item.name}</p>
@@ -537,6 +723,7 @@ export const Dashboard = () => {
         isGalleryLocked={isGalleryLocked}
         isNotifyChecked={isNotifyChecked}
         loading={loading}
+        previewImage={previewImage}
         handleInputChange={handleInputChange}
         handleBannerChange={handleBannerChange}
         handleGalleryLockChange={handleGalleryLockChange}
