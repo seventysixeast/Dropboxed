@@ -527,6 +527,7 @@ export const Dashboard = () => {
                                 alignItems: "center",
                               }}
                             >
+                              {item.imageCount !== undefined  ? (
                               <p
                                 style={{
                                   position: "absolute",
@@ -541,6 +542,7 @@ export const Dashboard = () => {
                               >
                                 {item.imageCount} images
                               </p>
+                              ): <></>}
                               <div
                                 className="col-6"
                                 style={{
