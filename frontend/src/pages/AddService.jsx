@@ -27,11 +27,16 @@ const AddService = () => {
   });
 
   useEffect(() => {
-    getAllImageTypesData();
-    if (id) {
+    if (id != undefined) {
       getServiceById();
     }
   }, [id]);
+
+  useEffect(() =>{
+    if (id === undefined) {
+      getAllImageTypesData();
+    }
+  }, [id])
 
   const getAllImageTypesData = async () => {
     try {
@@ -56,6 +61,8 @@ const AddService = () => {
       ],
     });
   };
+
+  console.log(id);
 
   const handleSubmit = async () => {
     const formData = new FormData();
@@ -120,12 +127,13 @@ const AddService = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append("id", id);
+    formData.append("subdomain_id", subdomainId);
     try {
       let service = await getService(formData);
       const data = service.data;
 
       data.image_type_details = JSON.parse(data.image_type_details);
-      let typedata = await getAllImageTypes();
+      let typedata = await getAllImageTypes(formData);
       console.log(typedata);
       const updatedImageTypeDetails = data.image_type_details.map((detail) => {
         const imageType = typedata.data.find(
