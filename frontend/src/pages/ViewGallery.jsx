@@ -83,6 +83,7 @@ export const ViewGallery = () => {
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [folderPath, setFolderPath] = useState("");
   const [entriesList, setEntriesList] = useState();
+  
   const getTasks = async () => {
     if (authData.user === null) return;
     const formData = new FormData();
