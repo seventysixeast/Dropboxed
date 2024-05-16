@@ -17,6 +17,18 @@ const signup = async (userData) => {
     }
 };
 
+const verifyUserEmail = async (data) => {
+    try {
+        const response = await API.post("/auth/verify-email", data);
+        if (response.status !== 200) {
+            throw new Error("Failed to verification");
+        }
+        return response.data;
+    } catch (error) {
+        return error.response.data.error;
+    }
+};
+
 const clientSignup = async (userData) => {
     try {
         const response = await API.post("/auth/client-signup", userData);
@@ -129,6 +141,7 @@ const getRefreshToken = async (data) => {
 
 export {
     signup,
+    verifyUserEmail,
     login,
     verifyToken,
     clientSignup,

@@ -3,14 +3,14 @@ const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const User = require("../models/Users");
 const { generateAccessToken } = require("../utils/jwtUtils");
-const { SEND_EMAIL, SEND_OTP } = require("../helpers/emailTemplate");
-const { sendEmail } = require("../helpers/sendEmail");
 const { google } = require("googleapis");
 const { OAuth2 } = google.auth;
 const axios = require("axios");
 const BusinessClients = require("../models/BusinessClients");
 const clientController = require("../controllers/clientController");
 const sequelize = require('../config/sequelize');
+const { sendEmail, generateVerificationToken } = require("../helpers/sendEmail");
+const { SEND_VERIFICATION_EMAIL, SEND_OTP } = require("../helpers/emailTemplate");
 
 const oAuth2Client = new OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -163,6 +163,9 @@ exports.signup = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate verification token
+    const verificationToken = generateVerificationToken();
+
     // Create the user
     const newUser = await User.create({
       studioName,
@@ -172,20 +175,41 @@ exports.signup = async (req, res) => {
       role_id: 5,
       subdomain: studioName,
       account_email: email,
+      verification_token: verificationToken,
+      is_verified: false
     });
 
-    //SEND_EMAIL.replace('#studioName#', studioName);
     // Send email notification
-    await sendEmail(email, "Welcome to Our App", SEND_EMAIL);
+    var SEND_EMAIL = SEND_VERIFICATION_EMAIL(studioName, email, verificationToken);
+    sendEmail(email, "Welcome to Our App", SEND_EMAIL);
 
     res.status(200).json({
       success: true,
-      message: "Registration successfull",
+      message: "Registration successful. Please check your email for verification instructions.",
       user: newUser,
     });
   } catch (error) {
     console.error("Error signing up: ", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+exports.verifyEmail = async (req, res) => {
+  const { verificationToken } = req.body;
+  try {
+    const user = await User.findOne({ where: { verification_token: verificationToken } });
+    if (!user) {
+      throw new Error('Invalid verification token');
+    }
+    user.is_verified = true;
+    user.verification_token = null;
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully"
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Email verification failed" });
   }
 };
 
@@ -498,28 +522,31 @@ exports.verifyToken = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
   try {
     let email = req.body.email;
-    let code = Math.floor(100000 + Math.random() * 900000);
-    let foundUser = await User.update(
-      { otp: code },
-      {
-        where: { email: email },
-      }
-    );
-    if (foundUser) {
-      var OTPEmail = SEND_OTP.replace(/#email#/g, email).replace(
-        /#otp#/g,
-        code
+    let user = await User.findOne({
+      where: { email: email },
+      attributes: ['name']
+    });
+
+    if (user) {
+      let code = Math.floor(100000 + Math.random() * 900000);
+      await User.update(
+        { otp: code },
+        { where: { email: email } }
       );
+
+      var OTPEmail = SEND_OTP(user.name, email, code);
       sendEmail(email, "Password Reset", OTPEmail);
-      res.status(200).json({
+
+      return res.status(200).json({
         success: true,
-        message: "OTP sent, Please check your inbox or in spam mail.",
+        message: "OTP sent. Please check your inbox or spam mail.",
       });
     } else {
       return res.status(404).json({ error: "User not found" });
     }
   } catch (error) {
     console.error("Error updating user:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 

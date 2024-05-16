@@ -62,6 +62,15 @@ const Users = sequelize.define('User', {
     allowNull: true,
     unique: true
   },
+  is_verified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  verification_token: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   facebook: {
     type: DataTypes.STRING(255),
     allowNull: true,
