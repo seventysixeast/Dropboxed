@@ -389,8 +389,10 @@ const Collections = () => {
         Header: "Notify",
         Cell: ({ row }) =>
           row.original.notify_client ? (
-            <div className="badge badge-pill badge-light-primary">Notify</div>
-          ) : null,
+            <div className="badge badge-pill badge-light-primary">Pending</div>
+          ) : (
+            <div className="badge badge-pill badge-light-primary">Notified</div>
+          ),
       },
       {
         Header: "Action",
@@ -418,6 +420,10 @@ const Collections = () => {
             <button
               className="btn btn-icon btn-outline-warning mr-1 mb-1"
               title="Copy Url"
+              onClick={() => {
+                navigator.clipboard.writeText(row.original.dropbox_link);
+                toast.success("Link copied to clipboard!");
+              }}
             >
               <i className="feather white icon-copy"></i>
             </button>
