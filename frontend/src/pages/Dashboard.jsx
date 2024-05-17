@@ -15,6 +15,8 @@ import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
 import { getRefreshToken, verifyToken } from "../api/authApis";
 import axios from "axios";
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -41,6 +43,26 @@ export const Dashboard = () => {
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
+  const [tooltipText, setTooltipText] = useState('Copy to URL');
+
+  const handleCopy = (e, link) => {
+    e.preventDefault();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(link)
+        .then(() => {
+          setTooltipText('Copied!');
+          setTimeout(() => setTooltipText('Copy to clipboard'), 3000); // Reset tooltip text after 3 seconds
+        })
+        .catch((err) => {
+          console.error('Failed to copy URL: ', err);
+          setTooltipText('Failed to copy');
+        });
+    } else {
+      console.error('Clipboard API is not supported in this browser.');
+      setTooltipText('Clipboard not supported');
+    }
+  };
+
   const url = new URL(currentUrl);
 
   url.searchParams.set("userId", userId);
@@ -65,10 +87,10 @@ export const Dashboard = () => {
 
   useEffect(() => {
     getClients();
-    // if (collections.length == 0) {
-    //   getAllCollectionsData();
-    // }
-    getAllCollectionsData();
+    if (collections.length == 0) {
+      getAllCollectionsData();
+    }
+
     verifyToken(accessToken);
     getRefreshToken(user.dropbox_refresh);
   }, []);
@@ -599,7 +621,7 @@ export const Dashboard = () => {
                                 >
                                   <i className="feather icon-box"></i>
                                 </a>
-                                <a
+                                {/* <a
                                   href="#"
                                   className="gallery-link"
                                   onClick={(e) => {
@@ -610,7 +632,17 @@ export const Dashboard = () => {
                                   }}
                                 >
                                   <i className="feather icon-copy"></i>
+                                </a> */}
+                                <a
+                                  href="#"
+                                  className="gallery-link"
+                                  onClick={(e) => handleCopy(e, item.dropbox_link)}
+                                  data-tooltip-id="copyTooltip"
+                                  data-tooltip-content={tooltipText}
+                                >
+                                  <i className="feather icon-copy"></i>
                                 </a>
+                                <Tooltip id="copyTooltip" place="top" effect="solid" />
                               </p>
                               <p className="description">{item.name}</p>
                             </figcaption>

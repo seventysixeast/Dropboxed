@@ -987,7 +987,7 @@ html body .content .content-wrapper {
   font-size: 1.0125rem;
   margin: 0;
   display: inline-block;
-  max-width: 20rem;
+  /* max-width: 20rem; */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

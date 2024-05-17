@@ -1043,7 +1043,7 @@ figure.effect-zoe p.description {
   transition: opacity 0.35s;
   -webkit-backface-visibility: hidden;
   white-space: nowrap;
-  width: 95%;
+  width: 60%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
