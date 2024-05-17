@@ -83,7 +83,7 @@ export const ViewGallery = () => {
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [folderPath, setFolderPath] = useState("");
   const [entriesList, setEntriesList] = useState();
-  
+
   const getTasks = async () => {
     if (authData.user === null) return;
     const formData = new FormData();
@@ -310,6 +310,7 @@ export const ViewGallery = () => {
   };
 
   const fetchBatchThumbnails = async (entries, data, tokens) => {
+    setLoader(true);
     const urls = [];
     try {
       const response = await axios.post(
@@ -356,8 +357,10 @@ export const ViewGallery = () => {
           });
         })
       );
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching batch thumbnails:", error);
+      setLoading(false);
     }
     return urls;
   };
@@ -792,9 +795,8 @@ export const ViewGallery = () => {
                 </h1>
                 <button
                   onClick={handleScrollToGallery}
-                  className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${
-                    showAnimation ? "slide-down" : ""
-                  }`}
+                  className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${showAnimation ? "slide-down" : ""
+                    }`}
                   style={{ animationDelay: showAnimation ? "0.5s" : "0s" }}
                 >
                   View Gallery
@@ -865,15 +867,13 @@ export const ViewGallery = () => {
               <div className="app-content-overlay"></div>
             )}
             <section id="image-gallery" className="image-gallery">
-              <div className="card-content collapse show">
-                <div className="card-body my-gallery">
-                  <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
-                    <div className="row">
-                      <Masonry
-                        breakpointCols={breakpointColumnsObj}
-                        className="my-masonry-grid"
-                        columnClassName="my-masonry-grid_column"
-                      >
+              {loading ? (
+                <LoadingOverlay />
+              ) : (
+                <div className="card-content collapse show">
+                  <div className="card-body my-gallery">
+                    <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
+                      <div className="row">
                         {imageUrls.map((image, index) => (
                           <Item
                             key={index}
@@ -891,12 +891,7 @@ export const ViewGallery = () => {
                                 }}
                                 onClick={open}
                               >
-                                <div
-                                  className="image-container"
-                                  itemProp=""
-                                  onMouseEnter={() => setOverlayVisible(true)}
-                                  onMouseLeave={() => setOverlayVisible(true)}
-                                >
+                                <div className="image-container">
                                   <img
                                     className=""
                                     src={image.url}
@@ -904,63 +899,16 @@ export const ViewGallery = () => {
                                     width={"100%"}
                                     height={"auto"}
                                   />
-                                  {overlayVisible && (
-                                    <div className="overlay">
-                                      <p className="icon-links">
-                                        {authData.user !== null && (
-                                          <>
-                                            <a>
-                                              <span
-                                                className="feather icon-edit"
-                                                style={{ marginRight: "8px" }}
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  toggleNewTaskModal();
-                                                  handleShareImage(image);
-                                                }}
-                                              ></span>
-                                            </a>
-                                            <a>
-                                              <span
-                                                className="text-right feather icon-download"
-                                                title="Download"
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  setSelectedImageUrl(
-                                                    image.path_display
-                                                  );
-                                                  if (
-                                                    authData.user.role_id !== 3
-                                                  ) {
-                                                    setDownloadImageModal(true);
-                                                  } else if (
-                                                    (authData.user.role_id =
-                                                      3 &&
-                                                      collection.lock_gallery ==
-                                                        true)
-                                                  ) {
-                                                    toast.error(
-                                                      "Gallery is locked! Please contact admin."
-                                                    );
-                                                  }
-                                                }}
-                                              ></span>
-                                            </a>
-                                          </>
-                                        )}
-                                      </p>
-                                    </div>
-                                  )}
                                 </div>
                               </figure>
                             )}
                           </Item>
                         ))}
-                      </Masonry>
-                    </div>
-                  </CustomGallery>
+                      </div>
+                    </CustomGallery>
+                  </div>
                 </div>
-              </div>
+              )}
             </section>
             <DefaultLayout
               shareButton={true}

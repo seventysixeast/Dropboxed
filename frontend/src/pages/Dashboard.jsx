@@ -65,10 +65,10 @@ export const Dashboard = () => {
 
   useEffect(() => {
     getClients();
-    if (collections.length == 0) {
-      getAllCollectionsData();
-    }
-
+    // if (collections.length == 0) {
+    //   getAllCollectionsData();
+    // }
+    getAllCollectionsData();
     verifyToken(accessToken);
     getRefreshToken(user.dropbox_refresh);
   }, []);
@@ -200,7 +200,6 @@ export const Dashboard = () => {
       notify_client: "",
     });
   };
-  console.log(formData.banner);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -474,6 +473,17 @@ export const Dashboard = () => {
                         {user.role_id !== 3 && (
                           <button
                             type="button"
+                            className="btn btn-outline-primary mr-1"
+                            data-toggle="modal"
+                            data-target="#appointment"
+                            onClick={() => { window.location.href = '/booking-list-calendar'; }}
+                          >
+                            New Appointment
+                          </button>
+                        )}
+                        {user.role_id !== 3 && (
+                          <button
+                            type="button"
                             className="btn btn-outline-primary"
                             data-toggle="modal"
                             data-target="#bootstrap"
@@ -502,7 +512,6 @@ export const Dashboard = () => {
                       <div
                         className="col-md-3 mb-1"
                         key={item.id}
-                        style={{ maxWidth: "100%" }}
                       >
                         <a
                           href={`${url2}view-gallery/${item.slug}`}
@@ -527,22 +536,22 @@ export const Dashboard = () => {
                                 alignItems: "center",
                               }}
                             >
-                              {item.imageCount !== undefined  ? (
-                              <p
-                                style={{
-                                  position: "absolute",
-                                  bottom: "4rem",
-                                  right: "5px",
-                                  background: "rgba(0, 0, 0, 0.5)",
-                                  color: "#fff",
-                                  padding: "5px 10px",
-                                  borderRadius: "5px",
-                                  fontSize: "12px",
-                                }}
-                              >
-                                {item.imageCount} images
-                              </p>
-                              ): <></>}
+                              {item.imageCount !== undefined ? (
+                                <p
+                                  style={{
+                                    position: "absolute",
+                                    bottom: "4rem",
+                                    right: "5px",
+                                    background: "rgba(0, 0, 0, 0.5)",
+                                    color: "#fff",
+                                    padding: "5px 10px",
+                                    borderRadius: "5px",
+                                    fontSize: "12px",
+                                  }}
+                                >
+                                  {item.imageCount} images
+                                </p>
+                              ) : <></>}
                               <div
                                 className="col-6"
                                 style={{
@@ -551,18 +560,6 @@ export const Dashboard = () => {
                                   alignItems: "flex-start",
                                 }}
                               >
-                                <h2
-                                  className=""
-                                  style={{
-                                    fontSize: "1rem",
-                                    fontWeight: "bolder",
-                                    whiteSpace: "normal",
-                                    lineHeight: "1.2",
-                                    textTransform: "capitalize",
-                                  }}
-                                >
-                                  {textBeforeComma(item.name)}
-                                </h2>
                                 <h2
                                   className=""
                                   style={{

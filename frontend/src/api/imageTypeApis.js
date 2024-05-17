@@ -2,8 +2,12 @@ import API from "./baseApi";
 
 const getAllImageTypes = async (data) => {
   try {
-    const response = await API.post('/imageType/getImageTypes', data);
-    if (response.status !== 200) {
+    const response = await API.post(`/imageType/getImageTypes`, data, {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    if (!response.status === 200) {
       throw new Error('Failed to get ImageTypes');
     }
     return response.data;

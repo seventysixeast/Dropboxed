@@ -414,7 +414,7 @@ const Clients = () => {
                               ? `${IMAGE_URL}/${item.profile_photo}`
                               : "../../../app-assets/images/portrait/medium/dummy.png"
                           }
-                          className="rounded-circle width-150"
+                          className="rounded-circle width-150 height-150"
                           alt="Client image"
                         />
                       </div>

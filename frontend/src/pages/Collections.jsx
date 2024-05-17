@@ -376,7 +376,7 @@ const Collections = () => {
       { Header: "Booking Title", accessor: "client_address" },
       { Header: "Services", accessor: "packages_name" },
       {
-        Header: "Lock/Unlock",
+        Header: "Unlock/Lock",
         Cell: ({ row }) => (
           <Switch
             checked={row.original.lock_gallery}
@@ -389,7 +389,7 @@ const Collections = () => {
         Header: "Notify",
         Cell: ({ row }) =>
           row.original.notify_client ? (
-            <div className="badge badge-pill badge-light-primary">Pending</div>
+            <div className="badge badge-pill" style={{backgroundColor: "rgb(255, 116, 140)"}}>Pending</div>
           ) : (
             <div className="badge badge-pill badge-light-primary">Notified</div>
           ),

@@ -1,11 +1,11 @@
 const ImageType = require('../models/ImageTypes');
 
 const getImageTypes = async (req, res) => {
-  console.log(req.body.subdomain_id);
+  console.log("req.body.subdomainId",req.body.subdomainId);
   try {
     const imagesTypes = await ImageType.findAll({
       where: {
-        subdomain_id: req.body.subdomain_id
+        subdomain_id: req.body.subdomainId
       },
       order: [["type", "DESC"]]
     });

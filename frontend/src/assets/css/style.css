@@ -29,6 +29,7 @@
 .brand-logo {
   width: 10rem;
   height: auto;
+  padding-left: 11px;
 }
 
 .package-card {
@@ -129,10 +130,6 @@ figure.effect-ruby p {
 
 i.feather {
   cursor: pointer;
-}
-
-figure.effect-zoe p.description {
-  bottom: 6em !important;
 }
 
 figure.effect-zoe figcaption {

@@ -134,10 +134,6 @@ i.feather {
   cursor: pointer;
 }
 
-figure.effect-zoe p.description {
-  bottom: 6em !important;
-}
-
 figure.effect-zoe figcaption {
   padding: 0.5em;
   height: 2.75em;
