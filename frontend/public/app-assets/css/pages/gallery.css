@@ -1124,3 +1124,17 @@ figure.effect-chico h2 {
     width: 100%;
   }
 }
+
+@media only screen and (max-width: 600px) {
+  .grid-hover figure img {
+    max-width: auto !important;
+  }
+
+  .gallery-thumbnail {
+    max-width: 75% !important;
+  }
+
+  .btn-social-icon {
+    width: 1.95rem !important;
+}
+}

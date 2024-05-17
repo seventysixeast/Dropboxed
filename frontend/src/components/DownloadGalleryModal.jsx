@@ -86,7 +86,7 @@ const DownloadGalleryModal = ({
                     value="original"
                     checked={selectedSize === "original"}
                     onChange={handleSizeChange}
-                    style={{ marginRight: "10rem" }}
+                    style={{ marginRight: "1rem" }}
                   />
                   <label htmlFor="original" className="form-check-label mb-0">
                     High Resolution
@@ -104,7 +104,7 @@ const DownloadGalleryModal = ({
                     value="w2048h1536"
                     checked={selectedSize === "w2048h1536"}
                     onChange={handleSizeChange}
-                    style={{ marginRight: "11.5rem" }}
+                    style={{ marginRight: "1rem" }}
                   />
                   <label
                     htmlFor="original"
@@ -129,7 +129,7 @@ const DownloadGalleryModal = ({
                     value="device"
                     checked={selectedDownloadTo === "device"}
                     onChange={handleDownloadToChange}
-                    style={{ marginRight: "10rem" }}
+                    style={{ marginRight: "1rem" }}
                   />
                   <label
                     htmlFor="saveToDevice"
@@ -151,7 +151,7 @@ const DownloadGalleryModal = ({
                       className="bg-primary"
                       checked={selectedDownloadTo === "dropbox"}
                       onChange={handleDownloadToChange}
-                      style={{ marginRight: "8rem" }}
+                      style={{ marginRight: "1rem" }}
                     />
                     <label
                       htmlFor="saveToDropbox"
@@ -195,7 +195,7 @@ const DownloadGalleryModal = ({
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-primary w-75"
+              className="btn btn-primary"
               onClick={onConfirm}
             >
               Download

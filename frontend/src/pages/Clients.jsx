@@ -223,7 +223,7 @@ const Clients = () => {
       <div className="content-overlay"></div>
       <div className="content-wrapper">
         <div className="content-header row mt-2">
-          <div className="content-header-left col-md-6 col-6 mb-2">
+          <div className="content-header-left col-md-6 col-12 mb-2">
             <h3 className="content-header-title mb-0">Clients</h3>
             <div className="row breadcrumbs-top">
               <div className="breadcrumb-wrapper col-12">
@@ -236,7 +236,7 @@ const Clients = () => {
               </div>
             </div>
           </div>
-          <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
+          <div className="content-header-right col-md-6 col-12 d-flex justify-content-end align-items-center mb-2">
             <ul className="list-inline mb-0">
               <li>
                 <div className="mr-2 primary">
@@ -249,7 +249,7 @@ const Clients = () => {
                 </div>
               </li>
               <li>
-                <div className="search-button mr-2">
+                <div className="search-button mr-2 mb-1">
                   <input
                     type="text"
                     className="form-control"
