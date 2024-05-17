@@ -481,6 +481,7 @@ export const ViewGallery = () => {
     }
     setDownloadOptions({ device: "device", size: "original" });
     setDownloadGalleryModal(false);
+    setLoading(false);
   };
 
   const downloadFolderAsZip = async (accessToken) => {
@@ -824,6 +825,7 @@ export const ViewGallery = () => {
                 {authData.user !== null && (
                   <span
                     className="text-right feather icon-download black"
+                    style={{cursor: "pointer"}}
                     title="Download"
                     onClick={() => {
                       if (authData.user.role_id !== 3) {
