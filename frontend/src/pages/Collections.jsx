@@ -13,13 +13,15 @@ import {
   deleteCollection,
   getDropboxRefreshToken,
   updateGalleryLock,
+  updateCollection,
 } from "../api/collectionApis";
-import { verifyToken } from "../api/authApis";
+import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
 import TableCustom from "../components/Table";
 import DeleteModal from "../components/DeleteModal";
+import axios from "axios";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -271,6 +273,54 @@ const Collections = () => {
     }
   };
 
+  const updateImageCount = async (data) => {
+    try {
+      const tokens = await getRefreshToken(data.dropbox_refresh);
+      const sharedData = await axios.post(
+        "https://api.dropboxapi.com/2/sharing/get_shared_link_metadata",
+        { url: data.dropbox_link },
+        {
+          headers: {
+            Authorization: `Bearer ${tokens.access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      let thePath = "";
+
+      if (sharedData.data.path_lower == undefined) {
+        thePath = "";
+      } else {
+        thePath = sharedData.data.path_lower;
+      }
+      const listResponse = await axios.post(
+        "https://api.dropboxapi.com/2/files/list_folder",
+        { path: thePath },
+        {
+          headers: {
+            Authorization: `Bearer ${tokens.access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const entries = listResponse.data.entries;
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", data.id);
+      formDataToSend.append("image_count", entries.length);
+      let res = await updateCollection(formDataToSend);
+      if (res.success) {
+        getAllCollectionsData()
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
   const getDropboxRefresh = async () => {
     const formDataToSend = new FormData();
     formDataToSend.append("id", user.subdomain_id);
@@ -389,10 +439,35 @@ const Collections = () => {
         Header: "Notify",
         Cell: ({ row }) =>
           row.original.notify_client ? (
-            <div className="badge badge-pill" style={{backgroundColor: "rgb(255, 116, 140)"}}>Pending</div>
-          ) : (
             <div className="badge badge-pill badge-light-primary">Notified</div>
+          ) : (
+            <div
+              className="badge badge-pill"
+              style={{ backgroundColor: "rgb(255, 116, 140)" }}
+            >
+              Pending
+            </div>
           ),
+      },
+      {
+        Header: "Image Count",
+        Cell: ({ row }) => (
+          <div className="btnsrow text-center">
+            <div className="badge badge-pill badge-light-primary">
+              {row.original.image_count} images
+            </div>
+            <button
+              className="btn btn-sm btn-icon btn-outline-secondary mt-1 mb-1"
+              title="Edit"
+              onClick={(e) => {
+                e.preventDefault();
+                updateImageCount(row.original);
+              }}
+            >
+              Update Count
+            </button>
+          </div>
+        ),
       },
       {
         Header: "Action",
@@ -421,8 +496,8 @@ const Collections = () => {
               className="btn btn-icon btn-outline-warning mr-1 mb-1"
               title="Copy Url"
               onClick={() => {
-                navigator.clipboard.writeText(row.original.dropbox_link);
-                toast.success("Link copied to clipboard!");
+                navigator.clipboard.writeText(row.original.slug);
+                toast.success("Link Copied!");
               }}
             >
               <i className="feather white icon-copy"></i>

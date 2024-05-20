@@ -8,5 +8,6 @@ router.post('/getCollection', collectionController.getCollection);
 router.post('/getDropboxRefresh', collectionController.getDropboxRefresh)
 router.post('/deleteCollection', collectionController.deleteCollection);
 router.post('/updateGalleryLock', collectionController.updateGalleryLock);
+router.post('/updateCollection', collectionController.updateCollection);
 
 module.exports = router;

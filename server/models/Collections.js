@@ -120,6 +120,10 @@ const Collections = sequelize.define('Collections', {
     allowNull: false,
     defaultValue: false
   },
+  image_count: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   subdomain_id: {
     type: DataTypes.INTEGER,
     allowNull: true,

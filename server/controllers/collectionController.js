@@ -37,7 +37,8 @@ const addGallery = async (req, res) => {
       notify_client: req.body.notify_client,
       subdomain_id: req.body.subdomainId,
       dropbox_refresh: user.dropbox_refresh,
-      slug: slug, // Assign the unique slug
+      slug: slug,
+      image_count: req.body.image_count
     };
 
     if (req.files && Object.keys(req.files).length) {
@@ -333,4 +334,20 @@ const deleteCollection = async (req, res) => {
   }
 };
 
-module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection };
+const updateCollection = async (req, res) => {
+  try {
+    const collectionId = req.body.id;
+    const updated = await Collection.update(req.body, {
+      where: { id: collectionId }
+    });
+    if (updated) {
+      res.status(200).json({ success: true, message: "Collection updated successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "Collection not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update Collection" });
+  }
+}
+
+module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection };

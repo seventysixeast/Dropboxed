@@ -299,7 +299,6 @@ export const BookingListComponent = () => {
             (booking) => booking.user_id === userId
           ),
         };
-        // filter based on booking_date. latest to oldest
         allBookingData.data.sort((a, b) => {
           return new Date(b.booking_date) - new Date(a.booking_date);
         });

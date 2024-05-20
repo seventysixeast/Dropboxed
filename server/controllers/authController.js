@@ -587,7 +587,7 @@ exports.resetPassword = async (req, res) => {
 
 exports.dropboxAuth = async (req, res) => {
   try {
-    let { dropbox_refresh, dropbox_access, id } = req.body;
+    let { dropbox_refresh, dropbox_access, dropbox_id, id } = req.body;
 
     if (
       dropbox_refresh === undefined ||
@@ -611,7 +611,7 @@ exports.dropboxAuth = async (req, res) => {
     }
 
     await User.update(
-      { dropbox_refresh, dropbox_access },
+      { dropbox_refresh, dropbox_access, dropbox_id},
       {
         where: { id: id },
       }

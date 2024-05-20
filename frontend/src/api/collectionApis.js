@@ -88,4 +88,20 @@ const deleteCollection = async (data) => {
   }
 };
 
-export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, updateGalleryLock, deleteCollection };
+const updateCollection = async (data) => {
+  try {
+    const response = await API.post('/collection/updateCollection', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to update collection');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, updateGalleryLock, deleteCollection, updateCollection };

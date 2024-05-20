@@ -181,6 +181,10 @@ const Users = sequelize.define('User', {
     type: DataTypes.STRING(255),
     allowNull: true
   },
+    dropbox_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   created: {
     type: DataTypes.DATE,
     allowNull: false,
