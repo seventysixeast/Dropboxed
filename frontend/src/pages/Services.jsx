@@ -75,7 +75,7 @@ const CardsPackages = () => {
         <div className="content-overlay"></div>
         <div className="content-wrapper">
           <div className="content-header row mt-2">
-            <div className="content-header-left col-md-6 col-6 mb-2">
+            <div className="content-header-left col-md-6 col-7 mb-2">
               <h3 className="content-header-title mb-0">Services & Prices</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
@@ -88,7 +88,7 @@ const CardsPackages = () => {
                 </div>
               </div>
             </div>
-            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
+            <div className="content-header-right col-md-6 col-5 d-flex justify-content-end align-items-center mb-2">
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group">
