@@ -49,7 +49,7 @@
     position: relative;
     overflow: hidden;
     margin: 10px 1%;
-    min-width: 320px;
+    /* min-width: 320px; */
     max-width: 480px;
     max-height: 360px;
     background: #3085a3;
@@ -768,7 +768,7 @@ figure.effect-zoe p.description {
   color: #fff;
   text-transform: none;
   font-size: 90%;
-  opacity: 0;
+  /* opacity: 0; */
   transition: opacity 0.35s;
   -webkit-backface-visibility: hidden; }
 

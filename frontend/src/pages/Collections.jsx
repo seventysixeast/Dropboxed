@@ -389,7 +389,7 @@ const Collections = () => {
         Header: "Notify",
         Cell: ({ row }) =>
           row.original.notify_client ? (
-            <div className="badge badge-pill" style={{backgroundColor: "rgb(255, 116, 140)"}}>Pending</div>
+            <div className="badge badge-pill" style={{ backgroundColor: "rgb(255, 116, 140)" }}>Pending</div>
           ) : (
             <div className="badge badge-pill badge-light-primary">Notified</div>
           ),
@@ -442,7 +442,7 @@ const Collections = () => {
         <div className="content-overlay"></div>
         <div className="content-wrapper">
           <div className="content-header row mt-2">
-            <div className="content-header-left col-md-6 col-6 mb-2">
+            <div className="content-header-left col-md-6 col-7 mb-2">
               <h3 className="content-header-title mb-0">Collection List</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
@@ -455,7 +455,7 @@ const Collections = () => {
                 </div>
               </div>
             </div>
-            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
+            <div className="content-header-right col-md-6 col-5 d-flex justify-content-end align-items-center mb-2">
               <ul className="list-inline mb-0">
                 <li>
                   <div className="form-group d-flex">

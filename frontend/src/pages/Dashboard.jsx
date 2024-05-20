@@ -545,6 +545,7 @@ export const Dashboard = () => {
                                 ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
                                 : "../../../app-assets/images/gallery/9.jpg"
                             }
+                            style={{ width: "320px", height: "240px" }}
                           />
                           <figcaption style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             {item.imageCount !== undefined ? (
@@ -564,7 +565,8 @@ export const Dashboard = () => {
                             <div className="col-6" style={{
                               display: "flex",
                               flexDirection: "column",
-                              alignItems: "flex-start"
+                              alignItems: "flex-start",
+                              paddingLeft: 0
                             }}>
                               <h2 style={{
                                 fontSize: "0.8rem",
@@ -610,7 +612,7 @@ export const Dashboard = () => {
                               </a>
                               <Tooltip id={`copyTooltip-${item.id}`} place="top" effect="solid" />
                             </p>
-                            <p className="description">{item.name}</p>
+                            <p className="description"><b>{item.name}</b></p>
                           </figcaption>
                         </figure>
                       </a>
