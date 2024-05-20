@@ -56,15 +56,16 @@ const TableCustom = ({ data, columns }) => {
                 <div className="card pb-4">
                   <div className="card-content collapse show">
                     <div className="card-body card-dashboard dataTables_wrapper dt-bootstrap4">
-                      <div className="d-flex justify-content-between" style={{ marginBottom: '5px', marginLeft: '0 !important' }}>
-                        <div className="col-sm-12 col-md-5" style={{ marginLeft: '-15px' }}>
-                          <span> Show{" "}
+                      <div className="d-flex flex-wrap justify-content-between mb-2">
+                        <div className="col-12 col-md-5 d-flex align-items-center mb-2 mb-md-0">
+                          <span>
+                            Show{" "}
                             <select
                               value={pageSize}
                               onChange={(e) => {
                                 setPageSize(Number(e.target.value));
                               }}
-                              className="custom-select custom-select-sm form-control form-control-sm  w-25"
+                              className="custom-select custom-select-sm form-control form-control-sm w-auto"
                             >
                               {[10, 25, 50, 100].map((pageSize) => (
                                 <option key={pageSize} value={pageSize}>
@@ -75,11 +76,10 @@ const TableCustom = ({ data, columns }) => {
                             {" "}Entries
                           </span>
                         </div>
-                        <div className="col-sm-12 col-md-7">
+                        <div className="col-12 col-md-2 d-flex justify-content-md-end">
                           <input
                             type="search"
-                            className="form-control form-control-sm float-right w-25"
-                            style={{ marginRight: '-16px' }}
+                            className="form-control form-control-sm w-100 w-md-auto"
                             value={globalFilter || ""}
                             onChange={(e) => setGlobalFilter(e.target.value)}
                             placeholder="Search..."
@@ -120,7 +120,7 @@ const TableCustom = ({ data, columns }) => {
                     <div className="col-xs-12 col-sm-12 col-md-5">
                     </div>
                     <div className="col-sm-12 col-md-7 float-right">
-                      <div className="dataTables_paginate paging_full_numbers float-right">
+                      <div className="dataTables_paginate paging_full_numbers">
                         <ul className="pagination">
                           <li className={`paginate_button page-item first ${!canPreviousPage ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => gotoPage(0)}>First</button>
