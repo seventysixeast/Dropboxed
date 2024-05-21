@@ -18,6 +18,25 @@ const oAuth2Client = new OAuth2(
   process.env.GOOGLE_CLIENT_CALLBACK
 );
 
+exports.verifyEmail = async (req, res) => {
+  const { verificationToken } = req.body;
+  try {
+    const user = await User.findOne({ where: { verification_token: verificationToken } });
+    if (!user) {
+      throw new Error('Invalid verification token');
+    }
+    user.is_verified = true;
+    user.verification_token = null;
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully"
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Email verification failed" });
+  }
+};
+
 exports.login = async (req, res) => {
   const { userName, password, subdomain } = req.body;
   let subdomain_id = "";
@@ -194,25 +213,6 @@ exports.signup = async (req, res) => {
   }
 };
 
-exports.verifyEmail = async (req, res) => {
-  const { verificationToken } = req.body;
-  try {
-    const user = await User.findOne({ where: { verification_token: verificationToken } });
-    if (!user) {
-      throw new Error('Invalid verification token');
-    }
-    user.is_verified = true;
-    user.verification_token = null;
-    await user.save();
-    res.status(200).json({
-      success: true,
-      message: "Email verified successfully"
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Email verification failed" });
-  }
-};
-
 async function createCalendar(data) {
   oAuth2Client.setCredentials({
     access_token: data.access_token,
@@ -355,92 +355,81 @@ exports.google = async (req, res) => {
 
 exports.clientSignup = async (req, res) => {
   try {
-    let imageName = req.files && req.files.profile_photo.name;
+    const { name, email, phone, business_name, password, subdomain } = req.body;
+    const profilePhoto = req.files && req.files.profile_photo;
 
-    const { password } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: "Email is required" });
+    }
+
+    if (!password) {
+      return res.status(400).json({ success: false, error: "Password is required" });
+    }
+
+    const subdomainUser = await User.findOne({
+      where: { role_id: 5, subdomain },
+    });
+
+    if (!subdomainUser) {
+      return res.status(400).json({ success: false, error: "Subdomain does not exist" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    const verificationToken = generateVerificationToken();
+
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
+      return res.status(400).json({ success: false, error: "Already registered with this Email id." });
+    }
+
+    if (phone) {
+      const existingPhone = await User.findOne({ where: { phone } });
+      if (existingPhone) {
+        return res.status(400).json({ success: false, error: "Phone number already exists" });
+      }
+    }
+
     let clientData = {
-      name: req.body.name,
-      email: req.body.email,
-      phone: req.body.phone || "",
-      business_name: req.body.business_name || "",
+      name,
+      email,
+      phone: phone || "",
+      business_name: business_name || "",
       role_id: 3,
-      //profile_photo: '',
       password: hashedPassword,
+      verification_token: verificationToken,
+      is_verified: false,
     };
 
-    // Check if a subdomain exists for the business
-    const subdomainUser = await User.findOne({
-      where: { role_id: 5, subdomain: req.body.subdomain },
-    });
-    if (!subdomainUser) {
-      return res
-        .status(200)
-        .json({ success: false, error: "Subdomain does not exist" });
-    }
+    if (profilePhoto) {
+      const uniqueImageName = `${Date.now()}_${profilePhoto.name}`;
+      const fileUrl = `${process.cwd()}/public/clients/${uniqueImageName}`;
 
-    /*if (req.files && Object.keys(req.files).length) {
-      let file = req.files.profile_photo;
-
-      // Generate a unique image name using timestamp
-      const uniqueImageName = `${Date.now()}_${file.name}`;
-
-      let fileUrl = `${process.cwd()}/public/clients/` + uniqueImageName;
-
-      file.mv(fileUrl, async function (err) {
-        if (err) {
-          console.log("Error moving image:", fileUrl, err);
-        }
-      });
-
-      // Assign the unique image name to clientData
+      await profilePhoto.mv(fileUrl);
       clientData.profile_photo = uniqueImageName;
-    }*/
-
-    if (req.body.email !== "") {
-      const existingEmail = await User.findOne({
-        where: { email: req.body.email },
-      });
-      if (existingEmail) {
-        return res.status(200).json({
-          success: false,
-          error: "Already registerd with this Email id.",
-        });
-      }
-    }
-    if (req.body.phone !== "") {
-      const existingPhone = await User.findOne({
-        where: { phone: req.body.phone },
-      });
-      if (existingPhone) {
-        return res
-          .status(200)
-          .json({ success: false, error: "Phone number already exists" });
-      }
     }
 
-    // Create the client
     const client = await User.create(clientData);
 
-    // Link the client to the subdomain
     await BusinessClients.create({
       business_id: subdomainUser.id,
       client_id: client.id,
       status: 1,
     });
 
-    // update redis
     clientController.updateRedisCache(subdomainUser.id);
+
+    const emailContent = SEND_VERIFICATION_EMAIL(name, email, verificationToken);
+    sendEmail(email, "Welcome to Our App", emailContent);
 
     res.status(200).json({
       success: true,
-      message: "Client registered successfully",
+      message: "Client registered successfully. Please check your email for verification instructions.",
       data: client.id,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to register client" });
+    console.error("Error registering client:", error);
+    res.status(500).json({ success: false, error: "Failed to register client" });
   }
 };
 
@@ -611,7 +600,7 @@ exports.dropboxAuth = async (req, res) => {
     }
 
     await User.update(
-      { dropbox_refresh, dropbox_access, dropbox_id},
+      { dropbox_refresh, dropbox_access, dropbox_id },
       {
         where: { id: id },
       }

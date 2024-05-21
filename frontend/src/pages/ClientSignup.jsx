@@ -55,7 +55,7 @@ const ClientSignup = () => {
             await validationSchema.validate(userData, { abortEarly: false });
             const response = await clientSignup(userData);
             if (response && response.success) {
-                toast.success('Registration successful');
+                toast.success(response.message);
                 navigate("/login");
             } else {
                 toast.error(response.error);

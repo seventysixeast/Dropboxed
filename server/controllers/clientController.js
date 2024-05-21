@@ -3,9 +3,11 @@ const BusinessClients = require("../models/BusinessClients");
 const Collections = require("../models/Collections");
 const redis = require("ioredis");
 const redisClient = new redis();
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+const { SEND_NEW_PASSWORD } = require('../helpers/emailTemplate');
 
 const updateRedisCache = async (subdomain_id) => {
-  console.log("subdomain_id", subdomain_id);
   try {
     const clients = await BusinessClients.findAll({
       where: {
@@ -131,6 +133,9 @@ const getClientPhotographers = async (req, res) => {
 
 const createClient = async (req, res) => {
   try {
+    // Generate random password
+    let password = Math.random().toString(36).slice(-8);
+    let hashedPassword = await bcrypt.hash(password, 10);
     let imageName = req.files && req.files.profile_photo.name;
     let clientData = {
       name: req.body.name,
@@ -139,6 +144,7 @@ const createClient = async (req, res) => {
       business_name: req.body.business_name,
       role_id: req.body.role_id,
       profile_photo: imageName || req.body.profile_photo,
+      password: hashedPassword
     };
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
@@ -181,8 +187,10 @@ const createClient = async (req, res) => {
       await BusinessClients.create({
         business_id: req.body.subdomainId,
         client_id: client.id,
-        status: 1,
+        status: 1
       });
+      // Send password to the user's email
+      sendPasswordByEmail(client.name, client.email, password);
     }
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
@@ -190,13 +198,39 @@ const createClient = async (req, res) => {
       success: true,
       message: req.body.id
         ? "Client updated successfully"
-        : "Client created successfully",
+        : "Client added successfully. Password sent to his email.",
       data: client,
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to add/update client" });
   }
 };
+
+function sendPasswordByEmail(name, email, password) {
+  let transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    auth: {
+      user: process.env.SMTP_USERNAME,
+      pass: process.env.SMTP_PASSWORD
+    }
+  });
+
+  let mailOptions = {
+    from: process.env.SMTP_EMAIL_FROM,
+    to: email,
+    subject: 'Your New Password',
+    html: SEND_NEW_PASSWORD(name, email, password)
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+}
 
 const getClient = async (req, res) => {
   try {
