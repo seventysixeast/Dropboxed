@@ -462,8 +462,6 @@ export const BookingListComponent = () => {
     });
   };
 
-  console.log(bookingData);
-
   const handleEventClick = (event) => {
     let id = event.event._def.publicId;
 
@@ -668,8 +666,6 @@ const handleDateChange = async (arg) => {
 
   setShowDateModel(true);
 };
-
-  console.log(updateData);
 
   const handleNotifyChange = (data) => {
     setUpdateData({
@@ -1870,7 +1866,6 @@ const handleDateChange = async (arg) => {
                           eventResize={handleEventResize}
                           firstDay={1}
                           dateClick={(info) => {
-                            // console.log(info);
                             if (info.allDay === true) {
                               return;
                             }

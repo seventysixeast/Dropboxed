@@ -27,8 +27,6 @@ const GoogleOAuth = () => {
                     }
                 )
                 .then((response) => {
-                    console.log("Backend response:", response.data);
-                    // redirect to redirectUrl
                     window.location.href = redirectUrl.href;
                 })
                 .catch((error) => {

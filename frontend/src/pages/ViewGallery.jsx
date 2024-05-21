@@ -90,7 +90,6 @@ export const ViewGallery = () => {
   const currentUrl = window.location.href;
 
   const url2 = new URL(currentUrl);
-  console.log(url2);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
   const [showPopup, setShowPopup] = useState(false);

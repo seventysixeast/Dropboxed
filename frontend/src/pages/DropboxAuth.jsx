@@ -34,7 +34,6 @@ const DropboxOAuth = () => {
             });
 
             const data = await response.json();
-            console.log(data);
 
             setAccessToken(data.access_token);
 

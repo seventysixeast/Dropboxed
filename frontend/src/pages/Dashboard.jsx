@@ -51,7 +51,6 @@ export const Dashboard = () => {
   const [galleryView, setGalleryView] = useState("grid");
 
   const url2 = new URL(currentUrl);
-  console.log(url2);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
   const [tooltipText, setTooltipText] = useState("Copy to URL");

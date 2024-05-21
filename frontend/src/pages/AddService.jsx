@@ -62,8 +62,6 @@ const AddService = () => {
     });
   };
 
-  console.log(id);
-
   const handleSubmit = async () => {
     const formData = new FormData();
 
@@ -134,12 +132,10 @@ const AddService = () => {
 
       data.image_type_details = JSON.parse(data.image_type_details);
       let typedata = await getAllImageTypes(formData);
-      console.log(typedata);
       const updatedImageTypeDetails = data.image_type_details.map((detail) => {
         const imageType = typedata.data.find(
           (type) => type.id === parseInt(detail.image_type)
         );
-        console.log(imageType);
         return {
           type: {
             value: detail.image_type,
@@ -174,7 +170,6 @@ const AddService = () => {
   };
 
   const handleImageTypeChange = (index, selectedOption) => {
-    console.log(selectedOption);
     const updatedImageTypeDetails = [...serviceData.imageTypeDetails];
     updatedImageTypeDetails[index].type = selectedOption;
     setServiceData({
