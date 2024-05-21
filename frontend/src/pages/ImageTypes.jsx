@@ -35,7 +35,7 @@ const ImageTypes = () => {
   const getAllImageTypesData = async () => {
     try {
       const formData = new FormData();
-      formData.append("subdomainId", subdomainId);
+      formData.append("subdomain_id", subdomainId);
       let allImageTypesData = await getAllImageTypes(formData);
       if (allImageTypesData && allImageTypesData.success) {
         setImageTypes(allImageTypesData.data);
