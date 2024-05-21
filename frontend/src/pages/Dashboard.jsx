@@ -261,11 +261,25 @@ export const Dashboard = () => {
     setFormData(gallery);
   };
 
-  const handleBannerChange = (e) => {
-    setFormData({
-      ...formData,
-      banner: e.target.files[0],
-    });
+  const handleBannerChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setFormData({
+          ...formData,
+          banner: file,
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+      setFormData({
+        ...formData,
+        banner: "",
+      });
+    }
   };
 
   const resetFormData = async () => {
@@ -282,6 +296,12 @@ export const Dashboard = () => {
       lock_gallery: "",
       notify_client: "",
     });
+    setServices([]);
+    setPhotographers([]);
+    setIsGalleryLocked(false);
+    setIsNotifyChecked(false);
+    setShowAddGalleryModal(false);
+    setPreviewImage(null);
   };
 
   const handleSubmit = async (e) => {
@@ -389,6 +409,8 @@ export const Dashboard = () => {
       console.error("Failed to get ImageTypes:", error.message);
     }
   };
+
+  
 
   // useEffect(() => {
   //   if (collections) {
@@ -900,7 +922,7 @@ export const Dashboard = () => {
         handleGalleryLockChange={handleGalleryLockChange}
         handleNotifyChange={handleNotifyChange}
         handleSubmit={handleSubmit}
-        onClose={() => setShowAddGalleryModal(false)}
+        onClose={resetFormData}
       />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
