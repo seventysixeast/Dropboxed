@@ -37,7 +37,7 @@ export const BookingListComponent = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
+  const accessToken = authData.accessToken;
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
