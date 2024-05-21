@@ -568,20 +568,22 @@ export const ViewGallery = () => {
   const handleAllDownload = async () => {
     setDownloadGalleryModal(false);
     setDownloadGalleryPopup(true);
-
+    
     if (authData.user === null) {
       toast.error("Please login first.");
       setLoading(false);
       return;
     }
-    const tokens = await getRefreshToken(collectionRefresh);
-    setDropboxAccess(tokens.access_token);
-    const zip = new JSZip();
-
-    if (downloadOptions.device === "device") {
-      try {
+  
+    try {
+      const tokens = await getRefreshToken(collectionRefresh);
+      setDropboxAccess(tokens.access_token);
+      const zip = new JSZip();
+  
+      if (downloadOptions.device === "device") {
         for (const imageData of imageUrls) {
           let imageBlob;
+  
           if (downloadOptions.size === "original") {
             await downloadFolderAsZip(dropboxAccess);
             return;
@@ -604,14 +606,28 @@ export const ViewGallery = () => {
                   Authorization: `Bearer ${tokens.access_token}`,
                   "Content-Type": "application/json",
                 },
-                responseType: "arraybuffer",
+                responseType: "json", // Change from arraybuffer to json
               }
             );
-            imageBlob = new Blob([response.data], { type: "image/jpeg" });
+  
+            // Extracting the base64 thumbnail data from the response
+            const thumbnailData = response.data.entries[0].thumbnail;
+            const binaryString = atob(thumbnailData);
+            const binaryLen = binaryString.length;
+            const bytes = new Uint8Array(binaryLen);
+            for (let i = 0; i < binaryLen; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+  
+            imageBlob = new Blob([bytes], { type: "image/jpeg" });
+  
+            console.log(imageBlob);
+            console.log('response.data', response.data);
           }
+  
           zip.file(imageData.path_display.split("/").pop(), imageBlob);
         }
-
+  
         const zipBlob = await zip.generateAsync({ type: "blob" });
         const zipUrl = window.URL.createObjectURL(zipBlob);
         const linkElement = document.createElement("a");
@@ -622,63 +638,68 @@ export const ViewGallery = () => {
         window.URL.revokeObjectURL(zipUrl);
         document.body.removeChild(linkElement);
         setDownloadGalleryModal(false);
-      } catch (error) {
-        console.error("Error downloading images from Dropbox:", error);
-      }
-    } else if (downloadOptions.device == "dropbox") {
-      const tokens = await getRefreshToken(collectionRefresh);
-      setDropboxAccess(tokens.access_token);
-      const sharedLinkResponse = await fetch(
-        `https://api.dropboxapi.com/2/sharing/get_shared_link_metadata`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${tokens.access_token}`,
-          },
-          body: JSON.stringify({
-            url: dropboxLink,
-          }),
-        }
-      );
-      const sharedLinkData = await sharedLinkResponse.json();
-      const folderPath = sharedLinkData.path_lower;
-
-      const usertokens = await getRefreshToken(authData.user.dropbox_refresh);
-
-      const copyResponse = await fetch(
-        `https://api.dropboxapi.com/2/files/copy_v2`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${usertokens.access_token}`,
-          },
-          body: JSON.stringify({
-            from_path: folderPath,
-            to_path: `${folderPath}_${Math.floor(Math.random() * 1000)}`,
-          }),
-        }
-      );
-
-      if (copyResponse.ok) {
-        toast.success(
-          `Files copied successfully to ${folderPath}_${Math.floor(
-            Math.random() * 1000
-          )}`
+      } else if (downloadOptions.device === "dropbox") {
+        const sharedLinkResponse = await fetch(
+          `https://api.dropboxapi.com/2/sharing/get_shared_link_metadata`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${tokens.access_token}`,
+            },
+            body: JSON.stringify({
+              url: dropboxLink,
+            }),
+          }
         );
-      } else {
-        const errorData = await copyResponse.json();
-        if ((errorData.error_summary = "to/conflict/folder/.")) {
-          toast.error("Files already exists.");
+  
+        if (!sharedLinkResponse.ok) {
+          throw new Error('Error fetching shared link metadata.');
+        }
+  
+        const sharedLinkData = await sharedLinkResponse.json();
+        const folderPath = sharedLinkData.path_lower;
+        const usertokens = await getRefreshToken(authData.user.dropbox_refresh);
+        const newFolderPath = `${folderPath}_${Math.floor(Math.random() * 1000)}`;
+  
+        const copyResponse = await fetch(
+          `https://api.dropboxapi.com/2/files/copy_v2`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${usertokens.access_token}`,
+            },
+            body: JSON.stringify({
+              from_path: folderPath,
+              to_path: newFolderPath,
+            }),
+          }
+        );
+  
+        if (copyResponse.ok) {
+          toast.success(`Files copied successfully to ${newFolderPath}`);
+        } else {
+          const errorData = await copyResponse.json();
+          if (errorData.error_summary === "to/conflict/folder/") {
+            toast.error("Files already exist.");
+          } else {
+            toast.error(`Error copying files: ${errorData.error_summary}`);
+          }
         }
       }
+    } catch (error) {
+      console.error("Error downloading images from Dropbox:", error);
+      toast.error("Error occurred during download.");
+    } finally {
+      setDownloadOptions({ device: "device", size: "original" });
+      setDownloadGalleryModal(false);
+      setLoading(false);
+      setDownloadGalleryPopup(false);
     }
-    setDownloadOptions({ device: "device", size: "original" });
-    setDownloadGalleryModal(false);
-    setLoading(false);
-    setDownloadGalleryPopup(false);
   };
+  
+  
 
   const customOptions = {
     ui: {
