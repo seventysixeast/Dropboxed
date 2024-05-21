@@ -7,7 +7,6 @@ import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-
 const TodoModal = ({
   isNewTaskModalOpen,
   show,
@@ -28,7 +27,7 @@ const TodoModal = ({
   modalRef,
   handleTextChange,
 }) => {
-const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
+  const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
   return (
     <>
@@ -139,7 +138,6 @@ const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
                                 client.image !== null
                                   ? IMAGE_URL + client.image
                                   : avatar1,
-                                  
                             })),
                           }))
                           .value()}
