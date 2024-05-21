@@ -2,7 +2,7 @@
 import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import Login from "../pages/Login";
-import TokenVerification from "../components/TokenVerification";
+//import TokenVerification from "../components/TokenVerification";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import SignUp from "../pages/SignUp";
@@ -25,7 +25,7 @@ const AuthRouter = () => {
     { path: "/google", element: <GoogleOAuth /> },
     { path: "*", element: <Navigate to="/login" /> },
     { path: "/view-gallery/:id", element: <ViewGallery /> },
-    { path: "/token-verification", element: <TokenVerification /> }
+    //{ path: "/token-verification", element: <TokenVerification /> }
   ]);
 
   return <>{route}</>;

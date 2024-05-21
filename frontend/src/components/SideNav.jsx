@@ -34,7 +34,7 @@ const SideNav = () => {
                   <span className="menu-title" data-i18n="Dashboard">
                     Dashboard
                   </span>
-                </Link>
+              </Link>
                 
               </li>
               <li className=" nav-item">
