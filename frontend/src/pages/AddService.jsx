@@ -279,7 +279,7 @@ const AddService = () => {
         <div className="content-overlay" />
         <div className="content-wrapper">
           <div className="content-header row">
-            <div className="content-header-left col-md-6 col-12 mb-2">
+            <div className="content-header-left col-md-6 col-12 mb-2 mt-1">
               <h3 className="content-header-title mb-0">Add Service</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
