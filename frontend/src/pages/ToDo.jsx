@@ -19,7 +19,6 @@ import DeleteModal from "../components/DeleteModal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import { verifyToken } from "../api/authApis";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ToDo = () => {
@@ -57,9 +56,6 @@ const ToDo = () => {
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState();
 
-  useEffect(() => {
-    verifyToken(accessToken);
-  }, []);
 
   const getTasks = async () => {
     const formData = new FormData();

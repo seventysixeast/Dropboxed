@@ -14,7 +14,7 @@ import {
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import { getRefreshToken, verifyToken } from "../api/authApis";
+import { getRefreshToken } from "../api/authApis";
 import axios from "axios";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
@@ -140,7 +140,6 @@ export const Dashboard = () => {
       getAllCollectionsData();
     }
 
-    verifyToken(accessToken);
     getRefreshToken(user.dropbox_refresh);
     getAllBookingsData();
   }, []);

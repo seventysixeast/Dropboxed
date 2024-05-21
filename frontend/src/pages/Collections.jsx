@@ -15,7 +15,7 @@ import {
   updateGalleryLock,
   updateCollection,
 } from "../api/collectionApis";
-import { getRefreshToken, verifyToken } from "../api/authApis";
+import { getRefreshToken } from "../api/authApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
@@ -79,9 +79,6 @@ const Collections = () => {
 
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
 
-  useEffect(() => {
-    verifyToken(accessToken);
-  }, []);
 
   useEffect(() => {
     if (formData.client !== "" && formData.booking_title !== "") {

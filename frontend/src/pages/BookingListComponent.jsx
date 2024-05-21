@@ -27,7 +27,6 @@ import LoadingOverlay from "../components/Loader";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import moment from "moment";
-import { verifyToken } from "../api/authApis";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -94,10 +93,6 @@ export const BookingListComponent = () => {
   const authUrl = `${REACT_APP_BASE_URL}/google?userId=${encodeURIComponent(
     userId
   )}&url=${encodeURIComponent(url)}`;
-
-  useEffect(() => {
-    verifyToken(accessToken);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

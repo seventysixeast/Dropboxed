@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
-import { verifyToken } from "../api/authApis";
 
 const ImageTypes = () => {
   const { authData } = useAuth();
@@ -29,7 +28,6 @@ const ImageTypes = () => {
 
   useEffect(() => {
     getAllImageTypesData();
-    verifyToken(accessToken);
   }, []);
 
   const getAllImageTypesData = async () => {
