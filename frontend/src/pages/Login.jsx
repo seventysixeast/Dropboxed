@@ -7,16 +7,20 @@ import { login } from "../api/authApis";
 import { encryptToken } from "../helpers/tokenUtils";
 import { getSubdomainFromUrl } from "../helpers/utils";
 import { Link } from "react-router-dom";
+import { decryptToken } from "../helpers/tokenUtils";
+import { verifyToken } from "../api/authApis";
 
 const Login = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
+  console.log("subdomain>>>",subdomain,window.location.href);
   const [userData, setUserData] = useState({
     userName: "",
     password: "",
     rememberMe: false
   });
   const [loading, setLoading] = useState(false);
+
   const [validationErrors, setValidationErrors] = useState({});
 
   const validationSchema = Yup.object().shape({
@@ -27,13 +31,64 @@ const Login = () => {
   });
 
   useEffect(() => {
+    const getTokenFromUrl = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('token');
+    };
+
+    const handleTokenVerification = async (token) => {
+        try {
+            setLoading(true); // Show loader
+            const decryptedToken = decryptToken(token);
+            const { success, accessToken, user, message } = await verifyToken(decryptedToken);
+            console.log("success", success)
+            
+            if (success) {
+                // Save user data and access token in localStorage
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('isAuth', true);
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                // Show success toast
+                // toast.success('Token verification successful');
+                
+                // Redirect to dashboard
+                window.location.href = '/dashboard';
+                setLoading(false);
+            } else {
+                // Show error toast
+                toast.error(`Token verification failed: ${message}`);
+                // Redirect to login page
+                window.location.href = '/login';
+                setLoading(false);
+            }
+        } catch (error) {
+            setLoading(false);
+            console.error("Token verification failed:", error.message);
+            // Show error toast
+            toast.error('Token verification failed');
+            // Redirect to login page
+            window.location.href = '/login';
+        }
+    };
+
+    const token = getTokenFromUrl();
+
+    if (token) {
+        handleTokenVerification(token);
+    }
+
+}, []);
+
+  useEffect(() => {
     document.body.classList.remove("vertical-layout", "vertical-menu-modern", "2-columns", "fixed-navbar");
     const rememberMeCookie = Cookies.get("rememberMe");
     if (rememberMeCookie) {
+      // Automatically populate username from cookie
       setUserData(prevData => ({
         ...prevData,
         userName: rememberMeCookie,
-        rememberMe: true 
+        rememberMe: true // Set rememberMe to true if cookie exists
       }));
     }
   }, []);
@@ -50,17 +105,21 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        setLoading(true); 
+        setLoading(true); // Show loader
         await validationSchema.validate(userData, { abortEarly: false });
+        console.log("subdomain1>>>",subdomain)
         const loginData = subdomain ? { ...userData, subdomain } : userData;
         const { success, message, accessToken, user } = await login(loginData);
+        //const { success, message, accessToken, user } = await login(userData);
         if(success){
           if(!accessToken){
             toast.success('Login successful');
           }
+          // Set rememberMe cookie if checked
           if (userData.rememberMe) {
-            Cookies.set("rememberMe", userData.userName, { expires: 30 });
+            Cookies.set("rememberMe", userData.userName, { expires: 30 }); // Expires in 30 days
           } else {
+            // Remove rememberMe cookie if not checked
             Cookies.remove("rememberMe");
           }
         } else{
@@ -68,16 +127,22 @@ const Login = () => {
         }
         
         const userSubdomain = user.subdomain.toLowerCase().replace(/\s/g, '');
-        const currentSubdomain = window.location.hostname.split('.')[0];
+         const currentSubdomain = window.location.hostname.split('.')[0];
+        //const baseUrl = window.location.protocol + "//" + window.location.hostname;
 
-        /*if(!user.is_verified){
-          setLoading(false);
+        //const DOMAIN_NAME = process.env.REACT_APP_DOMAIN_NAME
+        // Check if the current URL already contains a subdomain
+        //const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${userSubdomain}.` : "";
+        //console.log("redirectToSubdomain",redirectToSubdomain, "<-->",currentSubdomain); return false
+        //console.log("redirectToSubdomain",redirectToSubdomain)
+        if(!user.is_verified){
           toast.success('Account verification pending');
           return;
-        }*/
+        }
         if (user.role_id === 1) {
           setLoading(false);
           const userDataWithProfilePhoto = { ...user, profile_photo: user.profile_photo || '' };
+          // Save user data and access token in localStorage
           localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('isAuth', true);
           localStorage.setItem('user', JSON.stringify(userDataWithProfilePhoto));
@@ -87,16 +152,24 @@ const Login = () => {
         }
         if(subdomain){
           setLoading(false);
+           // Save user data and access token in localStorage
           localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('isAuth', true);
           localStorage.setItem('user', JSON.stringify(user));
+          // Set cookies with domain attribute
+          /*document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
+          document.cookie = `isAuth=true; domain=.localhost; path=/`;
+          document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;*/
           const redirectUrl = `/dashboard`;
           window.location.href = redirectUrl;
         } else {
           setLoading(false);
           const encryptedToken = encryptToken(accessToken);
-          const redirectUrl = `${window.location.protocol}//${userSubdomain}.${window.location.host}/token-verification?token=${encodeURIComponent(encryptedToken)}`;
-          window.location.href = redirectUrl;
+          // Construct the redirection URL
+         
+          const redirectUrl = `${window.location.protocol}//${userSubdomain}.${window.location.host}/login?token=${encodeURIComponent(encryptedToken)}`;
+          //console.log("redirectUrl",redirectUrl)
+          window.location.href = redirectUrl; // Redirecting to subdomain
         }
         
     } catch (error) {
@@ -113,8 +186,11 @@ const Login = () => {
     }
 };
 
+  
+
   return (
     <div className="bg-full-screen-image">
+      {/* Loader overlay */}
     {loading && (
       <div className="loader-overlay">
         <div className="loader"></div>
