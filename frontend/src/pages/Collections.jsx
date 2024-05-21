@@ -506,7 +506,7 @@ const Collections = () => {
                 updateImageCount(row.original);
               }}
             >
-              Update Count
+              <i className="feather icon-refresh-ccw"></i>
             </button>
           </div>
         ),

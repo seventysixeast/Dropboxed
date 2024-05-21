@@ -308,7 +308,7 @@ export const Dashboard = () => {
   };
 
   const handleSubmit = async (e) => {
-    setLoading(true)
+    setLoading(true);
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
@@ -368,17 +368,17 @@ export const Dashboard = () => {
         setShowAddGalleryModal(false);
         getAllCollectionsData();
         setShowAddGalleryModal(false);
-        const closeModalButton = document.getElementById('closeModalButton');
+        const closeModalButton = document.getElementById("closeModalButton");
         if (closeModalButton) {
           closeModalButton.click();
-        }       
+        }
       } else {
         toast.error(res);
       }
     } catch (error) {
       toast.error(error);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const getAllCollectionsData = async () => {
@@ -657,7 +657,7 @@ export const Dashboard = () => {
                               <a
                                 href={`${dropboxAuthUrl}`}
                                 className="btn btn-primary"
-                                style={{ paddingTop: "10px" }}
+                                style={{ paddingTop: "10px", marginLeft: '1rem' }}
                               >
                                 Link Your Dropbox
                               </a>
@@ -734,7 +734,9 @@ export const Dashboard = () => {
                                   display: "flex",
                                   justifyContent: "space-between",
                                   alignItems: "center",
+                                  height: "20%",
                                 }}
+                                className="m-0 p-0"
                               >
                                 <div
                                   className="col-6"
@@ -757,9 +759,9 @@ export const Dashboard = () => {
                                     {item.client_name}
                                   </h2>
                                 </div>
-                                <p
+                                <div
                                   className="icon-links"
-                                  style={{ marginBottom: "10px" }}
+                                  style={{ marginBottom: "0" }}
                                 >
                                   {user.role_id !== 3 && (
                                     <a
@@ -808,11 +810,16 @@ export const Dashboard = () => {
 
                                   <Tooltip
                                     id={`copyTooltip-${item.id}`}
-                                    place="top"
                                     effect="solid"
+                                    placement="top"
+                                    style={{fontSize: '0.6rem'}}
                                   />
+                                </div>
+                                <p
+                                  className="description description-edit"
+                                >
+                                  {item.name}
                                 </p>
-                                <p className="description">{item.name}</p>
                               </figcaption>
                             </figure>
                           </a>

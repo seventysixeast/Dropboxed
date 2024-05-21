@@ -793,7 +793,11 @@ export const ViewGallery = () => {
                 </h4>
                 <LinearProgress
                   className="w-50"
-                  style={{ marginLeft: "8.5rem", marginTop: "2rem", marginBottom: "2rem" }}
+                  style={{
+                    marginLeft: "8.5rem",
+                    marginTop: "2rem",
+                    marginBottom: "2rem",
+                  }}
                 />
               </div>
             </div>

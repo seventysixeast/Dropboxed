@@ -225,7 +225,7 @@ const CollectionTable = () => {
   };
 
   const handleSubmit = async (e) => {
-    setLoading(true)
+    setLoading(true);
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
@@ -284,17 +284,17 @@ const CollectionTable = () => {
         toast.success(res.message);
         resetFormData();
         getAllCollectionsData();
-        const closeModalButton = document.getElementById('closeModalButton');
+        const closeModalButton = document.getElementById("closeModalButton");
         if (closeModalButton) {
           closeModalButton.click();
-        }       
+        }
       } else {
         toast.error(res);
       }
     } catch (error) {
       toast.error(error);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const getAllCollectionsData = async () => {
@@ -354,7 +354,7 @@ const CollectionTable = () => {
       let res = await updateCollection(formDataToSend);
       if (res.success) {
         getAllCollectionsData();
-        toast.success('Image count updated!')
+        toast.success("Image count updated!");
       } else {
         toast.error(res.message);
       }
@@ -506,7 +506,7 @@ const CollectionTable = () => {
                 updateImageCount(row.original);
               }}
             >
-              Update Count
+              <i className="feather icon-refresh-ccw"></i>
             </button>
           </div>
         ),
@@ -538,7 +538,9 @@ const CollectionTable = () => {
               className="btn btn-icon btn-outline-warning mr-1 mb-1"
               title="Copy Url"
               onClick={() => {
-                navigator.clipboard.writeText(`${url2}view-gallery/${row.original.slug}`);
+                navigator.clipboard.writeText(
+                  `${url2}view-gallery/${row.original.slug}`
+                );
                 toast.success("Link Copied!");
               }}
             >

@@ -464,8 +464,6 @@ const TodoModal = ({
                     </div>
                   </div>
                 </div>
-
-                {/* Dummy Data */}
               </div>
 
               <div className="card-body pb-1">
