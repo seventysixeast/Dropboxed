@@ -350,6 +350,13 @@
         window.addEventListener("popstate", checkRoute);
       });
     </script>
-    <script></script>
+    <script>
+      /** Fix for mobile hamburger menu not working**/
+      var mobileHamburger = document.getElementById('mobile-hamburger');
+      mobileHamburger.addEventListener('click', function() {
+          // Add the 'open-menu' class to the body element
+          document.body.classList.add('open-menu');
+      });
+    </script>
   </body>
 </html>

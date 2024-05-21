@@ -1179,7 +1179,7 @@ const handleDateChange = async (arg) => {
                         <></>
                       ) : (
                         <a
-                          className={`btn btn-outline-primary mx-1 ${calendarSub === 1 ? "d-none" : ""
+                          className={`btn btn-outline-primary mb-1 mx-1 ${calendarSub === 1 ? "d-none" : ""
                             }`}
                           disabled={calendarSub === 1}
                           href={`${authUrl}`}
@@ -1192,7 +1192,7 @@ const handleDateChange = async (arg) => {
                       <button
                         ref={buttonRef}
                         type="button"
-                        className="btn btn-outline-primary"
+                        className="btn btn-outline-primary mb-1"
                         data-toggle="modal"
                         data-target="#appointment"
                       >
