@@ -252,8 +252,10 @@ const AddGalleryModal = ({
                               alt="banner"
                             />
                           ) : (
-                            <p>
+                            <p className="text-center">
                               Drag & drop an image here, or click to select one
+                              <br/>
+                              <i className="feather icon-download" style={{fontSize: '40px'}}></i>
                             </p>
                           )}
                         </div>
