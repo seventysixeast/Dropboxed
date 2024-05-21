@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 const SideNav = () => {
@@ -29,11 +29,12 @@ const SideNav = () => {
                 ></i>
               </li>
               <li className=" nav-item">
-              <Navigate to="/dashboard">Dashboard</Navigate>
+              <Link to="/dashboard">
                   <i className="feather icon-home"></i>
                   <span className="menu-title" data-i18n="Dashboard">
-                    
+                    Dashboard
                   </span>
+                </Link>
                 
               </li>
               <li className=" nav-item">
