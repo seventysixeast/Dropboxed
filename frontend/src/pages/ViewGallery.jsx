@@ -90,7 +90,6 @@ export const ViewGallery = () => {
   const currentUrl = window.location.href;
 
   const url2 = new URL(currentUrl);
-  url2.pathname = url2.pathname.replace("/dashboard", "");
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -105,7 +104,7 @@ export const ViewGallery = () => {
   const shareOnFacebook = () => {
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        `${url2}view-gallery/${collection.slug}}`
+        `${url2}`
       )}`,
       "ShareFacebook",
       "width=600,height=400"
@@ -116,7 +115,7 @@ export const ViewGallery = () => {
   const shareOnTwitter = () => {
     window.open(
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-        `${url2}view-gallery/${collection.slug}}`
+        `${url2}`
       )}`,
       "ShareTwitter",
       "width=600,height=400"
@@ -846,7 +845,7 @@ export const ViewGallery = () => {
               </div>
               <div className="modal-body">
                 <p style={{ fontSize: "0.9rem" }}>
-                  {url2.href}view-gallery/{collection.slug}
+                  {url2.href}
                 </p>
                 <button
                   className="btn btn-white mr-0"
