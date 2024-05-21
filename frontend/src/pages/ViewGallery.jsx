@@ -114,9 +114,7 @@ export const ViewGallery = () => {
 
   const shareOnTwitter = () => {
     window.open(
-      `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-        `${url2}`
-      )}`,
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${url2}`)}`,
       "ShareTwitter",
       "width=600,height=400"
     );
@@ -567,22 +565,22 @@ export const ViewGallery = () => {
   const handleAllDownload = async () => {
     setDownloadGalleryModal(false);
     setDownloadGalleryPopup(true);
-    
+
     if (authData.user === null) {
       toast.error("Please login first.");
       setLoading(false);
       return;
     }
-  
+
     try {
       const tokens = await getRefreshToken(collectionRefresh);
       setDropboxAccess(tokens.access_token);
       const zip = new JSZip();
-  
+
       if (downloadOptions.device === "device") {
         for (const imageData of imageUrls) {
           let imageBlob;
-  
+
           if (downloadOptions.size === "original") {
             await downloadFolderAsZip(dropboxAccess);
             return;
@@ -608,7 +606,7 @@ export const ViewGallery = () => {
                 responseType: "json", // Change from arraybuffer to json
               }
             );
-  
+
             // Extracting the base64 thumbnail data from the response
             const thumbnailData = response.data.entries[0].thumbnail;
             const binaryString = atob(thumbnailData);
@@ -617,13 +615,13 @@ export const ViewGallery = () => {
             for (let i = 0; i < binaryLen; i++) {
               bytes[i] = binaryString.charCodeAt(i);
             }
-  
+
             imageBlob = new Blob([bytes], { type: "image/jpeg" });
           }
-  
+
           zip.file(imageData.path_display.split("/").pop(), imageBlob);
         }
-  
+
         const zipBlob = await zip.generateAsync({ type: "blob" });
         const zipUrl = window.URL.createObjectURL(zipBlob);
         const linkElement = document.createElement("a");
@@ -648,16 +646,18 @@ export const ViewGallery = () => {
             }),
           }
         );
-  
+
         if (!sharedLinkResponse.ok) {
-          throw new Error('Error fetching shared link metadata.');
+          throw new Error("Error fetching shared link metadata.");
         }
-  
+
         const sharedLinkData = await sharedLinkResponse.json();
         const folderPath = sharedLinkData.path_lower;
         const usertokens = await getRefreshToken(authData.user.dropbox_refresh);
-        const newFolderPath = `${folderPath}_${Math.floor(Math.random() * 1000)}`;
-  
+        const newFolderPath = `${folderPath}_${Math.floor(
+          Math.random() * 1000
+        )}`;
+
         const copyResponse = await fetch(
           `https://api.dropboxapi.com/2/files/copy_v2`,
           {
@@ -672,7 +672,7 @@ export const ViewGallery = () => {
             }),
           }
         );
-  
+
         if (copyResponse.ok) {
           toast.success(`Files copied successfully to ${newFolderPath}`);
         } else {
@@ -694,8 +694,6 @@ export const ViewGallery = () => {
       setDownloadGalleryPopup(false);
     }
   };
-  
-  
 
   const customOptions = {
     ui: {
@@ -841,9 +839,7 @@ export const ViewGallery = () => {
                 </button>
               </div>
               <div className="modal-body">
-                <p style={{ fontSize: "0.9rem" }}>
-                  {url2.href}
-                </p>
+                <p style={{ fontSize: "0.9rem" }}>{url2.href}</p>
                 <button
                   className="btn btn-white mr-0"
                   style={{ marginLeft: "11.5rem" }}
