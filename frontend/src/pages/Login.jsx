@@ -70,11 +70,11 @@ const Login = () => {
         const userSubdomain = user.subdomain.toLowerCase().replace(/\s/g, '');
         const currentSubdomain = window.location.hostname.split('.')[0];
 
-        if(!user.is_verified){
+        /*if(!user.is_verified){
           setLoading(false);
           toast.success('Account verification pending');
           return;
-        }
+        }*/
         if (user.role_id === 1) {
           setLoading(false);
           const userDataWithProfilePhoto = { ...user, profile_photo: user.profile_photo || '' };
