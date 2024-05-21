@@ -17,16 +17,17 @@ import {
 } from "../api/collectionApis";
 import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
-import AddGalleryModal from "../components/addGalleryModal";
+import AddGalleryModal from "./addGalleryModal";
 import { useAuth } from "../context/authContext";
-import TableCustom from "../components/Table";
-import DeleteModal from "../components/DeleteModal";
+import TableCustom from "./Table";
+import DeleteModal from "./DeleteModal";
 import axios from "axios";
+import Table2 from "./Table2";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 
-const Collections = () => {
+const CollectionTable = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id;
@@ -40,7 +41,7 @@ const Collections = () => {
   const [photographers, setPhotographers] = useState([]);
   const [isGalleryLocked, setIsGalleryLocked] = useState(false);
   const [isNotifyChecked, setIsNotifyChecked] = useState(false);
-  const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
+  const [showAddGalleryModal2, setShowAddGalleryModal2] = useState(false);
   const [collections, setCollections] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
@@ -220,7 +221,7 @@ const Collections = () => {
     setPreviewImage(null);
     setIsGalleryLocked(false);
     setIsNotifyChecked(false);
-    setShowAddGalleryModal(false);
+    setShowAddGalleryModal2(false);
   };
 
   const handleSubmit = async (e) => {
@@ -286,7 +287,9 @@ const Collections = () => {
           },
         }
       );
+
       let thePath = "";
+
       if (sharedData.data.path_lower == undefined) {
         thePath = "";
       } else {
@@ -512,71 +515,10 @@ const Collections = () => {
 
   return (
     <>
-      <div className="app-content content">
-        <div className="content-overlay"></div>
-        <div className="content-wrapper">
-          <div className="content-header row mt-2">
-            <div className="content-header-left col-md-6 col-6 mb-2">
-              <h3 className="content-header-title mb-0">Collection List</h3>
-              <div className="row breadcrumbs-top">
-                <div className="breadcrumb-wrapper col-12">
-                  <ol className="breadcrumb">
-                    <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
-                    </li>
-                    <li className="breadcrumb-item">Collection List</li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
-              <ul className="list-inline mb-0">
-                <li>
-                  <div className="form-group d-flex">
-                    {user.role_id == 5 && (
-                      <>
-                        {user.dropbox_refresh == null && (
-                          <a
-                            href={`${dropboxAuthUrl}`}
-                            className="btn btn-primary mr-1"
-                            style={{ paddingTop: "10px" }}
-                          >
-                            Link Your Dropbox
-                          </a>
-                        )}
-                      </>
-                    )}
-                    {user.role_id !== 3 && (
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary"
-                        data-toggle="modal"
-                        data-target="#bootstrap"
-                        // title conditional
-                        title={
-                          subdomainDropbox == null
-                            ? "Add Collection"
-                            : "Dropbox Not Linked"
-                        }
-                        disabled={subdomainDropbox == null}
-                        onClick={() => {
-                          setShowAddGalleryModal(true);
-                        }}
-                      >
-                        New Collection
-                      </button>
-                    )}
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
       <AddGalleryModal
         message={formData.id ? "Update Collection" : "Add Collection"}
         button={formData.id ? "Update" : "Add"}
-        isOpen={showAddGalleryModal}
+        isOpen={showAddGalleryModal2}
         formData={formData}
         previewImage={previewImage}
         clients={clients}
@@ -593,7 +535,7 @@ const Collections = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      <TableCustom data={data} columns={columns} />
+      <Table2 data={data} columns={columns} />
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -604,4 +546,4 @@ const Collections = () => {
   );
 };
 
-export default Collections;
+export default CollectionTable;
