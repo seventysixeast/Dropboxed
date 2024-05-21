@@ -619,9 +619,6 @@ export const ViewGallery = () => {
             }
   
             imageBlob = new Blob([bytes], { type: "image/jpeg" });
-  
-            console.log(imageBlob);
-            console.log('response.data', response.data);
           }
   
           zip.file(imageData.path_display.split("/").pop(), imageBlob);
