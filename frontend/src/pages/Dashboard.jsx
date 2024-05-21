@@ -453,7 +453,7 @@ export const Dashboard = () => {
         <div className="modal d-block" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered" role="document">
             <div className="modal-content">
-              <div className="modal-header" style={{backgroundColor:"rgb(222, 230, 238)"}}>
+              <div className="modal-header" style={{ backgroundColor: "rgb(222, 230, 238)" }}>
                 <div></div>
                 <h4 className="modal-title mr-3">
                   Share Collection:
@@ -468,13 +468,13 @@ export const Dashboard = () => {
                 </button>
               </div>
               <div className="modal-body">
-              <p style={{fontSize:'0.9rem'}}>
-                {url2.href}view-gallery/{collectionData}
+                <p style={{ fontSize: '0.9rem' }}>
+                  {url2.href}view-gallery/{collectionData}
 
                 </p>
                 <button
                   className="btn btn-white mr-0"
-                  style={{marginLeft: '11.5rem'}}
+                  style={{ marginLeft: '11.5rem' }}
                   onClick={shareOnFacebook}
                 >
                   <i
@@ -688,6 +688,7 @@ export const Dashboard = () => {
                                   ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
                                   : "../../../app-assets/images/gallery/9.jpg"
                               }
+                              style={{ width: "305px", height: "230px" }}
                             />
 
                             <figcaption
@@ -698,7 +699,6 @@ export const Dashboard = () => {
                               }}
                             >
                               <div
-                                className="col-6"
                                 style={{
                                   display: "flex",
                                   flexDirection: "column",
