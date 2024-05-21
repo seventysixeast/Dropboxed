@@ -225,12 +225,47 @@ const CollectionTable = () => {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
+      const formDataToSend = new FormData();
+
+      if (formData.id === "") {
+        const tokens = await getRefreshToken(subdomainDropbox);
+        const sharedData = await axios.post(
+          "https://api.dropboxapi.com/2/sharing/get_shared_link_metadata",
+          { url: formData.dropbox_link },
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        let thePath = "";
+        if (sharedData.data.path_lower == undefined) {
+          thePath = "";
+        } else {
+          thePath = sharedData.data.path_lower;
+        }
+        const listResponse = await axios.post(
+          "https://api.dropboxapi.com/2/files/list_folder",
+          { path: thePath },
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const entries = listResponse.data.entries;
+        let imageCount = entries.length;
+        formDataToSend.append("image_count", imageCount);
+      }
       let serviceIds = services && services.map((item) => item.value);
       let photographerIds =
         photographers && photographers.map((item) => item.value);
-      const formDataToSend = new FormData();
       formDataToSend.append("id", formData.id);
       formDataToSend.append("client", formData.client);
       formDataToSend.append("booking_title", formData.booking_title);
@@ -247,14 +282,19 @@ const CollectionTable = () => {
       let res = await addGallery(formDataToSend);
       if (res.success) {
         toast.success(res.message);
-        document.getElementById("closeModalButton").click();
-        window.location.reload();
+        resetFormData();
+        getAllCollectionsData();
+        const closeModalButton = document.getElementById("closeModalButton");
+        if (closeModalButton) {
+          closeModalButton.click();
+        }
       } else {
         toast.error(res);
       }
     } catch (error) {
       toast.error(error);
     }
+    setLoading(false);
   };
 
   const getAllCollectionsData = async () => {
@@ -314,7 +354,7 @@ const CollectionTable = () => {
       let res = await updateCollection(formDataToSend);
       if (res.success) {
         getAllCollectionsData();
-        toast.success('Image count updated!')
+        toast.success("Image count updated!");
       } else {
         toast.error(res.message);
       }
@@ -466,7 +506,7 @@ const CollectionTable = () => {
                 updateImageCount(row.original);
               }}
             >
-              Update Count
+              <i className="feather icon-refresh-ccw"></i>
             </button>
           </div>
         ),
@@ -498,7 +538,9 @@ const CollectionTable = () => {
               className="btn btn-icon btn-outline-warning mr-1 mb-1"
               title="Copy Url"
               onClick={() => {
-                navigator.clipboard.writeText(`${url2}view-gallery/${row.original.slug}`);
+                navigator.clipboard.writeText(
+                  `${url2}view-gallery/${row.original.slug}`
+                );
                 toast.success("Link Copied!");
               }}
             >

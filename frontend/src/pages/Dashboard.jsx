@@ -308,12 +308,47 @@ export const Dashboard = () => {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
+      const formDataToSend = new FormData();
+
+      if (formData.id === "") {
+        const tokens = await getRefreshToken(user.dropbox_refresh);
+        const sharedData = await axios.post(
+          "https://api.dropboxapi.com/2/sharing/get_shared_link_metadata",
+          { url: formData.dropbox_link },
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        let thePath = "";
+        if (sharedData.data.path_lower == undefined) {
+          thePath = "";
+        } else {
+          thePath = sharedData.data.path_lower;
+        }
+        const listResponse = await axios.post(
+          "https://api.dropboxapi.com/2/files/list_folder",
+          { path: thePath },
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const entries = listResponse.data.entries;
+        let imageCount = entries.length;
+        formDataToSend.append("image_count", imageCount);
+      }
       let serviceIds = services && services.map((item) => item.value);
       let photographerIds =
         photographers && photographers.map((item) => item.value);
-      const formDataToSend = new FormData();
       formDataToSend.append("id", formData.id);
       formDataToSend.append("client", formData.client);
       formDataToSend.append("booking_title", formData.booking_title);
@@ -333,14 +368,17 @@ export const Dashboard = () => {
         setShowAddGalleryModal(false);
         getAllCollectionsData();
         setShowAddGalleryModal(false);
-        document.getElementById("closeModalButton").click();
-        window.location.reload();
+        const closeModalButton = document.getElementById("closeModalButton");
+        if (closeModalButton) {
+          closeModalButton.click();
+        }
       } else {
         toast.error(res);
       }
     } catch (error) {
       toast.error(error);
     }
+    setLoading(false);
   };
 
   const getAllCollectionsData = async () => {
@@ -618,8 +656,7 @@ export const Dashboard = () => {
                             {user.dropbox_refresh == null && (
                               <a
                                 href={`${dropboxAuthUrl}`}
-                                className="btn btn-primary"
-                                style={{ paddingTop: "10px" }}
+                                className="btn btn-primary mr-1"
                               >
                                 Link Your Dropbox
                               </a>
@@ -653,7 +690,7 @@ export const Dashboard = () => {
                             disabled={user.dropbox_refresh == null}
                             onClick={() => {
                               if (galleryView == "grid") {
-                              setShowAddGalleryModal(true);
+                                setShowAddGalleryModal(true);
                               } else {
                                 setShowAddGalleryModal2(true);
                               }
@@ -696,7 +733,9 @@ export const Dashboard = () => {
                                   display: "flex",
                                   justifyContent: "space-between",
                                   alignItems: "center",
+                                  height: "20%",
                                 }}
+                                className="m-0 p-0"
                               >
                                 <div
                                   className="col-6"
@@ -719,9 +758,9 @@ export const Dashboard = () => {
                                     {item.client_name}
                                   </h2>
                                 </div>
-                                <p
+                                <div
                                   className="icon-links"
-                                  style={{ marginBottom: "10px" }}
+                                  style={{ marginBottom: "0" }}
                                 >
                                   {user.role_id !== 3 && (
                                     <a
@@ -770,11 +809,16 @@ export const Dashboard = () => {
 
                                   <Tooltip
                                     id={`copyTooltip-${item.id}`}
-                                    place="top"
                                     effect="solid"
+                                    placement="top"
+                                    style={{fontSize: '0.6rem'}}
                                   />
+                                </div>
+                                <p
+                                  className="description description-edit"
+                                >
+                                  {item.name}
                                 </p>
-                                <p className="description">{item.name}</p>
                               </figcaption>
                             </figure>
                           </a>

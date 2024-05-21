@@ -535,9 +535,7 @@ const ToDo = () => {
                           {/* users avatar */}
                           <div className="avatar">
                             <img
-                              src={
-                                avatar1
-                              }
+                              src={avatar1}
                               alt="charlie"
                               width={38}
                               height={38}
@@ -1163,12 +1161,12 @@ const ToDo = () => {
                                               })}
                                           </div>
                                           <div className="avatar ml-1">
-                                          <img
-                        src={avatar1}
-                        alt="charlie"
-                        width={38}
-                        height={38}
-                      />
+                                            <img
+                                              src={avatar1}
+                                              alt="charlie"
+                                              width={38}
+                                              height={38}
+                                            />
                                           </div>
                                           <a
                                             className="todo-item-favorite ml-75"

@@ -37,7 +37,7 @@ export const BookingListComponent = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
+  const accessToken = authData.accessToken;
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
@@ -489,7 +489,6 @@ export const BookingListComponent = () => {
         setBookingsData((prevData) =>
           prevData.filter((booking) => booking.id !== bookingIdToDelete)
         );
-        
 
         setEvents((prevEvents) =>
           prevEvents.filter((event) => event.id !== bookingIdToDelete)
@@ -568,13 +567,13 @@ export const BookingListComponent = () => {
     // let endDate = new Date(arg.event.end + "Z");
     // newDate.setDate(newDate.getDate());
 
-    let newDate = moment(arg.event.start, 'YYYY-MM-DD hh:mm:ss A').toDate();
-    let endDate = moment(arg.event.end, 'YYYY-MM-DD hh:mm:ss A').toDate();
-  
-    const newDateString = moment(newDate).format('YYYY-MM-DD');
-  
-    let startTime = moment(newDate).format('HH:mm:ss');
-    let endTime = moment(endDate).format('HH:mm:ss');
+    let newDate = moment(arg.event.start, "YYYY-MM-DD hh:mm:ss A").toDate();
+    let endDate = moment(arg.event.end, "YYYY-MM-DD hh:mm:ss A").toDate();
+
+    const newDateString = moment(newDate).format("YYYY-MM-DD");
+
+    let startTime = moment(newDate).format("HH:mm:ss");
+    let endTime = moment(endDate).format("HH:mm:ss");
     let booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
     setUpdateData({
@@ -637,20 +636,20 @@ export const BookingListComponent = () => {
     }
   };
 
-const handleDateChange = async (arg) => {
-  let id = arg.event._def.publicId;
+  const handleDateChange = async (arg) => {
+    let id = arg.event._def.publicId;
 
-  let newDate = moment(arg.event.start, 'YYYY-MM-DD hh:mm:ss A').toDate();
-  let endDate = moment(arg.event.end, 'YYYY-MM-DD hh:mm:ss A').toDate();
+    let newDate = moment(arg.event.start, "YYYY-MM-DD hh:mm:ss A").toDate();
+    let endDate = moment(arg.event.end, "YYYY-MM-DD hh:mm:ss A").toDate();
 
-  const newDateString = moment(newDate).format('YYYY-MM-DD');
+    const newDateString = moment(newDate).format("YYYY-MM-DD");
 
-  let startTime = moment(newDate).format('HH:mm:ss');
-  let endTime = moment(endDate).format('HH:mm:ss');
+    let startTime = moment(newDate).format("HH:mm:ss");
+    let endTime = moment(endDate).format("HH:mm:ss");
 
-  const booking = bookingsData.find((booking) => booking.id === parseInt(id));
+    const booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
-  setUpdateData({
+    setUpdateData({
       id: id,
       title: booking.booking_title,
       package: booking.package,
@@ -662,10 +661,10 @@ const handleDateChange = async (arg) => {
       comment: booking.comment,
       provider: booking.photographer_id,
       customer: booking.user_id,
-  });
+    });
 
-  setShowDateModel(true);
-};
+    setShowDateModel(true);
+  };
 
   const handleNotifyChange = (data) => {
     setUpdateData({
@@ -909,12 +908,12 @@ const handleDateChange = async (arg) => {
             disabled={
               roleId === 3
                 ? new Date(
-                  props.row.original.booking_date +
-                  "T" +
-                  props.row.original.booking_time
-                ) -
-                new Date() <
-                1000 * 60 * 60 * 3
+                    props.row.original.booking_date +
+                      "T" +
+                      props.row.original.booking_time
+                  ) -
+                    new Date() <
+                  1000 * 60 * 60 * 3
                 : false
             }
           >
@@ -934,12 +933,12 @@ const handleDateChange = async (arg) => {
             disabled={
               roleId === 3
                 ? new Date(
-                  props.row.original.booking_date +
-                  "T" +
-                  props.row.original.booking_time
-                ) -
-                new Date() <
-                1000 * 60 * 60 * 3
+                    props.row.original.booking_date +
+                      "T" +
+                      props.row.original.booking_time
+                  ) -
+                    new Date() <
+                  1000 * 60 * 60 * 3
                 : false
             }
           >
@@ -1179,8 +1178,9 @@ const handleDateChange = async (arg) => {
                         <></>
                       ) : (
                         <a
-                          className={`btn btn-outline-primary mb-1 mx-1 ${calendarSub === 1 ? "d-none" : ""
-                            }`}
+                          className={`btn btn-outline-primary mb-1 mx-1 ${
+                            calendarSub === 1 ? "d-none" : ""
+                          }`}
                           disabled={calendarSub === 1}
                           href={`${authUrl}`}
                         >
@@ -1290,7 +1290,7 @@ const handleDateChange = async (arg) => {
                                               (provider) => ({
                                                 label: provider.name,
                                                 value: provider.id,
-                                                image: provider.profile_photo
+                                                image: provider.profile_photo,
                                               })
                                             )}
                                             isSearchable
@@ -1705,7 +1705,7 @@ const handleDateChange = async (arg) => {
                                             .map((client) => ({
                                               value: client.id,
                                               label: client.name,
-                                              image: client.profile_photo
+                                              image: client.profile_photo,
                                             }))}
                                           isSearchable
                                           components={{
@@ -1725,10 +1725,11 @@ const handleDateChange = async (arg) => {
                                                 className="customOptionClass"
                                               >
                                                 <img
-                                                  src={data.image
-                                                    ? `${IMAGE_URL}/${data.image}`
-                                                    : "../app-assets/images/portrait/medium/dummy.png"
-                                                }
+                                                  src={
+                                                    data.image
+                                                      ? `${IMAGE_URL}/${data.image}`
+                                                      : "../app-assets/images/portrait/medium/dummy.png"
+                                                  }
                                                   alt="Profile"
                                                   style={{
                                                     marginRight: "10px",
