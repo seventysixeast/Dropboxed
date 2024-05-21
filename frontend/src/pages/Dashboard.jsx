@@ -656,8 +656,7 @@ export const Dashboard = () => {
                             {user.dropbox_refresh == null && (
                               <a
                                 href={`${dropboxAuthUrl}`}
-                                className="btn btn-primary"
-                                style={{ paddingTop: "10px", marginLeft: '1rem' }}
+                                className="btn btn-primary mr-1"
                               >
                                 Link Your Dropbox
                               </a>
