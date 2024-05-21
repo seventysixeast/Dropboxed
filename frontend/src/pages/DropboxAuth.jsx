@@ -34,6 +34,7 @@ const DropboxOAuth = () => {
             });
 
             const data = await response.json();
+            console.log(data);
 
             setAccessToken(data.access_token);
 
@@ -41,6 +42,7 @@ const DropboxOAuth = () => {
                 const formData = new FormData();
                 formData.append("dropbox_refresh", data.refresh_token);
                 formData.append("dropbox_access", data.access_token);
+                formData.append("dropbox_id", data.account_id);
                 formData.append("id", userId);
 
                 const res = await authorizationToServer(formData);

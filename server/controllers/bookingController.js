@@ -415,7 +415,6 @@ const getAllBookings = async (req, res) => {
       let bookings = await Booking.findAll({
         where: {
           subdomain_id: req.body.subdomainId,
-          user_id: req.body.userId
         },
         include: [
           {
@@ -591,7 +590,7 @@ const getAllBookingTitles = async (req, res) => {
       return result.booking_status == 1;
     });
 
-    res.status(200).json({ success: true, data: filteredResults });
+    res.status(200).json({ success: true, data: filteredResults, bookingData });
   } catch (error) {
     res.status(500).json({ error: "Failed to data of booking" });
   }

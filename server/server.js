@@ -11,7 +11,6 @@ const photographerAdminRoutes = require('./routes/photographerAdminRoutes');
 const todoRoutes = require('./routes/todoRoutes');
 const userRoutes = require('./routes/userRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
-//const calenderRoutes = require('./routes/')
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
 const cors = require('cors');
@@ -32,16 +31,12 @@ app.use(cors(/*{
 app.use(bodyParser.json({ limit: '500mb' }));
 app.use(bodyParser.urlencoded({ limit: '500mb', parameterLimit: 100000, extended: true }));
 
-// Serve static files from the 'build' directory (for React frontend)
 app.use(express.static(path.join(__dirname, "build")));
 
-// Serve static files from the '/public/clients' directory (for client images)
 app.use('/images/clients', express.static(path.join(__dirname, 'public', 'clients')));
 
-// Serve static files from the '/public/gallery' directory (for gallery images)
 app.use('/images/gallery', express.static(path.join(__dirname, 'public', 'gallery')));
 
-// Directories to create
 const dirs = ['./public/clients', './public/gallery'];
 const createDirectories = (directories) => {
   directories.forEach((dir) => {
@@ -52,7 +47,6 @@ const createDirectories = (directories) => {
 };
 createDirectories(dirs);
 
-// Define routes
 app.use('/auth', authRoutes);
 app.use('/client', clientRoutes);
 app.use('/service', serviceRoutes);
@@ -66,12 +60,12 @@ app.use('/user', userRoutes);
 app.use('/invoice', invoiceRoutes)
 //app.use('/calender', calenderRoutes);
 
-// Protected route
+
+
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Protected route" });
 });
 
-// Serve index.html for all other routes
 app.get("/*", (req, res, next) => {
   if (
     req.url.startsWith("/auth/") ||
@@ -93,7 +87,8 @@ app.get("/*", (req, res, next) => {
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
-// Start the server
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -18,6 +18,7 @@ import TodoModal from "../components/TodoModal";
 import { getAlltasks, createTask } from "../api/todoApis";
 import { getClientPhotographers } from "../api/clientApis";
 import Masonry from "react-masonry-css";
+import { LinearProgress } from "@mui/material";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 export const ViewGallery = () => {
@@ -32,7 +33,10 @@ export const ViewGallery = () => {
     size: "original",
     device: "device",
   });
+
+  const [downloadGalleryPopup, setDownloadGalleryPopup] = useState(false);
   const [imageUrls, setImageUrls] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const page = useRef(1);
@@ -83,7 +87,44 @@ export const ViewGallery = () => {
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [folderPath, setFolderPath] = useState("");
   const [entriesList, setEntriesList] = useState();
-  
+  const currentUrl = window.location.href;
+
+  const url2 = new URL(currentUrl);
+  console.log(url2);
+  url2.pathname = url2.pathname.replace("/dashboard", "");
+
+  const [showPopup, setShowPopup] = useState(false);
+
+  const openSharePopup = () => {
+    setShowPopup(true);
+  };
+
+  const closeSharePopup = () => {
+    setShowPopup(false);
+  };
+
+  const shareOnFacebook = () => {
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        `${url2}view-gallery/${collection.slug}}`
+      )}`,
+      "ShareFacebook",
+      "width=600,height=400"
+    );
+    closeSharePopup();
+  };
+
+  const shareOnTwitter = () => {
+    window.open(
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+        `${url2}view-gallery/${collection.slug}}`
+      )}`,
+      "ShareTwitter",
+      "width=600,height=400"
+    );
+    closeSharePopup();
+  };
+
   const getTasks = async () => {
     if (authData.user === null) return;
     const formData = new FormData();
@@ -363,8 +404,9 @@ export const ViewGallery = () => {
   };
 
   const handleDownload = async () => {
+    setDownloadGalleryModal(false);
+    setDownloadGalleryPopup(true);
     const tokens = await getRefreshToken(collectionRefresh);
-    setLoading(true);
     if (downloadOptions.device == "device") {
       try {
         if (downloadOptions.size === "original") {
@@ -482,10 +524,12 @@ export const ViewGallery = () => {
     setDownloadOptions({ device: "device", size: "original" });
     setDownloadGalleryModal(false);
     setLoading(false);
+    setDownloadGalleryPopup(false);
   };
 
   const downloadFolderAsZip = async (accessToken) => {
-    setLoading(true);
+    setDownloadGalleryModal(false);
+    setDownloadGalleryPopup(true);
     const apiUrl = "https://content.dropboxapi.com/2/files/download_zip";
 
     try {
@@ -518,10 +562,14 @@ export const ViewGallery = () => {
     setDownloadOptions({ device: "device", size: "original" });
     setRunning(false);
     setDownloadGalleryModal(false);
+    setLoading(false);
+    setDownloadGalleryPopup(false);
   };
 
   const handleAllDownload = async () => {
-    setLoading(true);
+    setDownloadGalleryModal(false);
+    setDownloadGalleryPopup(true);
+
     if (authData.user === null) {
       toast.error("Please login first.");
       setLoading(false);
@@ -630,6 +678,7 @@ export const ViewGallery = () => {
     setDownloadOptions({ device: "device", size: "original" });
     setDownloadGalleryModal(false);
     setLoading(false);
+    setDownloadGalleryPopup(false);
   };
 
   const customOptions = {
@@ -729,6 +778,91 @@ export const ViewGallery = () => {
 
   return (
     <>
+      {downloadGalleryPopup && (
+        <div className="modal d-block" tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div
+                className="modal-header"
+                style={{ backgroundColor: "rgb(222, 230, 238)" }}
+              >
+                <h4 className="modal-title">Downloading your images...</h4>
+              </div>
+              <div className="modal-body">
+                <h4 className="text-center" style={{ marginTop: "1rem" }}>
+                  It may take a few minutes
+                </h4>
+                <LinearProgress
+                  className="w-50"
+                  style={{ marginLeft: "8.5rem", marginTop: "2rem", marginBottom: "2rem" }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showPopup && (
+        <div className="modal d-block" tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div
+                className="modal-header"
+                style={{ backgroundColor: "rgb(222, 230, 238)" }}
+              >
+                <div></div>
+                <h4 className="modal-title mr-3">Share Collection:</h4>
+
+                <button
+                  type="button"
+                  className="close"
+                  onClick={closeSharePopup}
+                >
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <p style={{ fontSize: "0.9rem" }}>
+                  {url2.href}view-gallery/{collection.slug}
+                </p>
+                <button
+                  className="btn btn-white mr-0"
+                  style={{ marginLeft: "11.5rem" }}
+                  onClick={shareOnFacebook}
+                >
+                  <i
+                    className="feather icon-facebook"
+                    style={{
+                      color: "#3b5998",
+                      border: "1px solid #3b5998",
+                      padding: "1rem ",
+                    }}
+                  ></i>
+                </button>
+                <button className="btn btn-white" onClick={shareOnTwitter}>
+                  <i
+                    className="feather icon-twitter"
+                    style={{
+                      color: "#1da1f2",
+                      border: "1px solid #1da1f2",
+                      padding: "1rem ",
+                    }}
+                  ></i>
+                </button>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeSharePopup}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <LoadingOverlay loading={loading} />
       <div className="todo-application">
         <div className="app-content content" style={{ overflow: "hidden" }}>
@@ -823,21 +957,28 @@ export const ViewGallery = () => {
               </div>
               <div>
                 {authData.user !== null && (
-                  <span
-                    className="text-right feather icon-download black"
-                    style={{cursor: "pointer"}}
-                    title="Download"
-                    onClick={() => {
-                      if (authData.user.role_id !== 3) {
-                        setDownloadGalleryModal(true);
-                      } else if (
-                        (authData.user.role_id =
-                          3 && collection.lock_gallery == true)
-                      ) {
-                        toast.error("Gallery is locked! Please contact admin.");
-                      }
-                    }}
-                  ></span>
+                  <div className="d-flex">
+                    <p className="text-class-h1 mr-1">
+                      {collection.image_count} Images
+                    </p>
+                    <span
+                      className="text-right feather icon-download black"
+                      style={{ cursor: "pointer" }}
+                      title="Download"
+                      onClick={() => {
+                        if (authData.user.role_id !== 3) {
+                          setDownloadGalleryModal(true);
+                        } else if (
+                          (authData.user.role_id =
+                            3 && collection.lock_gallery == true)
+                        ) {
+                          toast.error(
+                            "Gallery is locked! Please contact admin."
+                          );
+                        }
+                      }}
+                    ></span>
+                  </div>
                 )}
               </div>
             </div>
@@ -911,6 +1052,17 @@ export const ViewGallery = () => {
                                       <p className="icon-links">
                                         {authData.user !== null && (
                                           <>
+                                            <a>
+                                              <span
+                                                className="feather icon-share-2"
+                                                style={{ marginRight: "8px" }}
+                                                title="Share"
+                                                onClick={(event) => {
+                                                  event.stopPropagation();
+                                                  openSharePopup();
+                                                }}
+                                              ></span>
+                                            </a>
                                             <a>
                                               <span
                                                 className="feather icon-edit"
