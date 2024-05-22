@@ -489,6 +489,7 @@ const Collections = () => {
           <Switch
             checked={row.original.lock_gallery}
             onChange={() => handleGalleryLockChange(row.original)}
+            title="Click to change lock status."
             inputProps={{ "aria-label": "controlled" }}
           />
         ),
@@ -502,6 +503,7 @@ const Collections = () => {
               style={{
                 cursor: "pointer",
               }}
+              title="Click to change status."
               onClick={() => {
                 handleGalleryNotify(row.original.id);
               }}
@@ -515,6 +517,7 @@ const Collections = () => {
                 backgroundColor: "rgb(255, 116, 140)",
                 cursor: "pointer",
               }}
+              title="Click to change status."
               onClick={() => {
                 handleGalleryNotify(row.original.id, collections);
               }}
@@ -532,6 +535,7 @@ const Collections = () => {
               style={{
                 cursor: "pointer",
               }}
+              title="Click to update count."
               onClick={(e) => {
                 e.preventDefault();
                 updateImageCount(row.original);
