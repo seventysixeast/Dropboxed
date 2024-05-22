@@ -2,7 +2,7 @@ import React from "react";
 import Select from "react-select";
 import toolIcons from "../assets/images/i.png";
 import { Switch, Checkbox } from "@mui/material";
-import { useDropzone } from 'react-dropzone';
+import { useDropzone } from "react-dropzone";
 
 const AddGalleryModal = ({
   message,
@@ -235,7 +235,7 @@ const AddGalleryModal = ({
                   </fieldset>
                   <div className="row">
                     <div className="col-md-6">
-                      <div className="form-group">
+                      <div className="form-group w-100">
                         <label>Banner</label>
                         <div
                           {...getRootProps()}
