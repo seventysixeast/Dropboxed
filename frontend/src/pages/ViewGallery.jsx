@@ -38,7 +38,6 @@ export const ViewGallery = () => {
   const [imageUrls, setImageUrls] = useState([]);
 
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const page = useRef(1);
   const fetchSize = 12;
   const fileList = useRef([]);
@@ -80,13 +79,11 @@ export const ViewGallery = () => {
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState();
   const [tasks, setTasks] = useState([]);
-  const [filteredTasks, setFilteredTasks] = useState(tasks);
   const toggleNewTaskModal = () => {
     setIsNewTaskModalOpen(!isNewTaskModalOpen);
   };
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [folderPath, setFolderPath] = useState("");
-  const [entriesList, setEntriesList] = useState();
   const currentUrl = window.location.href;
 
   const url2 = new URL(currentUrl);
@@ -129,7 +126,6 @@ export const ViewGallery = () => {
     const response = await getAlltasks(formData);
     if (response.success) {
       setTasks(response.tasks);
-      setFilteredTasks(response.tasks);
       setTags(response.tags);
     } else {
       console.error(response.data);
@@ -184,7 +180,7 @@ export const ViewGallery = () => {
     try {
       const response = await createTask(formData);
       if (response.success) {
-        if (taskData.id == "") {
+        if (taskData.id === "") {
           toast.success("Task created successfully!");
         } else {
           toast.success("Task updated successfully!");
@@ -241,7 +237,7 @@ export const ViewGallery = () => {
       getTasks();
       getClients();
     }
-  }, []);
+  });
 
   const fetchCollection = async () => {
     setRunning(true);
@@ -279,14 +275,14 @@ export const ViewGallery = () => {
           },
         }
       );
-      if (sharedData.data.path_lower == undefined) {
+      if (sharedData.data.path_lower === undefined) {
         setFolderPath("");
       } else {
         setFolderPath(sharedData.data.path_lower);
       }
       let thePath = "";
 
-      if (sharedData.data.path_lower == undefined) {
+      if (sharedData.data.path_lower === undefined) {
         thePath = "";
       } else {
         thePath = sharedData.data.path_lower;
@@ -304,7 +300,6 @@ export const ViewGallery = () => {
 
       const entries = listResponse.data.entries;
 
-      setEntriesList(entries);
       const fileEntries = entries.filter((entry) => entry[".tag"] === "file");
       fileList.current = fileEntries;
       fetchImages(data, tokens);
@@ -321,7 +316,6 @@ export const ViewGallery = () => {
       const endIndex = Math.min(startIndex + fetchSize, totalFiles);
 
       if (startIndex >= totalFiles) {
-        setHasMore(false);
         return;
       }
 
@@ -335,7 +329,6 @@ export const ViewGallery = () => {
       if (endIndex < totalFiles) {
         fetchImages(data, tokens);
       } else {
-        setHasMore(false);
         setLoader(false);
       }
 
@@ -404,7 +397,7 @@ export const ViewGallery = () => {
     setDownloadGalleryPopup(true);
     setLoading(true);
     const tokens = await getRefreshToken(collectionRefresh);
-    if (downloadOptions.device == "device") {
+    if (downloadOptions.device === "device") {
       try {
         if (downloadOptions.size === "original") {
           const {
@@ -472,7 +465,7 @@ export const ViewGallery = () => {
       } catch (error) {
         console.error("Error downloading image from Dropbox:", error);
       }
-    } else if (downloadOptions.device == "dropbox") {
+    } else if (downloadOptions.device === "dropbox") {
       const tokens = await getRefreshToken(collectionRefresh);
       setDropboxAccess(tokens.access_token);
       const sharedLinkResponse = await fetch(
@@ -515,7 +508,6 @@ export const ViewGallery = () => {
           )}`
         );
       } else {
-        const errorData = await copyResponse.json();
         toast.error("Folder already exists.");
       }
     }
@@ -696,11 +688,7 @@ export const ViewGallery = () => {
     }
   };
 
-  const customOptions = {
-    ui: {
-      shareEl: false,
-    },
-  };
+
 
   useEffect(() => {
     const measureScrollbar = () => {
@@ -727,7 +715,7 @@ export const ViewGallery = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  });
 
   const handleScrollToGallery = () => {
     if (imageGalleryRef.current) {
@@ -935,6 +923,7 @@ export const ViewGallery = () => {
                       objectFit: "cover",
                       imageRendering: "auto",
                     }}
+                    alt="banner"
                   />
                 </div>
               </div>
@@ -987,7 +976,7 @@ export const ViewGallery = () => {
                           setDownloadGalleryModal(true);
                         } else if (
                           (authData.user.role_id =
-                            3 && collection.lock_gallery == true)
+                            3 && collection.lock_gallery === true)
                         ) {
                           toast.error(
                             "Gallery is locked! Please contact admin."
@@ -1069,32 +1058,28 @@ export const ViewGallery = () => {
                                       <p className="icon-links">
                                         {authData.user !== null && (
                                           <>
-                                            <a>
                                               <span
                                                 className="feather icon-share-2"
-                                                style={{ marginRight: "8px" }}
+                                                style={{ marginRight: "8px", cursor: 'pointer' }}
                                                 title="Share"
                                                 onClick={(event) => {
                                                   event.stopPropagation();
                                                   openSharePopup();
                                                 }}
                                               ></span>
-                                            </a>
-                                            <a>
                                               <span
                                                 className="feather icon-edit"
-                                                style={{ marginRight: "8px" }}
+                                                style={{ marginRight: "8px", cursor: 'pointer'  }}
                                                 onClick={(event) => {
                                                   event.stopPropagation();
                                                   toggleNewTaskModal();
                                                   handleShareImage(image);
                                                 }}
                                               ></span>
-                                            </a>
-                                            <a>
                                               <span
                                                 className="text-right feather icon-download"
                                                 title="Download"
+                                                style={{ cursor: 'pointer' }}
                                                 onClick={(event) => {
                                                   event.stopPropagation();
                                                   console.log(
@@ -1119,7 +1104,6 @@ export const ViewGallery = () => {
                                                   }
                                                 }}
                                               ></span>
-                                            </a>
                                           </>
                                         )}
                                       </p>

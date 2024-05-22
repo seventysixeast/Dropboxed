@@ -867,7 +867,6 @@ export const BookingListComponent = () => {
                     type="button"
                     className="badge"
                     style={{ backgroundColor: "#ff748c" }}
-                    title="Notify client"
                     onClick={() => handleNotifyChange(props.row.original)}
                   >
                     Notify
@@ -877,7 +876,6 @@ export const BookingListComponent = () => {
                 <ReTooltip title="New Request." placement="top">
                   <p
                     className="badge"
-                    title="New Request"
                     style={{ backgroundColor: "#ff748c" }}
                   >
                     New Request
@@ -888,7 +886,6 @@ export const BookingListComponent = () => {
               <ReTooltip title="Pending Request." placement="top">
                 <p
                   className="badge"
-                  title="Pening"
                   style={{ backgroundColor: "#ff748c" }}
                 >
                   Pending
@@ -897,7 +894,7 @@ export const BookingListComponent = () => {
             )
           ) : (
             <ReTooltip title="Booking Confirmed." placement="top">
-              <p className="badge" title="Booked" disabled>
+              <p className="badge" disabled>
                 Booked
               </p>
             </ReTooltip>
@@ -917,7 +914,6 @@ export const BookingListComponent = () => {
               onClick={() => getBookingData(props.row.original)}
               data-toggle="modal"
               data-target="#appointment"
-              title="Edit Booking"
               disabled={
                 roleId === 3
                   ? new Date(
@@ -943,7 +939,6 @@ export const BookingListComponent = () => {
               id="delete-row"
               data-toggle="modal"
               data-target="#deleteModal"
-              title="Delete Booking"
               disabled={
                 roleId === 3
                   ? new Date(
