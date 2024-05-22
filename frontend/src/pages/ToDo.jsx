@@ -12,7 +12,7 @@ import {
   setTaskFavorite,
 } from "../api/todoApis";
 import Select from "react-select";
-import { getClientPhotographers } from "../api/clientApis";
+import { getClient, getClientPhotographers } from "../api/clientApis";
 import _ from "lodash";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import DeleteModal from "../components/DeleteModal";
@@ -54,8 +54,7 @@ const ToDo = () => {
     isFavourite: 0,
   });
   const [comments, setComments] = useState([]);
-  const [taskAuthor, setTaskAuthor] = useState();
-
+  const [taskAuthor, setTaskAuthor] = useState({ name: "", profile_photo: "" });
 
   const getTasks = async () => {
     const formData = new FormData();
@@ -180,7 +179,7 @@ const ToDo = () => {
         setSelectedTags([]);
         setNewTaskModalOpen(false);
         setComments([]);
-        setTaskAuthor();
+        setTaskAuthor({ name: "", profile_photo: "" });
       } else {
         toast.error("Failed to create task!");
       }
@@ -239,8 +238,10 @@ const ToDo = () => {
     const client = clients.find((c) => c.id === task.assign_user);
 
     if (client) {
-      setSelectedClient({ value: client.id, label: client.name });
+      setSelectedClient({ value: client.id, label: client.name, profile_photo: client.profile_photo });
     }
+
+    setTaskAuthor(task.author)
 
     const selectedTags = task.task_tags
       .split(",")
@@ -264,8 +265,13 @@ const ToDo = () => {
     }
 
     setComments(task.TaskComments);
+    const authorclient = await getClient({ id: task.user_id });
+    console.log(authorclient);
 
-    setTaskAuthor(task.author);
+    if (authorclient.success) {
+      setTaskAuthor(authorclient.data);
+    }
+
     setNewTaskModalOpen(true);
   };
 
@@ -364,6 +370,8 @@ const ToDo = () => {
     items.splice(result.destination.index, 0, reorderedItem);
     setFilteredTasks(items);
   };
+
+  console.log(selectedClient);
 
   return (
     <div className="todo-application">
@@ -528,17 +536,17 @@ const ToDo = () => {
                       </div>
                       <div className="assigned d-flex justify-content-between">
                         <div className="form-group d-flex align-items-center mr-1">
-                          {/* users avatar */}
                           <div className="avatar">
                             <img
-                              src={avatar1}
+                              src={
+                                selectedClient.profile_photo
+                                  ? `${IMAGE_URL}/${selectedClient.profile_photo}`
+                                  : avatar1
+                              }
                               alt="charlie"
                               width={38}
                               height={38}
                             />
-                            <div className="avatar-content">
-                              <i className="feather icon-user font-medium-4" />
-                            </div>
                           </div>
                           <div
                             className="select-box mr-1"
@@ -558,6 +566,7 @@ const ToDo = () => {
                                   options: value.map((client) => ({
                                     value: client.id,
                                     label: client.name,
+                                    profile_photo: client.profile_photo,
                                   })),
                                 }))
                                 .value()}
@@ -570,9 +579,6 @@ const ToDo = () => {
                           </div>
                         </div>
                         <div className="form-group d-flex align-items-center position-relative">
-                          {/* calendar feather icon */}
-                          {/* date picker */}
-
                           <DatePicker
                             className="form-control custom-datepicker p-1"
                             id="datetimepicker4"
@@ -897,8 +903,6 @@ const ToDo = () => {
                           </div>
                         </div>
                       </div>
-
-                      {/* Dummy Data */}
                     </div>
 
                     <div className="card-body pb-1">
@@ -907,8 +911,9 @@ const ToDo = () => {
                           <div className="avatar mr-75">
                             <img
                               src={
-                                `${IMAGE_URL}/${taskAuthor.profile_photo}` ||
-                                avatar1
+                                taskAuthor.profile_photo
+                                  ? `${IMAGE_URL}/${taskAuthor.profile_photo}`
+                                  : avatar1
                               }
                               alt="charlie"
                               width={38}
@@ -1158,7 +1163,11 @@ const ToDo = () => {
                                           </div>
                                           <div className="avatar ml-1">
                                             <img
-                                              src={avatar1}
+                                              src={
+                                                task.author.profile_photo
+                                                  ? `${IMAGE_URL}/${task.author.profile_photo}`
+                                                  : avatar1
+                                              }
                                               alt="charlie"
                                               width={38}
                                               height={38}

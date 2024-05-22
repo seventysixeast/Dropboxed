@@ -23,15 +23,13 @@ const TableCustom = ({ data, columns }) => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 10 } // Set initial page size here
+      initialState: { pageIndex: 0, pageSize: 10 }
     },
-
     useFilters,
     useGlobalFilter,
     useSortBy,
     usePagination
   );
-
 
   const MAX_VISIBLE_PAGES = 5;
 
@@ -86,75 +84,85 @@ const TableCustom = ({ data, columns }) => {
                           />
                         </div>
                       </div>
-                      <table {...getTableProps()} className="tablealt-pagination dataTable table-inverse table-striped">
-                        <thead>
-                          {headerGroups.map((headerGroup) => (
-                            <tr {...headerGroup.getHeaderGroupProps()}>
-                              {headerGroup.headers.map((column) => (
-                                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                                  {column.render("Header")}
-                                  <span>
-                                    {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc" style={{ marginLeft: '10px' }} /> : <i className="fa fa-sort-asc" style={{ marginLeft: '10px' }} />) : ''}
-                                  </span>
-                                </th>
+                      {data.length > 0 ? (
+                        <div style={{ overflowX: "auto" }}>
+                          <table {...getTableProps()} className="tablealt-pagination dataTable table-inverse table-striped">
+                            <thead>
+                              {headerGroups.map((headerGroup) => (
+                                <tr {...headerGroup.getHeaderGroupProps()}>
+                                  {headerGroup.headers.map((column) => (
+                                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                                      {column.render("Header")}
+                                      <span>
+                                        {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc" style={{ marginLeft: '10px' }} /> : <i className="fa fa-sort-asc" style={{ marginLeft: '10px' }} />) : ''}
+                                      </span>
+                                    </th>
+                                  ))}
+                                </tr>
                               ))}
-                            </tr>
-                          ))}
-                        </thead>
-                        <tbody {...getTableBodyProps()} >
-                          {page.map((row, i) => {
-                            prepareRow(row);
-                            return (
-                              <tr {...row.getRowProps()}>
-                                {row.cells.map((cell) => {
-                                  return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
-                                })}
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                            </thead>
+                            <tbody {...getTableBodyProps()} >
+                              {page.map((row, i) => {
+                                prepareRow(row);
+                                return (
+                                  <tr {...row.getRowProps()}>
+                                    {row.cells.map((cell) => {
+                                      return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
+                                    })}
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="d-flex justify-content-center">
+                          <p>No data found.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="justify-content-between px-2 dataTables_wrapper dt-bootstrap4">
-                    <div className="col-xs-12 col-sm-12 col-md-5">
-                    </div>
-                    <div className="col-sm-12 col-md-7 float-right">
-                      <div className="dataTables_paginate paging_full_numbers">
-                        <ul className="pagination">
-                          <li className={`paginate_button page-item first ${!canPreviousPage ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => gotoPage(0)}>First</button>
-                          </li>
-                          <li className={`paginate_button page-item previous ${!canPreviousPage ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => previousPage()}>Previous</button>
-                          </li>
-                          {startIndex > 0 && (
-                            <li className="paginate_button page-item disabled">
-                              <button className="page-link">...</button>
+                  {data.length > 0 && (
+                    <div className="justify-content-between px-2 dataTables_wrapper dt-bootstrap4">
+                      <div className="col-xs-12 col-sm-12 col-md-5">
+                      </div>
+                      <div className="col-sm-12 col-md-7 float-right">
+                        <div className="dataTables_paginate paging_full_numbers">
+                          <ul className="pagination">
+                            <li className={`paginate_button page-item first ${!canPreviousPage ? 'disabled' : ''}`}>
+                              <button className="page-link" onClick={() => gotoPage(0)}>First</button>
                             </li>
-                          )}
-                          {pageOptions
-                            .slice(startIndex, startIndex + displayedPages)
-                            .map((page) => (
-                              <li key={page} className={`paginate_button page-item ${pageIndex === page ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => gotoPage(page)}>{page + 1}</button>
+                            <li className={`paginate_button page-item previous ${!canPreviousPage ? 'disabled' : ''}`}>
+                              <button className="page-link" onClick={() => previousPage()}>Previous</button>
+                            </li>
+                            {startIndex > 0 && (
+                              <li className="paginate_button page-item disabled">
+                                <button className="page-link">...</button>
                               </li>
-                            ))}
-                          {startIndex + displayedPages < pageCount && (
-                            <li className="paginate_button page-item disabled">
-                              <button className="page-link">...</button>
+                            )}
+                            {pageOptions
+                              .slice(startIndex, startIndex + displayedPages)
+                              .map((page) => (
+                                <li key={page} className={`paginate_button page-item ${pageIndex === page ? 'active' : ''}`}>
+                                  <button className="page-link" onClick={() => gotoPage(page)}>{page + 1}</button>
+                                </li>
+                              ))}
+                            {startIndex + displayedPages < pageCount && (
+                              <li className="paginate_button page-item disabled">
+                                <button className="page-link">...</button>
+                              </li>
+                            )}
+                            <li className={`paginate_button page-item next ${!canNextPage ? 'disabled' : ''}`}>
+                              <button className="page-link" onClick={() => nextPage()}>Next</button>
                             </li>
-                          )}
-                          <li className={`paginate_button page-item next ${!canNextPage ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => nextPage()}>Next</button>
-                          </li>
-                          <li className={`paginate_button page-item last ${!canNextPage ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => gotoPage(pageCount - 1)}>Last</button>
-                          </li>
-                        </ul>
+                            <li className={`paginate_button page-item last ${!canNextPage ? 'disabled' : ''}`}>
+                              <button className="page-link" onClick={() => gotoPage(pageCount - 1)}>Last</button>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

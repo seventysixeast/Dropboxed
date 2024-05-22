@@ -74,9 +74,9 @@ const DownloadImageModal = ({ isOpen, onClose, onConfirm, downloadOptions, setDo
                     value="w2048h1536"
                     checked={selectedSize === "w2048h1536"}
                     onChange={handleSizeChange}
-                    style={{ marginRight: "11.5rem" }}
+                    style={{ marginRight: "7rem" }}
                   />
-                  <label htmlFor="original" className="form-check-label mb-0 text-center">Web Size</label>
+                  <label htmlFor="original" className="form-check-label mb-0 text-center">Web Size [2048px * 1536px]</label>
                 </div>
               </div>
             </fieldset>

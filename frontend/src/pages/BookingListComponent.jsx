@@ -27,6 +27,7 @@ import LoadingOverlay from "../components/Loader";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import moment from "moment";
+import ReTooltip from "../components/Tooltip";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -121,6 +122,13 @@ export const BookingListComponent = () => {
       const month = ("0" + (date.getMonth() + 1)).slice(-2);
       const day = ("0" + date.getDate()).slice(-2);
       const formattedDate = `${year}-${month}-${day}`;
+      let newbookingstatus = 0;
+
+      if (roleId == 3) {
+        newbookingstatus = 0;
+      } else {
+        newbookingstatus = notifyCheckbox;
+      }
 
       const bookingDataToSend = {
         id: bookingIdToDelete,
@@ -130,7 +138,7 @@ export const BookingListComponent = () => {
         booking_date: formattedDate,
         booking_time: bookingData.fromTime,
         booking_time_to: newToTime,
-        booking_status: notifyCheckbox,
+        booking_status: newbookingstatus,
         comment: bookingData.comment,
         booking_title: bookingAddress.label,
         subdomain_id: subdomainId,
@@ -181,6 +189,7 @@ export const BookingListComponent = () => {
       tabChange2();
     }
   };
+  console.log(notifyCheckbox);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -853,37 +862,45 @@ export const BookingListComponent = () => {
           {props.row.original.booking_status === 0 ? (
             roleId !== 3 ? (
               props.row.original.photographer_id !== "" ? (
-                <a
-                  type="button"
-                  className="badge"
-                  style={{ backgroundColor: "#ff748c" }}
-                  title="Notify client"
-                  onClick={() => handleNotifyChange(props.row.original)}
-                >
-                  Notify
-                </a>
+                <ReTooltip title="Notify Client." placement="top">
+                  <a
+                    type="button"
+                    className="badge"
+                    style={{ backgroundColor: "#ff748c" }}
+                    title="Notify client"
+                    onClick={() => handleNotifyChange(props.row.original)}
+                  >
+                    Notify
+                  </a>
+                </ReTooltip>
               ) : (
-                <p
-                  className="badge"
-                  title="New Request"
-                  style={{ backgroundColor: "#ff748c" }}
-                >
-                  New Request
-                </p>
+                <ReTooltip title="New Request." placement="top">
+                  <p
+                    className="badge"
+                    title="New Request"
+                    style={{ backgroundColor: "#ff748c" }}
+                  >
+                    New Request
+                  </p>
+                </ReTooltip>
               )
             ) : (
-              <p
-                className="badge"
-                title="Pening"
-                style={{ backgroundColor: "#ff748c" }}
-              >
-                Pending
-              </p>
+              <ReTooltip title="Pending Request." placement="top">
+                <p
+                  className="badge"
+                  title="Pening"
+                  style={{ backgroundColor: "#ff748c" }}
+                >
+                  Pending
+                </p>
+              </ReTooltip>
             )
           ) : (
-            <p className="badge" title="Booked" disabled>
-              Booked
-            </p>
+            <ReTooltip title="Booking Confirmed." placement="top">
+              <p className="badge" title="Booked" disabled>
+                Booked
+              </p>
+            </ReTooltip>
           )}
         </div>
       ),
@@ -893,52 +910,55 @@ export const BookingListComponent = () => {
       accessor: "action",
       Cell: (props) => (
         <div className="d-flex">
-          <button
-            type="button"
-            className="btn btn-icon btn-outline-primary"
-            onClick={() => getBookingData(props.row.original)}
-            data-toggle="modal"
-            data-target="#appointment"
-            title="Edit Booking"
-            disabled={
-              roleId === 3
-                ? new Date(
-                    props.row.original.booking_date +
-                      "T" +
-                      props.row.original.booking_time
-                  ) -
-                    new Date() <
-                  1000 * 60 * 60 * 3
-                : false
-            }
-          >
-            <i className="feather white icon-edit"></i>
-          </button>
-
-          <button
-            className="btn btn-icon btn-outline-danger ml-1"
-            onClick={() => {
-              setBookingIdToDelete(props.row.original.id);
-              setShowDeleteModal(true);
-            }}
-            id="delete-row"
-            data-toggle="modal"
-            data-target="#deleteModal"
-            title="Delete Booking"
-            disabled={
-              roleId === 3
-                ? new Date(
-                    props.row.original.booking_date +
-                      "T" +
-                      props.row.original.booking_time
-                  ) -
-                    new Date() <
-                  1000 * 60 * 60 * 3
-                : false
-            }
-          >
-            <i className="feather white icon-trash"></i>
-          </button>
+          <ReTooltip title="Edit this booking." placement="top">
+            <button
+              type="button"
+              className="btn btn-icon btn-outline-primary"
+              onClick={() => getBookingData(props.row.original)}
+              data-toggle="modal"
+              data-target="#appointment"
+              title="Edit Booking"
+              disabled={
+                roleId === 3
+                  ? new Date(
+                      props.row.original.booking_date +
+                        "T" +
+                        props.row.original.booking_time
+                    ) -
+                      new Date() <
+                    1000 * 60 * 60 * 3
+                  : false
+              }
+            >
+              <i className="feather white icon-edit"></i>
+            </button>
+          </ReTooltip>
+          <ReTooltip title="Delete this booking." placement="top">
+            <button
+              className="btn btn-icon btn-outline-danger ml-1"
+              onClick={() => {
+                setBookingIdToDelete(props.row.original.id);
+                setShowDeleteModal(true);
+              }}
+              id="delete-row"
+              data-toggle="modal"
+              data-target="#deleteModal"
+              title="Delete Booking"
+              disabled={
+                roleId === 3
+                  ? new Date(
+                      props.row.original.booking_date +
+                        "T" +
+                        props.row.original.booking_time
+                    ) -
+                      new Date() <
+                    1000 * 60 * 60 * 3
+                  : false
+              }
+            >
+              <i className="feather white icon-trash"></i>
+            </button>
+          </ReTooltip>
         </div>
       ),
     },
@@ -1172,27 +1192,34 @@ export const BookingListComponent = () => {
                       {calendarSub == null ? (
                         <></>
                       ) : (
-                        <a
-                          className={`btn btn-outline-primary mb-1 mx-1 ${
-                            calendarSub === 1 ? "d-none" : ""
-                          }`}
-                          disabled={calendarSub === 1}
-                          href={`${authUrl}`}
+                        <ReTooltip
+                          title="Subscribe for calendar alerts."
+                          placement="top"
                         >
-                          {calendarSub == 1
-                            ? "Subscribed"
-                            : "Subscribe to Calendar"}
-                        </a>
+                          <a
+                            className={`btn btn-outline-primary mb-1 mx-1 ${
+                              calendarSub === 1 ? "d-none" : ""
+                            }`}
+                            disabled={calendarSub === 1}
+                            href={`${authUrl}`}
+                          >
+                            {calendarSub == 1
+                              ? "Subscribed"
+                              : "Subscribe to Calendar"}
+                          </a>
+                        </ReTooltip>
                       )}
-                      <button
-                        ref={buttonRef}
-                        type="button"
-                        className="btn btn-outline-primary mb-1"
-                        data-toggle="modal"
-                        data-target="#appointment"
-                      >
-                        New Appointment
-                      </button>
+                      <ReTooltip title="Add a new appointment." placement="top">
+                        <button
+                          ref={buttonRef}
+                          type="button"
+                          className="btn btn-outline-primary mb-1"
+                          data-toggle="modal"
+                          data-target="#appointment"
+                        >
+                          New Appointment
+                        </button>
+                      </ReTooltip>
                     </div>
                     <div
                       className="modal fade text-left"

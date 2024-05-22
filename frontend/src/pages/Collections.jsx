@@ -14,6 +14,7 @@ import {
   getDropboxRefreshToken,
   updateGalleryLock,
   updateCollection,
+  updateGalleryNotify,
 } from "../api/collectionApis";
 import { getRefreshToken } from "../api/authApis";
 import { toast } from "react-toastify";
@@ -22,6 +23,7 @@ import { useAuth } from "../context/authContext";
 import TableCustom from "../components/Table";
 import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
+import moment from "moment";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -68,8 +70,7 @@ const Collections = () => {
 
   const currentUrl = window.location.href;
   const url2 = new URL(currentUrl);
-  url2.pathname = url2.pathname.replace("/dashboard", "");
-
+  url2.pathname = url2.pathname.replace("/collections", "");
   const url = new URL(currentUrl);
 
   url.searchParams.set("userId", userId);
@@ -78,7 +79,6 @@ const Collections = () => {
   );
 
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
-
 
   useEffect(() => {
     if (formData.client !== "" && formData.booking_title !== "") {
@@ -177,8 +177,7 @@ const Collections = () => {
     setFormData(gallery);
   };
 
-  const handleBannerChange = (event) => {
-    const file = event.target.files[0];
+  const handleBannerChange = (file) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -193,7 +192,7 @@ const Collections = () => {
       setPreviewImage(null);
       setFormData({
         ...formData,
-        banner: "",
+        banner: '',
       });
     }
   };
@@ -220,8 +219,10 @@ const Collections = () => {
     setShowAddGalleryModal(false);
   };
 
+
+
   const handleSubmit = async (e) => {
-    setLoading(true)
+    setLoading(true);
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
@@ -282,18 +283,17 @@ const Collections = () => {
         setShowAddGalleryModal(false);
         getAllCollectionsData();
         setShowAddGalleryModal(false);
-        const closeModalButton = document.getElementById('closeModalButton');
+        const closeModalButton = document.getElementById("closeModalButton");
         if (closeModalButton) {
           closeModalButton.click();
-        }       
+        }
       } else {
         toast.error(res);
       }
     } catch (error) {
       toast.error(error);
     }
-    setLoading(false)
-
+    setLoading(false);
   };
 
   const getAllCollectionsData = async () => {
@@ -446,11 +446,30 @@ const Collections = () => {
     }
   };
 
+  const handleGalleryNotify = async (id) => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", id);
+
+      const res = await updateGalleryNotify(formDataToSend);
+
+      if (res && res.success) {
+        toast.success(res.message);
+        await getAllCollectionsData();
+      } else {
+        toast.error(res ? res.message : "Unknown error occurred");
+      }
+    } catch (error) {
+      console.error("Error in handleGalleryNotify:", error);
+      toast.error(`An error occurred. Please try again later.`);
+    }
+  };
+
   const columns = React.useMemo(
     () => [
-      { Header: "S.No.", accessor: "id" },
+      { Header: "Id", accessor: "id" },
       {
-        Header: "Banner",
+        Header: "Banner Image",
         Cell: ({ row }) => (
           <img
             src={row.original.banner && `${IMAGE_URL}/${row.original.banner}`}
@@ -460,10 +479,10 @@ const Collections = () => {
         ),
       },
       { Header: "Gallery Title", accessor: "name" },
-      { Header: "Photographers", accessor: "photographers_name" },
+      { Header: "Address", accessor: "client_address" },
       { Header: "Client", accessor: "client_name" },
-      { Header: "Booking Title", accessor: "client_address" },
       { Header: "Services", accessor: "packages_name" },
+      { Header: "Photographers", accessor: "photographers_name" },
       {
         Header: "Unlock/Lock",
         Cell: ({ row }) => (
@@ -478,33 +497,66 @@ const Collections = () => {
         Header: "Notify",
         Cell: ({ row }) =>
           row.original.notify_client ? (
-            <div className="badge badge-pill badge-light-primary">Notified</div>
+            <div
+              className="badge badge-pill badge-light-primary"
+              style={{
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                handleGalleryNotify(row.original.id);
+              }}
+            >
+              Notified
+            </div>
           ) : (
             <div
               className="badge badge-pill"
-              style={{ backgroundColor: "rgb(255, 116, 140)" }}
+              style={{
+                backgroundColor: "rgb(255, 116, 140)",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                handleGalleryNotify(row.original.id, collections);
+              }}
             >
               Pending
             </div>
           ),
       },
       {
-        Header: "Image Count",
+        Header: "Image Counts",
         Cell: ({ row }) => (
           <div className="btnsrow text-center">
-            <div className="badge badge-pill badge-light-primary">
-              {row.original.image_count} images
-            </div>
-            <button
-              className="btn btn-sm btn-icon btn-outline-secondary mt-1 mb-1"
-              title="Edit"
+            <div
+              className="badge badge-pill badge-light-primary"
+              style={{
+                cursor: "pointer",
+              }}
               onClick={(e) => {
                 e.preventDefault();
                 updateImageCount(row.original);
               }}
             >
-              <i className="feather icon-refresh-ccw"></i>
-            </button>
+              {row.original.image_count} images
+            </div>
+          </div>
+        ),
+      },
+      {
+        Header: "Created On",
+        Cell: ({ row }) => (
+          <div className="btnsrow text-center">
+            <div
+              className="badge badge-pill badge-light-primary"
+
+            >
+              {moment(row.original.created).format("DD/MM/YYYY")}
+            </div>
+            <div
+
+            >
+              {moment(row.original.created).format("HH:mm A")}
+            </div>
           </div>
         ),
       },
@@ -596,11 +648,11 @@ const Collections = () => {
                         data-target="#bootstrap"
                         // title conditional
                         title={
-                          subdomainDropbox == null
-                            ? "Add Collection"
-                            : "Dropbox Not Linked"
+                          user.dropbox_refresh == null
+                            ? "Dropbox Not Linked"
+                            : "Add Collection"
                         }
-                        disabled={subdomainDropbox == null}
+                        disabled={user.dropbox_refresh == null}
                         onClick={() => {
                           setShowAddGalleryModal(true);
                         }}

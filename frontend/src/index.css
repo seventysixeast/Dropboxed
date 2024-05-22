@@ -1640,3 +1640,13 @@ a:not([href]) {
   height: 24px !important;
 }
 
+.bg-gradient-x-primary {
+  background-image: linear-gradient(to right, #00b5b8 0%, #00e7eb 100%);
+  background-repeat: repeat-x;
+}
+
+
+.bg-gradient-x-danger {
+  background-image: linear-gradient(to right, #FF748C 0%, #ffa8b4 100%);
+  background-repeat: repeat-x;
+}

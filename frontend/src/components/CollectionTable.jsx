@@ -14,6 +14,7 @@ import {
   getDropboxRefreshToken,
   updateGalleryLock,
   updateCollection,
+  updateGalleryNotify,
 } from "../api/collectionApis";
 import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
@@ -23,6 +24,8 @@ import TableCustom from "./Table";
 import DeleteModal from "./DeleteModal";
 import axios from "axios";
 import Table2 from "./Table2";
+import moment from "moment";
+
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -181,8 +184,7 @@ const CollectionTable = () => {
     setFormData(gallery);
   };
 
-  const handleBannerChange = (event) => {
-    const file = event.target.files[0];
+  const handleBannerChange = (file) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -197,7 +199,7 @@ const CollectionTable = () => {
       setPreviewImage(null);
       setFormData({
         ...formData,
-        banner: "",
+        banner: '',
       });
     }
   };
@@ -431,6 +433,25 @@ const CollectionTable = () => {
     setIsGalleryLocked(!isGalleryLocked);
   };
 
+  const handleGalleryNotify = async (id) => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", id);
+
+      const res = await updateGalleryNotify(formDataToSend);
+
+      if (res && res.success) {
+        toast.success(res.message);
+        await getAllCollectionsData();
+      } else {
+        toast.error(res ? res.message : "Unknown error occurred");
+      }
+    } catch (error) {
+      console.error("Error in handleGalleryNotify:", error);
+      toast.error(`An error occurred. Please try again later.`);
+    }
+  };
+
   const handleGalleryLockChange = async (data) => {
     try {
       setIsGalleryLocked(!isGalleryLocked);
@@ -451,9 +472,9 @@ const CollectionTable = () => {
 
   const columns = React.useMemo(
     () => [
-      { Header: "S.No.", accessor: "id" },
+      { Header: "Id", accessor: "id" },
       {
-        Header: "Banner",
+        Header: "Banner Image",
         Cell: ({ row }) => (
           <img
             src={row.original.banner && `${IMAGE_URL}/${row.original.banner}`}
@@ -463,10 +484,10 @@ const CollectionTable = () => {
         ),
       },
       { Header: "Gallery Title", accessor: "name" },
-      { Header: "Photographers", accessor: "photographers_name" },
+      { Header: "Address", accessor: "client_address" },
       { Header: "Client", accessor: "client_name" },
-      { Header: "Booking Title", accessor: "client_address" },
       { Header: "Services", accessor: "packages_name" },
+      { Header: "Photographers", accessor: "photographers_name" },
       {
         Header: "Unlock/Lock",
         Cell: ({ row }) => (
@@ -481,33 +502,66 @@ const CollectionTable = () => {
         Header: "Notify",
         Cell: ({ row }) =>
           row.original.notify_client ? (
-            <div className="badge badge-pill badge-light-primary">Notified</div>
+            <div
+              className="badge badge-pill badge-light-primary"
+              style={{
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                handleGalleryNotify(row.original.id);
+              }}
+            >
+              Notified
+            </div>
           ) : (
             <div
               className="badge badge-pill"
-              style={{ backgroundColor: "rgb(255, 116, 140)" }}
+              style={{
+                backgroundColor: "rgb(255, 116, 140)",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                handleGalleryNotify(row.original.id, collections);
+              }}
             >
               Pending
             </div>
           ),
       },
       {
-        Header: "Image Count",
+        Header: "Image Counts",
         Cell: ({ row }) => (
           <div className="btnsrow text-center">
-            <div className="badge badge-pill badge-light-primary">
-              {row.original.image_count} images
-            </div>
-            <button
-              className="btn btn-sm btn-icon btn-outline-secondary mt-1 mb-1"
-              title="Edit"
+            <div
+              className="badge badge-pill badge-light-primary"
+              style={{
+                cursor: "pointer",
+              }}
               onClick={(e) => {
                 e.preventDefault();
                 updateImageCount(row.original);
               }}
             >
-              <i className="feather icon-refresh-ccw"></i>
-            </button>
+              {row.original.image_count} images
+            </div>
+          </div>
+        ),
+      },
+      {
+        Header: "Created On",
+        Cell: ({ row }) => (
+          <div className="btnsrow text-center">
+            <div
+              className="badge badge-pill badge-light-primary"
+
+            >
+              {moment(row.original.created).format("DD/MM/YYYY")}
+            </div>
+            <div
+
+            >
+              {moment(row.original.created).format("HH:mm A")}
+            </div>
           </div>
         ),
       },

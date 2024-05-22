@@ -7,8 +7,6 @@ const getAllTasks = async (req, res) => {
   const subdomainId = req.body.subdomain_id;
   const roleId = req.body.role_id;
 
-  console.log(subdomainId, roleId);
-
   try {
     let tasks;
     if (roleId !== 5) {
@@ -22,7 +20,7 @@ const getAllTasks = async (req, res) => {
           },
           {
             model: Users,
-            as: "author", // Alias for the Users model
+            as: "author",
             attributes: ["id", "name", "profile_photo"],
           },
         ],
@@ -64,7 +62,6 @@ const getAllTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
   let newTask, newComment;
-
   try {
     const {
       id,
@@ -95,6 +92,12 @@ const createTask = async (req, res) => {
         status,
         is_favourite,
       });
+
+      const taskOrder = newTask.id;
+      await TaskTodo.update(
+        { task_order: taskOrder },
+        { where: { id: newTask.id } }
+      );
     } else {
       await TaskTodo.update(
         {
@@ -121,6 +124,8 @@ const createTask = async (req, res) => {
         subdomain_id,
       });
     }
+
+
 
     res.status(201).json({ success: true, task: newTask, comment: newComment });
   } catch (error) {

@@ -402,6 +402,7 @@ export const ViewGallery = () => {
   const handleDownload = async () => {
     setDownloadGalleryModal(false);
     setDownloadGalleryPopup(true);
+    setLoading(true);
     const tokens = await getRefreshToken(collectionRefresh);
     if (downloadOptions.device == "device") {
       try {
@@ -460,6 +461,7 @@ export const ViewGallery = () => {
             }
           );
           const imageData = response.data.entries[0].thumbnail;
+
           const link = document.createElement("a");
           link.href = `data:image/jpeg;base64,${imageData}`;
           link.download = "downloaded_image.jpg";
@@ -518,7 +520,7 @@ export const ViewGallery = () => {
       }
     }
     setDownloadOptions({ device: "device", size: "original" });
-    setDownloadGalleryModal(false);
+    setDownloadImageModal(false);
     setLoading(false);
     setDownloadGalleryPopup(false);
   };
@@ -603,11 +605,10 @@ export const ViewGallery = () => {
                   Authorization: `Bearer ${tokens.access_token}`,
                   "Content-Type": "application/json",
                 },
-                responseType: "json", // Change from arraybuffer to json
+                responseType: "json",
               }
             );
 
-            // Extracting the base64 thumbnail data from the response
             const thumbnailData = response.data.entries[0].thumbnail;
             const binaryString = atob(thumbnailData);
             const binaryLen = binaryString.length;
@@ -1096,6 +1097,10 @@ export const ViewGallery = () => {
                                                 title="Download"
                                                 onClick={(event) => {
                                                   event.stopPropagation();
+                                                  console.log(
+                                                    collection.lock_gallery
+                                                  );
+
                                                   setSelectedImageUrl(
                                                     image.path_display
                                                   );
@@ -1104,14 +1109,13 @@ export const ViewGallery = () => {
                                                   ) {
                                                     setDownloadImageModal(true);
                                                   } else if (
-                                                    (authData.user.role_id =
-                                                      3 &&
-                                                      collection.lock_gallery ==
-                                                        true)
+                                                    collection.lock_gallery
                                                   ) {
                                                     toast.error(
                                                       "Gallery is locked! Please contact admin."
                                                     );
+                                                  } else {
+                                                    setDownloadImageModal(true);
                                                   }
                                                 }}
                                               ></span>
@@ -1129,6 +1133,24 @@ export const ViewGallery = () => {
                       </Masonry>
                     </div>
                   </CustomGallery>
+                  {loader && (
+                    <div
+                      className="d-flex justify-content-center align-items-center"
+                      style={{ height: "10rem" }}
+                    >
+                      <div
+                        className="text-center"
+                        style={{
+                          border: "8px solid #f3f3f3",
+                          borderTop: "8px solid #3498db",
+                          borderRadius: "50%",
+                          width: "50px",
+                          height: "50px",
+                          animation: "spin 2s linear infinite",
+                        }}
+                      ></div>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
