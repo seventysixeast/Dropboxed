@@ -708,7 +708,7 @@ export const Dashboard = () => {
               ) : (
                 <div className="card-deck-wrapper">
                   <div className="grid-hover row">
-                    {collections &&
+                    {collections && collections.length > 0 ? (
                       collections.map((item) => (
                         <div className="col-md-3 mb-1" key={item.id}>
                           <a
@@ -726,7 +726,6 @@ export const Dashboard = () => {
                                     : "../../../app-assets/images/gallery/9.jpg"
                                 }
                               />
-
                               <figcaption
                                 style={{
                                   display: "flex",
@@ -786,7 +785,6 @@ export const Dashboard = () => {
                                   >
                                     <i className="feather icon-share-2"></i>
                                   </a>
-
                                   <a
                                     href="#"
                                     className="gallery-link"
@@ -805,24 +803,26 @@ export const Dashboard = () => {
                                   >
                                     <i className="feather icon-copy"></i>
                                   </a>
-
                                   <Tooltip
                                     id={`copyTooltip-${item.id}`}
                                     effect="solid"
                                     placement="top"
-                                    style={{fontSize: '0.6rem'}}
+                                    style={{ fontSize: "0.6rem" }}
                                   />
                                 </div>
-                                <p
-                                  className="description description-edit"
-                                >
+                                <p className="description description-edit">
                                   {item.name}
                                 </p>
                               </figcaption>
                             </figure>
                           </a>
                         </div>
-                      ))}
+                      ))
+                    ) : (
+                      <div className="w-100 d-flex justify-content-center">
+                        <p className="text-center">No collections found.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
