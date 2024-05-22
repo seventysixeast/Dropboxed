@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
-import { verifyToken } from "../api/authApis";
 
 const ImageTypes = () => {
   const { authData } = useAuth();
@@ -29,13 +28,12 @@ const ImageTypes = () => {
 
   useEffect(() => {
     getAllImageTypesData();
-    verifyToken(accessToken);
   }, []);
 
   const getAllImageTypesData = async () => {
     try {
       const formData = new FormData();
-      formData.append("subdomainId", subdomainId);
+      formData.append("subdomain_id", subdomainId);
       let allImageTypesData = await getAllImageTypes(formData);
       if (allImageTypesData && allImageTypesData.success) {
         setImageTypes(allImageTypesData.data);

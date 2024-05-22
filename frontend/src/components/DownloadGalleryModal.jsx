@@ -29,7 +29,6 @@ const DownloadGalleryModal = ({
     setSelectedDownloadTo(event.target.value);
     setDownloadOptions({ ...downloadOptions, device: event.target.value });
   };
-  console.log(authData);
   useEffect(() => {
     if (authData.user !== null) {
       const currentUrl = window.location.href;

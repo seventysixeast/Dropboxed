@@ -29,12 +29,13 @@ const SideNav = () => {
                 ></i>
               </li>
               <li className=" nav-item">
-                <Link to="/dashboard">
+              <Link to="/dashboard">
                   <i className="feather icon-home"></i>
                   <span className="menu-title" data-i18n="Dashboard">
                     Dashboard
                   </span>
-                </Link>
+              </Link>
+                
               </li>
               <li className=" nav-item">
                 <Link to="/booking-list-calendar">

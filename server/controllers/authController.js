@@ -128,6 +128,7 @@ exports.login = async (req, res) => {
           role_id: user.role_id,
           dropbox_refresh: dropboxRefresh,
           dropbox_access: dropboxAccess,
+          is_verified: user.is_verified
         },
         message: "Login successfull",
       });
@@ -148,6 +149,7 @@ exports.login = async (req, res) => {
           role_id: user.role_id,
           dropbox_refresh: user.dropbox_refresh,
           dropbox_access: user.dropbox_access,
+          is_verified: user.is_verified
         },
         message: "Login successfull",
       });

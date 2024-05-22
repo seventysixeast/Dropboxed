@@ -1,21 +1,40 @@
 import React from "react";
 import Select from "react-select";
 import toolIcons from "../assets/images/i.png";
-import { Switch, Checkbox } from '@mui/material';
+import { Switch, Checkbox } from "@mui/material";
 
-const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clients, bookingTitles, services, photographers, isGalleryLocked, isNotifyChecked, loading, handleInputChange, handleBannerChange, handleGalleryLockChange, handleNotifyChange, handleSubmit, onClose }) => {
+const AddGalleryModal = ({
+  message,
+  button,
+  isOpen,
+  formData,
+  previewImage,
+  clients,
+  bookingTitles,
+  services,
+  photographers,
+  isGalleryLocked,
+  isNotifyChecked,
+  loading,
+  handleInputChange,
+  handleBannerChange,
+  handleGalleryLockChange,
+  handleNotifyChange,
+  handleSubmit,
+  onClose,
+}) => {
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
       <div className="content-wrapper">
         <div
-          className={`modal fade ${isOpen ? 'show' : ''}`}
+          className={`modal fade ${isOpen ? "show" : ""}`}
           tabIndex="-1"
           role="dialog"
-          id='bootstrap'
+          id="bootstrap"
           aria-labelledby="myModalLabel35"
           aria-hidden="true"
-          style={{ display: isOpen ? 'block' : 'none' }}
+          style={{ display: isOpen ? "block" : "none" }}
         >
           <div className="modal-dialog modal-md " role="document">
             <div className="modal-content">
@@ -47,11 +66,12 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                       required
                     >
                       <option value="">----Select----</option>
-                      {clients && clients.map(item => (
-                        <option key={item.id} value={item.id}>
-                          {item.name}
-                        </option>
-                      ))}
+                      {clients &&
+                        clients.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.name}
+                          </option>
+                        ))}
                     </select>
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
@@ -66,15 +86,24 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                       required
                     >
                       <option value="">----Select----</option>
-                      {bookingTitles.map(item => (
+                      {bookingTitles.map((item) => (
                         <option key={item.id} value={item.booking_title}>
                           {item.booking_title}
                         </option>
                       ))}
                     </select>
                     {loading && (
-                      <div style={{ position: 'absolute', right: '22px', transform: 'translateY(-111%)' }}>
-                        <div className="spinner-border text-primary" role="status">
+                      <div
+                        style={{
+                          position: "absolute",
+                          right: "22px",
+                          transform: "translateY(-111%)",
+                        }}
+                      >
+                        <div
+                          className="spinner-border text-primary"
+                          role="status"
+                        >
                           <span className="sr-only">Loading...</span>
                         </div>
                       </div>
@@ -87,23 +116,25 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                       name="services"
                       value={services}
                       onChange={handleInputChange}
-                      options={services && services.map((pkg) => ({
-                        label: pkg.label,
-                        value: pkg.value
-                      }))}
+                      options={
+                        services &&
+                        services.map((pkg) => ({
+                          label: pkg.label,
+                          value: pkg.value,
+                        }))
+                      }
                       isMulti
                       isDisabled
                       hideSelectedOptions
                       components={{
-                        Option: ({
-                          data,
-                          innerRef,
-                          innerProps,
-                        }) => (
+                        Option: ({ data, innerRef, innerProps }) => (
                           <div
                             ref={innerRef}
                             {...innerProps}
-                            style={{ display: 'flex form-select ', alignItems: 'center' }}
+                            style={{
+                              display: "flex form-select ",
+                              alignItems: "center",
+                            }}
                           >
                             <img
                               src={toolIcons}
@@ -125,23 +156,25 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                       name="photographers"
                       value={photographers}
                       onChange={handleInputChange}
-                      options={photographers && photographers.map((photographer) => ({
-                        label: photographer.label,
-                        value: photographer.value
-                      }))}
+                      options={
+                        photographers &&
+                        photographers.map((photographer) => ({
+                          label: photographer.label,
+                          value: photographer.value,
+                        }))
+                      }
                       isMulti
                       isDisabled
                       hideSelectedOptions
                       components={{
-                        Option: ({
-                          data,
-                          innerRef,
-                          innerProps,
-                        }) => (
+                        Option: ({ data, innerRef, innerProps }) => (
                           <div
                             ref={innerRef}
                             {...innerProps}
-                            style={{ display: 'flex form-select ', alignItems: 'center' }}
+                            style={{
+                              display: "flex form-select ",
+                              alignItems: "center",
+                            }}
                           >
                             <img
                               src={toolIcons}
@@ -192,22 +225,40 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                     <div className="col-md-6">
                       <div className="form-group">
                         <label>Banner</label>
-                        <input
-                          type="file"
-                          className="form-control-file"
-                          name="banner"
-                          onChange={handleBannerChange}
-                          accept="image/*"
-                          required={formData.banner ? false : true}
-                          
-                        />
-                        {previewImage && (
-                          <img
-                            src={previewImage}
-                            className="height-100 width-100 mt-2"
-                            alt="banner"
+                        <div
+                          className={`dropzone p-2 ${
+                            previewImage ? "has-image" : ""
+                          }`}
+                          style={{border:"1px solid gray"}}
+                          onClick={() =>
+                            document.getElementById("bannerInput").click()
+                          }
+                        >
+                          <input
+                            type="file"
+                            id="bannerInput"
+                            className="form-control-file"
+                            name="banner"
+                            onChange={handleBannerChange}
+                            accept="image/*"
+                            required={!formData.banner}
+                            style={{ display: "none" }}
                           />
-                        )}
+                          {previewImage ? (
+                            <img
+                              src={previewImage}
+                              className="height-100 width-auto"
+
+                              alt="banner"
+                            />
+                          ) : (
+                            <p className="text-center">
+                              Drag & drop an image here, or click to select one
+                              <br/>
+                              <i className="feather icon-download" style={{fontSize: '40px'}}></i>
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -215,7 +266,7 @@ const AddGalleryModal = ({ message, button, isOpen, formData, previewImage, clie
                         name="lock_gallery"
                         checked={isGalleryLocked}
                         onChange={handleGalleryLockChange}
-                        inputProps={{ 'aria-label': 'controlled' }}
+                        inputProps={{ "aria-label": "controlled" }}
                       />
                       Lock Gallery
                       <Checkbox

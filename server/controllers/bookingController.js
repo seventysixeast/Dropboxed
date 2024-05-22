@@ -369,13 +369,24 @@ const providers = async (req, res) => {
       },
     });
 
-    const usersWithRoleId2 = await User.findAll({
+    let usersWithRoleId2 = await User.findAll({
       attributes: ["id", "name", "profile_photo"],
       where: {
         id: { [Op.in]: businessClients.map((client) => client.client_id) },
         role_id: 2,
       },
     });
+
+    let subdomain = await User.findOne({
+      attributes: ["id", "name", "profile_photo"],
+      where: {
+        id: subdomainId,
+      },
+    });
+
+    // add this user in users with roleId 2
+    usersWithRoleId2.push(subdomain);
+
     const users = await User.findAll({
       attributes: ["id", "name", "profile_photo", "address"],
       where: {
@@ -637,7 +648,6 @@ const getAllPhotographers = async (req, res) => {
       .map((id) => parseInt(id.trim(), 10));
     const photographersData = await User.findAll({
       where: {
-        role_id: 2,
         id: idsAsIntegers,
       },
     });

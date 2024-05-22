@@ -14,10 +14,11 @@ import {
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import { getRefreshToken, verifyToken } from "../api/authApis";
+import { getRefreshToken } from "../api/authApis";
 import axios from "axios";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
+import CollectionTable from "../components/CollectionTable";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -37,6 +38,7 @@ export const Dashboard = () => {
   const [isGalleryLocked, setIsGalleryLocked] = useState(false);
   const [isNotifyChecked, setIsNotifyChecked] = useState(false);
   const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
+  const [showAddGalleryModal2, setShowAddGalleryModal2] = useState(false);
   const [collections, setCollections] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
   const currentUrl = window.location.href;
@@ -46,8 +48,9 @@ export const Dashboard = () => {
   const [ordersCompleted, setOrdersCompleted] = useState(0);
   const [collectionData, setCollectionData] = useState("");
 
+  const [galleryView, setGalleryView] = useState("grid");
+
   const url2 = new URL(currentUrl);
-  console.log(url2);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
   const [tooltipText, setTooltipText] = useState("Copy to URL");
@@ -137,7 +140,6 @@ export const Dashboard = () => {
       getAllCollectionsData();
     }
 
-    verifyToken(accessToken);
     getRefreshToken(user.dropbox_refresh);
     getAllBookingsData();
   }, []);
@@ -261,11 +263,25 @@ export const Dashboard = () => {
     setFormData(gallery);
   };
 
-  const handleBannerChange = (e) => {
-    setFormData({
-      ...formData,
-      banner: e.target.files[0],
-    });
+  const handleBannerChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setFormData({
+          ...formData,
+          banner: file,
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+      setFormData({
+        ...formData,
+        banner: "",
+      });
+    }
   };
 
   const resetFormData = async () => {
@@ -282,15 +298,56 @@ export const Dashboard = () => {
       lock_gallery: "",
       notify_client: "",
     });
+    setServices([]);
+    setPhotographers([]);
+    setIsGalleryLocked(false);
+    setIsNotifyChecked(false);
+    setShowAddGalleryModal(false);
+    setPreviewImage(null);
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
+      const formDataToSend = new FormData();
+
+      if (formData.id === "") {
+        const tokens = await getRefreshToken(user.dropbox_refresh);
+        const sharedData = await axios.post(
+          "https://api.dropboxapi.com/2/sharing/get_shared_link_metadata",
+          { url: formData.dropbox_link },
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        let thePath = "";
+        if (sharedData.data.path_lower == undefined) {
+          thePath = "";
+        } else {
+          thePath = sharedData.data.path_lower;
+        }
+        const listResponse = await axios.post(
+          "https://api.dropboxapi.com/2/files/list_folder",
+          { path: thePath },
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const entries = listResponse.data.entries;
+        let imageCount = entries.length;
+        formDataToSend.append("image_count", imageCount);
+      }
       let serviceIds = services && services.map((item) => item.value);
       let photographerIds =
         photographers && photographers.map((item) => item.value);
-      const formDataToSend = new FormData();
       formDataToSend.append("id", formData.id);
       formDataToSend.append("client", formData.client);
       formDataToSend.append("booking_title", formData.booking_title);
@@ -310,14 +367,17 @@ export const Dashboard = () => {
         setShowAddGalleryModal(false);
         getAllCollectionsData();
         setShowAddGalleryModal(false);
-        document.getElementById("closeModalButton").click();
-        window.location.reload();
+        const closeModalButton = document.getElementById("closeModalButton");
+        if (closeModalButton) {
+          closeModalButton.click();
+        }
       } else {
         toast.error(res);
       }
     } catch (error) {
       toast.error(error);
     }
+    setLoading(false);
   };
 
   const getAllCollectionsData = async () => {
@@ -390,74 +450,18 @@ export const Dashboard = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (collections) {
-  //     fetchFileList();
-  //   }
-  // }, [collections]);
-
-  // const fetchFileList = async () => {
-  //   try {
-  //     for (let i = 0; i < collections.length; i++) {
-  //       const collection = collections[i];
-  //       if (collection.imageCount == undefined) {
-  //         const tokens = await getRefreshToken(collection.dropbox_refresh);
-
-  //         const sharedData = await axios.post(
-  //           "https://api.dropboxapi.com/2/sharing/get_shared_link_metadata",
-  //           { url: collection.dropbox_link },
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${tokens.access_token}`,
-  //               "Content-Type": "application/json",
-  //             },
-  //           }
-  //         );
-
-  //         let thePath = "";
-  //         if (sharedData.data.path_lower !== undefined) {
-  //           thePath = sharedData.data.path_lower;
-  //         }
-
-  //         const listResponse = await axios.post(
-  //           "https://api.dropboxapi.com/2/files/list_folder",
-  //           { path: thePath },
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${tokens.access_token}`,
-  //               "Content-Type": "application/json",
-  //             },
-  //           }
-  //         );
-
-  //         const entries = listResponse.data.entries;
-  //         const itemCount = entries.length;
-  //         const updatedCollection = {
-  //           ...collection,
-  //           imageCount: itemCount,
-  //         };
-  //         collections[i] = updatedCollection;
-  //         setCollections(collections);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching file list:", error);
-  //   }
-  // };
-
-  console.log(collectionData);
-
   return (
     <>
       {showPopup && (
         <div className="modal d-block" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered" role="document">
             <div className="modal-content">
-              <div className="modal-header" style={{ backgroundColor: "rgb(222, 230, 238)" }}>
+              <div
+                className="modal-header"
+                style={{ backgroundColor: "rgb(222, 230, 238)" }}
+              >
                 <div></div>
-                <h4 className="modal-title mr-3">
-                  Share Collection:
-                </h4>
+                <h4 className="modal-title mr-3">Share Collection:</h4>
 
                 <button
                   type="button"
@@ -468,13 +472,12 @@ export const Dashboard = () => {
                 </button>
               </div>
               <div className="modal-body">
-                <p style={{ fontSize: '0.9rem' }}>
+                <p style={{ fontSize: "0.9rem" }}>
                   {url2.href}view-gallery/{collectionData}
-
                 </p>
                 <button
                   className="btn btn-white mr-0"
-                  style={{ marginLeft: '11.5rem' }}
+                  style={{ marginLeft: "11.5rem" }}
                   onClick={shareOnFacebook}
                 >
                   <i
@@ -619,13 +622,40 @@ export const Dashboard = () => {
                   <ul className="list-inline mb-0">
                     <li>
                       <div className="form-group d-flex">
+                        <button
+                          type="button"
+                          className={`btn btn-outline-primary mr-1 ${
+                            galleryView === "grid" ? "active" : ""
+                          }`}
+                          data-toggle="modal"
+                          data-target="#appointment"
+                          onClick={() => {
+                            setGalleryView("grid");
+                          }}
+                        >
+                          <i className="feather icon-grid"></i>
+                        </button>
+
+                        <button
+                          type="button"
+                          className={`btn btn-outline-primary mr-1 ${
+                            galleryView === "list" ? "active" : ""
+                          }`}
+                          data-toggle="modal"
+                          data-target="#appointment"
+                          onClick={() => {
+                            setGalleryView("list");
+                          }}
+                        >
+                          <i className="feather icon-list"></i>
+                        </button>
+
                         {user.role_id == 5 && (
                           <>
                             {user.dropbox_refresh == null && (
                               <a
                                 href={`${dropboxAuthUrl}`}
-                                className="btn btn-primary"
-                                style={{ paddingTop: "10px" }}
+                                className="btn btn-primary mr-1"
                               >
                                 Link Your Dropbox
                               </a>
@@ -658,7 +688,11 @@ export const Dashboard = () => {
                             }
                             disabled={user.dropbox_refresh == null}
                             onClick={() => {
-                              setShowAddGalleryModal(true);
+                              if (galleryView == "grid") {
+                                setShowAddGalleryModal(true);
+                              } else {
+                                setShowAddGalleryModal2(true);
+                              }
                             }}
                           >
                             New Collection
@@ -669,131 +703,129 @@ export const Dashboard = () => {
                   </ul>
                 </div>
               </div>
-              <div className="card-deck-wrapper">
-                <div className="grid-hover row">
-                  {collections &&
-                    collections.map((item) => (
-                      <div className="col-md-3 mb-1" key={item.id}>
-                        <a
-                          href={`${url2}view-gallery/${item.slug}`}
-                          className="gallery-link"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <figure className="effect-zoe">
-                            <img
-                              className="gallery-thumbnail equal-image"
-                              src={
-                                item.banner
-                                  ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
-                                  : "../../../app-assets/images/gallery/9.jpg"
-                              }
-                              style={{ width: "305px", height: "230px" }}
-                            />
+              {galleryView === "list" ? (
+                <CollectionTable />
+              ) : (
+                <div className="card-deck-wrapper">
+                  <div className="grid-hover row">
+                    {collections &&
+                      collections.map((item) => (
+                        <div className="col-md-3 mb-1" key={item.id}>
+                          <a
+                            href={`${url2}view-gallery/${item.slug}`}
+                            className="gallery-link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <figure className="effect-zoe">
+                              <img
+                                className="gallery-thumbnail equal-image"
+                                src={
+                                  item.banner
+                                    ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
+                                    : "../../../app-assets/images/gallery/9.jpg"
+                                }
+                              />
 
-                            <figcaption
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                              }}
-                            >
-                              <div
+                              <figcaption
                                 style={{
                                   display: "flex",
-                                  flexDirection: "column",
-                                  alignItems: "flex-start",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  height: "20%",
                                 }}
+                                className="m-0 p-0"
                               >
-                                <h2
+                                <div
+                                  className="col-6"
                                   style={{
-                                    fontSize: "0.8rem",
-                                    fontWeight: "bold",
-                                    whiteSpace: "normal",
-                                    lineHeight: "1.2",
-                                    textTransform: "capitalize",
-                                    color: "#6f8189",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "flex-start",
                                   }}
                                 >
-                                  {item.client_name}
-                                </h2>
-                              </div>
-                              <p
-                                className="icon-links"
-                                style={{ marginBottom: "10px" }}
-                              >
-                                {user.role_id !== 3 && (
+                                  <h2
+                                    style={{
+                                      fontSize: "0.8rem",
+                                      fontWeight: "bold",
+                                      whiteSpace: "normal",
+                                      lineHeight: "1.2",
+                                      textTransform: "capitalize",
+                                      color: "#6f8189",
+                                    }}
+                                  >
+                                    {item.client_name}
+                                  </h2>
+                                </div>
+                                <div
+                                  className="icon-links"
+                                  style={{ marginBottom: "0" }}
+                                >
+                                  {user.role_id !== 3 && (
+                                    <a
+                                      href="#"
+                                      className="gallery-link"
+                                      data-toggle="modal"
+                                      data-target="#bootstrap"
+                                      onClick={() => {
+                                        getCollectionData(item.slug);
+                                      }}
+                                    >
+                                      <i className="feather icon-settings"></i>
+                                    </a>
+                                  )}
+                                  <a
+                                    href="#"
+                                    className="gallery-link mx-1"
+                                    title="Share"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setCollectionData(item.slug);
+                                      openSharePopup();
+                                    }}
+                                  >
+                                    <i className="feather icon-share-2"></i>
+                                  </a>
+
                                   <a
                                     href="#"
                                     className="gallery-link"
-                                    data-toggle="modal"
-                                    data-target="#bootstrap"
-                                    onClick={() => {
-                                      getCollectionData(item.slug);
-                                    }}
+                                    onClick={(e) =>
+                                      handleCopy(
+                                        e,
+                                        `${url2}view-gallery/${item.slug}`,
+                                        item.id
+                                      )
+                                    }
+                                    data-tooltip-id={`copyTooltip-${item.id}`}
+                                    data-tooltip-content={
+                                      tooltipText[item.id] ||
+                                      "Copy to clipboard"
+                                    }
                                   >
-                                    <i className="feather icon-settings"></i>
+                                    <i className="feather icon-copy"></i>
                                   </a>
-                                )}
-                                <a
-                                  href="#"
-                                  className="gallery-link mx-1"
-                                  title="Share"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setCollectionData(item.slug);
-                                    openSharePopup();
-                                  }}
-                                >
-                                  <i className="feather icon-share-2"></i>
-                                </a>
 
-                                <a
-                                  href="#"
-                                  className="gallery-link"
-                                  onClick={(e) =>
-                                    handleCopy(
-                                      e,
-                                      `${url2}view-gallery/${item.slug}`,
-                                      item.id
-                                    )
-                                  }
-                                  data-tooltip-id={`copyTooltip-${item.id}`}
-                                  data-tooltip-content={
-                                    tooltipText[item.id] || "Copy to clipboard"
-                                  }
+                                  <Tooltip
+                                    id={`copyTooltip-${item.id}`}
+                                    effect="solid"
+                                    placement="top"
+                                    style={{fontSize: '0.6rem'}}
+                                  />
+                                </div>
+                                <p
+                                  className="description description-edit"
                                 >
-                                  <i className="feather icon-copy"></i>
-                                </a>
-                                {/* <p
-                                    style={{
-                                      position: "absolute",
-                                      bottom: "4rem",
-                                      right: "5px",
-                                      background: "rgba(0, 0, 0, 0.5)",
-                                      color: "#fff",
-                                      padding: "5px 10px",
-                                      borderRadius: "5px",
-                                      fontSize: "12px",
-                                    }}
-                                  >
-                                    {item.imageCount} images
-                                  </p> */}
-
-                                <Tooltip
-                                  id={`copyTooltip-${item.id}`}
-                                  place="top"
-                                  effect="solid"
-                                />
-                              </p>
-                              <p className="description">{item.name}</p>
-                            </figcaption>
-                          </figure>
-                        </a>
-                      </div>
-                    ))}
+                                  {item.name}
+                                </p>
+                              </figcaption>
+                            </figure>
+                          </a>
+                        </div>
+                      ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </section>
 
             <h4 className="card-title assigned_gallery">Your Orders</h4>
@@ -900,7 +932,7 @@ export const Dashboard = () => {
         handleGalleryLockChange={handleGalleryLockChange}
         handleNotifyChange={handleNotifyChange}
         handleSubmit={handleSubmit}
-        onClose={() => setShowAddGalleryModal(false)}
+        onClose={resetFormData}
       />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>

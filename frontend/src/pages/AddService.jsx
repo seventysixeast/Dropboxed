@@ -32,11 +32,11 @@ const AddService = () => {
     }
   }, [id]);
 
-  useEffect(() =>{
+  useEffect(() => {
     if (id === undefined) {
       getAllImageTypesData();
     }
-  }, [id])
+  }, [id]);
 
   const getAllImageTypesData = async () => {
     try {
@@ -62,7 +62,12 @@ const AddService = () => {
     });
   };
 
-  console.log(id);
+  const handleRemoveInstance = (index) => {
+    const newServiceData = { ...serviceData };
+    newServiceData.imageTypeDetails.splice(index, 1);
+    setServiceData(newServiceData);
+    setCloneIndex(cloneIndex - 1);
+  };
 
   const handleSubmit = async () => {
     const formData = new FormData();
@@ -134,12 +139,10 @@ const AddService = () => {
 
       data.image_type_details = JSON.parse(data.image_type_details);
       let typedata = await getAllImageTypes(formData);
-      console.log(typedata);
       const updatedImageTypeDetails = data.image_type_details.map((detail) => {
         const imageType = typedata.data.find(
           (type) => type.id === parseInt(detail.image_type)
         );
-        console.log(imageType);
         return {
           type: {
             value: detail.image_type,
@@ -174,7 +177,6 @@ const AddService = () => {
   };
 
   const handleImageTypeChange = (index, selectedOption) => {
-    console.log(selectedOption);
     const updatedImageTypeDetails = [...serviceData.imageTypeDetails];
     updatedImageTypeDetails[index].type = selectedOption;
     setServiceData({
@@ -284,7 +286,7 @@ const AddService = () => {
         <div className="content-overlay" />
         <div className="content-wrapper">
           <div className="content-header row">
-            <div className="content-header-left col-md-6 col-12 mb-2">
+            <div className="content-header-left col-md-6 col-12 mb-2 mt-1">
               <h3 className="content-header-title mb-0">Add Service</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
@@ -336,11 +338,11 @@ const AddService = () => {
                         </p>
                         {Array.from({ length: cloneIndex }).map((_, index) => (
                           <div key={index}>
-                            <div className="col-md-12 my-3 ">
+                            <div className="col-md-12 my-3">
                               <div className="row">
                                 <div className="col-md-2"></div>
                                 <Select
-                                  className="select2 col-md-3 col-sm-6 mr-1 mb-1  p-0"
+                                  className="select2 col-md-3 col-sm-6 mr-1 mb-1 p-0"
                                   styles={{ padding: "none !important" }}
                                   name={`imageType${index}`}
                                   id={`imageType${index}`}
@@ -361,9 +363,7 @@ const AddService = () => {
                                       isVideo: imageType.gallery_status,
                                     }))}
                                   isSearchable
-                                  components={{
-                                    Option: CustomOption,
-                                  }}
+                                  components={{ Option: CustomOption }}
                                 />
                                 <input
                                   type="text"
@@ -381,10 +381,9 @@ const AddService = () => {
                                     )
                                   }
                                 />
-
                                 <input
                                   type="number"
-                                  className="form-control col-md-3 col-sm-6 mr-1 mb-1"
+                                  className="form-control col-md-2 col-sm-6 mr-1 mb-1"
                                   id={`imageCount${index}`}
                                   name={`imageCount${index}`}
                                   value={
@@ -398,11 +397,24 @@ const AddService = () => {
                                     )
                                   }
                                 />
+                                {index > 0 && (
+                                  <button
+                                    className="btn btn-danger"
+                                    style={{
+                                      height: "3rem",
+                                      width: "3rem",
+                                    }}
+                                    type="button"
+                                    onClick={() => handleRemoveInstance(index)}
+                                  >
+                                    -
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
                         ))}
-                        <div className="col-md-12 my-3 ">
+                        <div className="col-md-12 my-3">
                           <div className="row">
                             <div className="col-md-2 col-sm-3"></div>
                             <div className="col-md-2 col-sm-3">

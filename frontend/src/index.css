@@ -1607,4 +1607,36 @@ a:not([href]) {
   text-decoration: underline;
 }
 
+.tooltip-left {
+  z-index: 99999;
+  font-size: 1rem;
+}
+
+@media only screen and (max-width: 768px) {
+  .gallery-thumbnail {
+    max-width: 100% !important;
+  }
+}
+
+.description {
+  width: 80% !important;
+  font-size: 0.8rem !important;
+}
+
+.description-edit {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.0));
+  color: white;
+  padding: 4px;
+  bottom: 100% !important;
+  height: 24px !important;
+  transition: background 0.3s ease, color 0.3s ease, padding 0.3s ease, height 0.3s ease;
+}
+
+.description-edit:hover {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.05));
+  color: white;
+  padding: 4px;
+  bottom: 100% !important;
+  height: 24px !important;
+}
 

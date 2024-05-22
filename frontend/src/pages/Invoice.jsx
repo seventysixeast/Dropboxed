@@ -7,7 +7,6 @@ import { useAuth } from "../context/authContext";
 import DeleteModal from '../components/DeleteModal';
 import { toast } from "react-toastify";
 import TableInvoice from '../components/TableInvoice';
-import { verifyToken } from "../api/authApis";
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -19,9 +18,6 @@ const Invoice = () => {
   const [invoiceId, setInvoiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  useEffect(() => {
-    verifyToken(accessToken);
-  }, []);
 
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);
