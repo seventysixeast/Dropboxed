@@ -492,6 +492,7 @@ const CollectionTable = () => {
         Header: "Unlock/Lock",
         Cell: ({ row }) => (
           <Switch
+            id="lockGallery"
             checked={row.original.lock_gallery}
             onChange={() => handleGalleryLockChange(row.original)}
             title="Click to change lock status."

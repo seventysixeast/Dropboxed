@@ -75,6 +75,7 @@ const Table2 = ({ data, columns }) => {
                           Show{" "}
                           <select
                             value={pageSize}
+                            id="pageSize"
                             onChange={(e) => {
                               setPageSize(Number(e.target.value));
                             }}
