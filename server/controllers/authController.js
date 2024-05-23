@@ -88,6 +88,12 @@ exports.login = async (req, res) => {
 
     const accessToken = generateAccessToken(user.id);
 
+    const isFirstLogin = user.is_first_login;
+    /*if (isFirstLogin) {
+      // Update the is_first_login flag
+      user.is_first_login = false;
+      await user.save();
+    }*/
     // if user.role_id = 2 then find the subdomain with subdomain_id and the get the dropbox_refresh
     if (user.role_id === 2) {
       const businessOwner = await User.findByPk(subdomain_id);
@@ -109,7 +115,8 @@ exports.login = async (req, res) => {
           role_id: user.role_id,
           dropbox_refresh: dropboxRefresh,
           dropbox_access: dropboxAccess,
-          is_verified: user.is_verified
+          is_verified: user.is_verified,
+          isFirstLogin: isFirstLogin
         },
         message: "Login successfull",
       });
@@ -130,7 +137,8 @@ exports.login = async (req, res) => {
           role_id: user.role_id,
           dropbox_refresh: user.dropbox_refresh,
           dropbox_access: user.dropbox_access,
-          is_verified: user.is_verified
+          is_verified: user.is_verified,
+          isFirstLogin: isFirstLogin
         },
         message: "Login successfull",
       });
@@ -494,7 +502,12 @@ exports.verifyToken = async (req, res) => {
         }
       }
     }
-
+    const isFirstLogin = user.is_first_login;
+    /*if (isFirstLogin) {
+      // Update the is_first_login flag
+      user.is_first_login = false;
+      await user.save();
+    }*/
     res.status(200).json({
       accessToken: token,
       user: {
@@ -508,6 +521,7 @@ exports.verifyToken = async (req, res) => {
         role_id: user.role_id,
         dropbox_refresh: user.dropbox_refresh,
         dropbox_access: user.dropbox_access,
+        isFirstLogin: isFirstLogin
       },
       success: true,
       message: "Success",
