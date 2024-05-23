@@ -555,15 +555,10 @@ const CollectionTable = () => {
         Header: "Created On",
         Cell: ({ row }) => (
           <div className="btnsrow text-center">
-            <div
-              className="badge badge-pill badge-light-primary"
-
-            >
+            <div className="badge badge-pill badge-light-primary">
               {moment(row.original.created).format("DD/MM/YYYY")}
             </div>
-            <div
-
-            >
+            <div>
               {moment(row.original.created).format("HH:mm A")}
             </div>
           </div>
@@ -610,6 +605,7 @@ const CollectionTable = () => {
     ],
     []
   );
+  
 
   const data = React.useMemo(() => collections, [collections]);
 

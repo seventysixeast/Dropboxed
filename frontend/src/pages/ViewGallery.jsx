@@ -33,7 +33,6 @@ export const ViewGallery = () => {
     size: "original",
     device: "device",
   });
-
   const [downloadGalleryPopup, setDownloadGalleryPopup] = useState(false);
   const [imageUrls, setImageUrls] = useState([]);
 
@@ -237,7 +236,7 @@ export const ViewGallery = () => {
       getTasks();
       getClients();
     }
-  });
+  }, []);
 
   const fetchCollection = async () => {
     setRunning(true);
@@ -508,6 +507,7 @@ export const ViewGallery = () => {
           )}`
         );
       } else {
+        const errorData = await copyResponse.json();
         toast.error("Folder already exists.");
       }
     }
@@ -688,7 +688,11 @@ export const ViewGallery = () => {
     }
   };
 
-
+  const customOptions = {
+    ui: {
+      shareEl: false,
+    },
+  };
 
   useEffect(() => {
     const measureScrollbar = () => {
@@ -715,7 +719,7 @@ export const ViewGallery = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  });
+  }, []);
 
   const handleScrollToGallery = () => {
     if (imageGalleryRef.current) {
@@ -923,7 +927,6 @@ export const ViewGallery = () => {
                       objectFit: "cover",
                       imageRendering: "auto",
                     }}
-                    alt="banner"
                   />
                 </div>
               </div>
@@ -1058,32 +1061,37 @@ export const ViewGallery = () => {
                                       <p className="icon-links">
                                         {authData.user !== null && (
                                           <>
+                                            <a>
                                               <span
                                                 className="feather icon-share-2"
-                                                style={{ marginRight: "8px", cursor: 'pointer' }}
+                                                style={{ marginRight: "8px" }}
                                                 title="Share"
                                                 onClick={(event) => {
                                                   event.stopPropagation();
                                                   openSharePopup();
                                                 }}
                                               ></span>
+                                            </a>
+                                            <a>
                                               <span
                                                 className="feather icon-edit"
-                                                style={{ marginRight: "8px", cursor: 'pointer'  }}
+                                                style={{ marginRight: "8px" }}
                                                 onClick={(event) => {
                                                   event.stopPropagation();
                                                   toggleNewTaskModal();
                                                   handleShareImage(image);
                                                 }}
                                               ></span>
+                                            </a>
+                                            <a>
                                               <span
                                                 className="text-right feather icon-download"
                                                 title="Download"
-                                                style={{ cursor: 'pointer' }}
                                                 onClick={(event) => {
                                                   event.stopPropagation();
                                                   console.log(
                                                     collection.lock_gallery
+
                                                   );
 
                                                   setSelectedImageUrl(
@@ -1104,6 +1112,7 @@ export const ViewGallery = () => {
                                                   }
                                                 }}
                                               ></span>
+                                            </a>
                                           </>
                                         )}
                                       </p>

@@ -30,7 +30,9 @@ const AddGalleryModal = ({
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: "image/*",
+    accept: {
+      'image/*': [],
+    },
     onDrop,
     multiple: false,
   });
@@ -69,7 +71,7 @@ const AddGalleryModal = ({
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Client *</label>
+                    <p>Client *</p>
                     <select
                       className="select2 form-control"
                       name="client"
@@ -87,7 +89,7 @@ const AddGalleryModal = ({
                     </select>
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label htmlFor="booking_title">Booking Title *</label>
+                    <p >Booking Title *</p>
                     <select
                       id="booking_title"
                       className="select2 form-control"
@@ -122,7 +124,7 @@ const AddGalleryModal = ({
                     )}
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label style={{ width: "10rem" }}>Services</label>
+                    <p style={{ width: "10rem" }}>Services</p>
                     <Select
                       className="select2 w-100"
                       name="services"
@@ -162,7 +164,7 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label style={{ width: "10rem" }}>Photographers</label>
+                    <p style={{ width: "10rem" }}>Photographers</p>
                     <Select
                       className="select2 w-100"
                       name="photographers"
@@ -202,7 +204,7 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Gallery Title</label>
+                    <p>Gallery Title</p>
                     <input
                       type="text"
                       className="form-control"
@@ -213,7 +215,7 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Dropbox Link *</label>
+                    <p>Dropbox Link *</p>
                     <input
                       className="form-control"
                       placeholder="Enter Dropbox Link"
@@ -224,7 +226,7 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Vimeo Video Link</label>
+                    <p>Vimeo Video Link</p>
                     <input
                       className="form-control"
                       placeholder="Enter Vimeo Video Link"
@@ -236,7 +238,7 @@ const AddGalleryModal = ({
                   <div className="row">
                     <div className="col-md-6">
                       <div className="form-group w-100">
-                        <label>Banner</label>
+                        <p>Banner</p>
                         <div
                           {...getRootProps()}
                           className={`dropzone p-2 ${

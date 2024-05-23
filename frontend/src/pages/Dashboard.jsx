@@ -771,8 +771,7 @@ export const Dashboard = () => {
                                   style={{ marginBottom: "0" }}
                                 >
                                   {user.role_id !== 3 && (
-                                    <a
-                                      href="#"
+                                    <span
                                       className="gallery-link"
                                       data-toggle="modal"
                                       data-target="#bootstrap"
@@ -781,10 +780,9 @@ export const Dashboard = () => {
                                       }}
                                     >
                                       <i className="feather icon-settings"></i>
-                                    </a>
+                                    </span>
                                   )}
-                                  <a
-                                    href="#"
+                                  <span
                                     className="gallery-link mx-1"
                                     title="Share"
                                     onClick={(e) => {
@@ -794,9 +792,8 @@ export const Dashboard = () => {
                                     }}
                                   >
                                     <i className="feather icon-share-2"></i>
-                                  </a>
-                                  <a
-                                    href="#"
+                                  </span>
+                                  <span
                                     className="gallery-link"
                                     onClick={(e) =>
                                       handleCopy(
@@ -812,7 +809,7 @@ export const Dashboard = () => {
                                     }
                                   >
                                     <i className="feather icon-copy"></i>
-                                  </a>
+                                  </span>
                                   <Tooltip
                                     id={`copyTooltip-${item.id}`}
                                     effect="solid"

@@ -573,6 +573,18 @@ const deleteBooking = async (req, res) => {
   }
 };
 
+const getCalendarStatus = async (req, res) => {
+  try {
+    const resp = await User.findAll({
+      attributes: ["calendar_sub"],
+      where: { id: req.body.user_id },
+    });
+    res.status(200).json({ success: true, data: resp });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to data." });
+  }
+}
+
 const updateBooking = async (req, res) => {
   try {
     const bookingId = req.body.id;
@@ -668,4 +680,5 @@ module.exports = {
   getAllBookingTitles,
   getAllServices,
   getAllPhotographers,
+  getCalendarStatus
 };

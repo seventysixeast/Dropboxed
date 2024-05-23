@@ -94,6 +94,8 @@ const Table2 = ({ data, columns }) => {
                           type="search"
                           className="form-control form-control-sm float-right w-25"
                           style={{ marginRight: "-16px" }}
+                          name="search"
+                          id="search" 
                           value={globalFilter || ""}
                           onChange={(e) => setGlobalFilter(e.target.value)}
                           placeholder="Search..."
@@ -108,13 +110,14 @@ const Table2 = ({ data, columns }) => {
                           className="tablealt-pagination dataTable table-inverse table-striped"
                         >
                           <thead>
-                            {headerGroups.map((headerGroup) => (
-                              <tr {...headerGroup.getHeaderGroupProps()}>
+                            {headerGroups.map((headerGroup, headerGroupIndex) => (
+                              <tr {...headerGroup.getHeaderGroupProps()} key={headerGroupIndex}>
                                 {headerGroup.headers.map((column) => (
                                   <th
                                     {...column.getHeaderProps(
                                       column.getSortByToggleProps()
                                     )}
+                                    key={column.id}
                                   >
                                     {column.render("Header")}
                                     <span>
@@ -140,13 +143,13 @@ const Table2 = ({ data, columns }) => {
                             ))}
                           </thead>
                           <tbody {...getTableBodyProps()}>
-                            {page.map((row, i) => {
+                            {page.map((row) => {
                               prepareRow(row);
                               return (
-                                <tr {...row.getRowProps()}>
+                                <tr {...row.getRowProps()} key={row.id}>
                                   {row.cells.map((cell) => {
                                     return (
-                                      <td {...cell.getCellProps()}>
+                                      <td {...cell.getCellProps()} key={cell.column.id}>
                                         {cell.render("Cell")}
                                       </td>
                                     );

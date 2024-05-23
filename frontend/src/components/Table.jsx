@@ -23,7 +23,7 @@ const TableCustom = ({ data, columns }) => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 10 }
+      initialState: { pageIndex: 0, pageSize: 10 },
     },
     useFilters,
     useGlobalFilter,
@@ -33,10 +33,7 @@ const TableCustom = ({ data, columns }) => {
 
   const MAX_VISIBLE_PAGES = 5;
 
-  const displayedPages = Math.min(
-    MAX_VISIBLE_PAGES,
-    pageCount
-  );
+  const displayedPages = Math.min(MAX_VISIBLE_PAGES, pageCount);
 
   const startIndex = Math.max(
     Math.min(pageIndex - Math.floor(displayedPages / 2), pageCount - displayedPages),
@@ -60,24 +57,28 @@ const TableCustom = ({ data, columns }) => {
                             Show{" "}
                             <select
                               value={pageSize}
+                              id="pageSize"
                               onChange={(e) => {
                                 setPageSize(Number(e.target.value));
                               }}
                               className="custom-select custom-select-sm form-control form-control-sm w-auto"
                             >
-                              {[10, 25, 50, 100].map((pageSize) => (
-                                <option key={pageSize} value={pageSize}>
-                                  Show {pageSize}
+                              {[10, 25, 50, 100].map((size) => (
+                                <option key={size} value={size}>
+                                  Show {size}
                                 </option>
                               ))}
-                            </select>
-                            {" "}Entries
+                            </select>{" "}
+                            Entries
                           </span>
                         </div>
                         <div className="col-12 col-md-2 d-flex justify-content-md-end">
                           <input
                             type="search"
                             className="form-control form-control-sm w-100 w-md-auto"
+                            id="search"
+                            name="search"
+                            aria-controls="dataTable"
                             value={globalFilter || ""}
                             onChange={(e) => setGlobalFilter(e.target.value)}
                             placeholder="Search..."
@@ -89,9 +90,9 @@ const TableCustom = ({ data, columns }) => {
                           <table {...getTableProps()} className="tablealt-pagination dataTable table-inverse table-striped">
                             <thead>
                               {headerGroups.map((headerGroup) => (
-                                <tr {...headerGroup.getHeaderGroupProps()}>
+                                <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
                                   {headerGroup.headers.map((column) => (
-                                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                                    <th {...column.getHeaderProps(column.getSortByToggleProps())} key={column.id}>
                                       {column.render("Header")}
                                       <span>
                                         {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc" style={{ marginLeft: '10px' }} /> : <i className="fa fa-sort-asc" style={{ marginLeft: '10px' }} />) : ''}
@@ -101,14 +102,16 @@ const TableCustom = ({ data, columns }) => {
                                 </tr>
                               ))}
                             </thead>
-                            <tbody {...getTableBodyProps()} >
+                            <tbody {...getTableBodyProps()}>
                               {page.map((row, i) => {
                                 prepareRow(row);
                                 return (
-                                  <tr {...row.getRowProps()}>
-                                    {row.cells.map((cell) => {
-                                      return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
-                                    })}
+                                  <tr {...row.getRowProps()} key={row.id}>
+                                    {row.cells.map((cell) => (
+                                      <td {...cell.getCellProps()} key={cell.column.id}>
+                                        {cell.render("Cell")}
+                                      </td>
+                                    ))}
                                   </tr>
                                 );
                               })}
@@ -124,8 +127,7 @@ const TableCustom = ({ data, columns }) => {
                   </div>
                   {data.length > 0 && (
                     <div className="justify-content-between px-2 dataTables_wrapper dt-bootstrap4">
-                      <div className="col-xs-12 col-sm-12 col-md-5">
-                      </div>
+                      <div className="col-xs-12 col-sm-12 col-md-5"></div>
                       <div className="col-sm-12 col-md-7 float-right">
                         <div className="dataTables_paginate paging_full_numbers">
                           <ul className="pagination">
