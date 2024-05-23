@@ -10,6 +10,8 @@ import {
   setTaskStatus,
   deleteTask,
   setTaskFavorite,
+  createTag,
+  deleteTag,
 } from "../api/todoApis";
 import Select from "react-select";
 import { getClient, getClientPhotographers } from "../api/clientApis";
@@ -18,8 +20,10 @@ import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import DeleteModal from "../components/DeleteModal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import "react-quill/dist/quill.snow.css";
 import ReTooltip from "../components/Tooltip";
+import AddTagModal from "../components/AddTagModal";
+import { IconButton, Tooltip } from "@mui/material";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ToDo = () => {
@@ -43,6 +47,8 @@ const ToDo = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddTagModal, setShowAddTagModal] = useState(false);
   const modalRef = useRef(null);
+  const [tagId, setTagId] = useState("");
+  const [showDeleteTagModal, setShowDeleteTagModal] = useState(false);
   const [taskData, setTaskData] = useState({
     id: "",
     userId: "",
@@ -57,6 +63,7 @@ const ToDo = () => {
   });
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState({ name: "", profile_photo: "" });
+  const [loading, setLoading] = useState(false);
 
   const getTasks = async () => {
     const formData = new FormData();
@@ -251,35 +258,18 @@ const ToDo = () => {
     }
 
     setTaskAuthor(task.author);
-
-    const selectedTags = task.task_tags
-      .split(",")
-      .map((tagId) => {
-        tagId = tagId.trim();
-
-        if (tagId === "" || isNaN(tagId)) {
-          return null;
-        }
-
-        const tag = tags.find((t) => t.id === parseInt(tagId));
-
-        return tag ? tag : null;
-      })
-      .filter((tag) => tag !== null);
-
-    if (client) {
-      setSelectedTags(
-        selectedTags.map((tag) => ({ value: tag.id, label: tag.tasktag_title }))
-      );
+    let tagIds = [];
+    if (task.task_tags !== "") {
+      tagIds = task.task_tags.split(", ").map((id) => parseInt(id));
     }
+
+    let taskTags = [];
+    if (tagIds.length > 0) {
+      taskTags = tags.filter((tag) => tagIds.includes(tag.id));
+    }
+    setSelectedTags(taskTags);
 
     setComments(task.TaskComments);
-    const authorclient = await getClient({ id: task.user_id });
-    console.log(authorclient);
-
-    if (authorclient.success) {
-      setTaskAuthor(authorclient.data);
-    }
 
     setNewTaskModalOpen(true);
   };
@@ -380,7 +370,34 @@ const ToDo = () => {
     setFilteredTasks(items);
   };
 
-  console.log(selectedClient);
+  const handleAddTag = async (data) => {
+    setLoading(true);
+    let formData = new FormData();
+    formData.append("tasktag_title", data);
+    formData.append("subdomain_id", subdomainId);
+    const response = await createTag(formData);
+    if (response.success) {
+      toast.success("Tag added successfully!");
+      getTasks();
+    } else {
+      toast.error("Failed to add tag!");
+    }
+    setShowDeleteTagModal(!showDeleteTagModal);
+    setLoading(false);
+  };
+
+  const handleTagDelete = async (data) => {
+    let formData = new FormData();
+    formData.append("id", data);
+    const response = await deleteTag(formData);
+    if (response.success) {
+      toast.success("Tag deleted successfully!");
+      getTasks();
+      setShowDeleteModal(false);
+    } else {
+      toast.error("Failed to delete tag!");
+    }
+  };
 
   return (
     <div className="todo-application">
@@ -451,36 +468,48 @@ const ToDo = () => {
                   </div>
                   <div className="d-flex justify-content-between align-items-center">
                     <p className="filter-label mt-2 mb-1">Labels</p>
-                    <ReTooltip
-                      title="Adds new tag."
-                      placement="top"
-                    >
+                    <ReTooltip title="Adds new tag." placement="top">
                       <button
                         className="btn btn-primary btn-sm mt-2 mb-1"
                         style={{ padding: "5px" }}
-                        onClick={() => console.log("Hurray!")}
+                        onClick={() => setShowAddTagModal(!showAddTagModal)}
                       >
                         <i className="feather icon-plus"></i>
                       </button>
-
                     </ReTooltip>
                   </div>
-
                   <div className="list-group">
                     {tags.map((tag, index) => (
-                      <a
+                      <Tooltip
                         key={index}
-                        href="#"
-                        className="list-group-item border-0 d-flex align-items-center justify-content-between"
+                        placement="right"
+                        arrow
+                        title={
+                          <React.Fragment>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => {
+                                handleTagDelete(tag.id);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </React.Fragment>
+                        }
                       >
-                        <span>{tag.tasktag_title}</span>
-                        <span
-                          className={`bullet bullet-sm`}
-                          style={{
-                            backgroundColor: `${getBulletClass(tag.id)}`,
-                          }}
-                        ></span>
-                      </a>
+                        <p
+                          className="list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer"
+                          style={{ padding: "4px" }}
+                        >
+                          <span>{tag.tasktag_title}</span>
+                          <span
+                            className={`bullet bullet-sm`}
+                            style={{
+                              backgroundColor: `${getBulletClass(tag.id)}`,
+                            }}
+                          ></span>
+                        </p>
+                      </Tooltip>
                     ))}
                   </div>
                 </div>
@@ -1232,7 +1261,6 @@ const ToDo = () => {
                                               </svg>
                                             )}
                                           </a>
-
                                           <a className="todo-item-delete ml-75">
                                             <i
                                               className="feather icon-trash-2"
@@ -1274,9 +1302,11 @@ const ToDo = () => {
         onConfirm={handleTaskDelete}
         message="Are you sure you want to delete this task?"
       />
-      {/* {showAddTagModal && 
-      
-      } */}
+      <AddTagModal
+        showAddTagModal={showAddTagModal}
+        setShowAddTagModal={() => setShowAddTagModal(!showAddTagModal)}
+        onAddTag={handleAddTag}
+      />
     </div>
   );
 };

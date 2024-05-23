@@ -1650,3 +1650,39 @@ a:not([href]) {
   background-image: linear-gradient(to right, #FF748C 0%, #ffa8b4 100%);
   background-repeat: repeat-x;
 }
+
+.centered-div {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.grid-hover figure img {
+  opacity: 1;
+}
+
+/* App.css */
+.custom-tooltip {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.custom-tooltip button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.custom-tooltip button:hover {
+  background-color: #0056b3;
+}
+

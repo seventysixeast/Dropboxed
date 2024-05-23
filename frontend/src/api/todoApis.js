@@ -84,4 +84,33 @@ const deleteTask = async (data) => {
   }
 };
 
-export { getAlltasks, createTask, addComment, setTaskStatus, setTaskFavorite, deleteTask };
+const createTag = async (data) => {
+  try {
+    const response = await API.post("/todo/createTag", data);
+    if (response.status === 201) {
+      return response.data;
+    } else {
+      throw new Error("Failed to create tag");
+    }
+  } catch (error) {
+    console.error("Error creating tag:", error);
+    throw error;
+  }
+};
+
+const deleteTag = async (data) => {
+  try {
+    const response = await API.post("/todo/deleteTag", data);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Failed to delete tag");
+    }
+  } catch (error) {
+    console.error("Error deleting tag:", error);
+    throw error;
+  }
+};
+
+
+export { getAlltasks, createTask, addComment, setTaskStatus, setTaskFavorite, deleteTask, createTag, deleteTag };

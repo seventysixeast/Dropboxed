@@ -105,6 +105,8 @@ const createTask = async (req, res) => {
       is_favourite,
     } = req.body;
 
+    console.log(req.body);
+
     if (id === "") {
       newTask = await TaskTodo.create({
         user_id,
@@ -222,6 +224,34 @@ const deleteTask = async (req, res) => {
   }
 };
 
+const createTag = async (req, res) => {
+  try {
+    const { tasktag_title, subdomain_id } = req.body;
+    console.log(req.body);
+    const newTag = await TaskTag.create({ tasktag_title, subdomain_id });
+    res.status(201).json({ success: true, tag: newTag });
+  } catch (error) {
+    console.error("Error creating tag:", error);
+    res.status(500).json({ error: "Failed to create tag" });
+  }
+}
+
+const deleteTag = async (req, res) => {
+  const { id } = req.body;
+  try {
+    await TaskTag.destroy({
+      where: {
+        id: id,
+      },
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error deleting tag:", error);
+    res.status(500).json({ error: "Failed to delete tag" });
+  }
+}
+
 module.exports = {
   getAllTasks,
   createTask,
@@ -229,4 +259,6 @@ module.exports = {
   setTaskStatus,
   setTaskFavorite,
   deleteTask,
+  createTag,
+  deleteTag
 };
