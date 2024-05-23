@@ -1,15 +1,17 @@
 const TaskTodo = require("../models/Todo");
 const TaskTag = require("../models/TodoTags");
 const TaskComment = require("../models/TodoComments");
-const Users = require("../models/Users"); // Import the Users model
+const Users = require("../models/Users");
+const { Op } = require("sequelize");
 
 const getAllTasks = async (req, res) => {
-  const subdomainId = req.body.subdomain_id;
-  const roleId = req.body.role_id;
+  const subdomainId = parseInt(req.body.subdomain_id);
+  const roleId = parseInt(req.body.role_id);
+  const userId = parseInt(req.body.user_id);
 
   try {
     let tasks;
-    if (roleId !== 5) {
+    if (roleId === 5) {
       tasks = await TaskTodo.findAll({
         where: {
           subdomain_id: subdomainId,
@@ -26,11 +28,14 @@ const getAllTasks = async (req, res) => {
         ],
         order: [["task_order", "DESC"]],
       });
-    } else {
+    } else if (roleId === 2) {
       tasks = await TaskTodo.findAll({
         where: {
           subdomain_id: subdomainId,
-          role_id: roleId,
+          [Op.or]: [
+            { assign_user: userId },
+            { user_id: userId }
+          ]
         },
         include: [
           {
@@ -39,12 +44,34 @@ const getAllTasks = async (req, res) => {
           {
             model: Users,
             as: "author",
-            attributes: ["id", "user_name", "profile_photo"],
+            attributes: ["id", "name", "profile_photo"],
+          },
+        ],
+        order: [["task_order", "DESC"]],
+      });
+    } else if (roleId === 3) {
+      tasks = await TaskTodo.findAll({
+        where: {
+          subdomain_id: subdomainId,
+          [Op.or]: [
+            { assign_user: userId },
+            { user_id: userId }
+          ]
+        },
+        include: [
+          {
+            model: TaskComment,
+          },
+          {
+            model: Users,
+            as: "author",
+            attributes: ["id", "name", "profile_photo"],
           },
         ],
         order: [["task_order", "DESC"]],
       });
     }
+
     const tags = await TaskTag.findAll({
       where: {
         subdomain_id: subdomainId,
