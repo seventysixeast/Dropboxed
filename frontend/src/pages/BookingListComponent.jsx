@@ -1102,9 +1102,7 @@ export const BookingListComponent = () => {
                 <li>
                   <div className="form-group">
                     <div className="">
-                      {/* {calendarSub == 1 ? (
-                        <></>
-                      ) : ( */}
+
                       <ReTooltip
                         title="Subscribe for calendar alerts."
                         placement="top"
@@ -1121,7 +1119,6 @@ export const BookingListComponent = () => {
                             : "Subscribe to Calendar"}
                         </a>
                       </ReTooltip>
-                      {/* )} */}
                       <ReTooltip title="Add a new appointment." placement="top">
                         <button
                           ref={buttonRef}

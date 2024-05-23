@@ -19,6 +19,7 @@ import DeleteModal from "../components/DeleteModal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import ReTooltip from "../components/Tooltip";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ToDo = () => {
@@ -40,6 +41,7 @@ const ToDo = () => {
   const [isNewTaskModalOpen, setNewTaskModalOpen] = useState(false);
   const [show, setShow] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAddTagModal, setShowAddTagModal] = useState(false);
   const modalRef = useRef(null);
   const [taskData, setTaskData] = useState({
     id: "",
@@ -60,10 +62,13 @@ const ToDo = () => {
     const formData = new FormData();
     formData.append("subdomain_id", subdomainId);
     formData.append("role_id", roleId);
+    formData.append("user_id", userId);
     const response = await getAlltasks(formData);
     if (response.success) {
-      setTasks(response.tasks);
-      setFilteredTasks(response.tasks);
+      const sortedTasks = _.orderBy(response.tasks, ["created_at"], ["desc"]);
+      const sortedTasksWithStatus = _.orderBy(sortedTasks, ["status"], ["asc"]);
+      setTasks(sortedTasksWithStatus);
+      setFilteredTasks(sortedTasksWithStatus);
       setTags(response.tags);
     } else {
       toast.error("Failed to get tasks!");
@@ -238,10 +243,14 @@ const ToDo = () => {
     const client = clients.find((c) => c.id === task.assign_user);
 
     if (client) {
-      setSelectedClient({ value: client.id, label: client.name, profile_photo: client.profile_photo });
+      setSelectedClient({
+        value: client.id,
+        label: client.name,
+        profile_photo: client.profile_photo,
+      });
     }
 
-    setTaskAuthor(task.author)
+    setTaskAuthor(task.author);
 
     const selectedTags = task.task_tags
       .split(",")
@@ -413,9 +422,7 @@ const ToDo = () => {
                       <span> All</span>
                     </a>
                   </div>
-                  <label className="filter-label mt-2 mb-1 pt-25">
-                    Filters
-                  </label>
+                  <p className="filter-label mt-2 mb-1 pt-25">Filters</p>
                   <div className="list-group">
                     <a
                       href="#"
@@ -442,7 +449,23 @@ const ToDo = () => {
                       <span>Done</span>
                     </a>
                   </div>
-                  <label className="filter-label mt-2 mb-1 pt-25">Labels</label>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <p className="filter-label mt-2 mb-1">Labels</p>
+                    <ReTooltip
+                      title="Adds new tag."
+                      placement="top"
+                    >
+                      <button
+                        className="btn btn-primary btn-sm mt-2 mb-1"
+                        style={{ padding: "5px" }}
+                        onClick={() => console.log("Hurray!")}
+                      >
+                        <i className="feather icon-plus"></i>
+                      </button>
+
+                    </ReTooltip>
+                  </div>
+
                   <div className="list-group">
                     {tags.map((tag, index) => (
                       <a
@@ -523,6 +546,7 @@ const ToDo = () => {
                           className="form-control task-title"
                           cols={1}
                           rows={2}
+                          autoComplete="off"
                           placeholder="Write a Task Name"
                           required
                           value={taskData.taskTitle}
@@ -555,6 +579,8 @@ const ToDo = () => {
                             <Select
                               className="select2 font-sm"
                               name="tags"
+                              placeholder="Select Client"
+                              id="tags"
                               value={selectedClient}
                               required
                               onChange={handleClientChange}
@@ -603,6 +629,7 @@ const ToDo = () => {
                         <ReactQuill
                           value={taskData.taskDescription}
                           onChange={handleTextChange}
+                          id="taskDescription"
                           placeholder="Add description"
                         />
                       </div>
@@ -641,6 +668,7 @@ const ToDo = () => {
                             className="ql-editor ql-blank"
                             data-gramm="false"
                             data-placeholder="Write a Comment..."
+                            id="taskDescription2"
                           >
                             <p>
                               <br />
@@ -828,6 +856,7 @@ const ToDo = () => {
                             <select
                               className="select2-assign-label form-control select2-hidden-accessible"
                               multiple=""
+                              name="assign-label"
                               id="select2-assign-label"
                               disabled="disabled"
                               data-select2-id="select2-assign-label"
@@ -877,6 +906,8 @@ const ToDo = () => {
                                       <input
                                         className="select2-search__field"
                                         type="search"
+                                        name="search-tasks"
+                                        id="search-tasks"
                                         tabIndex={0}
                                         autoComplete="off"
                                         autoCorrect="off"
@@ -1243,6 +1274,9 @@ const ToDo = () => {
         onConfirm={handleTaskDelete}
         message="Are you sure you want to delete this task?"
       />
+      {/* {showAddTagModal && 
+      
+      } */}
     </div>
   );
 };
