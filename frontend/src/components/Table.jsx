@@ -1,5 +1,11 @@
 import React from "react";
-import { useTable, useFilters, useGlobalFilter, useSortBy, usePagination } from "react-table";
+import {
+  useTable,
+  useFilters,
+  useGlobalFilter,
+  useSortBy,
+  usePagination,
+} from "react-table";
 
 const TableCustom = ({ data, columns }) => {
   const {
@@ -36,7 +42,10 @@ const TableCustom = ({ data, columns }) => {
   const displayedPages = Math.min(MAX_VISIBLE_PAGES, pageCount);
 
   const startIndex = Math.max(
-    Math.min(pageIndex - Math.floor(displayedPages / 2), pageCount - displayedPages),
+    Math.min(
+      pageIndex - Math.floor(displayedPages / 2),
+      pageCount - displayedPages
+    ),
     0
   );
 
@@ -87,15 +96,40 @@ const TableCustom = ({ data, columns }) => {
                       </div>
                       {data.length > 0 ? (
                         <div style={{ overflowX: "auto" }}>
-                          <table {...getTableProps()} className="tablealt-pagination dataTable table-inverse table-striped">
+                          <table
+                            {...getTableProps()}
+                            className="tablealt-pagination dataTable table-inverse table-striped"
+                          >
                             <thead>
                               {headerGroups.map((headerGroup) => (
-                                <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+                                <tr
+                                  {...headerGroup.getHeaderGroupProps()}
+                                  key={headerGroup.id}
+                                >
                                   {headerGroup.headers.map((column) => (
-                                    <th {...column.getHeaderProps(column.getSortByToggleProps())} key={column.id}>
+                                    <th
+                                      {...column.getHeaderProps(
+                                        column.getSortByToggleProps()
+                                      )}
+                                      key={column.id}
+                                    >
                                       {column.render("Header")}
                                       <span>
-                                        {column.isSorted ? (column.isSortedDesc ? <i className="fa fa-sort-desc" style={{ marginLeft: '10px' }} /> : <i className="fa fa-sort-asc" style={{ marginLeft: '10px' }} />) : ''}
+                                        {column.isSorted ? (
+                                          column.isSortedDesc ? (
+                                            <i
+                                              className="fa fa-sort-desc"
+                                              style={{ marginLeft: "10px" }}
+                                            />
+                                          ) : (
+                                            <i
+                                              className="fa fa-sort-asc"
+                                              style={{ marginLeft: "10px" }}
+                                            />
+                                          )
+                                        ) : (
+                                          ""
+                                        )}
                                       </span>
                                     </th>
                                   ))}
@@ -108,7 +142,10 @@ const TableCustom = ({ data, columns }) => {
                                 return (
                                   <tr {...row.getRowProps()} key={row.id}>
                                     {row.cells.map((cell) => (
-                                      <td {...cell.getCellProps()} key={cell.column.id}>
+                                      <td
+                                        {...cell.getCellProps()}
+                                        key={cell.column.id}
+                                      >
                                         {cell.render("Cell")}
                                       </td>
                                     ))}
@@ -131,11 +168,29 @@ const TableCustom = ({ data, columns }) => {
                       <div className="col-sm-12 col-md-7 float-right">
                         <div className="dataTables_paginate paging_full_numbers">
                           <ul className="pagination">
-                            <li className={`paginate_button page-item first ${!canPreviousPage ? 'disabled' : ''}`}>
-                              <button className="page-link" onClick={() => gotoPage(0)}>First</button>
+                            <li
+                              className={`paginate_button page-item first ${
+                                !canPreviousPage ? "disabled" : ""
+                              }`}
+                            >
+                              <button
+                                className="page-link"
+                                onClick={() => gotoPage(0)}
+                              >
+                                First
+                              </button>
                             </li>
-                            <li className={`paginate_button page-item previous ${!canPreviousPage ? 'disabled' : ''}`}>
-                              <button className="page-link" onClick={() => previousPage()}>Previous</button>
+                            <li
+                              className={`paginate_button page-item previous ${
+                                !canPreviousPage ? "disabled" : ""
+                              }`}
+                            >
+                              <button
+                                className="page-link"
+                                onClick={() => previousPage()}
+                              >
+                                Previous
+                              </button>
                             </li>
                             {startIndex > 0 && (
                               <li className="paginate_button page-item disabled">
@@ -145,8 +200,18 @@ const TableCustom = ({ data, columns }) => {
                             {pageOptions
                               .slice(startIndex, startIndex + displayedPages)
                               .map((page) => (
-                                <li key={page} className={`paginate_button page-item ${pageIndex === page ? 'active' : ''}`}>
-                                  <button className="page-link" onClick={() => gotoPage(page)}>{page + 1}</button>
+                                <li
+                                  key={page}
+                                  className={`paginate_button page-item ${
+                                    pageIndex === page ? "active" : ""
+                                  }`}
+                                >
+                                  <button
+                                    className="page-link"
+                                    onClick={() => gotoPage(page)}
+                                  >
+                                    {page + 1}
+                                  </button>
                                 </li>
                               ))}
                             {startIndex + displayedPages < pageCount && (
@@ -154,11 +219,29 @@ const TableCustom = ({ data, columns }) => {
                                 <button className="page-link">...</button>
                               </li>
                             )}
-                            <li className={`paginate_button page-item next ${!canNextPage ? 'disabled' : ''}`}>
-                              <button className="page-link" onClick={() => nextPage()}>Next</button>
+                            <li
+                              className={`paginate_button page-item next ${
+                                !canNextPage ? "disabled" : ""
+                              }`}
+                            >
+                              <button
+                                className="page-link"
+                                onClick={() => nextPage()}
+                              >
+                                Next
+                              </button>
                             </li>
-                            <li className={`paginate_button page-item last ${!canNextPage ? 'disabled' : ''}`}>
-                              <button className="page-link" onClick={() => gotoPage(pageCount - 1)}>Last</button>
+                            <li
+                              className={`paginate_button page-item last ${
+                                !canNextPage ? "disabled" : ""
+                              }`}
+                            >
+                              <button
+                                className="page-link"
+                                onClick={() => gotoPage(pageCount - 1)}
+                              >
+                                Last
+                              </button>
                             </li>
                           </ul>
                         </div>

@@ -31,7 +31,6 @@ export const Dashboard = () => {
   const user = authData.user;
   const subdomainId = user.subdomain_id;
   const userId = user.id;
-  const accessToken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
