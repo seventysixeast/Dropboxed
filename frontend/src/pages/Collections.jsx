@@ -479,7 +479,7 @@ const Collections = () => {
       },
       { Header: "Gallery Title", accessor: "name" },
       { Header: "Address", accessor: "client_address" },
-      { Header: "Client", accessor: "client_name" },
+      { Header: "Client", accessor: "client_name", className: roleId === 3 ? 'd-none' : '' },
       { Header: "Services", accessor: "packages_name" },
       { Header: "Photographers", accessor: "photographers_name" },
       {
@@ -501,7 +501,7 @@ const Collections = () => {
           row.original.notify_client ? (
             <ReTooltip title="Click to change status." placement="top">
               <div
-                className="badge badge-pill badge-light-primary"
+                className={`badge badge-pill badge-light-primary ${roleId === 3 ? 'd-none' : ''}`}
                 style={{
                   cursor: "pointer",
                 }}

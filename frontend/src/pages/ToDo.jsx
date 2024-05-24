@@ -24,6 +24,7 @@ import "react-quill/dist/quill.snow.css";
 import ReTooltip from "../components/Tooltip";
 import AddTagModal from "../components/AddTagModal";
 import { IconButton, Tooltip } from "@mui/material";
+import moment from "moment";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ToDo = () => {
@@ -91,7 +92,15 @@ const ToDo = () => {
     }
     const response = await getClientPhotographers(formData);
     if (response.success) {
-      setClients(response.data);
+      if (roleId !== 3) {
+        setClients(response.data);
+      } else {
+        // filter to only add clients with role_id 2
+        const filteredClients = response.data.filter(
+          (client) => client.role_id === 2
+        );
+        setClients(filteredClients);
+      }
     } else {
       toast.error("Failed to get clients!");
     }
@@ -147,6 +156,15 @@ const ToDo = () => {
 
   const handleSubmit = async () => {
     const formData = new FormData();
+
+    if (taskData.taskTitle === "") {
+      toast.error("Task title is required!");
+      return;
+    }
+    if (selectedClient.value === undefined) {
+      toast.error("Assigned user is required!");
+      return;
+    }
 
     if (taskData.userId === "") {
       formData.append("user_id", userId);
@@ -607,9 +625,9 @@ const ToDo = () => {
                           >
                             <Select
                               className="select2 font-sm"
-                              name="tags"
-                              placeholder="Select Client"
-                              id="tags"
+                              name="assignedPerson"
+                              placeholder="Select"
+                              id="assignedPerson"
                               value={selectedClient}
                               required
                               onChange={handleClientChange}
@@ -1195,6 +1213,14 @@ const ToDo = () => {
                                           </div>
                                         </div>
                                         <div className="todo-item-action d-flex align-items-center">
+                                          <div className="task-info">
+                                            <small className="text-muted">
+                                              {moment(task.created_at).format(
+                                                "MMMM Do YYYY, h:mm:ss a"
+                                              )}
+                                            </small>
+                                          </div>
+
                                           <div className="todo-badge-wrapper d-flex">
                                             {task.task_tags
                                               .split(",")
