@@ -277,14 +277,25 @@ const ToDo = () => {
 
     setTaskAuthor(task.author);
     let tagIds = [];
+
+    console.log(task.task_tags);
     if (task.task_tags !== "") {
-      tagIds = task.task_tags.split(", ").map((id) => parseInt(id));
+      tagIds = task.task_tags.split(",").map((id) => parseInt(id));
     }
+
+    console.log(tagIds);
 
     let taskTags = [];
     if (tagIds.length > 0) {
       taskTags = tags.filter((tag) => tagIds.includes(tag.id));
     }
+
+    console.log(taskTags);
+
+    taskTags = taskTags.map((tag) => ({
+      value: tag.id,
+      label: tag.tasktag_title,
+    }));
     setSelectedTags(taskTags);
 
     setComments(task.TaskComments);
@@ -400,7 +411,7 @@ const ToDo = () => {
     } else {
       toast.error("Failed to add tag!");
     }
-    setShowDeleteTagModal(!showDeleteTagModal);
+    setShowAddTagModal(!showAddTagModal);
     setLoading(false);
   };
 
@@ -1213,7 +1224,10 @@ const ToDo = () => {
                                           </div>
                                         </div>
                                         <div className="todo-item-action d-flex align-items-center">
-                                          <div className="task-info">
+                                          <div
+                                            className="task-info"
+                                            style={{ marginRight: "4px" }}
+                                          >
                                             <small className="text-muted">
                                               {moment(task.created_at).format(
                                                 "MMMM Do YYYY, h:mm:ss a"
@@ -1238,6 +1252,7 @@ const ToDo = () => {
                                                         backgroundColor: `${getBulletClass(
                                                           tag.id
                                                         )}`,
+                                                        marginRight: "4px",
                                                       }}
                                                     >
                                                       {tag.tasktag_title}
@@ -1247,7 +1262,7 @@ const ToDo = () => {
                                                 return null;
                                               })}
                                           </div>
-                                          <div className="avatar ml-1">
+                                          <div className="avatar">
                                             <img
                                               src={
                                                 task.author.profile_photo
