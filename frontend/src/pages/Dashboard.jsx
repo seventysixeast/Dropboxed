@@ -279,7 +279,7 @@ export const Dashboard = () => {
       setPreviewImage(null);
       setFormData({
         ...formData,
-        banner: '',
+        banner: "",
       });
     }
   };
@@ -665,22 +665,22 @@ export const Dashboard = () => {
                             )}
                           </>
                         )}
-                          <ReTooltip
-                            title="Create a new appointment."
-                            placement="top"
+                        <ReTooltip
+                          title="Create a new appointment."
+                          placement="top"
+                        >
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary mr-1"
+                            data-toggle="modal"
+                            data-target="#appointment"
+                            onClick={() => {
+                              window.location.href = "/booking-list-calendar";
+                            }}
                           >
-                            <button
-                              type="button"
-                              className="btn btn-outline-primary mr-1"
-                              data-toggle="modal"
-                              data-target="#appointment"
-                              onClick={() => {
-                                window.location.href = "/booking-list-calendar";
-                              }}
-                            >
-                              New Appointment
-                            </button>
-                          </ReTooltip>
+                            New Appointment
+                          </button>
+                        </ReTooltip>
                         {user.role_id !== 3 && (
                           <ReTooltip
                             title={
@@ -775,7 +775,8 @@ export const Dashboard = () => {
                                       className="gallery-link"
                                       data-toggle="modal"
                                       data-target="#bootstrap"
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.preventDefault();
                                         getCollectionData(item.slug);
                                       }}
                                     >

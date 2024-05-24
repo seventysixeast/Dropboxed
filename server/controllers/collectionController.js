@@ -76,205 +76,82 @@ const addGallery = async (req, res) => {
 
 
 const getAllCollections = async (req, res) => {
-
   try {
-    if (req.body.roleId == 3) {
-      let collectionsData = await Collection.findAll({
+    const { roleId, subdomainId, userId } = req.body;
+    let collectionsData;
+
+    if (roleId == 3) {
+      collectionsData = await Collection.findAll({
         where: {
-          subdomain_id: req.body.subdomainId,
-          client_id: req.body.userId,
+          subdomain_id: subdomainId,
+          client_id: userId,
           notify_client: true
         },
         order: [['created', 'DESC']]
       });
-      let clientIds = collectionsData.map(collection => collection.client_id);
-      let idsAsIntegers = clientIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let clientData = await User.findAll({
+    } else if (roleId == 2) {
+      collectionsData = await Collection.findAll({
         where: {
-          id: idsAsIntegers.flat()
-        }
-      });
-      let clientNamesAndIds = clientData.map(client => ({
-        id: client.id,
-        name: client.name
-      }));
-      let photographerIds = collectionsData.map(collection => collection.photographer_ids);
-      let photographerIdsAsIntegers = photographerIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let photographerData = await User.findAll({
-        where: {
-          id: photographerIdsAsIntegers.flat()
-        }
-      });
-      let photographerNamesAndIds = photographerData.map(photographer => ({
-        id: photographer.id,
-        name: photographer.name
-      }));
-      let packageIds = collectionsData.map(collection => collection.package_ids);
-      let packageIdsAsIntegers = packageIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let packageData = await Package.findAll({
-        where: {
-          id: packageIdsAsIntegers.flat()
-        }
-      });
-      let packageNamesAndIds = packageData.map(pkg => ({
-        id: pkg.id,
-        name: pkg.package_name
-      }));
-      collectionsData.forEach(collection => {
-        let clientNames = collection.client_id.split(',').map(id => {
-          let clientId = parseInt(id.trim(), 10);
-          let client = clientNamesAndIds.find(client => client.id === clientId);
-          return client ? client.name : '';
-        });
-        collection.dataValues.client_name = clientNames.join(', ');
-        let photographerNames = collection.photographer_ids.split(',').map(id => {
-          let photographerId = parseInt(id.trim(), 10);
-          let photographer = photographerNamesAndIds.find(photographer => photographer.id === photographerId);
-          return photographer ? photographer.name : '';
-        });
-        collection.dataValues.photographers_name = photographerNames.join(', ');
-        let packageNames = collection.package_ids.split(',').map(id => {
-          let packageId = parseInt(id.trim(), 10);
-          let pkg = packageNamesAndIds.find(pkg => pkg.id === packageId);
-          return pkg ? pkg.name : '';
-        });
-        collection.dataValues.packages_name = packageNames.join(', ');
-      });
-      res.status(200).json({ success: true, data: collectionsData });
-    } else if (req.body.roleId == 2) {
-      let collectionsData = await Collection.findAll({
-        where: {
-          subdomain_id: req.body.subdomainId,
+          subdomain_id: subdomainId,
         },
         order: [['created', 'DESC']]
       });
-
       collectionsData = collectionsData.filter(collection => {
         const photographerIds = collection.photographer_ids.split(',').map(id => id.trim());
-        return photographerIds.includes(req.body.userId);
+        return photographerIds.includes(userId);
       });
-
-      console.log(collectionsData.length);
-      let clientIds = collectionsData.map(collection => collection.client_id);
-      let idsAsIntegers = clientIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let clientData = await User.findAll({
-        where: {
-          id: idsAsIntegers.flat()
-        }
-      });
-      let clientNamesAndIds = clientData.map(client => ({
-        id: client.id,
-        name: client.name
-      }));
-      let photographerIds = collectionsData.map(collection => collection.photographer_ids);
-      let photographerIdsAsIntegers = photographerIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let photographerData = await User.findAll({
-        where: {
-          id: photographerIdsAsIntegers.flat()
-        }
-      });
-      let photographerNamesAndIds = photographerData.map(photographer => ({
-        id: photographer.id,
-        name: photographer.name
-      }));
-      let packageIds = collectionsData.map(collection => collection.package_ids);
-      let packageIdsAsIntegers = packageIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let packageData = await Package.findAll({
-        where: {
-          id: packageIdsAsIntegers.flat()
-        }
-      });
-      let packageNamesAndIds = packageData.map(pkg => ({
-        id: pkg.id,
-        name: pkg.package_name
-      }));
-      collectionsData.forEach(collection => {
-        let clientNames = collection.client_id.split(',').map(id => {
-          let clientId = parseInt(id.trim(), 10);
-          let client = clientNamesAndIds.find(client => client.id === clientId);
-          return client ? client.name : '';
-        });
-        collection.dataValues.client_name = clientNames.join(', ');
-        let photographerNames = collection.photographer_ids.split(',').map(id => {
-          let photographerId = parseInt(id.trim(), 10);
-          let photographer = photographerNamesAndIds.find(photographer => photographer.id === photographerId);
-          return photographer ? photographer.name : '';
-        });
-        collection.dataValues.photographers_name = photographerNames.join(', ');
-        let packageNames = collection.package_ids.split(',').map(id => {
-          let packageId = parseInt(id.trim(), 10);
-          let pkg = packageNamesAndIds.find(pkg => pkg.id === packageId);
-          return pkg ? pkg.name : '';
-        });
-        collection.dataValues.packages_name = packageNames.join(', ');
-      });
-      res.status(200).json({ success: true, data: collectionsData });
     } else {
-      let collectionsData = await Collection.findAll({
+      collectionsData = await Collection.findAll({
         where: {
-          subdomain_id: req.body.subdomainId
+          subdomain_id: subdomainId
         },
         order: [['created', 'DESC']]
       });
-      let clientIds = collectionsData.map(collection => collection.client_id);
-      let idsAsIntegers = clientIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let clientData = await User.findAll({
-        where: {
-          id: idsAsIntegers.flat()
-        }
-      });
-      let clientNamesAndIds = clientData.map(client => ({
-        id: client.id,
-        name: client.name
-      }));
-      let photographerIds = collectionsData.map(collection => collection.photographer_ids);
-      let photographerIdsAsIntegers = photographerIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let photographerData = await User.findAll({
-        where: {
-          id: photographerIdsAsIntegers.flat()
-        }
-      });
-      let photographerNamesAndIds = photographerData.map(photographer => ({
-        id: photographer.id,
-        name: photographer.name
-      }));
-      let packageIds = collectionsData.map(collection => collection.package_ids);
-      let packageIdsAsIntegers = packageIds.map(ids => ids.split(',').map(id => parseInt(id.trim(), 10)));
-      let packageData = await Package.findAll({
-        where: {
-          id: packageIdsAsIntegers.flat()
-        }
-      });
-      let packageNamesAndIds = packageData.map(pkg => ({
-        id: pkg.id,
-        name: pkg.package_name
-      }));
-      collectionsData.forEach(collection => {
-        let clientNames = collection.client_id.split(',').map(id => {
-          let clientId = parseInt(id.trim(), 10);
-          let client = clientNamesAndIds.find(client => client.id === clientId);
-          return client ? client.name : '';
-        });
-        collection.dataValues.client_name = clientNames.join(', ');
-        let photographerNames = collection.photographer_ids.split(',').map(id => {
-          let photographerId = parseInt(id.trim(), 10);
-          let photographer = photographerNamesAndIds.find(photographer => photographer.id === photographerId);
-          return photographer ? photographer.name : '';
-        });
-        collection.dataValues.photographers_name = photographerNames.join(', ');
-        let packageNames = collection.package_ids.split(',').map(id => {
-          let packageId = parseInt(id.trim(), 10);
-          let pkg = packageNamesAndIds.find(pkg => pkg.id === packageId);
-          return pkg ? pkg.name : '';
-        });
-        collection.dataValues.packages_name = packageNames.join(', ');
-      });
-      res.status(200).json({ success: true, data: collectionsData });
     }
+
+    const clientIds = collectionsData.map(collection => collection.client_id);
+    const photographerIds = collectionsData.map(collection => collection.photographer_ids);
+    const packageIds = collectionsData.map(collection => collection.package_ids);
+
+    const uniqueClientIds = [...new Set(clientIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+    const uniquePhotographerIds = [...new Set(photographerIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+    const uniquePackageIds = [...new Set(packageIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+
+    const clientData = await User.findAll({ where: { id: uniqueClientIds } });
+    const photographerData = await User.findAll({ where: { id: uniquePhotographerIds } });
+    const packageData = await Package.findAll({ where: { id: uniquePackageIds } });
+
+    const clientNamesAndIds = clientData.reduce((acc, client) => {
+      acc[client.id] = client.name;
+      return acc;
+    }, {});
+
+    const photographerNamesAndIds = photographerData.reduce((acc, photographer) => {
+      acc[photographer.id] = photographer.name;
+      return acc;
+    }, {});
+
+    const packageNamesAndIds = packageData.reduce((acc, pkg) => {
+      acc[pkg.id] = pkg.package_name;
+      return acc;
+    }, {});
+
+    collectionsData.forEach(collection => {
+      const clientNames = collection.client_id.split(',').map(id => clientNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
+      const photographerNames = collection.photographer_ids.split(',').map(id => photographerNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
+      const packageNames = collection.package_ids.split(',').map(id => packageNamesAndIds[parseInt(id.trim(), 10)] || '').filter(name => name).join(', ');
+
+      collection.dataValues.client_name = clientNames;
+      collection.dataValues.photographers_name = photographerNames;
+      collection.dataValues.packages_name = packageNames;
+    });
+
+    res.status(200).json({ success: true, data: collectionsData });
   } catch (error) {
     res.status(500).json({ error: "Failed to list collections" });
   }
 };
+
 
 const updateGalleryLock = async (req, res) => {
   try {
