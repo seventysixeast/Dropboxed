@@ -79,9 +79,8 @@ function createOAuth2Client(accessToken) {
 
 async function addevent(data) {
   try {
-    // Find photographer admin with calendar_sub = 1
     let photographerAdmin = await Users.findOne({
-      attributes: ["calendar_sub"],
+      attributes: ['id', "calendar_sub"],
       where: { id: data.subdomain_id, calendar_sub: 1 },
     });
 
@@ -107,11 +106,22 @@ async function addevent(data) {
       },
     })
 
-    let userIds = [data.subdomain_id];
-    photographers.forEach((photographer) => userIds.push(photographer.id));
+    let userIds = [];
+
+    if (photographerAdmin) {
+      userIds.push(photographerAdmin.id);
+    }
+    if (photographers) {
+      photographers.forEach((photographer) => {
+        userIds.push(photographer.id);
+      });
+    }
+
     if (theUser.calendar_sub == 1) {
       userIds.push(parseInt(data.user_id));
     }
+
+    console.log(userIds);
 
     const theUsers = await Users.findAll({ where: { id: userIds } });
 
@@ -331,8 +341,6 @@ const createBooking = async (req, res) => {
       data.subdomain_id = subdomainId;
       booking = await Booking.create(data);
     }
-
-    console.log('booking=========>>>', booking);
 
     try {
       await addevent(booking);

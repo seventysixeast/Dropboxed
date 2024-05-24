@@ -10,6 +10,8 @@ import {
   setTaskStatus,
   deleteTask,
   setTaskFavorite,
+  createTag,
+  deleteTag,
 } from "../api/todoApis";
 import Select from "react-select";
 import { getClient, getClientPhotographers } from "../api/clientApis";
@@ -18,8 +20,11 @@ import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import DeleteModal from "../components/DeleteModal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import "react-quill/dist/quill.snow.css";
 import ReTooltip from "../components/Tooltip";
+import AddTagModal from "../components/AddTagModal";
+import { IconButton, Tooltip } from "@mui/material";
+import moment from "moment";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ToDo = () => {
@@ -43,6 +48,8 @@ const ToDo = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddTagModal, setShowAddTagModal] = useState(false);
   const modalRef = useRef(null);
+  const [tagId, setTagId] = useState("");
+  const [showDeleteTagModal, setShowDeleteTagModal] = useState(false);
   const [taskData, setTaskData] = useState({
     id: "",
     userId: "",
@@ -57,6 +64,7 @@ const ToDo = () => {
   });
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState({ name: "", profile_photo: "" });
+  const [loading, setLoading] = useState(false);
 
   const getTasks = async () => {
     const formData = new FormData();
@@ -84,7 +92,15 @@ const ToDo = () => {
     }
     const response = await getClientPhotographers(formData);
     if (response.success) {
-      setClients(response.data);
+      if (roleId !== 3) {
+        setClients(response.data);
+      } else {
+        // filter to only add clients with role_id 2
+        const filteredClients = response.data.filter(
+          (client) => client.role_id === 2
+        );
+        setClients(filteredClients);
+      }
     } else {
       toast.error("Failed to get clients!");
     }
@@ -140,6 +156,15 @@ const ToDo = () => {
 
   const handleSubmit = async () => {
     const formData = new FormData();
+
+    if (taskData.taskTitle === "") {
+      toast.error("Task title is required!");
+      return;
+    }
+    if (selectedClient.value === undefined) {
+      toast.error("Assigned user is required!");
+      return;
+    }
 
     if (taskData.userId === "") {
       formData.append("user_id", userId);
@@ -251,35 +276,24 @@ const ToDo = () => {
     }
 
     setTaskAuthor(task.author);
+    let tagIds = [];
 
-    const selectedTags = task.task_tags
-      .split(",")
-      .map((tagId) => {
-        tagId = tagId.trim();
-
-        if (tagId === "" || isNaN(tagId)) {
-          return null;
-        }
-
-        const tag = tags.find((t) => t.id === parseInt(tagId));
-
-        return tag ? tag : null;
-      })
-      .filter((tag) => tag !== null);
-
-    if (client) {
-      setSelectedTags(
-        selectedTags.map((tag) => ({ value: tag.id, label: tag.tasktag_title }))
-      );
+    if (task.task_tags !== "") {
+      tagIds = task.task_tags.split(",").map((id) => parseInt(id));
     }
+
+    let taskTags = [];
+    if (tagIds.length > 0) {
+      taskTags = tags.filter((tag) => tagIds.includes(tag.id));
+    }
+
+    taskTags = taskTags.map((tag) => ({
+      value: tag.id,
+      label: tag.tasktag_title,
+    }));
+    setSelectedTags(taskTags);
 
     setComments(task.TaskComments);
-    const authorclient = await getClient({ id: task.user_id });
-    console.log(authorclient);
-
-    if (authorclient.success) {
-      setTaskAuthor(authorclient.data);
-    }
 
     setNewTaskModalOpen(true);
   };
@@ -380,7 +394,34 @@ const ToDo = () => {
     setFilteredTasks(items);
   };
 
-  console.log(selectedClient);
+  const handleAddTag = async (data) => {
+    setLoading(true);
+    let formData = new FormData();
+    formData.append("tasktag_title", data);
+    formData.append("subdomain_id", subdomainId);
+    const response = await createTag(formData);
+    if (response.success) {
+      toast.success("Tag added successfully!");
+      getTasks();
+    } else {
+      toast.error("Failed to add tag!");
+    }
+    setShowAddTagModal(!showAddTagModal);
+    setLoading(false);
+  };
+
+  const handleTagDelete = async (data) => {
+    let formData = new FormData();
+    formData.append("id", data);
+    const response = await deleteTag(formData);
+    if (response.success) {
+      toast.success("Tag deleted successfully!");
+      getTasks();
+      setShowDeleteModal(false);
+    } else {
+      toast.error("Failed to delete tag!");
+    }
+  };
 
   return (
     <div className="todo-application">
@@ -451,36 +492,48 @@ const ToDo = () => {
                   </div>
                   <div className="d-flex justify-content-between align-items-center">
                     <p className="filter-label mt-2 mb-1">Labels</p>
-                    <ReTooltip
-                      title="Adds new tag."
-                      placement="top"
-                    >
+                    <ReTooltip title="Adds new tag." placement="top">
                       <button
                         className="btn btn-primary btn-sm mt-2 mb-1"
                         style={{ padding: "5px" }}
-                        onClick={() => console.log("Hurray!")}
+                        onClick={() => setShowAddTagModal(!showAddTagModal)}
                       >
                         <i className="feather icon-plus"></i>
                       </button>
-
                     </ReTooltip>
                   </div>
-
                   <div className="list-group">
                     {tags.map((tag, index) => (
-                      <a
+                      <Tooltip
                         key={index}
-                        href="#"
-                        className="list-group-item border-0 d-flex align-items-center justify-content-between"
+                        placement="right"
+                        arrow
+                        title={
+                          <React.Fragment>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => {
+                                handleTagDelete(tag.id);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </React.Fragment>
+                        }
                       >
-                        <span>{tag.tasktag_title}</span>
-                        <span
-                          className={`bullet bullet-sm`}
-                          style={{
-                            backgroundColor: `${getBulletClass(tag.id)}`,
-                          }}
-                        ></span>
-                      </a>
+                        <p
+                          className="list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer"
+                          style={{ padding: "4px" }}
+                        >
+                          <span>{tag.tasktag_title}</span>
+                          <span
+                            className={`bullet bullet-sm`}
+                            style={{
+                              backgroundColor: `${getBulletClass(tag.id)}`,
+                            }}
+                          ></span>
+                        </p>
+                      </Tooltip>
                     ))}
                   </div>
                 </div>
@@ -578,9 +631,9 @@ const ToDo = () => {
                           >
                             <Select
                               className="select2 font-sm"
-                              name="tags"
-                              placeholder="Select Client"
-                              id="tags"
+                              name="assignedPerson"
+                              placeholder="Select"
+                              id="assignedPerson"
                               value={selectedClient}
                               required
                               onChange={handleClientChange}
@@ -1166,6 +1219,17 @@ const ToDo = () => {
                                           </div>
                                         </div>
                                         <div className="todo-item-action d-flex align-items-center">
+                                          <div
+                                            className="task-info"
+                                            style={{ marginRight: "4px" }}
+                                          >
+                                            <small className="text-muted">
+                                              {moment(task.created_at).format(
+                                                "MMMM Do YYYY, h:mm:ss a"
+                                              )}
+                                            </small>
+                                          </div>
+
                                           <div className="todo-badge-wrapper d-flex">
                                             {task.task_tags
                                               .split(",")
@@ -1183,6 +1247,7 @@ const ToDo = () => {
                                                         backgroundColor: `${getBulletClass(
                                                           tag.id
                                                         )}`,
+                                                        marginRight: "4px",
                                                       }}
                                                     >
                                                       {tag.tasktag_title}
@@ -1192,7 +1257,7 @@ const ToDo = () => {
                                                 return null;
                                               })}
                                           </div>
-                                          <div className="avatar ml-1">
+                                          <div className="avatar">
                                             <img
                                               src={
                                                 task.author.profile_photo
@@ -1232,7 +1297,6 @@ const ToDo = () => {
                                               </svg>
                                             )}
                                           </a>
-
                                           <a className="todo-item-delete ml-75">
                                             <i
                                               className="feather icon-trash-2"
@@ -1274,9 +1338,11 @@ const ToDo = () => {
         onConfirm={handleTaskDelete}
         message="Are you sure you want to delete this task?"
       />
-      {/* {showAddTagModal && 
-      
-      } */}
+      <AddTagModal
+        showAddTagModal={showAddTagModal}
+        setShowAddTagModal={() => setShowAddTagModal(!showAddTagModal)}
+        onAddTag={handleAddTag}
+      />
     </div>
   );
 };

@@ -471,8 +471,8 @@ const CollectionTable = () => {
     }
   };
 
-  const columns = React.useMemo(
-    () => [
+  const columns = React.useMemo(() => {
+    const columns = [
       { Header: "Id", accessor: "id" },
       {
         Header: "Banner Image",
@@ -498,6 +498,7 @@ const CollectionTable = () => {
               checked={row.original.lock_gallery}
               onChange={() => handleGalleryLockChange(row.original)}
               inputProps={{ "aria-label": "controlled" }}
+              disabled={roleId === 3}
             />
           </ReTooltip>
         ),
@@ -509,9 +510,7 @@ const CollectionTable = () => {
             <ReTooltip title="Click to change status." placement="top">
               <div
                 className="badge badge-pill badge-light-primary"
-                style={{
-                  cursor: "pointer",
-                }}
+                style={{ cursor: "pointer" }}
                 onClick={() => {
                   handleGalleryNotify(row.original.id);
                 }}
@@ -523,10 +522,7 @@ const CollectionTable = () => {
             <ReTooltip title="Click to change status." placement="top">
               <div
                 className="badge badge-pill"
-                style={{
-                  backgroundColor: "rgb(255, 116, 140)",
-                  cursor: "pointer",
-                }}
+                style={{ backgroundColor: "rgb(255, 116, 140)", cursor: "pointer" }}
                 onClick={() => {
                   handleGalleryNotify(row.original.id, collections);
                 }}
@@ -543,9 +539,7 @@ const CollectionTable = () => {
             <ReTooltip title="Click to update image count." placement="top">
               <div
                 className="badge badge-pill badge-light-primary"
-                style={{
-                  cursor: "pointer",
-                }}
+                style={{ cursor: "pointer" }}
                 onClick={(e) => {
                   e.preventDefault();
                   updateImageCount(row.original);
@@ -574,7 +568,7 @@ const CollectionTable = () => {
           <div className="btnsrow">
             <ReTooltip title="Click to edit the collection." placement="top">
               <button
-                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                className={`btn btn-icon btn-outline-secondary mr-1 mb-1 ${roleId === 3 ? 'd-none': ''}`}
                 onClick={() => getCollectionData(row.original.slug)}
                 data-toggle="modal"
                 data-target="#bootstrap"
@@ -593,16 +587,11 @@ const CollectionTable = () => {
                 <i className="feather white icon-trash"></i>
               </button>
             </ReTooltip>
-            <ReTooltip
-              title="Click to copy link to the collection."
-              placement="top"
-            >
+            <ReTooltip title="Click to copy link to the collection." placement="top">
               <button
-                className="btn btn-icon btn-outline-warning mr-1 mb-1"
+                className={`btn btn-icon btn-outline-warning mr-1 mb-1 ${roleId === 3 ? 'd-none': ''}`}
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${url2}view-gallery/${row.original.slug}`
-                  );
+                  navigator.clipboard.writeText(`${url2}view-gallery/${row.original.slug}`);
                   toast.success("Link Copied!");
                 }}
               >
@@ -612,9 +601,14 @@ const CollectionTable = () => {
           </div>
         ),
       },
-    ],
-    []
-  );
+    ];
+  
+    if (roleId === 3) {
+      return columns.filter(column => column.Header !== "Notify" && column.Header !== "Client");
+    }
+  
+    return columns;
+  }, [roleId]);
 
   const data = React.useMemo(() => collections, [collections]);
 

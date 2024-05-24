@@ -219,7 +219,6 @@
 
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
     <title>Studiio.au</title>
-
   </head>
   <body
     class="vertical-layout vertical-menu-modern 2-columns"
@@ -343,11 +342,46 @@
       });
     </script>
     <script>
-      /** Fix for mobile hamburger menu not working**/
-      var mobileHamburger = document.getElementById('mobile-hamburger');
-      mobileHamburger.addEventListener('click', function() {
-          // Add the 'open-menu' class to the body element
-          document.body.classList.add('open-menu');
+      var mobileHamburger = document.getElementById("mobile-hamburger");
+      mobileHamburger.addEventListener("click", function () {
+        document.body.classList.add("open-menu");
+      });
+
+      var sidebarMobileElements = document.getElementsByClassName(
+        "vertical-layout 2-columns fixed-navbar menu-hide vertical-overlay-menu pace-done"
+      );
+
+      var sidebarMobileArray = Array.prototype.slice.call(
+        sidebarMobileElements
+      );
+
+      sidebarMobileArray.forEach(function (element) {
+        element.addEventListener("click", function () {
+          if (document.body.classList.contains("menu-hide")) {
+            document.body.classList.remove("menu-hide");
+            document.body.classList.add("menu-open");
+          } else {
+            document.body.classList.remove("menu-open");
+            document.body.classList.add("menu-hide");
+          }
+
+          var sidenavOverlayElements =
+            document.getElementsByClassName("sidenav-overlay");
+
+          var sidenavOverlayArray = Array.prototype.slice.call(
+            sidenavOverlayElements
+          );
+
+          sidenavOverlayArray.forEach(function (overlayElement) {
+            if (overlayElement.classList.contains("d-block")) {
+              overlayElement.classList.remove("d-block");
+              overlayElement.classList.add("d-none");
+            } else {
+              overlayElement.classList.remove("d-none");
+              overlayElement.classList.add("d-block");
+            }
+          });
+        });
       });
     </script>
   </body>
