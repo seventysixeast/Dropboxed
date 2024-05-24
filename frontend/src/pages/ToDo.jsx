@@ -95,9 +95,8 @@ const ToDo = () => {
       if (roleId !== 3) {
         setClients(response.data);
       } else {
-        // filter to only add clients with role_id 2
         const filteredClients = response.data.filter(
-          (client) => client.role_id === 2
+          (client) => client.role_id === 2 || client.role_id === 5
         );
         setClients(filteredClients);
       }
@@ -252,19 +251,6 @@ const ToDo = () => {
   };
 
   const handleTaskClick = async (task) => {
-    setTaskData({
-      id: task.id,
-      userId: task.user_id,
-      taskTitle: task.task_title,
-      assignUser: task.assign_user,
-      taskAssigndate: new Date(task.task_assigndate),
-      taskDescription: task.task_description,
-      taskTags: task.task_tags,
-      status: task.status,
-      comment: "",
-      isFavourite: task.is_favourite,
-    });
-
     const client = clients.find((c) => c.id === task.assign_user);
 
     if (client) {
@@ -286,11 +272,28 @@ const ToDo = () => {
     if (tagIds.length > 0) {
       taskTags = tags.filter((tag) => tagIds.includes(tag.id));
     }
+    taskTags = taskTags.filter((tag) => tags.includes(tag));
 
     taskTags = taskTags.map((tag) => ({
       value: tag.id,
       label: tag.tasktag_title,
     }));
+    console.log(taskTags);
+    const formattedTags = taskTags.map((tag) => tag.value).join(", ");
+    console.log(formattedTags);
+    setTaskData({
+      id: task.id,
+      userId: task.user_id,
+      taskTitle: task.task_title,
+      assignUser: task.assign_user,
+      taskAssigndate: new Date(task.task_assigndate),
+      taskDescription: task.task_description,
+      taskTags: formattedTags,
+      status: task.status,
+      comment: "",
+      isFavourite: task.is_favourite,
+    });
+
     setSelectedTags(taskTags);
 
     setComments(task.TaskComments);
@@ -422,6 +425,19 @@ const ToDo = () => {
       toast.error("Failed to delete tag!");
     }
   };
+
+  function getLabelForKey(key) {
+    switch (key) {
+      case "2":
+        return "Photographers";
+      case "3":
+        return "Clients";
+      case "5":
+        return "Admin";
+      default:
+        return "Other";
+    }
+  }
 
   return (
     <div className="todo-application">
@@ -640,14 +656,25 @@ const ToDo = () => {
                               options={_.chain(clients)
                                 .groupBy("role_id")
                                 .map((value, key) => ({
-                                  label:
-                                    key === "2" ? "Photographers" : "Clients",
+                                  label: getLabelForKey(key),
                                   options: value.map((client) => ({
                                     value: client.id,
                                     label: client.name,
                                     profile_photo: client.profile_photo,
                                   })),
                                 }))
+                                .sortBy((group) => {
+                                  switch (group.label) {
+                                    case "Admin":
+                                      return 1;
+                                    case "Photographers":
+                                      return 2;
+                                    case "Clients":
+                                      return 3;
+                                    default:
+                                      return 4;
+                                  }
+                                })
                                 .value()}
                               isSearchable
                               components={{
@@ -1176,7 +1203,7 @@ const ToDo = () => {
                                         className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center`}
                                       >
                                         <div className="todo-title-area d-flex">
-                                          <i className="feather icon-more-vertical handle"></i>
+                                          <i className="feather icon-more-vertical"></i>
 
                                           <div className="custom-control custom-checkbox">
                                             <input
@@ -1223,9 +1250,12 @@ const ToDo = () => {
                                             className="task-info"
                                             style={{ marginRight: "4px" }}
                                           >
-                                            <small className="text-muted">
+                                            <small
+                                              className="text-muted border rounded"
+                                              style={{ padding: "6px" }}
+                                            >
                                               {moment(task.created_at).format(
-                                                "MMMM Do YYYY, h:mm:ss a"
+                                                "DD/MM/YYYY, h:mm a"
                                               )}
                                             </small>
                                           </div>
@@ -1248,6 +1278,7 @@ const ToDo = () => {
                                                           tag.id
                                                         )}`,
                                                         marginRight: "4px",
+                                                        fontSize: "0.7rem",
                                                       }}
                                                     >
                                                       {tag.tasktag_title}

@@ -117,8 +117,8 @@ const getClientPhotographers = async (req, res) => {
     });
 
     let clientIds = clients.map((client) => client.client_id);
-    console.log("clientIds=====>", clientIds);
-
+    clientIds.push(parseInt(req.body.subdomain_id));
+    console.log(clientIds);
     const clientdata = await User.findAll({
       where: {
         id: clientIds,
