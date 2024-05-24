@@ -529,8 +529,6 @@ export const BookingListComponent = () => {
       const formDataToSend = new FormData();
       formDataToSend.append("user_id", userId);
       const response = await getCalendarStatus(formDataToSend);
-      console.log(response);
-      console.log(response.data[0].calendar_sub);
       setCalendarSub(response.data[0].calendar_sub);
     } catch (error) {
       console.error(error);

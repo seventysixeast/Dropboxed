@@ -278,19 +278,14 @@ const ToDo = () => {
     setTaskAuthor(task.author);
     let tagIds = [];
 
-    console.log(task.task_tags);
     if (task.task_tags !== "") {
       tagIds = task.task_tags.split(",").map((id) => parseInt(id));
     }
-
-    console.log(tagIds);
 
     let taskTags = [];
     if (tagIds.length > 0) {
       taskTags = tags.filter((tag) => tagIds.includes(tag.id));
     }
-
-    console.log(taskTags);
 
     taskTags = taskTags.map((tag) => ({
       value: tag.id,
