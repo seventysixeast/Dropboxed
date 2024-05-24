@@ -122,6 +122,7 @@ export const ViewGallery = () => {
     const formData = new FormData();
     formData.append("subdomain_id", authData.user.subdomain_id);
     formData.append("role_id", authData.user.role_id);
+    formData.append('user_id', authData.user.role_id)
     const response = await getAlltasks(formData);
     if (response.success) {
       setTasks(response.tasks);
