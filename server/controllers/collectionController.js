@@ -1,6 +1,8 @@
 const Collection = require('../models/Collections');
 const User = require('../models/Users');
 const Package = require('../models/Packages');
+const { NEW_COLLECTION } = require('../helpers/emailTemplate');
+const { sendEmail } = require("../helpers/sendEmail");
 
 function createSlug(title) {
   return title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
@@ -8,7 +10,7 @@ function createSlug(title) {
 
 const addGallery = async (req, res) => {
   const user = await User.findOne({
-    attributes: ['dropbox_refresh'],
+    attributes: ['dropbox_refresh', 'subdomain'],
     where: { id: req.body.subdomainId },
   });
 
@@ -63,6 +65,17 @@ const addGallery = async (req, res) => {
       collection = await Collection.create(collectionData);
     }
 
+    // Send email if notify_client is true
+    if (req.body.notify_client) {
+      const clientData = await User.findOne({
+        where: { id: req.body.client },
+        attributes: ['name', 'email']
+      });
+
+      let SEND_EMAIL = NEW_COLLECTION(user.subdomain, clientData.name, collectionData);
+      sendEmail(clientData.email, "New Collection", SEND_EMAIL);
+    }
+
     res.status(200).json({
       success: true,
       message: req.body.id ? "Gallery updated successfully" : "Gallery created successfully",
@@ -74,9 +87,7 @@ const addGallery = async (req, res) => {
   }
 };
 
-
 const getAllCollections = async (req, res) => {
-
   try {
     if (req.body.roleId == 3) {
       let collectionsData = await Collection.findAll({
@@ -147,7 +158,7 @@ const getAllCollections = async (req, res) => {
         },
         order: [['created', 'DESC']]
       });
-      
+
       collectionsData = collectionsData.filter(collection => {
         const photographerIds = collection.photographer_ids.split(',').map(id => id.trim());
         return photographerIds.includes(req.body.userId);

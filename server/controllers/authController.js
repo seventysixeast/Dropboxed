@@ -9,8 +9,8 @@ const axios = require("axios");
 const BusinessClients = require("../models/BusinessClients");
 const clientController = require("../controllers/clientController");
 const sequelize = require('../config/sequelize');
-const { sendEmail, generateVerificationToken } = require("../helpers/sendEmail");
 const { SEND_VERIFICATION_EMAIL, SEND_OTP } = require("../helpers/emailTemplate");
+const { sendEmail, generateVerificationToken } = require("../helpers/sendEmail");
 
 const oAuth2Client = new OAuth2(
   process.env.GOOGLE_CLIENT_ID,

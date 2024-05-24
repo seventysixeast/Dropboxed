@@ -8,6 +8,8 @@ const Users = require("../models/Users");
 const BusinessClients = require("../models/BusinessClients");
 const { Op } = require("sequelize");
 const moment = require("moment");
+const { NEW_BOOKING } = require('../helpers/emailTemplate');
+const { sendEmail } = require("../helpers/sendEmail");
 
 const client_id = process.env.GOOGLE_CLIENT_ID;
 const client_secret = process.env.GOOGLE_CLIENT_SECRET;
@@ -311,14 +313,19 @@ const createBooking = async (req, res) => {
 
     const usersWithRoleId1 = await User.findAll({
       where: { id: req.body.user_id },
-      attributes: ["id", "name", "address"],
+      attributes: ["id", "name", "address", "email"]
     });
-    let client_address;
-    let client_name;
-    client_address = usersWithRoleId1[0].address || "";
-    client_name = usersWithRoleId1[0].name || "";
+
+    if (usersWithRoleId1.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    let client_address = usersWithRoleId1[0].address || "";
+    let client_name = usersWithRoleId1[0].name || "";
+    let client_email = usersWithRoleId1[0].email || "";
     data.client_address = client_address;
     data.client_name = client_name;
+    data.client_email = client_email;
 
     let booking;
     if (req.body.id) {
@@ -332,13 +339,27 @@ const createBooking = async (req, res) => {
       booking = await Booking.create(data);
     }
 
-    console.log('booking=========>>>', booking);
-
     try {
       await addevent(booking);
     } catch (error) {
       console.error("Failed to add event:", error.message);
       return res.status(500).json({ error: "Failed to add event" });
+    }
+
+    // Send email if booking_status is true
+    if (req.body.booking_status === true) {
+      const user = await User.findOne({
+        where: { id: data.photographer_id },
+        attributes: ['phone']
+      });
+
+      const subdomain_user = await User.findOne({
+        where: { id: subdomainId },
+        attributes: ['subdomain']
+      });
+
+      let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, client_name, data, user.phone);
+      sendEmail(client_email, "New Booking", SEND_EMAIL);
     }
 
     res.status(200).json({
@@ -576,15 +597,39 @@ const deleteBooking = async (req, res) => {
 const updateBooking = async (req, res) => {
   try {
     const bookingId = req.body.id;
-    const updated = await Booking.update(req.body, {
+    const [updated] = await Booking.update(req.body, {
       where: { id: bookingId },
     });
+
     if (updated) {
-      res
-        .status(200)
-        .json({ success: true, message: "Booking updated successfully" });
+      const updatedBooking = await Booking.findOne({
+        where: { id: bookingId },
+        include: {
+          model: User,
+          attributes: ['email']
+        }
+      });
+      const client_email = updatedBooking.User.email;
+
+      const user = await User.findOne({
+        where: { id: updatedBooking.photographer_id },
+        attributes: ['phone']
+      });
+
+      const subdomain_user = await User.findOne({
+        where: { id: updatedBooking.subdomain_id },
+        attributes: ['subdomain']
+      });
+
+      let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, updatedBooking.client_name, updatedBooking, user.phone);
+      sendEmail(client_email, "New Booking", SEND_EMAIL);
+
+      res.status(200).json({
+        success: true,
+        message: "Booking updated successfully"
+      });
     } else {
-      res.status(404).json({ success: false, message: "Booking not found" });
+      res.status(404).json({ error: "Booking not found" });
     }
   } catch (error) {
     res.status(500).json({ error: "Failed to update Booking" });

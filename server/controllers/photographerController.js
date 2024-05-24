@@ -1,8 +1,8 @@
 const User = require('../models/Users');
 const BusinessClients = require('../models/BusinessClients');
 const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const { SEND_NEW_PASSWORD } = require('../helpers/emailTemplate');
+const { WELCOME_EMAIL } = require('../helpers/emailTemplate');
+const { sendEmail } = require("../helpers/sendEmail");
 
 const getAllPhotographers = async (req, res) => {
   try {
@@ -39,7 +39,8 @@ const createPhotographer = async (req, res) => {
       business_name: req.body.business_name,
       role_id: req.body.role_id,
       profile_photo: imageName || req.body.profile_photo,
-      password: hashedPassword
+      password: hashedPassword,
+      is_verified: 1
     };
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
@@ -85,8 +86,15 @@ const createPhotographer = async (req, res) => {
         status: 1
       });
 
-      // Send password to the user's email
-      sendPasswordByEmail(req.body.name, req.body.email, password);
+      const user = await User.findOne({
+        where: { id: req.body.subdomainId },
+        attributes: ['subdomain','email']
+      });
+
+      // Send email notification
+      var SEND_EMAIL = WELCOME_EMAIL(user.subdomain, user.email, req.body.name, req.body.email, password);
+      sendEmail(req.body.email, "Welcome to Our Studiio.au", SEND_EMAIL);
+      
       res.status(200).json({
         success: true,
         message: "Photographer added successfully. Password sent to his email."
@@ -96,32 +104,6 @@ const createPhotographer = async (req, res) => {
     res.status(500).json({ error: "Failed to add/update photographer" });
   }
 };
-
-function sendPasswordByEmail(name, email, password) {
-  let transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    auth: {
-      user: process.env.SMTP_USERNAME,
-      pass: process.env.SMTP_PASSWORD
-    }
-  });
-
-  let mailOptions = {
-    from: process.env.SMTP_EMAIL_FROM,
-    to: email,
-    subject: 'Your New Password',
-    html: SEND_NEW_PASSWORD(name, email, password)
-  };
-
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
-  });
-}
 
 const getPhotographer = async (req, res) => {
   try {
