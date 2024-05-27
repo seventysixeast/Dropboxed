@@ -19,6 +19,7 @@ import axios from "axios";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 import CollectionTable from "../components/CollectionTable";
+import ReTooltip from "../components/Tooltip";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -263,8 +264,7 @@ export const Dashboard = () => {
     setFormData(gallery);
   };
 
-  const handleBannerChange = (event) => {
-    const file = event.target.files[0];
+  const handleBannerChange = (file) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -279,7 +279,7 @@ export const Dashboard = () => {
       setPreviewImage(null);
       setFormData({
         ...formData,
-        banner: "",
+        banner: '',
       });
     }
   };
@@ -542,7 +542,7 @@ export const Dashboard = () => {
                         <div className="card">
                           <div className="card-content">
                             <div className="media align-items-stretch">
-                              <div className="p-2 text-center bg-primary bg-darken-2">
+                              <div className="p-2 text-center bg-primary ">
                                 <i className="icon-picture font-large-2 white"></i>
                               </div>
                               <div className="p-2 bg-gradient-x-primary white media-body">
@@ -559,7 +559,7 @@ export const Dashboard = () => {
                         <div className="card">
                           <div className="card-content">
                             <div className="media align-items-stretch">
-                              <div className="p-2 text-center bg-danger bg-darken-2">
+                              <div className="p-2 text-center bg-danger">
                                 <i className="icon-cloud-upload font-large-2 white"></i>
                               </div>
                               <div className="p-1 bg-gradient-x-danger white media-body">
@@ -622,33 +622,36 @@ export const Dashboard = () => {
                   <ul className="list-inline mb-0">
                     <li>
                       <div className="form-group d-flex">
-                        <button
-                          type="button"
-                          className={`btn btn-outline-primary mr-1 ${
-                            galleryView === "grid" ? "active" : ""
-                          }`}
-                          data-toggle="modal"
-                          data-target="#appointment"
-                          onClick={() => {
-                            setGalleryView("grid");
-                          }}
-                        >
-                          <i className="feather icon-grid"></i>
-                        </button>
-
-                        <button
-                          type="button"
-                          className={`btn btn-outline-primary mr-1 ${
-                            galleryView === "list" ? "active" : ""
-                          }`}
-                          data-toggle="modal"
-                          data-target="#appointment"
-                          onClick={() => {
-                            setGalleryView("list");
-                          }}
-                        >
-                          <i className="feather icon-list"></i>
-                        </button>
+                        <ReTooltip title="Change to grid view." placement="top">
+                          <button
+                            type="button"
+                            className={`btn btn-outline-primary mr-1 ${
+                              galleryView === "grid" ? "active" : ""
+                            }`}
+                            data-toggle="modal"
+                            data-target="#appointment"
+                            onClick={() => {
+                              setGalleryView("grid");
+                            }}
+                          >
+                            <i className="feather icon-grid"></i>
+                          </button>
+                        </ReTooltip>
+                        <ReTooltip title="Change to list view." placement="top">
+                          <button
+                            type="button"
+                            className={`btn btn-outline-primary mr-1 ${
+                              galleryView === "list" ? "active" : ""
+                            }`}
+                            data-toggle="modal"
+                            data-target="#appointment"
+                            onClick={() => {
+                              setGalleryView("list");
+                            }}
+                          >
+                            <i className="feather icon-list"></i>
+                          </button>
+                        </ReTooltip>
 
                         {user.role_id == 5 && (
                           <>
@@ -662,41 +665,48 @@ export const Dashboard = () => {
                             )}
                           </>
                         )}
-                        {user.role_id !== 3 && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-primary mr-1"
-                            data-toggle="modal"
-                            data-target="#appointment"
-                            onClick={() => {
-                              window.location.href = "/booking-list-calendar";
-                            }}
+                          <ReTooltip
+                            title="Create a new appointment."
+                            placement="top"
                           >
-                            New Appointment
-                          </button>
-                        )}
+                            <button
+                              type="button"
+                              className="btn btn-outline-primary mr-1"
+                              data-toggle="modal"
+                              data-target="#appointment"
+                              onClick={() => {
+                                window.location.href = "/booking-list-calendar";
+                              }}
+                            >
+                              New Appointment
+                            </button>
+                          </ReTooltip>
                         {user.role_id !== 3 && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-primary"
-                            data-toggle="modal"
-                            data-target="#bootstrap"
+                          <ReTooltip
                             title={
                               user.dropbox_refresh == null
-                                ? "Add Collection"
-                                : "Dropbox Not Linked"
+                                ? "Link your dropbox first!"
+                                : "Add a new collection."
                             }
-                            disabled={user.dropbox_refresh == null}
-                            onClick={() => {
-                              if (galleryView == "grid") {
-                                setShowAddGalleryModal(true);
-                              } else {
-                                setShowAddGalleryModal2(true);
-                              }
-                            }}
+                            placement="top"
                           >
-                            New Collection
-                          </button>
+                            <button
+                              type="button"
+                              className="btn btn-outline-primary"
+                              data-toggle="modal"
+                              data-target="#bootstrap"
+                              disabled={user.dropbox_refresh == null}
+                              onClick={() => {
+                                if (galleryView == "grid") {
+                                  setShowAddGalleryModal(true);
+                                } else {
+                                  setShowAddGalleryModal2(true);
+                                }
+                              }}
+                            >
+                              New Collection
+                            </button>
+                          </ReTooltip>
                         )}
                       </div>
                     </li>
@@ -708,7 +718,7 @@ export const Dashboard = () => {
               ) : (
                 <div className="card-deck-wrapper">
                   <div className="grid-hover row">
-                    {collections &&
+                    {collections && collections.length > 0 ? (
                       collections.map((item) => (
                         <div className="col-md-3 mb-1" key={item.id}>
                           <a
@@ -726,7 +736,6 @@ export const Dashboard = () => {
                                     : "../../../app-assets/images/gallery/9.jpg"
                                 }
                               />
-
                               <figcaption
                                 style={{
                                   display: "flex",
@@ -762,8 +771,7 @@ export const Dashboard = () => {
                                   style={{ marginBottom: "0" }}
                                 >
                                   {user.role_id !== 3 && (
-                                    <a
-                                      href="#"
+                                    <span
                                       className="gallery-link"
                                       data-toggle="modal"
                                       data-target="#bootstrap"
@@ -772,10 +780,9 @@ export const Dashboard = () => {
                                       }}
                                     >
                                       <i className="feather icon-settings"></i>
-                                    </a>
+                                    </span>
                                   )}
-                                  <a
-                                    href="#"
+                                  <span
                                     className="gallery-link mx-1"
                                     title="Share"
                                     onClick={(e) => {
@@ -785,10 +792,8 @@ export const Dashboard = () => {
                                     }}
                                   >
                                     <i className="feather icon-share-2"></i>
-                                  </a>
-
-                                  <a
-                                    href="#"
+                                  </span>
+                                  <span
                                     className="gallery-link"
                                     onClick={(e) =>
                                       handleCopy(
@@ -804,25 +809,27 @@ export const Dashboard = () => {
                                     }
                                   >
                                     <i className="feather icon-copy"></i>
-                                  </a>
-
+                                  </span>
                                   <Tooltip
                                     id={`copyTooltip-${item.id}`}
                                     effect="solid"
                                     placement="top"
-                                    style={{fontSize: '0.6rem'}}
+                                    style={{ fontSize: "0.6rem" }}
                                   />
                                 </div>
-                                <p
-                                  className="description description-edit"
-                                >
+                                <p className="description description-edit">
                                   {item.name}
                                 </p>
                               </figcaption>
                             </figure>
                           </a>
                         </div>
-                      ))}
+                      ))
+                    ) : (
+                      <div className="w-100 d-flex justify-content-center">
+                        <p className="text-center">No collections found.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

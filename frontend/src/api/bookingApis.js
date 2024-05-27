@@ -68,6 +68,18 @@ const deleteBooking = async (data) => {
   }
 };
 
+const getCalendarStatus = async (data) => {
+  try {
+    const response = await API.post('/booking/getCalendarStatus', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to delete booking');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 const updateBooking = async (data) => {
   try {
     const response = await API.post('/booking/updateBooking', data);
@@ -128,4 +140,4 @@ const getAllPhotographers = async (data) => {
   }
 };
 
-export { newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles, getAllServices, getAllPhotographers };
+export { newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles, getAllServices, getAllPhotographers, getCalendarStatus };

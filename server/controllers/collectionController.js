@@ -93,7 +93,8 @@ const getAllCollections = async (req, res) => {
       let collectionsData = await Collection.findAll({
         where: {
           subdomain_id: req.body.subdomainId,
-          client_id: req.body.userId
+          client_id: req.body.userId,
+          notify_client: true
         },
         order: [['created', 'DESC']]
       });
@@ -361,4 +362,24 @@ const updateCollection = async (req, res) => {
   }
 }
 
-module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection };
+const updateGalleryNotify = async (req, res) => {
+  try {
+    const collectionId = req.body.id;
+    const collection = await Collection.findOne({ where: { id: collectionId } });
+    if (!collection) {
+      return res.status(404).json({ success: false, message: "Collection not found" });
+    }
+    const updated = await Collection.update({ notify_client: !collection.notify_client }, {
+      where: { id: collectionId }
+    });
+    if (updated) {
+      res.status(200).json({ success: true, message: "Collection updated successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "Collection not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update Collection" });
+  }
+}
+
+module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify };

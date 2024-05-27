@@ -7,6 +7,7 @@ import {
   updateBooking,
   getAllBookings,
   deleteBooking,
+  getCalendarStatus,
 } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -27,6 +28,8 @@ import LoadingOverlay from "../components/Loader";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import moment from "moment";
+import ReTooltip from "../components/Tooltip";
+import { verifyToken } from "../api/authApis";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -55,7 +58,7 @@ export const BookingListComponent = () => {
   const [bookingsData, setBookingsData] = useState([]);
   const [showConfirmModel, setShowConfirmModel] = useState(false);
   const userId = authData.user ? authData.user.id : null;
-  const calendarSub = authData.user ? authData.user.calendarSub : null;
+  const [calendarSub, setCalendarSub] = useState(1);
   const [showDateModel, setShowDateModel] = useState(false);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [notifyCheckbox, setNotifyCheckbox] = useState(false);
@@ -121,6 +124,13 @@ export const BookingListComponent = () => {
       const month = ("0" + (date.getMonth() + 1)).slice(-2);
       const day = ("0" + date.getDate()).slice(-2);
       const formattedDate = `${year}-${month}-${day}`;
+      let newbookingstatus = 0;
+
+      if (roleId == 3) {
+        newbookingstatus = 0;
+      } else {
+        newbookingstatus = notifyCheckbox;
+      }
 
       const bookingDataToSend = {
         id: bookingIdToDelete,
@@ -130,7 +140,7 @@ export const BookingListComponent = () => {
         booking_date: formattedDate,
         booking_time: bookingData.fromTime,
         booking_time_to: newToTime,
-        booking_status: notifyCheckbox,
+        booking_status: newbookingstatus,
         comment: bookingData.comment,
         booking_title: bookingAddress.label,
         subdomain_id: subdomainId,
@@ -196,6 +206,7 @@ export const BookingListComponent = () => {
       getAllBookingsData(subdomainId);
 
       fetchProviders();
+      fetchCalendarStatus();
     }
   }, [subdomainId]);
 
@@ -513,6 +524,17 @@ export const BookingListComponent = () => {
     }
   };
 
+  const fetchCalendarStatus = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("user_id", userId);
+      const response = await getCalendarStatus(formDataToSend);
+      setCalendarSub(response.data[0].calendar_sub);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const updateTimeData = async () => {
     setLoading(true);
     try {
@@ -715,15 +737,11 @@ export const BookingListComponent = () => {
       Header: "Booking Date",
       accessor: "booking_date",
       Cell: ({ value }) => {
-        let parts = value.split("-");
-        let date = new Date(parts[0], parts[1] - 1, parts[2]);
-        let day = date.getDate();
-        if (day < 10) day = "0" + day;
-        let month = date.getMonth() + 1;
-        if (month < 10) month = "0" + month;
-        let year = date.getFullYear();
-        let formattedDate = `${day}/${month}/${year}`;
-
+        const [year, month, day] = value.split("-");
+        const formattedDate = `${day.padStart(2, "0")}/${month.padStart(
+          2,
+          "0"
+        )}/${year}`;
         return (
           <div className="badge badge-pill badge-light-primary">
             {formattedDate}
@@ -740,19 +758,16 @@ export const BookingListComponent = () => {
 
         const formatTime = (time) => {
           const [hours, minutes] = time.split(":");
-          let formattedHours = parseInt(hours, 10) % 12 || 12;
-          const ampm = parseInt(hours, 10) >= 12 ? "PM" : "AM";
-          formattedHours =
-            formattedHours < 10 ? `0${formattedHours}` : formattedHours;
+          const formattedHours = (parseInt(hours) % 12 || 12)
+            .toString()
+            .padStart(2, "0");
+          const ampm = parseInt(hours) >= 12 ? "PM" : "AM";
           return `${formattedHours}:${minutes} ${ampm}`;
         };
 
-        const formattedTime = formatTime(value);
-        const formattedToTime = formatTime(row.original.booking_time_to);
-
         return (
           <span>
-            {formattedTime} - {formattedToTime}
+            {formatTime(value)} - {formatTime(row.original.booking_time_to)}
           </span>
         );
       },
@@ -773,174 +788,121 @@ export const BookingListComponent = () => {
       Header: "Services",
       accessor: "package_ids",
       Cell: ({ value }) => {
-        let array = [];
-        if (value) {
-          if (value.includes(",")) {
-            value.split(", ").forEach((element) => {
-              array.push(parseInt(element));
-            });
-          } else {
-            array.push(parseInt(value));
-          }
-        }
-        const selectedServices = array
-          .map((id) => packages.find((pack) => pack.id === id))
-          .filter(Boolean);
-
-        const finalservice = selectedServices.map((serv) => ({
-          value: serv.package_name,
-          key: serv.id,
-        }));
-        return (
-          <span>{finalservice.map((service) => service.value).join(", ")}</span>
-        );
+        const selectedServices = (value?.split(", ") || [])
+          .map((id) => packages.find((pack) => pack.id === parseInt(id)))
+          .filter(Boolean)
+          .map((serv) => serv.package_name)
+          .join(", ");
+        return <span>{selectedServices}</span>;
       },
     },
     {
       Header: "Photographer",
       accessor: "photographer_id",
       Cell: ({ value }) => {
-        let prvdr = [];
-        if (value) {
-          if (typeof value === "string") {
-            if (value.includes(", ")) {
-              value.split(", ").forEach((element) => {
-                const parsedInt = parseInt(element);
-                if (!isNaN(parsedInt)) {
-                  prvdr.push(parsedInt);
-                }
-              });
-            } else {
-              const parsedInt = parseInt(value);
-              if (!isNaN(parsedInt)) {
-                prvdr.push(parsedInt);
-              }
-            }
-          } else if (Array.isArray(value)) {
-            value.forEach((element) => {
-              const parsedInt = parseInt(element);
-              if (!isNaN(parsedInt)) {
-                prvdr.push(parsedInt);
-              }
-            });
-          }
-        }
-
-        const selectedProvider = prvdr.map((id) =>
-          providers.find((provider) => provider.id === parseInt(id))
-        );
-
-        const finalProvider =
-          selectedProvider &&
-          selectedProvider.map((prov) => ({
-            value: prov ? prov.name || "" : "",
-            key: prov ? prov.id : null,
-          }));
-
-        // comma separate values
-        return (
-          <span>
-            {finalProvider.map((provider) => provider.value).join(", ")}
-          </span>
-        );
+        const selectedProviders = (
+          Array.isArray(value) ? value : value?.split(", ") || []
+        )
+          .map((id) =>
+            providers.find((provider) => provider.id === parseInt(id))
+          )
+          .filter(Boolean)
+          .map((prov) => prov.name)
+          .join(", ");
+        return <span>{selectedProviders}</span>;
       },
     },
     {
       Header: "Status",
       accessor: "booking_status",
-      Cell: (props) => (
-        <div className="">
-          {props.row.original.booking_status === 0 ? (
-            roleId !== 3 ? (
-              props.row.original.photographer_id !== "" ? (
-                <a
-                  type="button"
-                  className="badge"
-                  style={{ backgroundColor: "#ff748c" }}
-                  title="Notify client"
-                  onClick={() => handleNotifyChange(props.row.original)}
-                >
-                  Notify
-                </a>
-              ) : (
-                <p
-                  className="badge"
-                  title="New Request"
-                  style={{ backgroundColor: "#ff748c" }}
-                >
-                  New Request
-                </p>
-              )
-            ) : (
-              <p
-                className="badge"
-                title="Pening"
-                style={{ backgroundColor: "#ff748c" }}
-              >
-                Pending
-              </p>
-            )
-          ) : (
-            <p className="badge" title="Booked" disabled>
+      Cell: ({ row }) => {
+        const { booking_status, photographer_id } = row.original;
+        const isPending = booking_status === 0;
+        const notifyButton = (
+          <ReTooltip title="Notify Client." placement="top">
+            <a
+              className="badge"
+              style={{ backgroundColor: "#ff748c" }}
+              onClick={() => handleNotifyChange(row.original)}
+            >
+              Notify
+            </a>
+          </ReTooltip>
+        );
+        const newRequest = (
+          <ReTooltip title="New Request." placement="top">
+            <p className="badge" style={{ backgroundColor: "#ff748c" }}>
+              New Request
+            </p>
+          </ReTooltip>
+        );
+        const pendingRequest = (
+          <ReTooltip title="Pending Request." placement="top">
+            <p className="badge" style={{ backgroundColor: "#ff748c" }}>
+              Pending
+            </p>
+          </ReTooltip>
+        );
+        const booked = (
+          <ReTooltip title="Booking Confirmed." placement="top">
+            <p className="badge" disabled>
               Booked
             </p>
-          )}
-        </div>
-      ),
+          </ReTooltip>
+        );
+
+        if (isPending) {
+          return roleId !== 3
+            ? photographer_id
+              ? notifyButton
+              : newRequest
+            : pendingRequest;
+        }
+        return booked;
+      },
     },
     {
       Header: "Action",
       accessor: "action",
-      Cell: (props) => (
-        <div className="d-flex">
-          <button
-            type="button"
-            className="btn btn-icon btn-outline-primary"
-            onClick={() => getBookingData(props.row.original)}
-            data-toggle="modal"
-            data-target="#appointment"
-            title="Edit Booking"
-            disabled={
-              roleId === 3
-                ? new Date(
-                    props.row.original.booking_date +
-                      "T" +
-                      props.row.original.booking_time
-                  ) -
-                    new Date() <
-                  1000 * 60 * 60 * 3
-                : false
-            }
-          >
-            <i className="feather white icon-edit"></i>
-          </button>
-
-          <button
-            className="btn btn-icon btn-outline-danger ml-1"
-            onClick={() => {
-              setBookingIdToDelete(props.row.original.id);
-              setShowDeleteModal(true);
-            }}
-            id="delete-row"
-            data-toggle="modal"
-            data-target="#deleteModal"
-            title="Delete Booking"
-            disabled={
-              roleId === 3
-                ? new Date(
-                    props.row.original.booking_date +
-                      "T" +
-                      props.row.original.booking_time
-                  ) -
-                    new Date() <
-                  1000 * 60 * 60 * 3
-                : false
-            }
-          >
-            <i className="feather white icon-trash"></i>
-          </button>
-        </div>
-      ),
+      Cell: ({ row }) => {
+        const isDisabled =
+          roleId === 3 &&
+          new Date(
+            `${row.original.booking_date}T${row.original.booking_time}`
+          ) -
+            new Date() <
+            1000 * 60 * 60 * 3;
+        return (
+          <div className="d-flex">
+            <ReTooltip title="Edit this booking." placement="top">
+              <button
+                type="button"
+                className="btn btn-icon btn-outline-primary"
+                onClick={() => getBookingData(row.original)}
+                data-toggle="modal"
+                data-target="#appointment"
+                disabled={isDisabled}
+              >
+                <i className="feather white icon-edit"></i>
+              </button>
+            </ReTooltip>
+            <ReTooltip title="Delete this booking." placement="top">
+              <button
+                className="btn btn-icon btn-outline-danger ml-1"
+                onClick={() => {
+                  setBookingIdToDelete(row.original.id);
+                  setShowDeleteModal(true);
+                }}
+                data-toggle="modal"
+                data-target="#deleteModal"
+                disabled={isDisabled}
+              >
+                <i className="feather white icon-trash"></i>
+              </button>
+            </ReTooltip>
+          </div>
+        );
+      },
     },
   ];
 
@@ -949,37 +911,6 @@ export const BookingListComponent = () => {
       return roleId !== 3;
     }
     return true;
-  });
-
-  const subscribe = useGoogleLogin({
-    onSuccess: (codeResponse) => {
-      axios
-        .post(
-          `${API_URL}/auth/google`,
-          {
-            code: codeResponse.code,
-            id: userId,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        )
-        .then((response) => {
-          console.log("Backend response:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    },
-    onError: () => {
-      console.error("Google login failed");
-    },
-    scope:
-      "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
-    flow: "auth-code",
-    include_granted_scopes: true,
   });
 
   const handleAddressChange = (address) => {
@@ -1169,9 +1100,11 @@ export const BookingListComponent = () => {
                 <li>
                   <div className="form-group">
                     <div className="">
-                      {calendarSub == null ? (
-                        <></>
-                      ) : (
+
+                      <ReTooltip
+                        title="Subscribe for calendar alerts."
+                        placement="top"
+                      >
                         <a
                           className={`btn btn-outline-primary mb-1 mx-1 ${
                             calendarSub === 1 ? "d-none" : ""
@@ -1183,16 +1116,18 @@ export const BookingListComponent = () => {
                             ? "Subscribed"
                             : "Subscribe to Calendar"}
                         </a>
-                      )}
-                      <button
-                        ref={buttonRef}
-                        type="button"
-                        className="btn btn-outline-primary mb-1"
-                        data-toggle="modal"
-                        data-target="#appointment"
-                      >
-                        New Appointment
-                      </button>
+                      </ReTooltip>
+                      <ReTooltip title="Add a new appointment." placement="top">
+                        <button
+                          ref={buttonRef}
+                          type="button"
+                          className="btn btn-outline-primary mb-1"
+                          data-toggle="modal"
+                          data-target="#appointment"
+                        >
+                          New Appointment
+                        </button>
+                      </ReTooltip>
                     </div>
                     <div
                       className="modal fade text-left"
@@ -1270,16 +1205,17 @@ export const BookingListComponent = () => {
                                     >
                                       {roleId !== 3 && (
                                         <div className="modal-body d-flex px-4">
-                                          <label
-                                            htmlFor="provider"
+                                          <p
                                             style={{ width: "10rem" }}
                                           >
                                             Providers
-                                          </label>
+                                          </p>
                                           <Select
                                             className="select2 w-100"
-                                            name="providers"
+                                            name="provider"
                                             value={selectedProvider}
+                                            instanceId="provider"
+                                            id="provider"
                                             onChange={handleProviderChange}
                                             options={providers.map(
                                               (provider) => ({
@@ -1329,12 +1265,11 @@ export const BookingListComponent = () => {
                                         </div>
                                       )}
                                       <div className="modal-body d-flex px-4">
-                                        <label
-                                          htmlFor="address"
+                                        <p
                                           style={{ width: "10rem" }}
                                         >
                                           Address
-                                        </label>
+                                        </p>
                                         <div className="d-flex w-100">
                                           <GooglePlacesAutocomplete
                                             apiKey="AIzaSyCQUMJXi-NEPTZ6kIPn8-Drxi0wQCJbuQ0"
@@ -1368,15 +1303,16 @@ export const BookingListComponent = () => {
                                         </div>
                                       </div>
                                       <div className="modal-body d-flex px-4">
-                                        <label
-                                          htmlFor="services"
+                                        <p
                                           style={{ width: "10rem" }}
                                         >
                                           Service
-                                        </label>
+                                        </p>
                                         <Select
                                           className="select2 w-100"
                                           name="services"
+                                          id="services"
+                                          instanceId={1}
                                           value={selectedService}
                                           onChange={handleSelectedChange}
                                           options={packages
@@ -1422,6 +1358,7 @@ export const BookingListComponent = () => {
                                           <select
                                             className="select2 form-control"
                                             name="toTime"
+                                            id="toTime"
                                             value={toTime}
                                             onChange={handleToTimeChange}
                                             style={{ cursor: "pointer" }}
@@ -1453,12 +1390,11 @@ export const BookingListComponent = () => {
                                       </div>
 
                                       <div className="modal-body d-flex px-4 ">
-                                        <label
-                                          htmlFor="datetimepicker4"
+                                        <p
                                           style={{ width: "12rem" }}
                                         >
                                           Date / Time
-                                        </label>
+                                        </p>
                                         <DatePicker
                                           className="form-control custom-datepicker mr-1"
                                           id="datetimepicker4"
@@ -1477,6 +1413,7 @@ export const BookingListComponent = () => {
                                         <select
                                           className="select2 form-control w-50 ml-1"
                                           name="fromTime"
+                                          id="fromTime"
                                           value={bookingData.fromTime}
                                           style={{ cursor: "pointer" }}
                                           onChange={handleChange}
@@ -1642,6 +1579,7 @@ export const BookingListComponent = () => {
                                           </label>
                                           <Switch
                                             checked={notifyCheckbox}
+                                            id="notify"
                                             onChange={handleNotifyCheckbox}
                                             inputProps={{
                                               "aria-label": "controlled",
@@ -1682,15 +1620,16 @@ export const BookingListComponent = () => {
 
                                     <div className="tab-pane fade" id="tab2">
                                       <div className="modal-body d-flex px-4">
-                                        <label
-                                          htmlFor="client"
+                                        <p
                                           style={{ width: "10rem" }}
                                         >
                                           Client
-                                        </label>
+                                        </p>
                                         <Select
                                           className="select2 w-100"
                                           name="clients"
+                                          id={"clients"}
+                                          instanceId={"clients"}
                                           value={selectedClient}
                                           onChange={handleClientChange}
                                           options={clientList
@@ -1741,12 +1680,11 @@ export const BookingListComponent = () => {
                                         />
                                       </div>
                                       <div className="modal-body d-flex px-4">
-                                        <label
-                                          htmlFor="comment"
+                                        <p
                                           style={{ width: "11rem" }}
                                         >
                                           Comment
-                                        </label>
+                                        </p>
                                         <textarea
                                           type="text"
                                           id="comment"

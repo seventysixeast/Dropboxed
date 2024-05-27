@@ -14,6 +14,7 @@ import {
   getDropboxRefreshToken,
   updateGalleryLock,
   updateCollection,
+  updateGalleryNotify,
 } from "../api/collectionApis";
 import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
@@ -23,6 +24,9 @@ import TableCustom from "./Table";
 import DeleteModal from "./DeleteModal";
 import axios from "axios";
 import Table2 from "./Table2";
+import moment from "moment";
+import ReTooltip from "./Tooltip";
+
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -181,8 +185,7 @@ const CollectionTable = () => {
     setFormData(gallery);
   };
 
-  const handleBannerChange = (event) => {
-    const file = event.target.files[0];
+  const handleBannerChange = (file) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -431,6 +434,25 @@ const CollectionTable = () => {
     setIsGalleryLocked(!isGalleryLocked);
   };
 
+  const handleGalleryNotify = async (id) => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", id);
+
+      const res = await updateGalleryNotify(formDataToSend);
+
+      if (res && res.success) {
+        toast.success(res.message);
+        await getAllCollectionsData();
+      } else {
+        toast.error(res ? res.message : "Unknown error occurred");
+      }
+    } catch (error) {
+      console.error("Error in handleGalleryNotify:", error);
+      toast.error(`An error occurred. Please try again later.`);
+    }
+  };
+
   const handleGalleryLockChange = async (data) => {
     try {
       setIsGalleryLocked(!isGalleryLocked);
@@ -449,11 +471,11 @@ const CollectionTable = () => {
     }
   };
 
-  const columns = React.useMemo(
-    () => [
-      { Header: "S.No.", accessor: "id" },
+  const columns = React.useMemo(() => {
+    const columns = [
+      { Header: "Id", accessor: "id" },
       {
-        Header: "Banner",
+        Header: "Banner Image",
         Cell: ({ row }) => (
           <img
             src={row.original.banner && `${IMAGE_URL}/${row.original.banner}`}
@@ -463,51 +485,80 @@ const CollectionTable = () => {
         ),
       },
       { Header: "Gallery Title", accessor: "name" },
-      { Header: "Photographers", accessor: "photographers_name" },
+      { Header: "Address", accessor: "client_address" },
       { Header: "Client", accessor: "client_name" },
-      { Header: "Booking Title", accessor: "client_address" },
       { Header: "Services", accessor: "packages_name" },
+      { Header: "Photographers", accessor: "photographers_name" },
       {
         Header: "Unlock/Lock",
         Cell: ({ row }) => (
-          <Switch
-            checked={row.original.lock_gallery}
-            onChange={() => handleGalleryLockChange(row.original)}
-            inputProps={{ "aria-label": "controlled" }}
-          />
+          <ReTooltip title="Click to change lock status." placement="top">
+            <Switch
+              id="lockGallery"
+              checked={row.original.lock_gallery}
+              onChange={() => handleGalleryLockChange(row.original)}
+              inputProps={{ "aria-label": "controlled" }}
+              disabled={roleId === 3}
+            />
+          </ReTooltip>
         ),
       },
       {
         Header: "Notify",
         Cell: ({ row }) =>
           row.original.notify_client ? (
-            <div className="badge badge-pill badge-light-primary">Notified</div>
+            <ReTooltip title="Click to change status." placement="top">
+              <div
+                className="badge badge-pill badge-light-primary"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  handleGalleryNotify(row.original.id);
+                }}
+              >
+                Notified
+              </div>
+            </ReTooltip>
           ) : (
-            <div
-              className="badge badge-pill"
-              style={{ backgroundColor: "rgb(255, 116, 140)" }}
-            >
-              Pending
-            </div>
+            <ReTooltip title="Click to change status." placement="top">
+              <div
+                className="badge badge-pill"
+                style={{ backgroundColor: "rgb(255, 116, 140)", cursor: "pointer" }}
+                onClick={() => {
+                  handleGalleryNotify(row.original.id, collections);
+                }}
+              >
+                Pending
+              </div>
+            </ReTooltip>
           ),
       },
       {
-        Header: "Image Count",
+        Header: "Image Counts",
+        Cell: ({ row }) => (
+          <div className="btnsrow text-center">
+            <ReTooltip title="Click to update image count." placement="top">
+              <div
+                className="badge badge-pill badge-light-primary"
+                style={{ cursor: "pointer" }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  updateImageCount(row.original);
+                }}
+              >
+                {row.original.image_count} images
+              </div>
+            </ReTooltip>
+          </div>
+        ),
+      },
+      {
+        Header: "Created On",
         Cell: ({ row }) => (
           <div className="btnsrow text-center">
             <div className="badge badge-pill badge-light-primary">
-              {row.original.image_count} images
+              {moment(row.original.created).format("DD/MM/YYYY")}
             </div>
-            <button
-              className="btn btn-sm btn-icon btn-outline-secondary mt-1 mb-1"
-              title="Edit"
-              onClick={(e) => {
-                e.preventDefault();
-                updateImageCount(row.original);
-              }}
-            >
-              <i className="feather icon-refresh-ccw"></i>
-            </button>
+            <div>{moment(row.original.created).format("HH:mm A")}</div>
           </div>
         ),
       },
@@ -515,43 +566,49 @@ const CollectionTable = () => {
         Header: "Action",
         Cell: ({ row }) => (
           <div className="btnsrow">
-            <button
-              className="btn btn-icon btn-outline-secondary mr-1 mb-1"
-              title="Edit"
-              onClick={() => getCollectionData(row.original.slug)}
-              data-toggle="modal"
-              data-target="#bootstrap"
-            >
-              <i className="feather white icon-edit"></i>
-            </button>
-            <button
-              className="btn btn-icon btn-outline-danger mr-1 mb-1"
-              title="Delete"
-              onClick={() => {
-                setShowDeleteModal(true);
-                setCollectionIdToDelete(row.original.id);
-              }}
-            >
-              <i className="feather white icon-trash"></i>
-            </button>
-            <button
-              className="btn btn-icon btn-outline-warning mr-1 mb-1"
-              title="Copy Url"
-              onClick={() => {
-                navigator.clipboard.writeText(
-                  `${url2}view-gallery/${row.original.slug}`
-                );
-                toast.success("Link Copied!");
-              }}
-            >
-              <i className="feather white icon-copy"></i>
-            </button>
+            <ReTooltip title="Click to edit the collection." placement="top">
+              <button
+                className={`btn btn-icon btn-outline-secondary mr-1 mb-1 ${roleId === 3 ? 'd-none': ''}`}
+                onClick={() => getCollectionData(row.original.slug)}
+                data-toggle="modal"
+                data-target="#bootstrap"
+              >
+                <i className="feather white icon-edit"></i>
+              </button>
+            </ReTooltip>
+            <ReTooltip title="Click to delete the collection." placement="top">
+              <button
+                className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                onClick={() => {
+                  setShowDeleteModal(true);
+                  setCollectionIdToDelete(row.original.id);
+                }}
+              >
+                <i className="feather white icon-trash"></i>
+              </button>
+            </ReTooltip>
+            <ReTooltip title="Click to copy link to the collection." placement="top">
+              <button
+                className={`btn btn-icon btn-outline-warning mr-1 mb-1 ${roleId === 3 ? 'd-none': ''}`}
+                onClick={() => {
+                  navigator.clipboard.writeText(`${url2}view-gallery/${row.original.slug}`);
+                  toast.success("Link Copied!");
+                }}
+              >
+                <i className="feather white icon-copy"></i>
+              </button>
+            </ReTooltip>
           </div>
         ),
       },
-    ],
-    []
-  );
+    ];
+  
+    if (roleId === 3) {
+      return columns.filter(column => column.Header !== "Notify" && column.Header !== "Client");
+    }
+  
+    return columns;
+  }, [roleId]);
 
   const data = React.useMemo(() => collections, [collections]);
 

@@ -117,12 +117,15 @@ const getClientPhotographers = async (req, res) => {
       },
       attributes: ["client_id"],
     });
-    const clientIds = clients.map((client) => client.client_id);
+
+    let clientIds = clients.map((client) => client.client_id);
+    console.log("clientIds=====>", clientIds);
+
     const clientdata = await User.findAll({
       where: {
         id: clientIds,
       },
-      attributes: ["id", "name", "role_id"],
+      attributes: ["id", "name", "role_id", "profile_photo"],
       order: [["created", "DESC"]],
     });
     res.status(200).json({ success: true, data: clientdata });

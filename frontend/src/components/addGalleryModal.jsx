@@ -2,6 +2,7 @@ import React from "react";
 import Select from "react-select";
 import toolIcons from "../assets/images/i.png";
 import { Switch, Checkbox } from "@mui/material";
+import { useDropzone } from "react-dropzone";
 
 const AddGalleryModal = ({
   message,
@@ -23,6 +24,19 @@ const AddGalleryModal = ({
   handleSubmit,
   onClose,
 }) => {
+  const onDrop = (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    handleBannerChange(file);
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      'image/*': [],
+    },
+    onDrop,
+    multiple: false,
+  });
+
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -57,7 +71,7 @@ const AddGalleryModal = ({
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Client *</label>
+                    <p>Client *</p>
                     <select
                       className="select2 form-control"
                       name="client"
@@ -75,7 +89,7 @@ const AddGalleryModal = ({
                     </select>
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label htmlFor="booking_title">Booking Title *</label>
+                    <p >Booking Title *</p>
                     <select
                       id="booking_title"
                       className="select2 form-control"
@@ -110,7 +124,7 @@ const AddGalleryModal = ({
                     )}
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label style={{ width: "10rem" }}>Services</label>
+                    <p style={{ width: "10rem" }}>Services</p>
                     <Select
                       className="select2 w-100"
                       name="services"
@@ -150,7 +164,7 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label style={{ width: "10rem" }}>Photographers</label>
+                    <p style={{ width: "10rem" }}>Photographers</p>
                     <Select
                       className="select2 w-100"
                       name="photographers"
@@ -190,7 +204,7 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Gallery Title</label>
+                    <p>Gallery Title</p>
                     <input
                       type="text"
                       className="form-control"
@@ -201,7 +215,7 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Dropbox Link *</label>
+                    <p>Dropbox Link *</p>
                     <input
                       className="form-control"
                       placeholder="Enter Dropbox Link"
@@ -212,7 +226,7 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <label>Vimeo Video Link</label>
+                    <p>Vimeo Video Link</p>
                     <input
                       className="form-control"
                       placeholder="Enter Vimeo Video Link"
@@ -223,39 +237,33 @@ const AddGalleryModal = ({
                   </fieldset>
                   <div className="row">
                     <div className="col-md-6">
-                      <div className="form-group">
-                        <label>Banner</label>
+                      <div className="form-group w-100">
+                        <p>Banner</p>
                         <div
+                          {...getRootProps()}
                           className={`dropzone p-2 ${
                             previewImage ? "has-image" : ""
                           }`}
-                          style={{border:"1px solid gray"}}
-                          onClick={() =>
-                            document.getElementById("bannerInput").click()
-                          }
+                          style={{ border: "1px solid gray" }}
                         >
                           <input
-                            type="file"
-                            id="bannerInput"
-                            className="form-control-file"
-                            name="banner"
-                            onChange={handleBannerChange}
-                            accept="image/*"
-                            required={!formData.banner}
+                            {...getInputProps()}
                             style={{ display: "none" }}
                           />
                           {previewImage ? (
                             <img
                               src={previewImage}
                               className="height-100 width-auto"
-
                               alt="banner"
                             />
                           ) : (
                             <p className="text-center">
                               Drag & drop an image here, or click to select one
-                              <br/>
-                              <i className="feather icon-download" style={{fontSize: '40px'}}></i>
+                              <br />
+                              <i
+                                className="feather icon-download"
+                                style={{ fontSize: "40px" }}
+                              ></i>
                             </p>
                           )}
                         </div>

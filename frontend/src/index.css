@@ -1624,12 +1624,13 @@ a:not([href]) {
 }
 
 .description-edit {
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.0));
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
   color: white;
   padding: 4px;
   bottom: 100% !important;
   height: 24px !important;
-  transition: background 0.3s ease, color 0.3s ease, padding 0.3s ease, height 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease, padding 0.3s ease,
+    height 0.3s ease;
 }
 
 .description-edit:hover {
@@ -1638,5 +1639,66 @@ a:not([href]) {
   padding: 4px;
   bottom: 100% !important;
   height: 24px !important;
+}
+
+.bg-gradient-x-primary {
+  background-image: linear-gradient(to right, #00b5b8 0%, #00e7eb 100%);
+  background-repeat: repeat-x;
+}
+
+.bg-gradient-x-danger {
+  background-image: linear-gradient(to right, #ff748c 0%, #ffa8b4 100%);
+  background-repeat: repeat-x;
+}
+
+.centered-div {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.grid-hover figure img {
+  opacity: 1;
+}
+
+/* App.css */
+.custom-tooltip {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.custom-tooltip button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.custom-tooltip button:hover {
+  background-color: #0056b3;
+}
+
+.todo-application
+  .content-right
+  .todo-app-list-wrapper
+  .todo-app-list
+  .todo-task-list
+  .todo-task-list-wrapper
+  .todo-item
+  .todo-title-area {
+  width: 60%;
+}
+.task-info {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 

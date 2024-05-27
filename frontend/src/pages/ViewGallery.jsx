@@ -33,12 +33,10 @@ export const ViewGallery = () => {
     size: "original",
     device: "device",
   });
-
   const [downloadGalleryPopup, setDownloadGalleryPopup] = useState(false);
   const [imageUrls, setImageUrls] = useState([]);
 
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const page = useRef(1);
   const fetchSize = 12;
   const fileList = useRef([]);
@@ -80,13 +78,11 @@ export const ViewGallery = () => {
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState();
   const [tasks, setTasks] = useState([]);
-  const [filteredTasks, setFilteredTasks] = useState(tasks);
   const toggleNewTaskModal = () => {
     setIsNewTaskModalOpen(!isNewTaskModalOpen);
   };
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [folderPath, setFolderPath] = useState("");
-  const [entriesList, setEntriesList] = useState();
   const currentUrl = window.location.href;
 
   const url2 = new URL(currentUrl);
@@ -126,10 +122,10 @@ export const ViewGallery = () => {
     const formData = new FormData();
     formData.append("subdomain_id", authData.user.subdomain_id);
     formData.append("role_id", authData.user.role_id);
+    formData.append('user_id', authData.user.role_id)
     const response = await getAlltasks(formData);
     if (response.success) {
       setTasks(response.tasks);
-      setFilteredTasks(response.tasks);
       setTags(response.tags);
     } else {
       console.error(response.data);
@@ -184,7 +180,7 @@ export const ViewGallery = () => {
     try {
       const response = await createTask(formData);
       if (response.success) {
-        if (taskData.id == "") {
+        if (taskData.id === "") {
           toast.success("Task created successfully!");
         } else {
           toast.success("Task updated successfully!");
@@ -279,14 +275,14 @@ export const ViewGallery = () => {
           },
         }
       );
-      if (sharedData.data.path_lower == undefined) {
+      if (sharedData.data.path_lower === undefined) {
         setFolderPath("");
       } else {
         setFolderPath(sharedData.data.path_lower);
       }
       let thePath = "";
 
-      if (sharedData.data.path_lower == undefined) {
+      if (sharedData.data.path_lower === undefined) {
         thePath = "";
       } else {
         thePath = sharedData.data.path_lower;
@@ -304,7 +300,6 @@ export const ViewGallery = () => {
 
       const entries = listResponse.data.entries;
 
-      setEntriesList(entries);
       const fileEntries = entries.filter((entry) => entry[".tag"] === "file");
       fileList.current = fileEntries;
       fetchImages(data, tokens);
@@ -321,7 +316,6 @@ export const ViewGallery = () => {
       const endIndex = Math.min(startIndex + fetchSize, totalFiles);
 
       if (startIndex >= totalFiles) {
-        setHasMore(false);
         return;
       }
 
@@ -335,7 +329,6 @@ export const ViewGallery = () => {
       if (endIndex < totalFiles) {
         fetchImages(data, tokens);
       } else {
-        setHasMore(false);
         setLoader(false);
       }
 
@@ -402,8 +395,9 @@ export const ViewGallery = () => {
   const handleDownload = async () => {
     setDownloadGalleryModal(false);
     setDownloadGalleryPopup(true);
+    setLoading(true);
     const tokens = await getRefreshToken(collectionRefresh);
-    if (downloadOptions.device == "device") {
+    if (downloadOptions.device === "device") {
       try {
         if (downloadOptions.size === "original") {
           const {
@@ -460,6 +454,7 @@ export const ViewGallery = () => {
             }
           );
           const imageData = response.data.entries[0].thumbnail;
+
           const link = document.createElement("a");
           link.href = `data:image/jpeg;base64,${imageData}`;
           link.download = "downloaded_image.jpg";
@@ -470,7 +465,7 @@ export const ViewGallery = () => {
       } catch (error) {
         console.error("Error downloading image from Dropbox:", error);
       }
-    } else if (downloadOptions.device == "dropbox") {
+    } else if (downloadOptions.device === "dropbox") {
       const tokens = await getRefreshToken(collectionRefresh);
       setDropboxAccess(tokens.access_token);
       const sharedLinkResponse = await fetch(
@@ -518,7 +513,7 @@ export const ViewGallery = () => {
       }
     }
     setDownloadOptions({ device: "device", size: "original" });
-    setDownloadGalleryModal(false);
+    setDownloadImageModal(false);
     setLoading(false);
     setDownloadGalleryPopup(false);
   };
@@ -603,11 +598,10 @@ export const ViewGallery = () => {
                   Authorization: `Bearer ${tokens.access_token}`,
                   "Content-Type": "application/json",
                 },
-                responseType: "json", // Change from arraybuffer to json
+                responseType: "json",
               }
             );
 
-            // Extracting the base64 thumbnail data from the response
             const thumbnailData = response.data.entries[0].thumbnail;
             const binaryString = atob(thumbnailData);
             const binaryLen = binaryString.length;
@@ -986,7 +980,7 @@ export const ViewGallery = () => {
                           setDownloadGalleryModal(true);
                         } else if (
                           (authData.user.role_id =
-                            3 && collection.lock_gallery == true)
+                            3 && collection.lock_gallery === true)
                         ) {
                           toast.error(
                             "Gallery is locked! Please contact admin."
@@ -1096,6 +1090,11 @@ export const ViewGallery = () => {
                                                 title="Download"
                                                 onClick={(event) => {
                                                   event.stopPropagation();
+                                                  console.log(
+                                                    collection.lock_gallery
+
+                                                  );
+
                                                   setSelectedImageUrl(
                                                     image.path_display
                                                   );
@@ -1104,14 +1103,13 @@ export const ViewGallery = () => {
                                                   ) {
                                                     setDownloadImageModal(true);
                                                   } else if (
-                                                    (authData.user.role_id =
-                                                      3 &&
-                                                      collection.lock_gallery ==
-                                                        true)
+                                                    collection.lock_gallery
                                                   ) {
                                                     toast.error(
                                                       "Gallery is locked! Please contact admin."
                                                     );
+                                                  } else {
+                                                    setDownloadImageModal(true);
                                                   }
                                                 }}
                                               ></span>
@@ -1129,6 +1127,24 @@ export const ViewGallery = () => {
                       </Masonry>
                     </div>
                   </CustomGallery>
+                  {loader && (
+                    <div
+                      className="d-flex justify-content-center align-items-center"
+                      style={{ height: "10rem" }}
+                    >
+                      <div
+                        className="text-center"
+                        style={{
+                          border: "8px solid #f3f3f3",
+                          borderTop: "8px solid #3498db",
+                          borderRadius: "50%",
+                          width: "50px",
+                          height: "50px",
+                          animation: "spin 2s linear infinite",
+                        }}
+                      ></div>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>

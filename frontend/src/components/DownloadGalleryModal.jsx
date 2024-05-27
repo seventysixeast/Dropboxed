@@ -109,7 +109,7 @@ const DownloadGalleryModal = ({
                     htmlFor="original"
                     className="form-check-label mb-0 text-center"
                   >
-                    Web Size
+                    Web Size [2048px * 1536px]
                   </label>
                 </div>
               </div>

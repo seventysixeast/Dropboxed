@@ -1,38 +1,20 @@
 const TaskTodo = require("../models/Todo");
 const TaskTag = require("../models/TodoTags");
 const TaskComment = require("../models/TodoComments");
-const Users = require("../models/Users"); // Import the Users model
+const Users = require("../models/Users");
+const { Op } = require("sequelize");
 
 const getAllTasks = async (req, res) => {
-  const subdomainId = req.body.subdomain_id;
-  const roleId = req.body.role_id;
-
-  console.log(subdomainId, roleId);
+  const subdomainId = parseInt(req.body.subdomain_id);
+  const roleId = parseInt(req.body.role_id);
+  const userId = parseInt(req.body.user_id);
 
   try {
     let tasks;
-    if (roleId !== 5) {
+    if (roleId === 5) {
       tasks = await TaskTodo.findAll({
         where: {
           subdomain_id: subdomainId,
-        },
-        include: [
-          {
-            model: TaskComment,
-          },
-          {
-            model: Users,
-            as: "author", // Alias for the Users model
-            attributes: ["id", "name", "profile_photo"],
-          },
-        ],
-        order: [["task_order", "DESC"]],
-      });
-    } else {
-      tasks = await TaskTodo.findAll({
-        where: {
-          subdomain_id: subdomainId,
-          role_id: roleId,
         },
         include: [
           {
@@ -41,12 +23,55 @@ const getAllTasks = async (req, res) => {
           {
             model: Users,
             as: "author",
-            attributes: ["id", "user_name", "profile_photo"],
+            attributes: ["id", "name", "profile_photo"],
+          },
+        ],
+        order: [["task_order", "DESC"]],
+      });
+    } else if (roleId === 2) {
+      tasks = await TaskTodo.findAll({
+        where: {
+          subdomain_id: subdomainId,
+          [Op.or]: [
+            { assign_user: userId },
+            { user_id: userId }
+          ]
+        },
+        include: [
+          {
+            model: TaskComment,
+          },
+          {
+            model: Users,
+            as: "author",
+            attributes: ["id", "name", "profile_photo"],
+          },
+        ],
+        order: [["task_order", "DESC"]],
+      });
+    } else if (roleId === 3) {
+      tasks = await TaskTodo.findAll({
+        where: {
+          subdomain_id: subdomainId,
+          [Op.or]: [
+            { assign_user: userId },
+            { user_id: userId }
+          ]
+        },
+        include: [
+          {
+            model: TaskComment,
+          },
+          {
+            model: Users,
+            as: "author",
+            attributes: ["id", "name", "profile_photo"],
           },
         ],
         order: [["task_order", "DESC"]],
       });
     }
+
     const tags = await TaskTag.findAll({
       where: {
         subdomain_id: subdomainId,
@@ -64,7 +89,6 @@ const getAllTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
   let newTask, newComment;
-
   try {
     const {
       id,
@@ -81,6 +105,8 @@ const createTask = async (req, res) => {
       is_favourite,
     } = req.body;
 
+    console.log(req.body);
+
     if (id === "") {
       newTask = await TaskTodo.create({
         user_id,
@@ -95,6 +121,12 @@ const createTask = async (req, res) => {
         status,
         is_favourite,
       });
+
+      const taskOrder = newTask.id;
+      await TaskTodo.update(
+        { task_order: taskOrder },
+        { where: { id: newTask.id } }
+      );
     } else {
       await TaskTodo.update(
         {
@@ -121,6 +153,8 @@ const createTask = async (req, res) => {
         subdomain_id,
       });
     }
+
+
 
     res.status(201).json({ success: true, task: newTask, comment: newComment });
   } catch (error) {
@@ -190,6 +224,34 @@ const deleteTask = async (req, res) => {
   }
 };
 
+const createTag = async (req, res) => {
+  try {
+    const { tasktag_title, subdomain_id } = req.body;
+    console.log(req.body);
+    const newTag = await TaskTag.create({ tasktag_title, subdomain_id });
+    res.status(201).json({ success: true, tag: newTag });
+  } catch (error) {
+    console.error("Error creating tag:", error);
+    res.status(500).json({ error: "Failed to create tag" });
+  }
+}
+
+const deleteTag = async (req, res) => {
+  const { id } = req.body;
+  try {
+    await TaskTag.destroy({
+      where: {
+        id: id,
+      },
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error deleting tag:", error);
+    res.status(500).json({ error: "Failed to delete tag" });
+  }
+}
+
 module.exports = {
   getAllTasks,
   createTask,
@@ -197,4 +259,6 @@ module.exports = {
   setTaskStatus,
   setTaskFavorite,
   deleteTask,
+  createTag,
+  deleteTag
 };
