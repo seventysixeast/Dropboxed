@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import { useNavigate } from "react-router-dom";
 import { verifyToken } from "../api/authApis";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const CardsPackages = () => {
   const { authData } = useAuth();
@@ -81,6 +82,18 @@ const CardsPackages = () => {
     setServiceId(null);
   };
 
+  const onDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items = Array.from(servicesData);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setServicesData(items);
+  };
+
   return (
     <>
       <div className="app-content content">
@@ -113,160 +126,98 @@ const CardsPackages = () => {
                         Add Service
                       </a>
                     )}
-
-                    <div
-                      className="modal fade text-left"
-                      id="bootstrap"
-                      tabIndex="-1"
-                      role="dialog"
-                      aria-labelledby="myModalLabel35"
-                      aria-hidden="true"
-                      style={{ display: "none" }}
-                    >
-                      <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                          <div className="modal-header">
-                            <h3 className="card-title">Add Package</h3>
-                            <button
-                              type="button"
-                              className="close"
-                              data-dismiss="modal"
-                              aria-label="Close"
-                            >
-                              <span aria-hidden="true">×</span>
-                            </button>
-                          </div>
-                          <form>
-                            <div className="modal-body">
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Package Type *</label>
-                                <select
-                                  className="select2 form-control"
-                                  required
-                                >
-                                  <option value="user1">PACKAGE</option>
-                                  <option value="user2">SERVICE</option>
-                                </select>
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Package Name *</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Enter Package Name"
-                                  required=""
-                                  data-validation-required-message="This field is required"
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Package Price *</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Enter Package Price"
-                                  required=""
-                                  data-validation-required-message="This field is required"
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Image Type Details *</label>
-                                <select
-                                  className="select2 form-control"
-                                  required
-                                >
-                                  <option value="user1">Images</option>
-                                  <option value="user2">Floor Plan</option>
-                                </select>
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Status *</label>
-                                <select
-                                  className="select2 form-control"
-                                  required
-                                >
-                                  <option value="user1">Active</option>
-                                  <option value="user2">Inactive</option>
-                                </select>
-                              </fieldset>
-                            </div>
-                            <div className="modal-footer">
-                              <input
-                                type="submit"
-                                className="btn btn-primary btn"
-                                value="Add"
-                              />
-                              <input
-                                type="reset"
-                                className="btn btn-secondary btn"
-                                data-dismiss="modal"
-                                value="Close"
-                              />
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="row">
-            {servicesData.length > 0 ? (
-              servicesData.map((service) => (
-                <div className="col-xl-3 col-md-6 col-sm-12" key={service.id}>
-                  <div className="card d-flex flex-column">
-                    <div className="card-content flex-grow-1">
-                      <div className="card-body text-center package-card">
-                        <h1
-                          className="card-title"
-                          style={{ fontSize: "1.5rem" }}
-                        >
-                          {service.package_name}
-                        </h1>
-                        <h1
-                          className="card-title"
-                          style={{ fontSize: "1.5rem" }}
-                        >
-                          ${service.package_price.toFixed(2)}
-                        </h1>
-                        <ul className="list-unstyled">
-                          {service.image_type_details.map((imageType) => (
-                            <li key={imageType.image_type}>
-                              {imageType.image_type_count}{" "}
-                              {imageType.image_type_label}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="services">
+              {(provided) => (
+                <div
+                  className="row"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                >
+                  {servicesData.length > 0 ? (
+                    servicesData.map((service, index) => (
+                      <Draggable
+                        key={service.id}
+                        draggableId={service.id.toString()}
+                        index={index}
+                        isDragDisabled={roleId === 3}
+                      >
+                        {(provided) => (
+                          <div
+                            className="col-xl-3 col-md-6 col-sm-12"
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <div className="card d-flex flex-column">
+                              <div className="card-content flex-grow-1">
+                                <div className="card-body text-center package-card">
+                                  <h1
+                                    className="card-title"
+                                    style={{ fontSize: "1.5rem" }}
+                                  >
+                                    {service.package_name}
+                                  </h1>
+                                  <h1
+                                    className="card-title"
+                                    style={{ fontSize: "1.5rem" }}
+                                  >
+                                    ${service.package_price.toFixed(2)}
+                                  </h1>
+                                  <ul className="list-unstyled">
+                                    {service.image_type_details.map(
+                                      (imageType) => (
+                                        <li key={imageType.image_type}>
+                                          {imageType.image_type_count}{" "}
+                                          {imageType.image_type_label}
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              </div>
+                              {roleId !== 3 && (
+                                <div className="card-footer d-flex justify-content-between">
+                                  <>
+                                    <button
+                                      className="btn btn-primary"
+                                      onClick={() =>
+                                        handleEditService(service)
+                                      }
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      className="btn btn-primary"
+                                      onClick={() =>
+                                        handleDeleteService(service)
+                                      }
+                                    >
+                                      Delete
+                                    </button>
+                                  </>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))
+                  ) : (
+                    <div className="col-12 text-center">
+                      <p>No services found.</p>
                     </div>
-                    {roleId !== 3 && (
-                      <div className="card-footer d-flex justify-content-between">
-                        <>
-                          <button
-                            className="btn btn-primary"
-                            onClick={() => handleEditService(service)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-primary"
-                            onClick={() => handleDeleteService(service)}
-                          >
-                            Delete
-                          </button>
-                        </>
-                      </div>
-                    )}
-                  </div>
+                  )}
+                  {provided.placeholder}
                 </div>
-              ))
-            ) : (
-              <div className="col-12 text-center">
-                <p>No services found.</p>
-              </div>
-            )}
-          </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         </div>
       </div>
       <DeleteModal
