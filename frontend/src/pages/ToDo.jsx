@@ -90,13 +90,18 @@ const ToDo = () => {
       formData.append("subdomain_id", subdomainId);
     }
     const response = await getClientPhotographers(formData);
+    console.log(response);
     if (response.success) {
       if (roleId !== 3) {
-        setClients(response.data);
+        const activeClients = response.data.filter((client) => client.status === "Active");
+        console.log(activeClients);
+        setClients(activeClients);
       } else {
-        const filteredClients = response.data.filter(
+        const activeClients = response.data.filter((client) => client.status === "Active");
+        const filteredClients = activeClients.filter(
           (client) => client.role_id === 2 || client.role_id === 5
         );
+
         setClients(filteredClients);
       }
     } else {

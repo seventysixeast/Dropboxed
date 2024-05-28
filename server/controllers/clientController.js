@@ -91,7 +91,7 @@ const getClientPhotographers = async (req, res) => {
       where: {
         id: clientIds,
       },
-      attributes: ["id", "name", "role_id", "profile_photo"],
+      attributes: ["id", "name", "role_id", "profile_photo", "status"],
       order: [["created", "DESC"]],
     });
     res.status(200).json({ success: true, data: clientdata });
@@ -146,9 +146,7 @@ const createClient = async (req, res) => {
           return res.status(400).json({ error: "Phone number already exists" });
         }
       }
-      // Create the client
       client = await User.create(clientData);
-      // Link the client to the subdomain
       await BusinessClients.create({
         business_id: req.body.subdomainId,
         client_id: client.id,
