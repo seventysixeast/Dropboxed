@@ -2,9 +2,11 @@ import React, { useEffect } from "react";
 import { useAuth } from "../context/authContext";
 import logoLight from "../assets/images/studiio-logo.png";
 import { getClient } from "../api/clientApis";
+import { useNavigate } from "react-router-dom";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const Header = () => {
+  const navigate = useNavigate();
   const { authData } = useAuth();
   const { logout } = useAuth();
   const { user } = authData;
@@ -73,13 +75,27 @@ const Header = () => {
               </a>
             </li>
             <li className="nav-item mr-auto">
+              {/* <a
+                className="navbar-brand"
+                href="/dashboard"
+              >
               <a className="navbar-brand" href="/dashboard">
                 <img
                   className="brand-logo dropLogo"
                   alt="stack admin logo"
                   src={logoLight}
                 />
-              </a>
+              </a> */}
+              <span
+                className="navbar-brand"
+                onClick={() => navigate("/dashboard")}
+              >
+                <img
+                  className="brand-logo dropLogo"
+                  alt="stack admin logo"
+                  src={logoLight}
+                />
+              </span>
             </li>
 
             <li className="nav-item d-none d-lg-block nav-toggle">

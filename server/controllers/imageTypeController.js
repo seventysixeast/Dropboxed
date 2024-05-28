@@ -39,6 +39,16 @@ const createImageType = async (req, res) => {
         data: imageType
       });
     } else {
+      const existingImageType = await ImageType.findOne({
+        where: {
+          subdomain_id,
+          type
+        }
+      });
+
+      if (existingImageType) {
+        return res.status(400).json({ success: false, message: "Image type already exists" });
+      }
       imageType = await ImageType.create(imageTypeData);
       return res.status(201).json({
         success: true,

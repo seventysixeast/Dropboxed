@@ -28,7 +28,7 @@ const createImageType = async (imageTypeData) => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data;
   }
 };
 
@@ -44,7 +44,7 @@ const getImageType = async (data) => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data.error;
   }
 };
 
@@ -60,7 +60,7 @@ const deleteImageType = async (data) => {
     }
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    return error.response.data.error;
   }
 };
 

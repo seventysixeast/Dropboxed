@@ -3,9 +3,11 @@ const BusinessClients = require("../models/BusinessClients");
 const Collections = require("../models/Collections");
 const redis = require("ioredis");
 const redisClient = new redis();
+const bcrypt = require('bcrypt');
+const { WELCOME_EMAIL } = require('../helpers/emailTemplate');
+const { sendEmail } = require("../helpers/sendEmail");
 
 const updateRedisCache = async (subdomain_id) => {
-  console.log("subdomain_id", subdomain_id);
   try {
     const clients = await BusinessClients.findAll({
       where: {
@@ -102,6 +104,9 @@ const getClientPhotographers = async (req, res) => {
 
 const createClient = async (req, res) => {
   try {
+    // Generate random password
+    let password = Math.random().toString(36).slice(-8);
+    let hashedPassword = await bcrypt.hash(password, 10);
     let imageName = req.files && req.files.profile_photo.name;
     let clientData = {
       name: req.body.name,
@@ -110,6 +115,8 @@ const createClient = async (req, res) => {
       business_name: req.body.business_name,
       role_id: req.body.role_id,
       profile_photo: imageName || req.body.profile_photo,
+      password: hashedPassword,
+      is_verified: 1
     };
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
@@ -150,8 +157,18 @@ const createClient = async (req, res) => {
       await BusinessClients.create({
         business_id: req.body.subdomainId,
         client_id: client.id,
-        status: 1,
+        status: 1
       });
+
+      const user = await User.findOne({
+        where: { id: req.body.subdomainId },
+        attributes: ['subdomain', 'email']
+      });
+
+      // Send email notification
+      var SEND_EMAIL = WELCOME_EMAIL(user.subdomain, user.email, client.name, client.email, password);
+      sendEmail(req.body.email, "Welcome to Our Studiio.au", SEND_EMAIL);
+
     }
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
@@ -159,7 +176,7 @@ const createClient = async (req, res) => {
       success: true,
       message: req.body.id
         ? "Client updated successfully"
-        : "Client created successfully",
+        : "Client added successfully. Password sent to his email.",
       data: client,
     });
   } catch (error) {
