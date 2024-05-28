@@ -90,14 +90,11 @@ const Header = () => {
               </a>
             </li>
             <li className="nav-item mr-auto">
-<<<<<<< HEAD
               {/* <a
                 className="navbar-brand"
                 href="/dashboard"
               >
-=======
               <a className="navbar-brand" href="/dashboard">
->>>>>>> stage
                 <img
                   className="brand-logo dropLogo"
                   alt="stack admin logo"
