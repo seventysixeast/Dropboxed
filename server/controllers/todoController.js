@@ -172,7 +172,25 @@ const addComment = async (req, res) => {
       comments,
       subdomain_id,
     });
-    res.status(201).json({ success: true, comment: newComment });
+
+    let task = await TaskTodo.findOne({
+      where: {
+        id: task_id,
+      },
+      include: [
+        {
+          model: TaskComment,
+        },
+        {
+          model: Users,
+          as: "author",
+          attributes: ["id", "name", "profile_photo"],
+        },
+      ],
+      order: [["task_order", "DESC"]],
+    });
+
+    res.status(201).json({ success: true, comment: newComment, task: task });
   } catch (error) {
     console.error("Error adding comment:", error);
     res.status(500).json({ error: "Failed to add comment" });

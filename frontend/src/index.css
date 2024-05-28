@@ -1702,3 +1702,14 @@ a:not([href]) {
   text-overflow: ellipsis;
 }
 
+.todo-badge-wrapper > .badge .badge-primary .badge-pill {
+  font-size: 8rem;
+}
+
+.css-10wo9uf-option{
+  font-size: 0.8rem !important;
+}
+.css-d7l1ni-option{
+  font-size: 0.8rem !important;
+}
+

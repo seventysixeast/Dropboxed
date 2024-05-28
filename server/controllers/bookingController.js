@@ -382,6 +382,7 @@ const providers = async (req, res) => {
       where: {
         id: { [Op.in]: businessClients.map((client) => client.client_id) },
         role_id: 2,
+        status: 'Active',
       },
     });
 
@@ -392,7 +393,6 @@ const providers = async (req, res) => {
       },
     });
 
-    // add this user in users with roleId 2
     usersWithRoleId2.push(subdomain);
 
     const users = await User.findAll({
@@ -400,6 +400,7 @@ const providers = async (req, res) => {
       where: {
         id: { [Op.in]: businessClients.map((client) => client.client_id) },
         role_id: 3,
+        status: 'Active',
       },
     });
 
@@ -407,6 +408,7 @@ const providers = async (req, res) => {
       attributes: ["id", "package_name", "package_price", "package_type"],
       where: {
         subdomain_id: subdomainId,
+        status: 'Active',
       },
     });
 
