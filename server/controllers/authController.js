@@ -9,7 +9,7 @@ const axios = require("axios");
 const BusinessClients = require("../models/BusinessClients");
 const clientController = require("../controllers/clientController");
 const sequelize = require('../config/sequelize');
-const { SEND_VERIFICATION_EMAIL, SEND_OTP } = require("../helpers/emailTemplate");
+const { SEND_VERIFICATION_EMAIL, SEND_OTP, WELCOME_LOGIN } = require("../helpers/emailTemplate");
 const { sendEmail, generateVerificationToken } = require("../helpers/sendEmail");
 
 const oAuth2Client = new OAuth2(
@@ -87,7 +87,6 @@ exports.login = async (req, res) => {
       const businessClient = await BusinessClients.findOne({
         where: { client_id: user.id },
       });
-      console.log("businessClient>>", businessClient);
       if (!businessClient) {
         return res
           .status(200)
@@ -95,7 +94,6 @@ exports.login = async (req, res) => {
       }
 
       const businessOwner = await User.findByPk(businessClient.business_id);
-      console.log("businessOwner", businessOwner, "----", subdomain);
       if (!businessOwner || businessOwner.subdomain !== subdomain) {
         return res
           .status(200)
@@ -106,19 +104,20 @@ exports.login = async (req, res) => {
     }
 
     const accessToken = generateAccessToken(user.id);
-
     const isFirstLogin = user.is_first_login;
-    /*if (isFirstLogin) {
+    if (isFirstLogin) {
+      // Send Welcome email
+      var SEND_EMAIL = WELCOME_LOGIN(user.name, user.email);
+      sendEmail(user.email, "Welcome to Our Studiio.au", SEND_EMAIL);
       // Update the is_first_login flag
       user.is_first_login = false;
       await user.save();
-    }*/
+    }
     // if user.role_id = 2 then find the subdomain with subdomain_id and the get the dropbox_refresh
     if (user.role_id === 2) {
       const businessOwner = await User.findByPk(subdomain_id);
       let dropboxRefresh = businessOwner.dropbox_refresh
       let dropboxAccess = businessOwner.dropbox_access
-      //console.log('businessOwner======>>', dropboxRefresh, dropboxAccess);
 
       return res.status(200).json({
         success: true,
@@ -231,7 +230,6 @@ async function createCalendar(data) {
   try {
     const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
     const calendarlist = await calendar.calendarList.list();
-    console.log(calendarlist.data.items);
     const calendars = calendarlist.data.items;
 
     // [
@@ -303,7 +301,6 @@ async function createCalendar(data) {
     // in calendars find items which has primary true
 
     const primaryCalendar = calendars.find((item) => item.primary);
-    console.log("primaryCalendar", primaryCalendar.id);
     return primaryCalendar.id;
 
   } catch (error) {
@@ -492,11 +489,14 @@ exports.verifyToken = async (req, res) => {
       }
     }
     const isFirstLogin = user.is_first_login;
-    /*if (isFirstLogin) {
+    if (isFirstLogin) {
+      // Send Welcome email
+      var SEND_EMAIL = WELCOME_LOGIN(user.name, user.email);
+      sendEmail(user.email, "Welcome to Our Studiio.au", SEND_EMAIL);
       // Update the is_first_login flag
       user.is_first_login = false;
       await user.save();
-    }*/
+    }
     res.status(200).json({
       accessToken: token,
       user: {

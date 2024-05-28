@@ -73,13 +73,6 @@ const ImageTypes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const existingImageType = imagesTypes.find(
-        (type) => type.type === formData.type
-      );
-      if (existingImageType) {
-        toast.error("Image type already exists!");
-        return;
-      }
       const formDataToSend = new FormData();
       formDataToSend.append("id", formData.id);
       formDataToSend.append("type", formData.type);
@@ -89,10 +82,14 @@ const ImageTypes = () => {
       formDataToSend.append("subdomain_id", subdomainId);
 
       let res = await createImageType(formDataToSend);
-      toast.success(res.message);
-      resetFormData();
-      document.getElementById("closeModal").click();
-      getAllImageTypesData();
+      if(res && res.success){
+        toast.success(res.message);
+        resetFormData();
+        document.getElementById("closeModal").click();
+        getAllImageTypesData();
+      }else{
+        toast.error(res.message);
+      }
     } catch (error) {
       toast.error(error);
     }

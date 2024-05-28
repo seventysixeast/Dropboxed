@@ -346,16 +346,11 @@ const AddService = () => {
                                   styles={{ padding: "none !important" }}
                                   name={`imageType${index}`}
                                   id={`imageType${index}`}
-                                  value={
-                                    serviceData.imageTypeDetails[index].type
-                                  }
-                                  onChange={(selectedOption) =>
-                                    handleImageTypeChange(index, selectedOption)
-                                  }
+                                  value={serviceData.imageTypeDetails[index].type}
+                                  onChange={(selectedOption) => handleImageTypeChange(index, selectedOption)}
                                   options={imageTypes
-                                    .sort((a, b) =>
-                                      a.type.localeCompare(b.type)
-                                    )
+                                    .filter((imageType) => imageType.status === 'Active') 
+                                    .sort((a, b) => a.type.localeCompare(b.type))
                                     .map((imageType) => ({
                                       value: imageType.id,
                                       label: imageType.type,

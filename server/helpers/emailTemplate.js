@@ -2,8 +2,8 @@ require('dotenv').config();
 const SITE_URL = process.env.SITE_URL;
 
 exports.SEND_OTP = (name, email, otp) => `
-<div>
-    <span style="display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 7px solid #eee; margin: 0.3rem; border-radius: 1rem;">
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
@@ -31,7 +31,7 @@ exports.SEND_OTP = (name, email, otp) => `
                             <tbody>
                                 <tr>
                                     <td style="font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;color: #001737;">
-                                        Copyright © ${new Date().getFullYear()} studiio.au. All rights reserved.
+                                        Power by studiio.au
                                     </td>
                                 </tr>
                             </tbody>
@@ -45,8 +45,8 @@ exports.SEND_OTP = (name, email, otp) => `
 `;
 
 exports.SEND_VERIFICATION_EMAIL = (studioName, email, verificationToken) => `
-<div>
-    <span style="display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 7px solid #eee; margin: 0.3rem; border-radius: 1rem;">
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
@@ -75,8 +75,8 @@ exports.SEND_VERIFICATION_EMAIL = (studioName, email, verificationToken) => `
                             <tbody>
                             <tr>
                                 <td style="font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;color: #001737;">
-                                    Copyright © ${new Date().getFullYear()} studiio.au. All rights reserved.
-                                </td>
+                                        Power by studiio.au
+                                    </td>
                             </tr>
                             </tbody>
                         </table>
@@ -88,9 +88,66 @@ exports.SEND_VERIFICATION_EMAIL = (studioName, email, verificationToken) => `
 </div>
 `;
 
+exports.WELCOME_LOGIN = (name, email) => `
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
+        <table cellpadding="0" cellspacing="0" width="100%">
+            <tbody>
+                <tr>
+                    <td style="padding-top: 10px; text-align:center;">
+                        <h1 style="text-transform: uppercase;">${name}</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table style="font-size: 14px; width:100%; background: #fff; border-radius: 0;">
+                            <tbody>
+                                <tr>
+                                    <td style="padding:30px; width:100%;" valign="top">
+                                        <div style="font-size:14px;font-weight:normal;line-height:1.8em;text-align:left;">
+                                        <p>Welcome to my-studiio!</p>
+                                        <p>Dear ${name},</p>
+                                        <p>Welcome to ${name}.studiio.au! We're thrilled to have you.</p>
+                                        <p>At my-studio, you'll find all the tools you need to manage your bookings, galleries, invoices and more.</p>
+                                        <p>we're here to make your experience enjoyable and seamless.</p>
+                                        <p>If you have any questions or need assistance, feel free to reach out to our support team at ${email}</p>
+                                        <p>Once again, welcome aboard!<br>
+                                        Best regards,</p>
+                                        <p>${name}<br>
+                                        Director<br>
+                                        my-studio.au</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" style="padding-bottom:30px; width:100%;" valign="top">
+                                        <a href="${SITE_URL}login" style="display:inline-block;padding:11px 30px;color:#fff;background:#00b5b8 ;text-decoration:none;" rel="noreferrer" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${SITE_URL}login.php"><b>DASHBOARD</b></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table style="margin: 10px auto 10px auto;" cellpadding="0" cellspacing="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td align="center" style="font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;color: #001737;">
+                                        <a href="${email}">${email}</a><br>
+                                        Questions? Reply to this email.
+                                        <p>Power by <b>studiio.au</b></p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </span>
+</div>
+`;
+
 exports.WELCOME_EMAIL = (subdomain, subdomain_email, name, email, password) => `
-<div>
-    <span style="display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 7px solid #eee; margin: 0.3rem; border-radius: 1rem;">
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
@@ -148,8 +205,8 @@ exports.WELCOME_EMAIL = (subdomain, subdomain_email, name, email, password) => `
 `;
 
 exports.NEW_BOOKING = (subdomain, name, data, contact) => `
-<div>
-    <span style="display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 7px solid #eee; margin: 0.3rem; border-radius: 1rem;">
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
@@ -195,7 +252,7 @@ exports.NEW_BOOKING = (subdomain, name, data, contact) => `
                             <tbody>
                                 <tr>
                                     <td style="font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;color: #001737;">
-                                        Copyright © ${new Date().getFullYear()} studiio.au. All rights reserved.
+                                        Power by studiio.au
                                     </td>
                                 </tr>
                             </tbody>
@@ -208,7 +265,7 @@ exports.NEW_BOOKING = (subdomain, name, data, contact) => `
 </div>
 `;
 
-exports.NEW_COLLECTION = (subdomain, name, data) => `
+exports.NEW_COLLECTION = (subdomain, client_email, data) => `
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
     <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
@@ -228,16 +285,16 @@ exports.NEW_COLLECTION = (subdomain, name, data) => `
                         <table style="font-size: 14px; width:100%; background: #fff; border-radius: 0;">
                             <tbody>
                                 <tr>
-                                    <td style="padding:30px; width:100%;" valign="top">
-                                        <div style="font-size:14px;font-weight:normal;line-height:1.8em;text-align:left;">
-                                            <h2>9 Walker Street, Byron Bay</h2>
-                                            <p>Your project  “9 Walker Street, Byron Bay” is ready</p>
+                                    <td align="center" style="padding:30px; width:100%;" valign="top">
+                                        <div style="font-size:14px;font-weight:normal;line-height:1.8em;">
+                                            <h2>${data.name}</h2>
+                                            <p>Your project  “${data.name}” is ready</p>
                                             <tr>
                                                 <td align="center" style="padding-bottom:30px; width:100%;" valign="top">
-                                                    <a href="${SITE_URL}login" style="display:inline-block;padding:11px 15px;color:#fff;background:#00b5b8 ;text-decoration:none;" rel="noreferrer" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${SITE_URL}login.php"><b>VIEW PROJECT</b></a>
-                                                    <a href="${SITE_URL}login" style="display:inline-block;padding:11px 15px;color:#fff;background:#00b5b8 ;text-decoration:none;" rel="noreferrer" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${SITE_URL}login.php"><b>DASHBOARD</b></a>
+                                                    <a href="/dashboard" style="display:inline-block;padding:11px 15px;color:#fff;background:#00b5b8 ;text-decoration:none;" rel="noreferrer" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${SITE_URL}dashboard"><b>VIEW PROJECT</b></a>
+                                                    <a href="/dashboard" style="display:inline-block;padding:11px 15px;color:#fff;background:#00b5b8 ;text-decoration:none;" rel="noreferrer" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${SITE_URL}dashboard"><b>DASHBOARD</b></a>
                                                     <p>${subdomain}<br>
-                                                    https://www.mediadrive.studiio.au<br>
+                                                    ${client_email}<br>
                                                     Questions? Reply to this email.
                                                     </p>
                                                 </td>

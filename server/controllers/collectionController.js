@@ -1,4 +1,5 @@
 const Collection = require('../models/Collections');
+const Notifications = require('../models/Notifications');
 const User = require('../models/Users');
 const Package = require('../models/Packages');
 const { NEW_COLLECTION } = require('../helpers/emailTemplate');
@@ -66,14 +67,19 @@ const addGallery = async (req, res) => {
     }
 
     // Send email if notify_client is true
-    if (req.body.notify_client) {
+    if (req.body.notify_client === "true") {
       const clientData = await User.findOne({
         where: { id: req.body.client },
-        attributes: ['name', 'email']
+        attributes: ['email']
       });
 
-      let SEND_EMAIL = NEW_COLLECTION(user.subdomain, clientData.name, collectionData);
+      let SEND_EMAIL = NEW_COLLECTION(user.subdomain, clientData.email, collectionData);
       sendEmail(clientData.email, "New Collection", SEND_EMAIL);
+
+      await Notifications.create({
+        notification: `New gallery '${collectionData.name}' has been created.`,
+        date: new Date()
+      });
     }
 
     res.status(200).json({
