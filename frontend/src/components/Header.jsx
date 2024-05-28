@@ -34,6 +34,44 @@ const Header = () => {
     }
   };
 
+  const handleMenuToggle = (e) => {
+    e.preventDefault();
+
+    const menuToggleElement = document.querySelector(
+      ".nav-link.nav-menu-main.hidden-xs"
+    );
+
+    const body = document.getElementsByTagName("body")[0];
+
+    if (menuToggleElement) {
+      menuToggleElement.classList.toggle("is-active");
+
+      if (body.classList.contains("menu-hide")) {
+        body.classList.remove("menu-hide");
+        body.classList.add("menu-open");
+      } else {
+        body.classList.remove("menu-open");
+        body.classList.add("menu-hide");
+      }
+    }
+
+    const sidenavOverlay = document.querySelector(".sidenav-overlay");
+    if (sidenavOverlay) {
+      if (
+        !sidenavOverlay.classList.contains("d-none") &&
+        !sidenavOverlay.classList.contains("d-block")
+      ) {
+        sidenavOverlay.classList.add("d-block");
+      } else if (sidenavOverlay.classList.contains("d-none")) {
+        sidenavOverlay.classList.remove("d-none");
+        sidenavOverlay.classList.add("d-block");
+      } else {
+        sidenavOverlay.classList.remove("d-block");
+        sidenavOverlay.classList.add("d-none");
+      }
+    }
+  };
+
   return (
     <nav className="header-navbar navbar-expand-lg navbar navbar-with-menu fixed-top navbar-semi-dark navbar-shadow">
       <div className="navbar-wrapper">
@@ -43,49 +81,8 @@ const Header = () => {
               <a
                 className="nav-link nav-menu-main hidden-xs"
                 href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-
-                  // Find the element with the specific class names
-                  const menuToggleElement = document.querySelector(
-                    ".nav-link.nav-menu-main.hidden-xs"
-                  );
-
-                  // Find the body element
-                  const body = document.getElementsByTagName("body")[0];
-
-                  if (menuToggleElement) {
-                    // Toggle the 'is-active' class on the menu toggle element
-                    menuToggleElement.classList.toggle("is-active");
-
-                    // If the body has 'menu-hide', remove it and add 'menu-open'
-                    if (body.classList.contains("menu-hide")) {
-                      body.classList.remove("menu-hide");
-                      body.classList.add("menu-open");
-                    } else {
-                      // If the body does not have 'menu-hide', remove 'menu-open' and add 'menu-hide'
-                      body.classList.remove("menu-open");
-                      body.classList.add("menu-hide");
-                    }
-                  }
-
-                  const sidenavOverlay =
-                    document.querySelector(".sidenav-overlay");
-                  if (sidenavOverlay) {
-                    if (
-                      !sidenavOverlay.classList.contains("d-none") &&
-                      !sidenavOverlay.classList.contains("d-block")
-                    ) {
-                      sidenavOverlay.classList.add("d-block");
-                    } else if (sidenavOverlay.classList.contains("d-none")) {
-                      sidenavOverlay.classList.remove("d-none");
-                      sidenavOverlay.classList.add("d-block");
-                    } else {
-                      sidenavOverlay.classList.remove("d-block");
-                      sidenavOverlay.classList.add("d-none");
-                    }
-                  }
-                }}
+                onClick={handleMenuToggle}
+                style={{ touchAction: "manipulation" }}
               >
                 <i className="feather icon-menu font-large-1"></i>
               </a>
