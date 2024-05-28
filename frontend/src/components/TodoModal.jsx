@@ -523,7 +523,7 @@ const TodoModal = ({
                         });
                       }}
                     />
-                    <button
+                    {/* <button
                       type="button"
                       className="btn btn-sm btn-primary comment-btn"
                       onClick={(e) => {
@@ -532,7 +532,7 @@ const TodoModal = ({
                       }}
                     >
                       <span>Comment</span>
-                    </button>
+                    </button> */}
                   </div>
                 </div>
                 <div className="mt-1 d-flex justify-content-between">

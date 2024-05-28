@@ -1593,7 +1593,7 @@ export const BookingListComponent = () => {
                                             Notify to Client
                                           </label>
                                           <Switch
-                                            checked={notifyCheckbox === 1}
+                                            checked={notifyCheckbox}
                                             id="notify"
                                             onChange={handleNotifyCheckbox}
                                             inputProps={{

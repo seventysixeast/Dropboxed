@@ -173,12 +173,6 @@ export const ViewGallery = () => {
   const handleSubmit = async () => {
     if (authData.user === null) return;
     const formData = new FormData();
-    
-    if (taskData.userId === "") {
-      formData.append("user_id", authData.user.user_id);
-    } else {
-      formData.append("user_id", taskData.userId);
-    }
 
     if (taskData.taskTitle === "") {
       toast.error("Task title is required!");
@@ -192,6 +186,7 @@ export const ViewGallery = () => {
 
     const formattedTags = selectedTags.map((tag) => tag.value).join(",");
     formData.append("id", taskData.id);
+    formData.append("user_id", authData.user.id);
     formData.append("task_tags", formattedTags);
     formData.append("subdomain_id", authData.user.subdomain_id);
     formData.append("role_id", authData.user.role_id);
