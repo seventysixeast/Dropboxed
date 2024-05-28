@@ -34,45 +34,27 @@ const Header = () => {
     }
   };
 
-  const handleMenuToggle = (e) => {
+  const handleMenuToggle = async (e) => {
     e.preventDefault(); 
-    const menuToggleElement = document.querySelector(
+    let menuToggleElement = document.querySelector(
       ".nav-link.nav-menu-main.hidden-xs"
     );
-    console.log(e);
+    console.log(menuToggleElement);
 
     const body = document.getElementsByTagName("body")[0];
-
-    console.log(body);
 
     if (menuToggleElement) {
       menuToggleElement.classList.toggle("is-active");
       console.log(menuToggleElement);
 
       if (body.classList.contains("menu-hide")) {
+        body.classList.remove("vertical-menu-modern")
         body.classList.add("menu-open");
         body.classList.remove("menu-hide");
         
       } else {
         body.classList.remove("menu-open");
         body.classList.add("menu-hide");
-      }
-    }
-
-    const sidenavOverlay = document.querySelector(".sidenav-overlay");
-    console.log(sidenavOverlay);
-    if (sidenavOverlay) {
-      if (
-        !sidenavOverlay.classList.contains("d-none") &&
-        !sidenavOverlay.classList.contains("d-block")
-      ) {
-        sidenavOverlay.classList.add("d-block");
-      } else if (sidenavOverlay.classList.contains("d-none")) {
-        sidenavOverlay.classList.remove("d-none");
-        sidenavOverlay.classList.add("d-block");
-      } else {
-        sidenavOverlay.classList.remove("d-block");
-        sidenavOverlay.classList.add("d-none");
       }
     }
   };
@@ -84,7 +66,8 @@ const Header = () => {
           <ul className="nav navbar-nav flex-row">
             <li className="nav-item mobile-menu  d-lg-none mr-auto">
               <a
-                className="nav-link nav-menu-main menu-toggle hidden-xs"
+                className="nav-link nav-menu-main toggle-menu hidden-xs"
+                onClick={handleMenuToggle}
               >
                 <i className="feather icon-menu font-large-1"></i>
               </a>
