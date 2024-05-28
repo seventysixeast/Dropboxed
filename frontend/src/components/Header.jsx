@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useAuth } from '../context/authContext';
+import { useAuth } from "../context/authContext";
 import logoLight from "../assets/images/studiio-logo.png";
 import { getClient } from "../api/clientApis";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
@@ -13,7 +13,7 @@ const Header = () => {
   const handleLogout = (e) => {
     e.preventDefault();
     logout();
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   useEffect(() => {
@@ -23,14 +23,14 @@ const Header = () => {
   const checkUserStatus = async () => {
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('id', user.id);
+      formDataToSend.append("id", user.id);
       let res = await getClient(formDataToSend);
       if (res.data.status == "Inactive") {
         logout();
-        window.location.href = '/login';
+        window.location.href = "/login";
       }
     } catch (error) {
-      console.error('Error checking user status:', error);
+      console.error("Error checking user status:", error);
     }
   };
 
@@ -41,17 +41,57 @@ const Header = () => {
           <ul className="nav navbar-nav flex-row">
             <li className="nav-item mobile-menu d-lg-none mr-auto">
               <a
-                className="nav-link nav-menu-main menu-toggle hidden-xs"
+                className="nav-link nav-menu-main hidden-xs"
                 href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  // Find the element with the specific class names
+                  const menuToggleElement = document.querySelector(
+                    ".nav-link.nav-menu-main.hidden-xs"
+                  );
+
+                  // Find the body element
+                  const body = document.getElementsByTagName("body")[0];
+
+                  if (menuToggleElement) {
+                    // Toggle the 'is-active' class on the menu toggle element
+                    menuToggleElement.classList.toggle("is-active");
+
+                    // If the body has 'menu-hide', remove it and add 'menu-open'
+                    if (body.classList.contains("menu-hide")) {
+                      body.classList.remove("menu-hide");
+                      body.classList.add("menu-open");
+                    } else {
+                      // If the body does not have 'menu-hide', remove 'menu-open' and add 'menu-hide'
+                      body.classList.remove("menu-open");
+                      body.classList.add("menu-hide");
+                    }
+                  }
+
+                  const sidenavOverlay =
+                    document.querySelector(".sidenav-overlay");
+                  if (sidenavOverlay) {
+                    if (
+                      !sidenavOverlay.classList.contains("d-none") &&
+                      !sidenavOverlay.classList.contains("d-block")
+                    ) {
+                      sidenavOverlay.classList.add("d-block");
+                    } else if (sidenavOverlay.classList.contains("d-none")) {
+                      sidenavOverlay.classList.remove("d-none");
+                      sidenavOverlay.classList.add("d-block");
+                    } else {
+                      sidenavOverlay.classList.remove("d-block");
+                      sidenavOverlay.classList.add("d-none");
+                    }
+                  }
+                }}
               >
                 <i className="feather icon-menu font-large-1"></i>
               </a>
             </li>
             <li className="nav-item mr-auto">
-              <a
-                className="navbar-brand"
-                href="/dashboard"
-              >
+              <a className="navbar-brand" href="/dashboard">
                 <img
                   className="brand-logo dropLogo"
                   alt="stack admin logo"
@@ -134,7 +174,10 @@ const Header = () => {
                   <span className="user-name">{user.userName}</span>
                 </a>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {(roleId === 2 || roleId === 3 || roleId === 4 || roleId === 5) && (
+                  {(roleId === 2 ||
+                    roleId === 3 ||
+                    roleId === 4 ||
+                    roleId === 5) && (
                     <>
                       <a className="dropdown-item" href="/edit-profile">
                         <i className="feather icon-user"></i> Edit Profile
