@@ -43,12 +43,7 @@ exports.login = async (req, res) => {
       return res.status(200).json({ success: false, message: 'Your account is deactivated. Please contact support for assistance.' });
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res
-        .status(200)
-        .json({ success: false, message: "Invalid email or password" });
-    }
+    
 
     // Check if the user's roles are administrator (role_id = 1) and business owner (role_id = 5)
     if (user.role_id === 1 || user.role_id === 5) {
@@ -86,7 +81,7 @@ exports.login = async (req, res) => {
       user_subdmain = businessOwner.subdomain;
     }
 
-    const accessToken = generateAccessToken(user.id);
+    const accessToken = generateAccessToken(user.id, user_subdmain);
 
     const isFirstLogin = user.is_first_login;
     /*if (isFirstLogin) {
@@ -643,5 +638,5 @@ exports.dropboxAuth = async (req, res) => {
       success: false,
       message: "Internal server error",
     });
-  }
+   }
 };

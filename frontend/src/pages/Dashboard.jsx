@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllClients } from "../api/clientApis";
+import QuickBooksConnect from '../components/QuickBooksConnect';
 import {
   getAllBookingTitles,
   getAllServices,
@@ -652,6 +653,8 @@ export const Dashboard = () => {
                             <i className="feather icon-list"></i>
                           </button>
                         </ReTooltip>
+
+                        <QuickBooksConnect />
 
                         {user.role_id == 5 && (
                           <>

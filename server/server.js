@@ -11,6 +11,7 @@ const photographerAdminRoutes = require('./routes/photographerAdminRoutes');
 const todoRoutes = require('./routes/todoRoutes');
 const userRoutes = require('./routes/userRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
+const quickbooksRoutes = require('./routes/quickbooksRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
 const cors = require('cors');
@@ -57,7 +58,9 @@ app.use('/collection', collectionRoutes);
 app.use('/photographerAdmin', photographerAdminRoutes);
 app.use('/todo', todoRoutes);
 app.use('/user', userRoutes);
-app.use('/invoice', invoiceRoutes)
+app.use('/invoice', invoiceRoutes);
+app.use('/quickbooks', quickbooksRoutes);
+
 //app.use('/calender', calenderRoutes);
 
 

@@ -1,12 +1,9 @@
 const express = require('express');
-const quickBooksController = require('../controllers/quickBooksController');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const quickbooksController = require('../controllers/quickbooksController');
 const router = express.Router();
+const { authenticateToken } = require('../middleware/authMiddleware');
 
-// Step 1: Get the OAuth request token
-router.get('/requestToken', authenticateToken, quickBooksController.requestToken);
-
-// Step 2: Handle the OAuth callback
-router.get('/callback', quickBooksController.callback);
+router.get('/auth-url', authenticateToken, quickbooksController.getQuickBooksAuthUrl);
+router.get('/callback', quickbooksController.quickBooksCallback);
 
 module.exports = router;
