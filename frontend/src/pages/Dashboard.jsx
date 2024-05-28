@@ -144,15 +144,6 @@ export const Dashboard = () => {
     getRefreshToken(user.dropbox_refresh);
     getAllBookingsData();
   }, []);
-  useEffect( async () => {
-    if (accesstoken !== undefined) {
-      let resp = await verifyToken(accesstoken);
-      if (!resp.success) {
-        toast.error("Session expired, please login again.");
-        window.location.href = "/login";
-      }
-    }
-  }, [accesstoken]);
 
   useEffect(() => {
     if (formData.client !== "" && formData.booking_title !== "") {
@@ -458,6 +449,20 @@ export const Dashboard = () => {
       console.error("Failed to get ImageTypes:", error.message);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    fetchData();
+  }, [accesstoken]);
 
   return (
     <>

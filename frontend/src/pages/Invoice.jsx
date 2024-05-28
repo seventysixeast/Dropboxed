@@ -187,15 +187,21 @@ const Invoice = () => {
   };
 
 
-  useEffect( async () => {
-    if (accesstoken !== undefined) {
-      let resp = await verifyToken(accesstoken);
-      if (!resp.success) {
-        toast.error("Session expired, please login again.");
-        window.location.href = "/login";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
       }
-    }
+    };
+
+    fetchData();
   }, [accesstoken]);
+  
   return (
     <>
       <div className="app-content content">
