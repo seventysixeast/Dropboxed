@@ -173,11 +173,21 @@ export const ViewGallery = () => {
   const handleSubmit = async () => {
     if (authData.user === null) return;
     const formData = new FormData();
-
+    
     if (taskData.userId === "") {
       formData.append("user_id", authData.user.user_id);
     } else {
       formData.append("user_id", taskData.userId);
+    }
+
+    if (taskData.taskTitle === "") {
+      toast.error("Task title is required!");
+      return;
+    }
+
+    if (selectedClient.value === undefined) {
+      toast.error("Assigned user is required!");
+      return;
     }
 
     const formattedTags = selectedTags.map((tag) => tag.value).join(",");
