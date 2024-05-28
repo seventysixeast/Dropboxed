@@ -35,20 +35,24 @@ const Header = () => {
   };
 
   const handleMenuToggle = (e) => {
-    e.preventDefault();
-
+    e.preventDefault(); 
     const menuToggleElement = document.querySelector(
       ".nav-link.nav-menu-main.hidden-xs"
     );
+    console.log(e);
 
     const body = document.getElementsByTagName("body")[0];
 
+    console.log(body);
+
     if (menuToggleElement) {
       menuToggleElement.classList.toggle("is-active");
+      console.log(menuToggleElement);
 
       if (body.classList.contains("menu-hide")) {
-        body.classList.remove("menu-hide");
         body.classList.add("menu-open");
+        body.classList.remove("menu-hide");
+        
       } else {
         body.classList.remove("menu-open");
         body.classList.add("menu-hide");
@@ -56,6 +60,7 @@ const Header = () => {
     }
 
     const sidenavOverlay = document.querySelector(".sidenav-overlay");
+    console.log(sidenavOverlay);
     if (sidenavOverlay) {
       if (
         !sidenavOverlay.classList.contains("d-none") &&
@@ -77,12 +82,9 @@ const Header = () => {
       <div className="navbar-wrapper">
         <div className="navbar-header">
           <ul className="nav navbar-nav flex-row">
-            <li className="nav-item mobile-menu d-lg-none mr-auto">
+            <li className="nav-item mobile-menu  d-lg-none mr-auto">
               <a
-                className="nav-link nav-menu-main hidden-xs"
-                href="#"
-                onClick={handleMenuToggle}
-                style={{ touchAction: "manipulation" }}
+                className="nav-link nav-menu-main menu-toggle hidden-xs"
               >
                 <i className="feather icon-menu font-large-1"></i>
               </a>
