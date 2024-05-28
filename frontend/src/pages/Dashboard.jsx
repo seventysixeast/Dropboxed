@@ -14,7 +14,7 @@ import {
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import { getRefreshToken } from "../api/authApis";
+import { getRefreshToken, verifyToken } from "../api/authApis";
 import axios from "axios";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
@@ -30,6 +30,7 @@ export const Dashboard = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id;
+  const accesstoken = authData.token;
   const userId = user.id;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
@@ -143,6 +144,15 @@ export const Dashboard = () => {
     getRefreshToken(user.dropbox_refresh);
     getAllBookingsData();
   }, []);
+  useEffect( async () => {
+    if (accesstoken !== undefined) {
+      let resp = await verifyToken(accesstoken);
+      if (!resp.success) {
+        toast.error("Session expired, please login again.");
+        window.location.href = "/login";
+      }
+    }
+  }, [accesstoken]);
 
   useEffect(() => {
     if (formData.client !== "" && formData.booking_title !== "") {

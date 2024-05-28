@@ -16,7 +16,7 @@ import {
   updateCollection,
   updateGalleryNotify,
 } from "../api/collectionApis";
-import { getRefreshToken } from "../api/authApis";
+import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
@@ -35,7 +35,7 @@ const Collections = () => {
   const subdomainId = user.subdomain_id;
   const userId = user.id;
   const roleId = user.role_id;
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [bookingTitles, setBookingTitles] = useState([]);
@@ -608,6 +608,17 @@ const Collections = () => {
   );
 
   const data = React.useMemo(() => collections, [collections]);
+
+
+  useEffect( async () => {
+    if (accesstoken !== undefined) {
+      let resp = await verifyToken(accesstoken);
+      if (!resp.success) {
+        toast.error("Session expired, please login again.");
+        window.location.href = "/login";
+      }
+    }
+  }, [accesstoken]);
 
   return (
     <>

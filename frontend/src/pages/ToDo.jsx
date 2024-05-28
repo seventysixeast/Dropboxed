@@ -25,12 +25,14 @@ import ReTooltip from "../components/Tooltip";
 import AddTagModal from "../components/AddTagModal";
 import { Tooltip } from "@mui/material";
 import moment from "moment";
+import { verifyToken } from "../api/authApis";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ToDo = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const userId = user.id;
+  const accesstoken = authData.token;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
   const [taskId, setTaskId] = useState("");
@@ -443,6 +445,18 @@ const ToDo = () => {
     setFilteredTasks(tasksWithTag);
     setActiveFilter(id);
   };
+
+
+  useEffect( async () => {
+    if (accesstoken !== undefined) {
+      let resp = await verifyToken(accesstoken);
+      if (!resp.success) {
+        toast.error("Session expired, please login again.");
+        window.location.href = "/login";
+      }
+    }
+  }, [accesstoken]);
+
 
   return (
     <div className="todo-application">

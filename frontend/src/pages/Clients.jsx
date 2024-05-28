@@ -13,7 +13,7 @@ const Clients = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [previewImage, setPreviewImage] = useState(null);
   const [filteredClients, setFilteredClients] = useState([]);
   const [clients, setClients] = useState([]);
@@ -34,8 +34,6 @@ const Clients = () => {
 
   useEffect(() => {
     getAllClientsData();
-    verifyToken(accessToken);
-    // getClientData();
   }, [])
 
   useEffect(() => {
@@ -217,6 +215,16 @@ const Clients = () => {
       toast.error(error);
     }
   };
+
+  useEffect( async () => {
+    if (accesstoken !== undefined) {
+      let resp = await verifyToken(accesstoken);
+      if (!resp.success) {
+        toast.error("Session expired, please login again.");
+        window.location.href = "/login";
+      }
+    }
+  }, [accesstoken]);
 
   return (
     <div className="app-content content">

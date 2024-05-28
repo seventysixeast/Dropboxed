@@ -9,12 +9,13 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
+import { verifyToken } from "../api/authApis";
 
 const ImageTypes = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [imagesTypes, setImageTypes] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
@@ -175,6 +176,16 @@ const ImageTypes = () => {
   );
 
   const data = React.useMemo(() => imagesTypes, [imagesTypes]);
+
+  useEffect( async () => {
+    if (accesstoken !== undefined) {
+      let resp = await verifyToken(accesstoken);
+      if (!resp.success) {
+        toast.error("Session expired, please login again.");
+        window.location.href = "/login";
+      }
+    }
+  }, [accesstoken]);
 
   return (
     <>

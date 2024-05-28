@@ -11,7 +11,7 @@ const CardsPackages = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [servicesData, setServicesData] = useState([]);
   const [serviceId, setServiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -20,7 +20,6 @@ const CardsPackages = () => {
 
   useEffect(() => {
     getServices();
-    verifyToken(accessToken);
   }, []);
 
   const getServices = async () => {
@@ -80,6 +79,17 @@ const CardsPackages = () => {
     setShowDeleteModal(false);
     setServiceId(null);
   };
+
+  useEffect( async () => {
+    if (accesstoken !== undefined) {
+      let resp = await verifyToken(accesstoken);
+      if (!resp.success) {
+        toast.error("Session expired, please login again.");
+        window.location.href = "/login";
+      }
+    }
+  }, [accesstoken]);
+
 
   return (
     <>

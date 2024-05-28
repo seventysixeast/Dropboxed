@@ -8,13 +8,14 @@ import DeleteModal from '../components/DeleteModal';
 import { toast } from "react-toastify";
 import TableInvoice from '../components/TableInvoice';
 import TableCustom from '../components/Table';
+import { verifyToken } from '../api/authApis';
 
 const Invoice = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceId, setInvoiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -185,6 +186,16 @@ const Invoice = () => {
     console.log("Paid invoice", id);
   };
 
+
+  useEffect( async () => {
+    if (accesstoken !== undefined) {
+      let resp = await verifyToken(accesstoken);
+      if (!resp.success) {
+        toast.error("Session expired, please login again.");
+        window.location.href = "/login";
+      }
+    }
+  }, [accesstoken]);
   return (
     <>
       <div className="app-content content">
