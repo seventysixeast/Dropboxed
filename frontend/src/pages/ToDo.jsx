@@ -14,7 +14,7 @@ import {
   deleteTag,
 } from "../api/todoApis";
 import Select from "react-select";
-import { getClient, getClientPhotographers } from "../api/clientApis";
+import { getClientPhotographers } from "../api/clientApis";
 import _ from "lodash";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import DeleteModal from "../components/DeleteModal";
@@ -23,7 +23,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import ReTooltip from "../components/Tooltip";
 import AddTagModal from "../components/AddTagModal";
-import { IconButton, Tooltip } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import moment from "moment";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
@@ -33,7 +33,6 @@ const ToDo = () => {
   const userId = user.id;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
   const [taskId, setTaskId] = useState("");
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState(tasks);
@@ -187,7 +186,7 @@ const ToDo = () => {
     try {
       const response = await createTask(formData);
       if (response.success) {
-        if (taskData.id == "") {
+        if (taskData.id === "") {
           toast.success("Task created successfully!");
         } else {
           toast.success("Task updated successfully!");
@@ -230,18 +229,10 @@ const ToDo = () => {
         toast.success("Comment added successfully!");
         getTasks();
         setTaskData({
-          id: "",
-          userId: "",
-          taskTitle: "",
-          assignUser: "",
-          taskAssigndate: new Date(),
-          taskDescription: "",
-          taskTags: [],
+          ...taskData,
           comment: "",
-          status: 0,
-          isFavourite: 0,
         });
-        toggleNewTaskModal();
+        setComments(response.task.TaskComments);
       } else {
         toast.error("Failed to add comment!");
       }
@@ -439,6 +430,15 @@ const ToDo = () => {
     }
   }
 
+  const sortByTag = async (id) => {
+    const tagId = parseInt(id);
+    const tasksWithTag = tasks.filter((task) =>
+      task.task_tags.includes(tagId.toString())
+    );
+    setFilteredTasks(tasksWithTag);
+    setActiveFilter(id);
+  };
+
   return (
     <div className="todo-application">
       <div className="app-content content">
@@ -538,8 +538,15 @@ const ToDo = () => {
                         }
                       >
                         <p
-                          className="list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer"
+                          className={`list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer ${
+                            activeFilter === tag.id ? "active" : ""
+                          }`}
                           style={{ padding: "4px" }}
+                          onClick={(e) => {
+                            console.log("Going here");
+                            e.preventDefault();
+                            sortByTag(tag.id);
+                          }}
                         >
                           <span>{tag.tasktag_title}</span>
                           <span
@@ -736,7 +743,10 @@ const ToDo = () => {
                           />
                         </div>
                         <div className="ml-25">
-                          <i className="feather icon-plus-circle cursor-pointer add-tags" />
+                          <i
+                            className="feather icon-plus-circle cursor-pointer add-tags"
+                            onClick={() => setShowAddTagModal(!showAddTagModal)}
+                          />
                         </div>
                       </div>
                     </div>
@@ -1010,14 +1020,19 @@ const ToDo = () => {
                             </span>
                           </div>
                           <div className="ml-25">
-                            <i className="feather icon-plus-circle cursor-pointer add-tags" />
+                            <i
+                              className="feather icon-plus-circle cursor-pointer add-tags"
+                              onClick={() =>
+                                setShowAddTagModal(!showAddTagModal)
+                              }
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
 
                     <div className="card-body pb-1">
-                      {taskData.id != "" && (
+                      {taskData.id !== "" && (
                         <div className="d-flex align-items-center mb-1">
                           <div className="avatar mr-75">
                             <img
@@ -1068,20 +1083,22 @@ const ToDo = () => {
                               });
                             }}
                           />
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-primary comment-btn"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleComment();
-                            }}
-                          >
-                            <span>Comment</span>
-                          </button>
+                          {taskData.id !== "" && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-primary comment-btn"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleComment();
+                              }}
+                            >
+                              <span>Comment</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                       <div className="mt-1 d-flex justify-content-between">
-                        {taskData.id == "" ? (
+                        {taskData.id === "" ? (
                           <button
                             type="button"
                             onClick={handleSubmit}
@@ -1309,7 +1326,7 @@ const ToDo = () => {
                                             }
                                           >
                                             {filteredTasks[index]
-                                              .is_favourite == 0 ? (
+                                              .is_favourite === 0 ? (
                                               <i className="feather icon-star "></i>
                                             ) : (
                                               <svg
