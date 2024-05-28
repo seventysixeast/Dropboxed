@@ -7,6 +7,7 @@ import { useAuth } from "../context/authContext";
 import DeleteModal from '../components/DeleteModal';
 import { toast } from "react-toastify";
 import TableInvoice from '../components/TableInvoice';
+import TableCustom from '../components/Table';
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -62,7 +63,7 @@ const Invoice = () => {
     },
     {
       Header: "Amount",
-      accessor: "total_price",
+      accessor: (row) => `$${row.total_price}`,
     },
     {
       Header: "Status",
@@ -209,7 +210,7 @@ const Invoice = () => {
           </div>
         </div>
       </div>
-      <TableInvoice data={invoiceList} columns={columns} />
+      <TableCustom data={invoiceList} columns={columns} />
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={handleDeleteModalClose}

@@ -449,9 +449,7 @@ const Collections = () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", id);
-
       const res = await updateGalleryNotify(formDataToSend);
-
       if (res && res.success) {
         toast.success(res.message);
         await getAllCollectionsData();

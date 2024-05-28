@@ -15,6 +15,7 @@ const CardsPackages = () => {
   const [servicesData, setServicesData] = useState([]);
   const [serviceId, setServiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [usedServices, setUsedServices] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,7 +25,7 @@ const CardsPackages = () => {
 
   const getServices = async () => {
     const formData = new FormData();
-    if (subdomainId !== '') {
+    if (subdomainId !== "") {
       formData.append("subdomain_id", subdomainId);
     } else {
       formData.append("subdomain_id", user.id);
@@ -37,6 +38,8 @@ const CardsPackages = () => {
         image_type_details: JSON.parse(service.image_type_details),
       }));
       setServicesData(servicesWithParsedImages);
+      const uniquePackageIds = response.uniquePackageIds.map(Number);
+      setUsedServices(uniquePackageIds);
     } else {
       toast.error("Failed to get services!");
     }
@@ -48,7 +51,16 @@ const CardsPackages = () => {
 
   const handleDeleteService = (service) => {
     setServiceId(service.id);
-    setShowDeleteModal(true);
+    console.log(service.id);
+    if (usedServices.includes(service.id)) {
+      toast.error("Service is being used in a collection/booking.");
+      const timeoutId = setTimeout(() => {
+        setShowDeleteModal(true);
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    } else {
+      setShowDeleteModal(true);
+    }
   };
 
   const deleteServiceId = async () => {
@@ -206,8 +218,16 @@ const CardsPackages = () => {
                   <div className="card d-flex flex-column">
                     <div className="card-content flex-grow-1">
                       <div className="card-body text-center package-card">
-                        <h1 className="card-title" style={{ fontSize: '1.5rem' }}>{service.package_name}</h1>
-                        <h1 className="card-title" style={{ fontSize: '1.5rem' }}>
+                        <h1
+                          className="card-title"
+                          style={{ fontSize: "1.5rem" }}
+                        >
+                          {service.package_name}
+                        </h1>
+                        <h1
+                          className="card-title"
+                          style={{ fontSize: "1.5rem" }}
+                        >
                           ${service.package_price.toFixed(2)}
                         </h1>
                         <ul className="list-unstyled">
@@ -253,7 +273,7 @@ const CardsPackages = () => {
         isOpen={showDeleteModal}
         onClose={handleDeleteModalClose}
         onConfirm={deleteServiceId}
-        message="Are you sure you want to delete this appointment?"
+        message="Are you sure you want to delete this service?"
       />
     </>
   );
