@@ -16,6 +16,7 @@ const CardsPackages = () => {
   const [serviceId, setServiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [usedServices, setUsedServices] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +24,7 @@ const CardsPackages = () => {
   }, []);
 
   const getServices = async () => {
+    setItemsLoading(true);
     const formData = new FormData();
     if (subdomainId !== "") {
       formData.append("subdomain_id", subdomainId);
@@ -42,6 +44,7 @@ const CardsPackages = () => {
     } else {
       toast.error("Failed to get services!");
     }
+    setItemsLoading(false);
   };
 
   const handleEditService = (service) => {
@@ -80,7 +83,6 @@ const CardsPackages = () => {
     setServiceId(null);
   };
 
-
   useEffect(() => {
     const fetchData = async () => {
       if (accesstoken !== undefined) {
@@ -94,7 +96,6 @@ const CardsPackages = () => {
 
     fetchData();
   }, [accesstoken]);
-
 
   return (
     <>
@@ -277,8 +278,17 @@ const CardsPackages = () => {
                 </div>
               ))
             ) : (
-              <div className="col-12 text-center">
-                <p>No services found.</p>
+              <div
+                className="col-12 d-flex justify-content-center "
+                style={{ height: "100vh" }}
+              >
+                {itemsLoading ? (
+                  <div className="spinner-border" role="status">
+                    <span className="sr-only"></span>
+                  </div>
+                ) : (
+                  <p>No services found.</p>
+                )}
               </div>
             )}
           </div>

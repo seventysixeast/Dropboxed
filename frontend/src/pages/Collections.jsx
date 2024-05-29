@@ -25,6 +25,7 @@ import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
 import moment from "moment";
 import ReTooltip from "../components/Tooltip";
+import LoadingOverlay from "../components/Loader";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -296,11 +297,12 @@ const Collections = () => {
   };
 
   const getAllCollectionsData = async () => {
-    const formData = new FormData();
-    formData.append("subdomainId", subdomainId);
-    formData.append("roleId", user.role_id);
-    formData.append("userId", user.id);
+    setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("subdomainId", subdomainId);
+      formData.append("roleId", user.role_id);
+      formData.append("userId", user.id);
       let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
@@ -310,6 +312,7 @@ const Collections = () => {
     } catch (error) {
       toast.error(error);
     }
+    setLoading(false);
   };
 
   const updateImageCount = async (data) => {
@@ -477,7 +480,11 @@ const Collections = () => {
       },
       { Header: "Gallery Title", accessor: "name" },
       { Header: "Address", accessor: "client_address" },
-      { Header: "Client", accessor: "client_name", className: roleId === 3 ? 'd-none' : '' },
+      {
+        Header: "Client",
+        accessor: "client_name",
+        className: roleId === 3 ? "d-none" : "",
+      },
       { Header: "Services", accessor: "packages_name" },
       { Header: "Photographers", accessor: "photographers_name" },
       {
@@ -499,7 +506,9 @@ const Collections = () => {
           row.original.notify_client ? (
             <ReTooltip title="Click to change status." placement="top">
               <div
-                className={`badge badge-pill badge-light-primary ${roleId === 3 ? 'd-none' : ''}`}
+                className={`badge badge-pill badge-light-primary ${
+                  roleId === 3 ? "d-none" : ""
+                }`}
                 style={{
                   cursor: "pointer",
                 }}
@@ -625,6 +634,7 @@ const Collections = () => {
 
   return (
     <>
+      <LoadingOverlay loading={loading} />
       <div className="app-content content">
         <div className="content-overlay"></div>
         <div className="content-wrapper">

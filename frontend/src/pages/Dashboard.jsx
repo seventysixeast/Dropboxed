@@ -48,7 +48,7 @@ export const Dashboard = () => {
   const [activeBookings, setActiveBookings] = useState(0);
   const [ordersCompleted, setOrdersCompleted] = useState(0);
   const [collectionData, setCollectionData] = useState("");
-
+  const [itemsLoading, setItemsLoading] = useState(false);
   const [galleryView, setGalleryView] = useState("grid");
 
   const url2 = new URL(currentUrl);
@@ -381,11 +381,12 @@ export const Dashboard = () => {
   };
 
   const getAllCollectionsData = async () => {
-    const formData = new FormData();
-    formData.append("subdomainId", subdomainId);
-    formData.append("roleId", user.role_id);
-    formData.append("userId", user.id);
+    setItemsLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("subdomainId", subdomainId);
+      formData.append("roleId", user.role_id);
+      formData.append("userId", user.id);
       let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
@@ -409,6 +410,7 @@ export const Dashboard = () => {
     } catch (error) {
       toast.error(error);
     }
+    setItemsLoading(false);
   };
 
   const textBeforeComma = (text) => {
@@ -841,9 +843,20 @@ export const Dashboard = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="w-100 d-flex justify-content-center">
-                        <p className="text-center">No collections found.</p>
-                      </div>
+                      <>
+<div
+                className="col-12 d-flex justify-content-center "
+                style={{ height: "100vh" }}
+              >
+                {itemsLoading ? (
+                  <div className="spinner-border" role="status">
+                    <span className="sr-only"></span>
+                  </div>
+                ) : (
+                  <p>No Collections found.</p>
+                )}
+              </div>
+                      </>
                     )}
                   </div>
                 </div>
