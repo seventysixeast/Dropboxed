@@ -165,7 +165,7 @@ const TableCustom = ({ data, columns }) => {
                       </div>
                     ) : (
                       <div className="d-flex justify-content-center">
-                        <p>No collections found.</p>
+                        <p>No data found.</p>
                       </div>
                     )}
                   </div>

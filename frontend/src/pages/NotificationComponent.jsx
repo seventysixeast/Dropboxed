@@ -1,16 +1,88 @@
-import React from "react";
-import { MdDelete } from "react-icons/md";
-// import "../app-assets/css/core/menu/menu-types/vertical-menu-modern.css";
-import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
-import avatar5 from "../app-assets/images/portrait/small/avatar-s-14.png";
-import avatar6 from "../app-assets/images/portrait/small/avatar-s-15.png";
-import avatar7 from "../app-assets/images/portrait/small/avatar-s-4.png";
-import avatar8 from "../app-assets/images/portrait/small/avatar-s-11.png";
-import avatar9 from "../app-assets/images/portrait/small/avatar-s-19.png";
-import avatar10 from "../app-assets/images/portrait/small/avatar-s-20.png";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import TableCustom from "../components/Table";
+import { toast } from "react-toastify";
+import DeleteModal from "../components/DeleteModal";
+import { useAuth } from "../context/authContext";
+import { getAllNotifications, deleteNotification } from "../api/notificationApis";
+import { format } from 'date-fns';
 
 export const NotificationComponent = () => {
+  const { authData } = useAuth();
+  const user = authData.user;
+  const subdomainId = user.subdomain_id;
+  const clientId = user.id;
+  const [notifications, setNotifications] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [notificationIdToDelete, setNotificationIdToDelete] = useState(null);
+
+  useEffect(() => {
+    getAllNotificationsData();
+  }, []);
+
+  const getAllNotificationsData = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("subdomain_id", subdomainId);
+      formData.append("client_id", clientId);
+      let allNotificationsData = await getAllNotifications(formData);
+      if (allNotificationsData && allNotificationsData.success) {
+        setNotifications(allNotificationsData.data);
+      } else {
+        setNotifications([]);
+      }
+    } catch (error) {
+      console.error("Failed to:", error.message);
+    }
+  };
+
+  const deleteNotificationData = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", notificationIdToDelete);
+      let res = await deleteNotification(formDataToSend);
+      if (res.success) {
+        toast.success(res.message);
+        setShowDeleteModal(false);
+        getAllNotificationsData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: "Date",
+        accessor: "date",
+        Cell: ({ value }) => format(new Date(value), 'dd-MM-yyyy')
+      },
+      { Header: "Notification", accessor: "notification" },
+      {
+        Header: "Action",
+        Cell: ({ row }) => (
+          <div className="btnsrow">
+            <button
+              className="btn btn-icon btn-outline-danger mr-1 mb-1"
+              title="Delete"
+              onClick={() => {
+                setShowDeleteModal(true);
+                setNotificationIdToDelete(row.original.id);
+              }}
+            >
+              <i className="feather white icon-trash"></i>
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
+  const data = React.useMemo(() => notifications, [notifications]);
+
   return (
     <>
       <div className="app-content content">
@@ -31,79 +103,15 @@ export const NotificationComponent = () => {
               </div>
             </div>
           </div>
-          <div className="users-list-table">
-            <div className="card">
-              <div className="card-content">
-                <div className="card-body">
-                  <div className="table-responsive">
-                    <table className="table table-striped table-bordered zero-configuration">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Notification</th>
-                          <th>Action</th>
-                          <th className="d-none">last activity</th>
-                          <th className="d-none">verified</th>
-                          <th className="d-none">role</th>
-                          <th className="d-none">sad</th>
-                          <th className="d-none">asd</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>21/01/2023</td>
-                          <td>Notification Message</td>
-                          <td className="d-flex justify-content-between">
-                            <div className="btnsrow">
-                              <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
-                                <i className="fa fa-remove"></i>
-                              </button>
-                            </div>
-                          </td>
-                          <td className="d-none">amrit@mail.com</td>
-                          <td className="d-none">No</td>
-                          <td className="d-none">Staff</td>
-                          <td className="d-none">
-                            <span className="badge badge-success">Active</span>
-                          </td>
-                          <td className="d-none">
-                            <a href="../../../html/ltr/vertical-menu-template/page-users-edit.html">
-                              <i className="feather icon-edit-1" />
-                            </a>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>21/01/2023</td>
-                          <td>Notification Message</td>
-                          <td className="d-flex justify-content-between">
-                            <div className="btnsrow">
-                              <button className="btn btn-sm btn-outline-danger mr-1 mb-1" title="Delete">
-                                <i className="fa fa-remove"></i>
-                              </button>
-                            </div>
-                          </td>
-                          <td className="d-none">amrit@mail.com</td>
-                          <td className="d-none">No</td>
-                          <td className="d-none">Staff</td>
-                          <td className="d-none">
-                            <span className="badge badge-success">Active</span>
-                          </td>
-                          <td className="d-none">
-                            <a href="../../../html/ltr/vertical-menu-template/page-users-edit.html">
-                              <i className="feather icon-edit-1" />
-                            </a>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
-
+      <TableCustom data={data} columns={columns} />
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={deleteNotificationData}
+        message="Are you sure you want to delete this notification?"
+      />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
     </>

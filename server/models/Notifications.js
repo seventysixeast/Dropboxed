@@ -7,6 +7,14 @@ const Notifications = sequelize.define('Notifications', {
     primaryKey: true,
     autoIncrement: true
   },
+  client_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  subdomain_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   notification: {
     type: DataTypes.STRING(250),
     allowNull: false
