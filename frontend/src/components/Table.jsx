@@ -106,7 +106,6 @@ const TableCustom = ({ data, columns }) => {
                       </div>
                     </div>
 
-                    {data.length > 0 ? (
                       <div style={{ overflowX: "auto" }}>
                         <table
                           {...getTableProps()}
@@ -163,11 +162,6 @@ const TableCustom = ({ data, columns }) => {
                           </tbody>
                         </table>
                       </div>
-                    ) : (
-                      <div className="d-flex justify-content-center">
-                        <p>No collections found.</p>
-                      </div>
-                    )}
                   </div>
                 </div>
                 <div className="justify-content-between px-2 dataTables_wrapper dt-bootstrap4">

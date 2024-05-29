@@ -1148,7 +1148,7 @@ const ToDo = () => {
         </div>
         <div className="content-right">
           <div className="content-overlay"></div>
-          <div className="content-wrapper">
+          <div className="content-wrapper m-0">
             <div className="content-header row mt-2"></div>
             <div className="content-body">
               {show || isNewTaskModalOpen ? (
