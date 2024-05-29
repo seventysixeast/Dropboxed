@@ -9,7 +9,7 @@ const axios = require("axios");
 const BusinessClients = require("../models/BusinessClients");
 const clientController = require("../controllers/clientController");
 const sequelize = require('../config/sequelize');
-const { SEND_VERIFICATION_EMAIL, SEND_OTP, WELCOME_LOGIN } = require("../helpers/emailTemplate");
+const { SEND_VERIFICATION_EMAIL, SEND_VERIFICATION_CLIENT_EMAIL, SEND_OTP, WELCOME_EMAIL } = require("../helpers/emailTemplate");
 const { sendEmail, generateVerificationToken } = require("../helpers/sendEmail");
 
 const oAuth2Client = new OAuth2(
@@ -107,7 +107,7 @@ exports.login = async (req, res) => {
     const isFirstLogin = user.is_first_login;
     if (isFirstLogin) {
       // Send Welcome email
-      var SEND_EMAIL = WELCOME_LOGIN(user.name, user.email);
+      var SEND_EMAIL = WELCOME_EMAIL();
       sendEmail(user.email, "Welcome to Our Studiio.au", SEND_EMAIL);
       // Update the is_first_login flag
       user.is_first_login = false;
@@ -426,7 +426,7 @@ exports.clientSignup = async (req, res) => {
 
     clientController.updateRedisCache(subdomainUser.id);
 
-    const emailContent = SEND_VERIFICATION_EMAIL(name, email, verificationToken);
+    const emailContent = SEND_VERIFICATION_CLIENT_EMAIL(name, email, verificationToken);
     sendEmail(email, "Welcome to studiio.au!", emailContent);
 
     res.status(200).json({
@@ -491,7 +491,7 @@ exports.verifyToken = async (req, res) => {
     const isFirstLogin = user.is_first_login;
     if (isFirstLogin) {
       // Send Welcome email
-      var SEND_EMAIL = WELCOME_LOGIN(user.subdomain, user.name, user.email);
+      var SEND_EMAIL = WELCOME_EMAIL();
       sendEmail(user.email, "Welcome to Our Studiio.au", SEND_EMAIL);
       // Update the is_first_login flag
       user.is_first_login = false;

@@ -4,7 +4,7 @@ const Collections = require("../models/Collections");
 const redis = require("ioredis");
 const redisClient = new redis();
 const bcrypt = require('bcrypt');
-const { WELCOME_EMAIL } = require('../helpers/emailTemplate');
+const { WELCOME_CLIENT_EMAIL } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
 
 const updateRedisCache = async (subdomain_id) => {
@@ -166,7 +166,7 @@ const createClient = async (req, res) => {
       });
 
       // Send email notification
-      var SEND_EMAIL = WELCOME_EMAIL(user.subdomain, user.email, client.name, client.email, password);
+      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, client.name, client.email, password);
       sendEmail(req.body.email, "Welcome to Our Studiio.au", SEND_EMAIL);
 
     }
