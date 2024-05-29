@@ -1,7 +1,7 @@
 const User = require('../models/Users');
 const BusinessClients = require('../models/BusinessClients');
 const bcrypt = require('bcrypt');
-const { WELCOME_EMAIL } = require('../helpers/emailTemplate');
+const { WELCOME_CLIENT_EMAIL } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
 
 const getAllPhotographers = async (req, res) => {
@@ -92,7 +92,7 @@ const createPhotographer = async (req, res) => {
       });
 
       // Send email notification
-      var SEND_EMAIL = WELCOME_EMAIL(user.subdomain, user.email, req.body.name, req.body.email, password);
+      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, req.body.name, req.body.email, password);
       sendEmail(req.body.email, "Welcome to Our Studiio.au", SEND_EMAIL);
       
       res.status(200).json({
