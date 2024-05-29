@@ -725,10 +725,11 @@ const Collections = () => {
             <TableCustom data={data} columns={columns} />
           ) : (
             <div
-              className="col-12 d-flex justify-content-center primary "
-              style={{ height: "100vh" }}
+              className="d-flex justify-content-center"
+              style={{ marginTop: "15rem" }}
+              role="status"
             >
-              <p>No collections found. Add a collection.</p>
+              <p>No collections found.</p>
             </div>
           )}
         </>

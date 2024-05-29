@@ -16,7 +16,7 @@ const CardsPackages = () => {
   const [serviceId, setServiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [usedServices, setUsedServices] = useState(false);
-  const [itemsLoading, setItemsLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -280,14 +280,13 @@ const CardsPackages = () => {
             ) : (
               <div
                 className="col-12 d-flex justify-content-center "
-                style={{ height: "100vh" }}
               >
                 {itemsLoading ? (
-                  <div className="spinner-border" role="status">
+                  <div className="spinner-border primary" style={{marginTop: '15rem'}} role="status">
                     <span className="sr-only"></span>
                   </div>
                 ) : (
-                  <p>No services found.</p>
+                  <p style={{marginTop: '15rem'}}>No services found.</p>
                 )}
               </div>
             )}

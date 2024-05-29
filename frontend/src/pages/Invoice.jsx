@@ -19,7 +19,7 @@ const Invoice = () => {
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceId, setInvoiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [itemsLoading, setItemsLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const handleDeleteModalClose = () => {
@@ -241,10 +241,9 @@ const Invoice = () => {
         <>
           <div
             className="col-12 d-flex justify-content-center "
-            style={{ height: "100vh" }}
           >
             {itemsLoading ? (
-              <div className="spinner-border" role="status">
+              <div className="spinner-border primary" style={{marginTop: '15rem'}} role="status">
                 <span className="sr-only"></span>
               </div>
             ) : (

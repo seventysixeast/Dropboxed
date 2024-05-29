@@ -53,6 +53,7 @@ export const BookingListComponent = () => {
   const [bookingAddress, setBookingAddress] = useState(null);
   const [toTime, setToTime] = useState("60");
   const [loading, setLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(false);
   const [clientList, setClientList] = useState([]);
   const [events, setEvents] = useState([]);
   const [bookingsData, setBookingsData] = useState([]);
@@ -292,6 +293,7 @@ export const BookingListComponent = () => {
 
   const getAllBookingsData = async () => {
     setLoading(true);
+    setItemsLoading(true);
     const datatosend = {
       subdomainId: subdomainId,
       roleId: roleId,
@@ -377,6 +379,7 @@ export const BookingListComponent = () => {
       setEvents([]);
     }
     setLoading(false);
+    setItemsLoading(false);
   };
 
   const getBookingData = (data) => {
@@ -1887,7 +1890,26 @@ export const BookingListComponent = () => {
           </div>
         </div>
       </div>
-      <TableCustom data={bookingsData} columns={filteredColumns} />
+      {itemsLoading ? (
+        <div className="spinner-border primary" role="status">
+          <span className="sr-only"></span>
+        </div>
+      ) : (
+        <>
+          {bookingsData.length > 0 ? (
+            <TableCustom data={bookingsData} columns={filteredColumns} />
+          ) : (
+            <div
+              className="d-flex justify-content-center"
+              style={{ marginTop: "15rem" }}
+              role="status"
+            >
+              <p>No Bookings found.</p>
+            </div>
+          )}
+        </>
+      )}
+
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={handleDeleteModalClose}

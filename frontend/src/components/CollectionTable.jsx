@@ -657,11 +657,10 @@ const CollectionTable = () => {
         {data.length > 0 ? (
           <Table2 data={data} columns={columns} />
         ) : (
-          <div
-            className="col-12 d-flex justify-content-center "
-            style={{ height: "100vh" }}
-          >
-            <p>No collections found. Add a collection.</p>
+          <div className="col-12 d-flex justify-content-center">
+            <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
+              No collections found. Add a collection.
+            </p>
           </div>
         )}
       </>
