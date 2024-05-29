@@ -239,15 +239,17 @@ const Invoice = () => {
         <TableCustom data={invoiceList} columns={columns} />
       ) : (
         <>
-          <div
-            className="col-12 d-flex justify-content-center "
-          >
+          <div className="col-12 d-flex justify-content-center ">
             {itemsLoading ? (
-              <div className="spinner-border primary" style={{marginTop: '15rem'}} role="status">
+              <div
+                className="spinner-border primary"
+                style={{ marginTop: "15rem" }}
+                role="status"
+              >
                 <span className="sr-only"></span>
               </div>
             ) : (
-              <p>No invoices found.</p>
+              <p>No invoices found. Add invoice by clicking Create Invoice.</p>
             )}
           </div>
         </>

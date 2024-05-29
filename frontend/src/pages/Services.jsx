@@ -1,11 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { deleteService, getAllServices } from "../api/serviceApis";
+import {
+  deleteService,
+  getAllServices,
+  updateServiceOrder,
+} from "../api/serviceApis";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import { useNavigate } from "react-router-dom";
-import { verifyToken } from "../api/authApis";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  rectIntersection,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  rectSortingStrategy,
+  rectSwappingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import SortableItem from "../components/SortableItem";
 
 const CardsPackages = () => {
   const { authData } = useAuth();
@@ -18,6 +38,7 @@ const CardsPackages = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [usedServices, setUsedServices] = useState(false);
   const [itemsLoading, setItemsLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,21 +56,16 @@ const CardsPackages = () => {
     formData.append("role_id", roleId);
     const response = await getAllServices(formData);
     if (response.success) {
-      const servicesWithParsedImages = response.data.map((service) => ({
+      let servicesWithParsedImages = response.data.map((service) => ({
         ...service,
         image_type_details: JSON.parse(service.image_type_details),
       }));
 
-      const inactiveServices = servicesWithParsedImages.filter(
-        (service) => service.status === "Inactive"
+      servicesWithParsedImages.sort(
+        (a, b) => b.package_order - a.package_order
       );
 
-      const activeServices = servicesWithParsedImages.filter(
-        (service) => service.status === "Active"
-      );
-
-      const sortedServices = [...activeServices, ...inactiveServices];
-      setServicesData(sortedServices);
+      setServicesData(servicesWithParsedImages);
       const uniquePackageIds = response.uniquePackageIds.map(Number);
       setUsedServices(uniquePackageIds);
     } else {
@@ -93,17 +109,51 @@ const CardsPackages = () => {
     setServiceId(null);
   };
 
-  const onDragEnd = (result) => {
-    if (!result.destination) {
-      return;
-    }
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-    const items = Array.from(servicesData);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setServicesData(items);
+  const onDragEnd = ({ active, over }) => {
+    const oldIndex = servicesData.findIndex((item) => item.id === active.id);
+    const newIndex = servicesData.findIndex((item) => item.id === over.id);
+    const updatedItems = arrayMove(servicesData, oldIndex, newIndex);
+    setServicesData(updatedItems);
+    handleServiceOrder(updatedItems);
+    return;
   };
+
+  const handleServiceOrder = async (updatedItems) => {
+    setLoading(true);
+    console.log(updatedItems);
+    try {
+      const items = updatedItems.map((item) => item.id);
+      const itemIds = updatedItems.map((item) => item.id);
+      const sortedItemIds = itemIds.sort((a, b) => b - a);
+      const response = await updateServiceOrder({
+        ids: sortedItemIds,
+        orders: items,
+      });
+      if (response.success) {
+        toast.success("Service order updated successfully!");
+      } else {
+        toast.error("Failed to update service order!");
+      }
+    } catch (error) {
+      toast.error("Failed to update service order!");
+    }
+    setLoading(false);
+  };
+
+  const handleEventStart = (event) => {
+    console.log(event)
+  }
 
   return (
     <>
@@ -113,7 +163,10 @@ const CardsPackages = () => {
           <div className="content-header row mt-2">
             <div className="content-header-left col-md-6 col-7 mb-2">
               <h3 className="content-header-title mb-0">Services & Prices</h3>
-              <div className="row breadcrumbs-top">
+              <div
+                className="
+row breadcrumbs-top"
+              >
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
@@ -142,99 +195,40 @@ const CardsPackages = () => {
               </ul>
             </div>
           </div>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="services">
-              {(provided) => (
-                <div
-                  className="row"
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                >
-                  {servicesData.length > 0 ? (
-                    servicesData.map((service, index) => (
-                      <Draggable
-                        key={service.id}
-                        draggableId={service.id.toString()}
-                        index={index}
-                        isDragDisabled={roleId === 3}
-                      >
-                        {(provided) => (
-                          <div
-                            className="col-xl-3 col-md-6 col-sm-12"
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <div className="card d-flex flex-column">
-                              <div className="card-content flex-grow-1">
-                                <div className="card-body text-center package-card">
-                                  <h1
-                                    className="card-title"
-                                    style={{ fontSize: "1.5rem" }}
-                                  >
-                                    {service.package_name}
-                                  </h1>
-                                  <h1
-                                    className="card-title"
-                                    style={{ fontSize: "1.5rem" }}
-                                  >
-                                    ${service.package_price.toFixed(2)}
-                                  </h1>
-                                  <ul className="list-unstyled">
-                                    {service.image_type_details.map(
-                                      (imageType) => (
-                                        <li key={imageType.image_type}>
-                                          {imageType.image_type_count}{" "}
-                                          {imageType.image_type_label}
-                                        </li>
-                                      )
-                                    )}
-                                  </ul>
-                                </div>
-                              </div>
-                              {roleId !== 3 && (
-                                <div className="card-footer d-flex justify-content-between">
-                                  <>
-                                    <button
-                                      className="btn btn-primary"
-                                      onClick={() => handleEditService(service)}
-                                    >
-                                      Edit
-                                    </button>
-                                    <button
-                                      className="btn btn-primary"
-                                      onClick={() =>
-                                        handleDeleteService(service)
-                                      }
-                                    >
-                                      Delete
-                                    </button>
-                                  </>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))
-                  ) : (
-                    <>
-                      {itemsLoading ? (
-                        <div className="col-12 text-center">
-                          <p>Loading...</p>
-                        </div>
-                      ) : (
-                        <div className="col-12 text-center">
-                          <p>No services found.</p>
-                        </div>
-                      )}
-                    </>
-                  )}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <DndContext sensors={sensors} onDragEnd={onDragEnd} onDragStart={handleEventStart}>
+            <SortableContext
+              items={servicesData}
+              strategy={rectSortingStrategy}
+            >
+              <div className="row">
+                {servicesData.length > 0 ? (
+                  servicesData.map((service) => (
+                    <SortableItem
+                      key={service.id}
+                      id={service.id}
+                      package_order={service.package_order}
+                      service={service}
+                      roleId={roleId}
+                      handleEditService={handleEditService}
+                      handleDeleteService={handleDeleteService}
+                    />
+                  ))
+                ) : (
+                  <>
+                    {itemsLoading ? (
+                      <div className="col-12 text-center">
+                        <p>Loading...</p>
+                      </div>
+                    ) : (
+                      <div className="col-12 text-center">
+                        <p>No services found.</p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
       <DeleteModal

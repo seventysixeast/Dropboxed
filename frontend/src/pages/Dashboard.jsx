@@ -844,15 +844,22 @@ export const Dashboard = () => {
                       ))
                     ) : (
                       <>
-                        <div
-                          className="col-12 d-flex justify-content-center "
-                        >
+                        <div className="col-12 d-flex justify-content-center ">
                           {itemsLoading ? (
-                            <div className="spinner-border primary" role="status">
+                            <div
+                              className="spinner-border primary"
+                              role="status"
+                            >
                               <span className="sr-only"></span>
                             </div>
                           ) : (
-                            <p>No Collections found. Add a collection.</p>
+                            <>
+                              {user.role_id == 5 || user.role_id == 2 ? (
+                                <p>No Collections found. Click New collection to add a collection.</p>
+                              ) : (
+                                <p>No Collections found.</p>
+                              )}
+                            </>
                           )}
                         </div>
                       </>

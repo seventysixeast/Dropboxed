@@ -7,5 +7,6 @@ router.post('/getAllServices', serviceController.getAllServices);
 router.post('/getService', serviceController.getService);
 router.post('/createService', serviceController.createService);
 router.post('/deleteService', serviceController.deleteService);
+router.post('/updateServiceOrder', serviceController.updateServiceOrder);
 
 module.exports = router;

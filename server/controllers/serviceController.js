@@ -17,9 +17,25 @@ const createService = async (req, res) => {
       const service = await Packages.update(data, {
         where: { id: req.body.id },
       });
+      const updatedService = await Packages.findByPk(req.body.id);
+      if (updatedService.package_order === 0) {
+        await Packages.update(
+          { package_order: updatedService.id },
+          { where: { id: updatedService.id } }
+        );
+      }
+
       res.status(200).json({ success: true, data: service });
     } else {
       const service = await Packages.create(req.body);
+
+      const updatedService = await Packages.findByPk(service.id);
+      if (updatedService.package_order === 0) {
+        await Packages.update(
+          { package_order: updatedService.id },
+          { where: { id: updatedService.id } }
+        );
+      }
       res.status(200).json({ success: true, data: service });
     }
   } catch (error) {
@@ -112,4 +128,20 @@ const deleteService = async (req, res) => {
   }
 };
 
-module.exports = { getAllServices, createService, getService, deleteService };
+const updateServiceOrder = async (req, res) => {
+  const ids = req.body.ids;
+  const orders = req.body.orders
+  console.log(req.body);
+  try {
+    for (let i = 0; i < ids.length; i++) {
+      await Packages.update({ package_order: orders[i] }, { where: { id: ids[i] } });
+    }
+    res.status(200).json({ success: true, message: "Service order updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to update service order" });
+  }
+
+};
+
+module.exports = { getAllServices, createService, getService, deleteService, updateServiceOrder };
