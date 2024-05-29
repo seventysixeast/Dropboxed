@@ -10,5 +10,6 @@ router.post('/deleteCollection', collectionController.deleteCollection);
 router.post('/updateGalleryLock', collectionController.updateGalleryLock);
 router.post('/updateCollection', collectionController.updateCollection);
 router.post('/updateGalleryNotify', collectionController.updateGalleryNotify);
+router.post('/getOrderDataForInvoice', collectionController.getOrderDataForInvoice);
 
 module.exports = router;

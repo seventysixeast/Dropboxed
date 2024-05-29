@@ -371,4 +371,76 @@ const updateGalleryNotify = async (req, res) => {
   }
 }
 
-module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify };
+const getOrderDataForInvoice = async (req, res) => {
+  try {
+    const { collectionId } = req.body;
+
+    // Fetch collection data
+    const collection = await Collection.findOne({
+      where: { id: collectionId }
+    });
+
+    if (!collection) {
+      return res.status(404).json({ success: false, message: 'Collection not found' });
+    }
+
+    // Fetch admin user data using subdomain_id
+    const adminUser = await User.findOne({
+      where: { id: collection.subdomain_id }
+    });
+
+    if (!adminUser) {
+      return res.status(404).json({ success: false, message: 'Admin user not found' });
+    }
+
+    // Fetch packages data
+    const packageIds = collection.package_ids.split(',').map(id => parseInt(id.trim(), 10));
+    const packages = await Package.findAll({
+      where: { id: packageIds }
+    });
+
+    // Calculate total price
+    const totalPrice = packages.reduce((sum, pkg) => sum + pkg.package_price, 0);
+
+    // Structure the response data
+    const responseData = {
+      collection: {
+        id: collection.id,
+        client_address: collection.client_address,
+        name: collection.name,
+        slug: collection.slug,
+        dropbox_link: collection.dropbox_link,
+        video_link: collection.video_link,
+        image_type: collection.image_type,
+        price: collection.price,
+        status: collection.status,
+        lock_gallery: collection.lock_gallery,
+        notify_client: collection.notify_client,
+        image_count: collection.image_count,
+        created: collection.created,
+        modified: collection.modified
+      },
+      admin: {
+        id: adminUser.id,
+        name: adminUser.name,
+        address: adminUser.address
+      },
+      packages: packages.map(pkg => ({
+        id: pkg.id,
+        name: pkg.package_name,
+        price: pkg.package_price,
+        details: pkg.image_type_details
+      })),
+      total_price: totalPrice
+    };
+
+    res.status(200).json({ success: true, data: responseData });
+  } catch (error) {
+    console.error('Error fetching order data for invoice:', error);
+    res.status(500).json({ error: 'Failed to fetch order data for invoice' });
+  }
+};
+
+
+
+module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify, getOrderDataForInvoice };

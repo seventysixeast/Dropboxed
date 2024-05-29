@@ -120,4 +120,20 @@ const updateGalleryNotify = async (data) => {
   }
 }
 
-export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, updateGalleryLock, deleteCollection, updateCollection, updateGalleryNotify };
+const getOrderDataForInvoice = async (collectionId) => {
+  try {
+    const response = await API.post('/collection/getOrderDataForInvoice', { collectionId }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.status !== 200) {
+      throw new Error('Failed to get order data for invoice');
+    }
+    return response.data;
+  } catch (error) {
+    return error.response.data.error;
+  }
+};
+
+export { addGallery, getAllCollections, getCollection, getDropboxRefreshToken, updateGalleryLock, deleteCollection, updateCollection, updateGalleryNotify, getOrderDataForInvoice };
