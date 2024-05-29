@@ -38,6 +38,7 @@ const Collections = () => {
   const roleId = user.role_id;
   const accesstoken = authData.token;
   const [loading, setLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(true);
   const [clients, setClients] = useState([]);
   const [bookingTitles, setBookingTitles] = useState([]);
   const [services, setServices] = useState([]);
@@ -298,6 +299,7 @@ const Collections = () => {
 
   const getAllCollectionsData = async () => {
     setLoading(true);
+    setItemsLoading(true);
     try {
       const formData = new FormData();
       formData.append("subdomainId", subdomainId);
@@ -312,6 +314,7 @@ const Collections = () => {
     } catch (error) {
       toast.error(error);
     }
+    setItemsLoading(false);
     setLoading(false);
   };
 
@@ -631,7 +634,7 @@ const Collections = () => {
 
     fetchData();
   }, [accesstoken]);
-
+  console.log(data);
   return (
     <>
       <LoadingOverlay loading={loading} />
@@ -716,7 +719,20 @@ const Collections = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      <TableCustom data={data} columns={columns} />
+      {itemsLoading === false && (
+        <>
+          {data.length > 0 ? (
+            <TableCustom data={data} columns={columns} />
+          ) : (
+            <div
+              className="col-12 d-flex justify-content-center primary "
+              style={{ height: "100vh" }}
+            >
+              <p>No collections found. Add a collection.</p>
+            </div>
+          )}
+        </>
+      )}
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

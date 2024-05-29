@@ -844,18 +844,18 @@ export const Dashboard = () => {
                       ))
                     ) : (
                       <>
-<div
-                className="col-12 d-flex justify-content-center "
-                style={{ height: "100vh" }}
-              >
-                {itemsLoading ? (
-                  <div className="spinner-border" role="status">
-                    <span className="sr-only"></span>
-                  </div>
-                ) : (
-                  <p>No Collections found.</p>
-                )}
-              </div>
+                        <div
+                          className="col-12 d-flex justify-content-center "
+                          style={{ height: "20vh" }}
+                        >
+                          {itemsLoading ? (
+                            <div className="spinner-border primary" role="status">
+                              <span className="sr-only"></span>
+                            </div>
+                          ) : (
+                            <p>No Collections found.</p>
+                          )}
+                        </div>
                       </>
                     )}
                   </div>

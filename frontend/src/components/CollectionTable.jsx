@@ -653,7 +653,18 @@ const CollectionTable = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      <Table2 data={data} columns={columns} />
+      <>
+        {data.length > 0 ? (
+          <Table2 data={data} columns={columns} />
+        ) : (
+          <div
+            className="col-12 d-flex justify-content-center "
+            style={{ height: "100vh" }}
+          >
+            <p>No collections found. Add a collection.</p>
+          </div>
+        )}
+      </>
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

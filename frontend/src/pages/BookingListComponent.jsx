@@ -291,6 +291,7 @@ export const BookingListComponent = () => {
   };
 
   const getAllBookingsData = async () => {
+    setLoading(true);
     const datatosend = {
       subdomainId: subdomainId,
       roleId: roleId,
@@ -375,6 +376,7 @@ export const BookingListComponent = () => {
       setBookingsData([]);
       setEvents([]);
     }
+    setLoading(false);
   };
 
   const getBookingData = (data) => {
@@ -1072,7 +1074,6 @@ export const BookingListComponent = () => {
     </CustomTooltip>
   );
 
-
   useEffect(() => {
     const fetchData = async () => {
       if (accesstoken !== undefined) {
@@ -1115,7 +1116,6 @@ export const BookingListComponent = () => {
                 <li>
                   <div className="form-group">
                     <div className="">
-
                       <ReTooltip
                         title="Subscribe for calendar alerts."
                         placement="top"
@@ -1220,9 +1220,7 @@ export const BookingListComponent = () => {
                                     >
                                       {roleId !== 3 && (
                                         <div className="modal-body d-flex px-4">
-                                          <p
-                                            style={{ width: "10rem" }}
-                                          >
+                                          <p style={{ width: "10rem" }}>
                                             Providers
                                           </p>
                                           <Select
@@ -1280,9 +1278,7 @@ export const BookingListComponent = () => {
                                         </div>
                                       )}
                                       <div className="modal-body d-flex px-4">
-                                        <p
-                                          style={{ width: "10rem" }}
-                                        >
+                                        <p style={{ width: "10rem" }}>
                                           Address
                                         </p>
                                         <div className="d-flex w-100">
@@ -1318,9 +1314,7 @@ export const BookingListComponent = () => {
                                         </div>
                                       </div>
                                       <div className="modal-body d-flex px-4">
-                                        <p
-                                          style={{ width: "10rem" }}
-                                        >
+                                        <p style={{ width: "10rem" }}>
                                           Service
                                         </p>
                                         <Select
@@ -1405,9 +1399,7 @@ export const BookingListComponent = () => {
                                       </div>
 
                                       <div className="modal-body d-flex px-4 ">
-                                        <p
-                                          style={{ width: "12rem" }}
-                                        >
+                                        <p style={{ width: "12rem" }}>
                                           Date / Time
                                         </p>
                                         <DatePicker
@@ -1635,11 +1627,7 @@ export const BookingListComponent = () => {
 
                                     <div className="tab-pane fade" id="tab2">
                                       <div className="modal-body d-flex px-4">
-                                        <p
-                                          style={{ width: "10rem" }}
-                                        >
-                                          Client
-                                        </p>
+                                        <p style={{ width: "10rem" }}>Client</p>
                                         <Select
                                           className="select2 w-100"
                                           name="clients"
@@ -1695,9 +1683,7 @@ export const BookingListComponent = () => {
                                         />
                                       </div>
                                       <div className="modal-body d-flex px-4">
-                                        <p
-                                          style={{ width: "11rem" }}
-                                        >
+                                        <p style={{ width: "11rem" }}>
                                           Comment
                                         </p>
                                         <textarea
