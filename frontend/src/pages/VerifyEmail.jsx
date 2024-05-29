@@ -19,10 +19,10 @@ const VerifyEmail = () => {
         toast.success("Email verified successfully");
         navigate("/login");
       } else {
-        toast.error("Email verification failed");
+        toast.error("You have already verified your email id. Please login.");
       }
     } catch (error) {
-      toast.error("Error verifying email. Please try again later.");
+      toast.error("You have already verified your email id. Please login.");
     }
   };
 

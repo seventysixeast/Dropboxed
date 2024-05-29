@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import { useNavigate } from "react-router-dom";
 import { verifyToken } from "../api/authApis";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const CardsPackages = () => {
   const { authData } = useAuth();
@@ -92,19 +93,17 @@ const CardsPackages = () => {
     setServiceId(null);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (accesstoken !== undefined) {
-        let resp = await verifyToken(accesstoken);
-        if (!resp.success) {
-          toast.error("Session expired, please login again.");
-          window.location.href = "/login";
-        }
-      }
-    };
+  const onDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
 
-    fetchData();
-  }, [accesstoken]);
+    const items = Array.from(servicesData);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setServicesData(items);
+  };
 
   return (
     <>
@@ -143,79 +142,99 @@ const CardsPackages = () => {
               </ul>
             </div>
           </div>
-          <div className="row">
-            {servicesData.length > 0 ? (
-              servicesData.map((service) => (
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="services">
+              {(provided) => (
                 <div
-                  className={`col-xl-3 col-md-6 col-sm-12 ${
-                    service.status === "Inactive" ? "dull-card" : ""
-                  }`}
-                  key={service.id}
+                  className="row"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
                 >
-                  <div className="card d-flex flex-column">
-                    <div className="card-content flex-grow-1">
-                      <div className="card-body text-center package-card">
-                        <h1
-                          className="card-title"
-                          style={{ fontSize: "1.5rem" }}
-                        >
-                          {service.package_name}
-                        </h1>
-                        {service.show_price && (
-                          <h1
-                            className="card-title"
-                            style={{ fontSize: "1.5rem" }}
+                  {servicesData.length > 0 ? (
+                    servicesData.map((service, index) => (
+                      <Draggable
+                        key={service.id}
+                        draggableId={service.id.toString()}
+                        index={index}
+                        isDragDisabled={roleId === 3}
+                      >
+                        {(provided) => (
+                          <div
+                            className="col-xl-3 col-md-6 col-sm-12"
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
                           >
-                            ${service.package_price.toFixed(2)}
-                          </h1>
+                            <div className="card d-flex flex-column">
+                              <div className="card-content flex-grow-1">
+                                <div className="card-body text-center package-card">
+                                  <h1
+                                    className="card-title"
+                                    style={{ fontSize: "1.5rem" }}
+                                  >
+                                    {service.package_name}
+                                  </h1>
+                                  <h1
+                                    className="card-title"
+                                    style={{ fontSize: "1.5rem" }}
+                                  >
+                                    ${service.package_price.toFixed(2)}
+                                  </h1>
+                                  <ul className="list-unstyled">
+                                    {service.image_type_details.map(
+                                      (imageType) => (
+                                        <li key={imageType.image_type}>
+                                          {imageType.image_type_count}{" "}
+                                          {imageType.image_type_label}
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              </div>
+                              {roleId !== 3 && (
+                                <div className="card-footer d-flex justify-content-between">
+                                  <>
+                                    <button
+                                      className="btn btn-primary"
+                                      onClick={() => handleEditService(service)}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      className="btn btn-primary"
+                                      onClick={() =>
+                                        handleDeleteService(service)
+                                      }
+                                    >
+                                      Delete
+                                    </button>
+                                  </>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         )}
-                        <ul className="list-unstyled">
-                          {service.image_type_details.map((imageType) => (
-                            <li key={imageType.image_type}>
-                              {imageType.image_type_count}{" "}
-                              {imageType.image_type_label}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                    {roleId !== 3 && (
-                      <div className="card-footer d-flex justify-content-between">
-                        <>
-                          <button
-                            className="btn btn-primary"
-                            onClick={() => handleEditService(service)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-primary"
-                            onClick={() => handleDeleteService(service)}
-                          >
-                            Delete
-                          </button>
-                        </>
-                      </div>
-                    )}
-                  </div>
+                      </Draggable>
+                    ))
+                  ) : (
+                    <>
+                      {itemsLoading ? (
+                        <div className="col-12 text-center">
+                          <p>Loading...</p>
+                        </div>
+                      ) : (
+                        <div className="col-12 text-center">
+                          <p>No services found.</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {provided.placeholder}
                 </div>
-              ))
-            ) : (
-              <div className="col-12 d-flex justify-content-center">
-                {itemsLoading ? (
-                  <div
-                    className="spinner-border primary"
-                    style={{ marginTop: "15rem" }}
-                    role="status"
-                  >
-                    <span className="sr-only"></span>
-                  </div>
-                ) : (
-                  <p style={{ marginTop: "15rem" }}>No services found.</p>
-                )}
-              </div>
-            )}
-          </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         </div>
       </div>
       <DeleteModal

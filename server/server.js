@@ -5,6 +5,7 @@ const clientRoutes = require('./routes/clientRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const imageTypeRoutes = require('./routes/imageTypeRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const photographerRoutes = require('./routes/photographerRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const photographerAdminRoutes = require('./routes/photographerAdminRoutes');
@@ -52,6 +53,7 @@ app.use('/client', clientRoutes);
 app.use('/service', serviceRoutes);
 app.use('/booking', bookingRouter);
 app.use('/imageType', imageTypeRoutes);
+app.use('/notification', notificationRoutes);
 app.use('/photographer', photographerRoutes);
 app.use('/collection', collectionRoutes);
 app.use('/photographerAdmin', photographerAdminRoutes);
@@ -73,6 +75,7 @@ app.get("/*", (req, res, next) => {
     req.url.startsWith("/service/") ||
     req.url.startsWith("/booking/") ||
     req.url.includes("/imageType/") ||
+    req.url.includes("/notification/") ||
     req.url.includes("/photographer/") ||
     req.url.includes("/collection/") ||
     //req.url.includes("/calender/") ||

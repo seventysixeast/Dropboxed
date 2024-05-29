@@ -76,8 +76,11 @@ const addGallery = async (req, res) => {
       let SEND_EMAIL = NEW_COLLECTION(user.subdomain, clientData.email, collectionData);
       sendEmail(clientData.email, "New Collection", SEND_EMAIL);
 
+      // Create notification
       await Notifications.create({
         notification: `New gallery '${collectionData.name}' has been created.`,
+        client_id: req.body.client,
+        subdomain_id: req.body.subdomainId,
         date: new Date()
       });
     }
@@ -92,6 +95,7 @@ const addGallery = async (req, res) => {
     res.status(500).json({ error: "Failed to add/update gallery" });
   }
 };
+
 
 const getAllCollections = async (req, res) => {
   try {
