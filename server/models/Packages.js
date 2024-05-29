@@ -37,6 +37,10 @@ const Package = sequelize.define('Package', {
     type: DataTypes.BOOLEAN,
     allowNull: false
   },
+  show_price: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
   subdomain_id: {
     type: DataTypes.INTEGER,
     allowNull: true,

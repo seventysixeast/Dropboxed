@@ -38,7 +38,17 @@ const CardsPackages = () => {
         ...service,
         image_type_details: JSON.parse(service.image_type_details),
       }));
-      setServicesData(servicesWithParsedImages);
+
+      const inactiveServices = servicesWithParsedImages.filter(
+        (service) => service.status === "Inactive"
+      );
+
+      const activeServices = servicesWithParsedImages.filter(
+        (service) => service.status === "Active"
+      );
+
+      const sortedServices = [...activeServices, ...inactiveServices];
+      setServicesData(sortedServices);
       const uniquePackageIds = response.uniquePackageIds.map(Number);
       setUsedServices(uniquePackageIds);
     } else {
@@ -53,7 +63,6 @@ const CardsPackages = () => {
 
   const handleDeleteService = (service) => {
     setServiceId(service.id);
-    console.log(service.id);
     if (usedServices.includes(service.id)) {
       toast.error("Service is being used in a collection/booking.");
       const timeoutId = setTimeout(() => {
@@ -129,99 +138,6 @@ const CardsPackages = () => {
                         Add Service
                       </a>
                     )}
-
-                    <div
-                      className="modal fade text-left"
-                      id="bootstrap"
-                      tabIndex="-1"
-                      role="dialog"
-                      aria-labelledby="myModalLabel35"
-                      aria-hidden="true"
-                      style={{ display: "none" }}
-                    >
-                      <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                          <div className="modal-header">
-                            <h3 className="card-title">Add Package</h3>
-                            <button
-                              type="button"
-                              className="close"
-                              data-dismiss="modal"
-                              aria-label="Close"
-                            >
-                              <span aria-hidden="true">×</span>
-                            </button>
-                          </div>
-                          <form>
-                            <div className="modal-body">
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Package Type *</label>
-                                <select
-                                  className="select2 form-control"
-                                  required
-                                >
-                                  <option value="user1">PACKAGE</option>
-                                  <option value="user2">SERVICE</option>
-                                </select>
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Package Name *</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Enter Package Name"
-                                  required=""
-                                  data-validation-required-message="This field is required"
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Package Price *</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Enter Package Price"
-                                  required=""
-                                  data-validation-required-message="This field is required"
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Image Type Details *</label>
-                                <select
-                                  className="select2 form-control"
-                                  required
-                                >
-                                  <option value="user1">Images</option>
-                                  <option value="user2">Floor Plan</option>
-                                </select>
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Status *</label>
-                                <select
-                                  className="select2 form-control"
-                                  required
-                                >
-                                  <option value="user1">Active</option>
-                                  <option value="user2">Inactive</option>
-                                </select>
-                              </fieldset>
-                            </div>
-                            <div className="modal-footer">
-                              <input
-                                type="submit"
-                                className="btn btn-primary btn"
-                                value="Add"
-                              />
-                              <input
-                                type="reset"
-                                className="btn btn-secondary btn"
-                                data-dismiss="modal"
-                                value="Close"
-                              />
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </li>
               </ul>
@@ -230,7 +146,12 @@ const CardsPackages = () => {
           <div className="row">
             {servicesData.length > 0 ? (
               servicesData.map((service) => (
-                <div className="col-xl-3 col-md-6 col-sm-12" key={service.id}>
+                <div
+                  className={`col-xl-3 col-md-6 col-sm-12 ${
+                    service.status === "Inactive" ? "dull-card" : ""
+                  }`}
+                  key={service.id}
+                >
                   <div className="card d-flex flex-column">
                     <div className="card-content flex-grow-1">
                       <div className="card-body text-center package-card">
@@ -240,12 +161,14 @@ const CardsPackages = () => {
                         >
                           {service.package_name}
                         </h1>
-                        <h1
-                          className="card-title"
-                          style={{ fontSize: "1.5rem" }}
-                        >
-                          ${service.package_price.toFixed(2)}
-                        </h1>
+                        {service.show_price && (
+                          <h1
+                            className="card-title"
+                            style={{ fontSize: "1.5rem" }}
+                          >
+                            ${service.package_price.toFixed(2)}
+                          </h1>
+                        )}
                         <ul className="list-unstyled">
                           {service.image_type_details.map((imageType) => (
                             <li key={imageType.image_type}>
@@ -278,15 +201,17 @@ const CardsPackages = () => {
                 </div>
               ))
             ) : (
-              <div
-                className="col-12 d-flex justify-content-center "
-              >
+              <div className="col-12 d-flex justify-content-center">
                 {itemsLoading ? (
-                  <div className="spinner-border primary" style={{marginTop: '15rem'}} role="status">
+                  <div
+                    className="spinner-border primary"
+                    style={{ marginTop: "15rem" }}
+                    role="status"
+                  >
                     <span className="sr-only"></span>
                   </div>
                 ) : (
-                  <p style={{marginTop: '15rem'}}>No services found.</p>
+                  <p style={{ marginTop: "15rem" }}>No services found.</p>
                 )}
               </div>
             )}

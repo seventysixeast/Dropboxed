@@ -9,12 +9,14 @@ import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import { useParams } from "react-router-dom";
 import LoadingOverlay from "../components/Loader";
+import { Switch } from "@mui/material";
 
 const AddService = () => {
   const { id } = useParams();
   const { authData } = useAuth();
   const { user } = authData;
   const subdomainId = user.subdomain_id;
+  const roleId = user.role_id;
   const [loading, setLoading] = useState(false);
   const [imageTypes, setImageTypes] = useState([]);
   const [cloneIndex, setCloneIndex] = useState(1);
@@ -24,6 +26,7 @@ const AddService = () => {
     status: "INACTIVE",
     totalPrice: 0,
     subdomainId: user.subdomain_id,
+    showPrice: 1,
   });
 
   useEffect(() => {
@@ -102,6 +105,8 @@ const AddService = () => {
     formData.append("subdomain_id", subdomainId);
     formData.append("status", serviceData.status);
     formData.append("package_order", "0");
+    formData.append("show_price", serviceData.showPrice);
+
     if (id != undefined) {
       formData.append("id", id);
     }
@@ -166,6 +171,7 @@ const AddService = () => {
         status: data.status,
         totalPrice: data.package_price,
         subdomainId: data.subdomain_id,
+        showPrice: data.show_price,
       });
       setCloneIndex(updatedImageTypeDetails.length);
     } catch (error) {
@@ -346,11 +352,20 @@ const AddService = () => {
                                   styles={{ padding: "none !important" }}
                                   name={`imageType${index}`}
                                   id={`imageType${index}`}
-                                  value={serviceData.imageTypeDetails[index].type}
-                                  onChange={(selectedOption) => handleImageTypeChange(index, selectedOption)}
+                                  value={
+                                    serviceData.imageTypeDetails[index].type
+                                  }
+                                  onChange={(selectedOption) =>
+                                    handleImageTypeChange(index, selectedOption)
+                                  }
                                   options={imageTypes
-                                    .filter((imageType) => imageType.status === 'Active') 
-                                    .sort((a, b) => a.type.localeCompare(b.type))
+                                    .filter(
+                                      (imageType) =>
+                                        imageType.status === "Active"
+                                    )
+                                    .sort((a, b) =>
+                                      a.type.localeCompare(b.type)
+                                    )
                                     .map((imageType) => ({
                                       value: imageType.id,
                                       label: imageType.type,
@@ -392,19 +407,17 @@ const AddService = () => {
                                     )
                                   }
                                 />
-                                {index > 0 && (
-                                  <button
-                                    className="btn btn-danger"
-                                    style={{
-                                      height: "3rem",
-                                      width: "3rem",
-                                    }}
-                                    type="button"
-                                    onClick={() => handleRemoveInstance(index)}
-                                  >
-                                    -
-                                  </button>
-                                )}
+                                <button
+                                  className="btn btn-danger"
+                                  style={{
+                                    height: "3rem",
+                                    width: "3rem",
+                                  }}
+                                  type="button"
+                                  onClick={() => handleRemoveInstance(index)}
+                                >
+                                  -
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -442,22 +455,59 @@ const AddService = () => {
                               options={statusOptions}
                               isSearchable
                             />
+
+                            <input
+                              type="string"
+                              className="form-control col-md-3 col-sm-6 mr-1 mb-1"
+                              id="totalPrice"
+                              name="totalPrice"
+                              placeholder="Total Price"
+                              value={`$${serviceData.totalPrice}`}
+                              onChange={(e) => {
+                                const numericValue = e.target.value.replace(
+                                  /[^0-9.]/g,
+                                  ""
+                                );
+                                setServiceData({
+                                  ...serviceData,
+                                  totalPrice: numericValue,
+                                });
+                              }}
+                            />
                             <label
-                              htmlFor="totalPrice"
-                              className="form-label col-md-3 col-sm-6"
-                            ></label>
-                            <p className="form-control col-md-3 col-sm-6 mr-1 mb-1">{`$ ${serviceData.totalPrice}`}</p>
+                              htmlFor="showPrice"
+                              className="form-label col-md-2 col-sm-4"
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
+                              Show Price:
+                            </label>
+
+                            <Switch
+                              checked={serviceData.showPrice}
+                              id="notify"
+                              onClick={() =>
+                                setServiceData({
+                                  ...serviceData,
+                                  showPrice: !serviceData.showPrice,
+                                })
+                              }
+                              inputProps={{
+                                "aria-label": "controlled",
+                              }}
+                            />
                           </div>
                         </div>
                       </form>
                       <div className="buttons d-flex justify-content-end mr-4">
-                        <button
-                          type="submit"
-                          onClick={handleSubmit}
-                          className="btn btn-outline-primary"
-                        >
-                          Submit
-                        </button>
+                        {roleId != 3 && (
+                          <button
+                            type="submit"
+                            onClick={handleSubmit}
+                            className="btn btn-outline-primary"
+                          >
+                            Submit
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
