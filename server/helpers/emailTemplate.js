@@ -1,14 +1,15 @@
 require('dotenv').config();
 const SITE_URL = process.env.SITE_URL;
+const VERIFY_URL = process.env.VERIFY_URL;
 
 exports.SEND_OTP = (name, email, otp) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+<div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                        <h1>Studiio.au</h1>
+                        <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px;" alt="Logo"/>
                     </td>
                 </tr>
                 <tr>
@@ -31,7 +32,7 @@ exports.SEND_OTP = (name, email, otp) => `
                             <tbody>
                                 <tr>
                                     <td style="font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;color: #001737;">
-                                        Power by studiio.au
+                                        Power by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px;" alt="Logo"/>
                                     </td>
                                 </tr>
                             </tbody>
@@ -63,8 +64,7 @@ exports.SEND_VERIFICATION_EMAIL = (studioName, email, verificationToken) => `
                                         <div style="font-size:14px;font-weight:normal;line-height:1.8em;text-align:left;">
                                             <p>Welcome to ${studioName}!</p>
                                             <p>To complete your registration, please verify your email address by clicking on the following link:</p>
-                                            <p><a href="${SITE_URL}verify-email/${verificationToken}"
-                                            >Verify Email</a></p>
+                                            <p><a href="https://${studioName}.${VERIFY_URL}verify-email/${verificationToken}">Verify Email</a></p>
                                             <p>If you did not sign up for ${email}, you can ignore this email.</p>
                                         </div>
                                     </td>
@@ -88,14 +88,14 @@ exports.SEND_VERIFICATION_EMAIL = (studioName, email, verificationToken) => `
 </div>
 `;
 
-exports.WELCOME_LOGIN = (name, email) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+exports.WELCOME_LOGIN = (subdomain, name, email) => `
+<div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; background: #f8f9fb; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                        <h1 style="text-transform: uppercase;">${name}</h1>
+                        <h1 style="text-transform: uppercase; color:00b5b8">${subdomain}</h1>
                     </td>
                 </tr>
                 <tr>
@@ -105,23 +105,23 @@ exports.WELCOME_LOGIN = (name, email) => `
                                 <tr>
                                     <td style="padding:30px; width:100%;" valign="top">
                                         <div style="font-size:14px;font-weight:normal;line-height:1.8em;text-align:left;">
-                                        <p>Welcome to my-studiio!</p>
+                                        <p>Welcome to ${subdomain}.studiio.au!</p>
                                         <p>Dear ${name},</p>
                                         <p>Welcome to ${name}.studiio.au! We're thrilled to have you.</p>
-                                        <p>At my-studio, you'll find all the tools you need to manage your bookings, galleries, invoices and more.</p>
+                                        <p>At ${subdomain}, you'll find all the tools you need to manage your bookings, galleries, invoices and more.</p>
                                         <p>we're here to make your experience enjoyable and seamless.</p>
                                         <p>If you have any questions or need assistance, feel free to reach out to our support team at ${email}</p>
                                         <p>Once again, welcome aboard!<br>
                                         Best regards,</p>
                                         <p>${name}<br>
                                         Director<br>
-                                        my-studio.au</p>
+                                        ${subdomain}</p>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align="center" style="padding-bottom:30px; width:100%;" valign="top">
-                                        <a href="${SITE_URL}login" style="display:inline-block;padding:11px 30px;color:#fff;background:#00b5b8 ;text-decoration:none;" rel="noreferrer" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${SITE_URL}login.php"><b>DASHBOARD</b></a>
+                                        <a href="${SITE_URL}dashboard" style="display:inline-block;padding:11px 30px;color:#fff;background:#00b5b8 ;text-decoration:none;" rel="noreferrer" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${SITE_URL}dashboard"><b>DASHBOARD</b></a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -132,7 +132,7 @@ exports.WELCOME_LOGIN = (name, email) => `
                                     <td align="center" style="font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;color: #001737;">
                                         <a href="${email}">${email}</a><br>
                                         Questions? Reply to this email.
-                                        <p>Power by <b>studiio.au</b></p>
+                                        <p>Power by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px;" alt="Logo"/></p>
                                     </td>
                                 </tr>
                             </tbody>
@@ -174,7 +174,7 @@ exports.WELCOME_EMAIL = (subdomain, subdomain_email, name, email, password) => `
                                         Best regards,</p>
                                         <p>${name}<br>
                                         Director<br>
-                                        ${subdomain}.studiio.au</p>
+                                        ${subdomain}</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -211,7 +211,7 @@ exports.NEW_BOOKING = (subdomain, name, data, contact) => `
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                    <h1 style="text-transform: uppercase;">${subdomain}</h1>
+                    <h1 style="text-transform: uppercase; color:00b5b8">${subdomain}</h1>
                     </td>
                 </tr>
                 <tr>
@@ -222,19 +222,21 @@ exports.NEW_BOOKING = (subdomain, name, data, contact) => `
                                     <td style="padding:30px; width:100%;" valign="top">
                                         <div style="font-size:14px;font-weight:normal;line-height:1.8em;text-align:left;">
                                             <p>Hello ${name}!</p>
-                                            <p>Your booking has been confirmed with Photographer.</p>
+                                            <p>Your booking has been confirmed with ${subdomain}.</p>
+                                            <hr>
 
                                             Date: ${data.booking_date} <br>
                                             Time: ${data.booking_time} <br>
-                                            Address: ${data.booking_title} <br>
+                                            Project: ${data.booking_title} <br>
                                             Contact: ${contact} <br>
                                         </div>
+                                        <hr>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 0px 30px 20px 30px; width:100%;" valign="top">
                                         <div style="font-size:14px;font-weight:normal;line-height:1.8em;text-align:left;">
-                                            Thanks <br>
+                                            Thank you, <br>
                                             <b>studiio.au</b>
                                         </div>
                                     </td>
@@ -252,7 +254,7 @@ exports.NEW_BOOKING = (subdomain, name, data, contact) => `
                             <tbody>
                                 <tr>
                                     <td style="font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;color: #001737;">
-                                        Power by studiio.au
+                                        Power by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px;" alt="Logo"/>
                                     </td>
                                 </tr>
                             </tbody>
