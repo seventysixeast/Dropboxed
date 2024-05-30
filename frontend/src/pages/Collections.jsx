@@ -732,7 +732,7 @@ const Collections = () => {
               role="status"
             >
               <p>
-                No Collections added yet. Click here to add a New Collection for
+                No Collections added yet. Click New Colletion to add new collection for
                 your Clients.
               </p>
             </div>

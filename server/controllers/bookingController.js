@@ -86,7 +86,6 @@ async function addevent(data) {
       where: { id: data.subdomain_id, calendar_sub: 1 },
     });
 
-    // Find photographers with calendar_sub = 1
     let photographers = [];
     if (data.photographer_id) {
       let photographerIds = data.photographer_id
@@ -101,12 +100,11 @@ async function addevent(data) {
       });
     }
 
-    // find user with data.user_id
     let theUser = await User.findOne({
       where: {
         id: data.user_id,
       },
-    })
+    });
 
     let userIds = [];
 
@@ -123,24 +121,48 @@ async function addevent(data) {
       userIds.push(parseInt(data.user_id));
     }
 
-    console.log(userIds);
-
-    const theUsers = await Users.findAll({ where: { id: userIds } });
+    let theUsers = await Users.findAll({ where: { id: userIds } });
 
     const authResponses = await Promise.all(
       theUsers.map(async (user) => {
         const code = user.refresh_token;
-        return await exchangeRefreshToken(code);
+        try {
+          return await exchangeRefreshToken(code);
+        } catch (error) {
+          console.error(`Error refreshing token for user ${user.id}:`, error);
+          return null;
+        }
       })
     );
 
-
-    const oAuth2Clients = authResponses.map((authResponse) =>
-      createOAuth2Client(authResponse.access_token)
-    );
+    const oAuth2Clients = authResponses.map((authResponse, index) => {
+      if (authResponse) {
+        return createOAuth2Client(authResponse.access_token);
+      } else {
+        console.log(`Skipping user ${theUsers[index].id} due to expired token`);
+        return null;
+      }
+    });
 
     for (let i = 0; i < theUsers.length; i++) {
       const user = theUsers[i];
+      if (!oAuth2Clients[i]) {
+      
+        const userToUpdate = await User.findOne({
+          where: { id: user.id },
+        });
+        if (userToUpdate) {
+          userToUpdate.access_token = "";
+          userToUpdate.refresh_token = "";
+          userToUpdate.calendar_sub = 0;
+          userToUpdate.calendar_id = "";
+      
+          await userToUpdate.save();
+        }
+        continue;
+      }
+      
+
       const calendar = google.calendar({
         version: "v3",
         auth: oAuth2Clients[i],
@@ -259,61 +281,6 @@ async function insertEvent(calendar, calendarId, eventId, data, start, end) {
     },
   });
 
-}
-
-async function deleteevent(bookingId, userId) {
-  let theuser = await Users.findOne({ where: { id: userId } });
-  let code = theuser.dataValues.refresh_token;
-  let grant_type = "refresh_token";
-
-  const response = await axios
-    .post(
-      "https://oauth2.googleapis.com/token",
-      new URLSearchParams({
-        refresh_token: code,
-        client_id,
-        client_secret,
-        redirect_uri,
-        grant_type,
-        scope:
-          "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
-        access_type: "offline",
-        prompt: "consent",
-        include_granted_scopes: "true",
-      }).toString(),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    )
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Refresh token exchange error:", error);
-      throw new Error("Refresh token exchange error");
-    });
-
-  const tokens = response;
-  oAuth2Client.setCredentials({
-    access_token: tokens.access_token,
-  });
-  const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
-  const id = "123" + bookingId;
-  const events = await calendar.events.list({
-    calendarId: theuser.calendar_id,
-    singleEvents: true,
-    orderBy: "startTime",
-    showDeleted: true,
-  });
-  const existingEvent = events.data.items.find((event) => event.id === id);
-  if (!existingEvent) {
-    return;
-  }
-  const resp = await calendar.events.delete({
-    calendarId: theuser.calendar_id,
-    eventId: id,
-  });
-  return resp;
 }
 
 const createBooking = async (req, res) => {
@@ -521,13 +488,11 @@ const deleteBooking = async (req, res) => {
     const bookingId = parseInt(req.body.id);
     let bookingData = await Booking.findOne({ where: { id: bookingId } });
 
-    // Find photographer admin with calendar_sub = 1
     let photographerAdmin = await Users.findOne({
       attributes: ["calendar_sub"],
       where: { id: bookingData.subdomain_id, calendar_sub: 1 },
     });
 
-    // Find photographers with calendar_sub = 1
     let photographers = [];
     if (bookingData.photographer_id) {
       let photographerIds = bookingData.photographer_id
@@ -554,33 +519,56 @@ const deleteBooking = async (req, res) => {
 
     if (photographerAdmin) {
       userIds.push(bookingData.subdomain_id);
-      console.log(bookingData.subdomain_id);
     }
     if (clients) {
       userIds.push(bookingData.user_id);
-      console.log(bookingData.user_id);
     }
     if (photographers) {
       photographers.forEach((photographer) => userIds.push(photographer.id));
     }
-
-    console.log(userIds);
 
     const theUsers = await Users.findAll({ where: { id: userIds } });
 
     const authResponses = await Promise.all(
       theUsers.map(async (user) => {
         const code = user.refresh_token;
-        return await exchangeRefreshToken(code);
+        try {
+          return await exchangeRefreshToken(code);
+        } catch (error) {
+          console.error(`Error refreshing token for user ${user.id}:`, error);
+          return null;
+        }
       })
     );
 
-    const oAuth2Clients = authResponses.map((authResponse) =>
-      createOAuth2Client(authResponse.access_token)
-    );
+
+    const oAuth2Clients = authResponses.map((authResponse, index) => {
+      if (authResponse) {
+        return createOAuth2Client(authResponse.access_token);
+      } else {
+        console.log(`Skipping user ${theUsers[index].id} due to expired token`);
+        return null;
+      }
+    });
 
     for (let i = 0; i < theUsers.length; i++) {
+      const user = theUsers[i];
       const oAuth2Client = oAuth2Clients[i];
+      if (!oAuth2Clients[i]) {
+      
+        const userToUpdate = await User.findOne({
+          where: { id: user.id },
+        });
+        if (userToUpdate) {
+          userToUpdate.access_token = "";
+          userToUpdate.refresh_token = "";
+          userToUpdate.calendar_sub = 0;
+          userToUpdate.calendar_id = "";
+      
+          await userToUpdate.save();
+        }
+        continue;
+      }
       const calendarId = theUsers[i].calendar_id;
       const eventId = "123" + bookingId;
       const calendar = google.calendar({ version: "v3", auth: oAuth2Client });

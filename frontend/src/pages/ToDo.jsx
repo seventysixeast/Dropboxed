@@ -92,11 +92,9 @@ const ToDo = () => {
       formData.append("subdomain_id", subdomainId);
     }
     const response = await getClientPhotographers(formData);
-    console.log(response);
     if (response.success) {
       if (roleId !== 3) {
         const activeClients = response.data.filter((client) => client.status === "Active");
-        console.log(activeClients);
         setClients(activeClients);
       } else {
         const activeClients = response.data.filter((client) => client.status === "Active");
@@ -276,9 +274,7 @@ const ToDo = () => {
       value: tag.id,
       label: tag.tasktag_title,
     }));
-    console.log(taskTags);
     const formattedTags = taskTags.map((tag) => tag.value).join(", ");
-    console.log(formattedTags);
     setTaskData({
       id: task.id,
       userId: task.user_id,
@@ -564,9 +560,8 @@ const ToDo = () => {
                           className={`list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer ${
                             activeFilter === tag.id ? "active" : ""
                           }`}
-                          style={{ padding: "4px" }}
+                          style={{ padding: "0.8rem 1rem" }}
                           onClick={(e) => {
-                            console.log("Going here");
                             e.preventDefault();
                             sortByTag(tag.id);
                           }}
