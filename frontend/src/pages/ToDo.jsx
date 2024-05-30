@@ -1307,7 +1307,7 @@ const ToDo = () => {
                                                   return (
                                                     <span
                                                       key={tag.id}
-                                                      className="badge badge-primary badge-pill"
+                                                      className="badge badge-primary badge-pill todo-truncate-tag"
                                                       style={{
                                                         backgroundColor: `${getBulletClass(
                                                           tag.id

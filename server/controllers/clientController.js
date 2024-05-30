@@ -50,7 +50,8 @@ const getAllClients = async (req, res) => {
       const clientsData = await User.findAll({
         where: {
           role_id: 3,
-          id: clientIds
+          id: clientIds,
+          status: 'Active'
         },
         order: [["created", "DESC"]]
       });
@@ -66,7 +67,8 @@ const getAllClients = async (req, res) => {
       const clientsData = await User.findAll({
         where: {
           role_id: 3,
-          id: clientIds
+          id: clientIds,
+          status: 'Active'
         },
         order: [["created", "DESC"]]
       });
