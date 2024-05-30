@@ -21,6 +21,7 @@ import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 import CollectionTable from "../components/CollectionTable";
 import ReTooltip from "../components/Tooltip";
+import LoadingOverlay from "../components/Loader";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;

@@ -31,7 +31,7 @@ const AddGalleryModal = ({
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': [],
+      "image/*": [],
     },
     onDrop,
     multiple: false,
@@ -89,7 +89,7 @@ const AddGalleryModal = ({
                     </select>
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <p >Booking Title *</p>
+                    <p>Booking Title *</p>
                     <select
                       id="booking_title"
                       className="select2 form-control"
@@ -288,11 +288,18 @@ const AddGalleryModal = ({
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <input
-                    type="submit"
-                    className="btn btn-primary btn"
-                    value={button}
-                  />
+                  {loading ? (
+                    <div className="spinner-border text-primary mr-2" role="status">
+                      <span className="sr-only">Loading...</span>
+                    </div>
+                  ) : (
+                    <input
+                      type="submit"
+                      className="btn btn-primary btn"
+                      value={button}
+                    />
+                  )}
+
                   <input
                     type="reset"
                     className="btn btn-secondary btn"

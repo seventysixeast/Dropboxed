@@ -1899,12 +1899,16 @@ export const BookingListComponent = () => {
           {bookingsData.length > 0 ? (
             <TableCustom data={bookingsData} columns={filteredColumns} />
           ) : (
-            <div
-              className="d-flex justify-content-center"
-              style={{ marginTop: "15rem" }}
-              role="status"
-            >
-              <p>No Bookings found.</p>
+            <div className="app-content content">
+              <div className="content-overlay"></div>
+              <div className="content-wrapper">
+                <div
+                  className="d-flex justify-content-center mb-5"
+                  role="status"
+                >
+                  <p>No Bookings found.</p>
+                </div>
+              </div>
             </div>
           )}
         </>

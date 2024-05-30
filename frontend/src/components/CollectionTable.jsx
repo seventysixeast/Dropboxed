@@ -665,7 +665,8 @@ const CollectionTable = () => {
             <div className="col-12 d-flex justify-content-center">
               {roleId !== 3 ? (
                 <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
-                  No collections found. Add a collection.
+                  No Collections found. Click New collection to add a
+                  collection.
                 </p>
               ) : (
                 <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
