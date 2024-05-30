@@ -1331,8 +1331,7 @@ const ToDo = () => {
                                                   : avatar1
                                               }
                                               alt="charlie"
-                                              width={38}
-                                              height={38}
+                                              className="todo-profile-photo"
                                             />
                                           </div>
                                           <a
