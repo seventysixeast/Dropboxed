@@ -147,7 +147,7 @@ async function addevent(data) {
     for (let i = 0; i < theUsers.length; i++) {
       const user = theUsers[i];
       if (!oAuth2Clients[i]) {
-      
+
         const userToUpdate = await User.findOne({
           where: { id: user.id },
         });
@@ -156,12 +156,12 @@ async function addevent(data) {
           userToUpdate.refresh_token = "";
           userToUpdate.calendar_sub = 0;
           userToUpdate.calendar_id = "";
-      
+
           await userToUpdate.save();
         }
         continue;
       }
-      
+
 
       const calendar = google.calendar({
         version: "v3",
@@ -555,7 +555,7 @@ const deleteBooking = async (req, res) => {
       const user = theUsers[i];
       const oAuth2Client = oAuth2Clients[i];
       if (!oAuth2Clients[i]) {
-      
+
         const userToUpdate = await User.findOne({
           where: { id: user.id },
         });
@@ -564,7 +564,7 @@ const deleteBooking = async (req, res) => {
           userToUpdate.refresh_token = "";
           userToUpdate.calendar_sub = 0;
           userToUpdate.calendar_id = "";
-      
+
           await userToUpdate.save();
         }
         continue;
