@@ -443,28 +443,28 @@ const Clients = () => {
                     <div className="text-center mt-auto">
                       <a
                         href={`mailto:${item.email}`}
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title={item.email}
                       >
                         <span className="icon-envelope"></span>
                       </a>
                       <a
                         href={`tel:${item.phone}`}
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title={item.phone}
                       >
                         <span className="icon-call-out"></span>
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title="View Collection"
                       >
                         <span className="icon-grid"></span>
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title="Edit"
                         onClick={() => getClientData(item.id)}
                         data-toggle="modal"
@@ -474,7 +474,7 @@ const Clients = () => {
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title="Delete"
                         onClick={() => {
                           setShowDeleteModal(true);
