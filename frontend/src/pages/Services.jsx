@@ -121,25 +121,28 @@ const CardsPackages = () => {
   );
 
   const onDragEnd = ({ active, over }) => {
+    if (active.id === over.id) {
+      return;
+    }
+
     const oldIndex = servicesData.findIndex((item) => item.id === active.id);
     const newIndex = servicesData.findIndex((item) => item.id === over.id);
     const updatedItems = arrayMove(servicesData, oldIndex, newIndex);
     setServicesData(updatedItems);
     handleServiceOrder(updatedItems);
-    return;
   };
 
   const handleServiceOrder = async (updatedItems) => {
     setLoading(true);
-    console.log(updatedItems);
     try {
-      const items = updatedItems.map((item) => item.id);
       const itemIds = updatedItems.map((item) => item.id);
-      const sortedItemIds = itemIds.sort((a, b) => b - a);
+      let newitems = updatedItems.map((item) => item.id);
+      const sorted = newitems.sort((a, b) => b - a);
       const response = await updateServiceOrder({
-        ids: sortedItemIds,
-        orders: items,
+        ids: itemIds,
+        orders: sorted,
       });
+
       if (response.success) {
         toast.success("Service order updated successfully!");
       } else {
@@ -150,10 +153,6 @@ const CardsPackages = () => {
     }
     setLoading(false);
   };
-
-  const handleEventStart = (event) => {
-    console.log(event)
-  }
 
   return (
     <>
@@ -195,7 +194,7 @@ row breadcrumbs-top"
               </ul>
             </div>
           </div>
-          <DndContext sensors={sensors} onDragEnd={onDragEnd} onDragStart={handleEventStart}>
+          <DndContext sensors={sensors} onDragEnd={onDragEnd}>
             <SortableContext
               items={servicesData}
               strategy={rectSortingStrategy}
@@ -215,15 +214,17 @@ row breadcrumbs-top"
                   ))
                 ) : (
                   <>
-                    {itemsLoading ? (
-                      <div className="col-12 text-center">
-                        <p>Loading...</p>
-                      </div>
-                    ) : (
-                      <div className="col-12 text-center">
-                        <p>No services found.</p>
-                      </div>
-                    )}
+                    <div className="col-12 d-flex justify-content-center overflow-hidden">
+                      {itemsLoading ? (
+                        <div className="spinner-border primary" role="status">
+                          <span className="sr-only"></span>
+                        </div>
+                      ) : (
+                        <div className="col-12 text-center">
+                          <p>No services found.</p>
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>

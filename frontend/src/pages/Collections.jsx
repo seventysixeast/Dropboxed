@@ -50,7 +50,7 @@ const Collections = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [subdomainDropbox, setSubdomainDropbox] = useState(null);
+  const [subdomainDropbox, setSubdomainDropbox] = useState("");
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -368,11 +368,14 @@ const Collections = () => {
   const getDropboxRefresh = async () => {
     const formDataToSend = new FormData();
     formDataToSend.append("id", user.subdomain_id);
-
     try {
       const response = await getDropboxRefreshToken(formDataToSend);
       if (response.success) {
-        setSubdomainDropbox(response.data);
+        if (response.data !== null) {
+          setSubdomainDropbox(response.data);
+        } else {
+          setSubdomainDropbox("");
+        }
       } else {
         console.log(response.message);
       }
@@ -631,10 +634,9 @@ const Collections = () => {
         }
       }
     };
-
     fetchData();
   }, [accesstoken]);
-  console.log(data);
+
   return (
     <>
       <LoadingOverlay loading={loading} />
@@ -661,7 +663,7 @@ const Collections = () => {
                   <div className="form-group d-flex">
                     {user.role_id == 5 && (
                       <>
-                        {user.dropbox_refresh == null && (
+                        {subdomainDropbox === "" && !itemsLoading && (
                           <a
                             href={`${dropboxAuthUrl}`}
                             className="btn btn-primary mr-1"
@@ -680,11 +682,11 @@ const Collections = () => {
                         data-target="#bootstrap"
                         // title conditional
                         title={
-                          user.dropbox_refresh == null
+                          subdomainDropbox === ""
                             ? "Dropbox Not Linked"
                             : "Add Collection"
                         }
-                        disabled={user.dropbox_refresh == null}
+                        disabled={subdomainDropbox === ""}
                         onClick={() => {
                           setShowAddGalleryModal(true);
                         }}
@@ -730,7 +732,8 @@ const Collections = () => {
               role="status"
             >
               <p>
-                No Collections found. Click New collection to add a collection.
+                No Collections added yet. Click here to add a New Collection for
+                your Clients.
               </p>
             </div>
           )}

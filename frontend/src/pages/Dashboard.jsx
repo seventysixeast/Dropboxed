@@ -10,6 +10,7 @@ import {
   addGallery,
   getAllCollections,
   getCollection,
+  getDropboxRefreshToken,
 } from "../api/collectionApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
@@ -50,7 +51,7 @@ export const Dashboard = () => {
   const [collectionData, setCollectionData] = useState("");
   const [itemsLoading, setItemsLoading] = useState(false);
   const [galleryView, setGalleryView] = useState("grid");
-
+  const [subdomainDropbox, setSubdomainDropbox] = useState("");
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
@@ -141,8 +142,8 @@ export const Dashboard = () => {
       getAllCollectionsData();
     }
 
-    getRefreshToken(user.dropbox_refresh);
     getAllBookingsData();
+    getDropboxRefresh();
   }, []);
 
   useEffect(() => {
@@ -413,11 +414,23 @@ export const Dashboard = () => {
     setItemsLoading(false);
   };
 
-  const textBeforeComma = (text) => {
-    if (typeof text === "string") {
-      return text.split(",")[0];
+  const getDropboxRefresh = async () => {
+    const formDataToSend = new FormData();
+    formDataToSend.append("id", user.subdomain_id);
+    try {
+      const response = await getDropboxRefreshToken(formDataToSend);
+      if (response.success) {
+        if (response.data !== null) {
+          setSubdomainDropbox(response.data);
+        } else {
+          setSubdomainDropbox("");
+        }
+      } else {
+        console.log(response.message);
+      }
+    } catch (error) {
+      console.log(error);
     }
-    return text;
   };
 
   const getCollectionData = async (id) => {
@@ -671,10 +684,11 @@ export const Dashboard = () => {
 
                         {user.role_id == 5 && (
                           <>
-                            {user.dropbox_refresh == null && (
+                            {subdomainDropbox === "" && !itemsLoading && (
                               <a
                                 href={`${dropboxAuthUrl}`}
                                 className="btn btn-primary mr-1"
+                                style={{ paddingTop: "10px" }}
                               >
                                 Link Your Dropbox
                               </a>
@@ -700,7 +714,7 @@ export const Dashboard = () => {
                         {user.role_id !== 3 && (
                           <ReTooltip
                             title={
-                              user.dropbox_refresh == null
+                              subdomainDropbox === ""
                                 ? "Link your dropbox first!"
                                 : "Add a new collection."
                             }
@@ -711,7 +725,7 @@ export const Dashboard = () => {
                               className="btn btn-outline-primary"
                               data-toggle="modal"
                               data-target="#bootstrap"
-                              disabled={user.dropbox_refresh == null}
+                              disabled={subdomainDropbox === ""}
                               onClick={() => {
                                 if (galleryView == "grid") {
                                   setShowAddGalleryModal(true);
@@ -855,7 +869,10 @@ export const Dashboard = () => {
                           ) : (
                             <>
                               {user.role_id == 5 || user.role_id == 2 ? (
-                                <p>No Collections found. Click New collection to add a collection.</p>
+                                <p>
+                                  No Collections found. Click New collection to
+                                  add a collection.
+                                </p>
                               ) : (
                                 <p>No Collections found.</p>
                               )}

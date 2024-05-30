@@ -52,7 +52,7 @@ const CollectionTable = () => {
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [subdomainDropbox, setSubdomainDropbox] = useState(null);
-  const [itemsLoading, setItemsLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(true);
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -411,7 +411,6 @@ const CollectionTable = () => {
       setFormData(initialFormData);
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
-      getAllCollectionsData();
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
@@ -632,7 +631,6 @@ const CollectionTable = () => {
 
   return (
     <>
-      {itemsLoading ? <LoadingOverlay loading={itemsLoading} /> : null}
       <AddGalleryModal
         message={formData.id ? "Update Collection" : "Add Collection"}
         button={formData.id ? "Update" : "Add"}
@@ -653,17 +651,32 @@ const CollectionTable = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      <>
-        {data.length > 0 ? (
-          <Table2 data={data} columns={columns} />
-        ) : (
-          <div className="col-12 d-flex justify-content-center">
-            <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
-              No collections found. Add a collection.
-            </p>
+      {itemsLoading ? (
+        <div className="col-12 d-flex justify-content-center mb-3">
+          <div className="spinner-border primary" role="status">
+            <span className="sr-only"></span>
           </div>
-        )}
-      </>
+        </div>
+      ) : (
+        <>
+          {data.length > 0 ? (
+            <Table2 data={data} columns={columns} />
+          ) : (
+            <div className="col-12 d-flex justify-content-center">
+              {roleId !== 3 ? (
+                <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
+                  No collections found. Add a collection.
+                </p>
+              ) : (
+                <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
+                  No collections found.
+                </p>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
