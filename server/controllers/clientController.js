@@ -167,8 +167,7 @@ const createClient = async (req, res) => {
 
       // Send email notification
       var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, client.name, client.email, password);
-      sendEmail(req.body.email, "Welcome to `" + user.subdomain + "`!", SEND_EMAIL);
-
+      sendEmail(req.body.email, "Welcome to " + user.subdomain + "!", SEND_EMAIL);
     }
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
@@ -177,7 +176,7 @@ const createClient = async (req, res) => {
       message: req.body.id
         ? "Client updated successfully"
         : "Client added successfully. Password sent to his email.",
-      data: client,
+      data: client
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to add/update client" });
@@ -216,7 +215,7 @@ const deleteClient = async (req, res) => {
       .json({
         success: true,
         message:
-          "Action successful. Record will be removed permanently after 30 days.",
+          "Action successful. Record will be removed permanently after 30 days."
       });
   } catch (error) {
     res.status(500).json({ error: "Failed to update client status" });
