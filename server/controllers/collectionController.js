@@ -12,7 +12,7 @@ function createSlug(title) {
 const addGallery = async (req, res) => {
   const user = await User.findOne({
     attributes: ['dropbox_refresh', 'subdomain'],
-    where: { id: req.body.subdomainId },
+    where: { id: req.body.subdomainId }
   });
 
   try {
@@ -174,7 +174,6 @@ const getAllCollections = async (req, res) => {
   }
 };
 
-
 const updateGalleryLock = async (req, res) => {
   try {
     const collectionId = req.body.id;
@@ -261,9 +260,25 @@ const updateGalleryNotify = async (req, res) => {
       where: { id: collectionId }
     });
     if (updated) {
-      res.status(200).json({ success: true, message: "Collection updated successfully" });
+      const user = await User.findOne({ where: { id: collection.user_id } });
+      const clientData = await User.findOne({ where: { id: collection.client_id } });
+
+      if (user && clientData) {
+        let SEND_EMAIL = NEW_COLLECTION(user.subdomain, collection);
+        await sendEmail(clientData.email, "New Collection", SEND_EMAIL);
+
+        // Create a new notification
+        await Notifications.create({
+          notification: `New gallery '${collection.name}' has been created.`,
+          client_id: collection.client_id,
+          subdomain_id: user.subdomain_id,
+          date: new Date()
+        });
+      }
+
+      return res.status(200).json({ success: true, message: "Collection updated successfully" });
     } else {
-      res.status(404).json({ success: false, message: "Collection not found" });
+      return res.status(404).json({ success: false, message: "Collection not found" });
     }
   } catch (error) {
     res.status(500).json({ error: "Failed to update Collection" });

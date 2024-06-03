@@ -6,6 +6,7 @@ const { OAuth2 } = google.auth;
 const axios = require("axios");
 const Users = require("../models/Users");
 const BusinessClients = require("../models/BusinessClients");
+const Notifications = require('../models/Notifications');
 const { Op } = require("sequelize");
 const moment = require("moment");
 const { NEW_BOOKING, UPDATE_BOOKING } = require('../helpers/emailTemplate');
@@ -398,6 +399,14 @@ const createBooking = async (req, res) => {
 
         let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, client_name, data, user.phone);
         sendEmail(client_email, "Update Booking", SEND_EMAIL);
+
+        // Create notification
+        await Notifications.create({
+          notification: `Your appointment has been updated with Studiio.au`,
+          client_id: req.body.user_id,
+          subdomain_id: subdomainId,
+          date: new Date()
+        });
       }
       booking = await Booking.findOne({ where: { id: req.body.id } });
       if (!booking) {
@@ -419,6 +428,14 @@ const createBooking = async (req, res) => {
 
         let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, client_name, data, user.phone);
         sendEmail(client_email, "New Booking", SEND_EMAIL);
+
+        // Create notification
+        await Notifications.create({
+          notification: `Your appointment has been confirmed with Studiio.au`,
+          client_id: req.body.user_id,
+          subdomain_id: subdomainId,
+          date: new Date()
+        });
       }
       data.subdomain_id = subdomainId;
       booking = await Booking.create(data);
@@ -709,9 +726,10 @@ const updateBooking = async (req, res) => {
         where: { id: bookingId },
         include: {
           model: User,
-          attributes: ['email']
+          attributes: ['id', 'email']
         }
       });
+      const client_id = updatedBooking.User.id;
       const client_email = updatedBooking.User.email;
 
       const user = await User.findOne({
@@ -721,11 +739,19 @@ const updateBooking = async (req, res) => {
 
       const subdomain_user = await User.findOne({
         where: { id: updatedBooking.subdomain_id },
-        attributes: ['subdomain']
+        attributes: ['id', 'subdomain']
       });
 
-      let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, updatedBooking.client_name, updatedBooking, user.phone);
-      sendEmail(client_email, "New Booking", SEND_EMAIL);
+      let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, updatedBooking.client_name, updatedBooking, user.phone);
+      sendEmail(client_email, "Update Booking", SEND_EMAIL);
+
+      // Create notification
+      await Notifications.create({
+        notification: `Your appointment has been updated with Studiio.au`,
+        client_id: client_id,
+        subdomain_id: subdomain_user.id,
+        date: new Date()
+      });
 
       res.status(200).json({
         success: true,
