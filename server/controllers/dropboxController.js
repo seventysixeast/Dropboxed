@@ -11,16 +11,13 @@ const moment = require("moment");
 
 exports.handleGetWebhook = (req, res) => {
     const challenge = req.query.challenge;
-    console.log("Get========>>>>", challenge);
     res.send(challenge);
 };
 
 exports.handlePostWebhook = async (req, res) => {
     if (req.query.challenge) {
-        console.log("Post========>>>>", challenge);
         res.send(req.query.challenge);
     } else {
-        console.log(req.body);
         res.sendStatus(500);
         const accountId = req.body.list_folder.accounts[0];
 

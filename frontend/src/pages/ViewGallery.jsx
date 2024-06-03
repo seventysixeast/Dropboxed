@@ -149,7 +149,6 @@ export const ViewGallery = () => {
         const activeClients = response.data.filter(
           (client) => client.status === "Active"
         );
-        console.log(activeClients);
         setClients(activeClients);
       } else {
         const activeClients = response.data.filter(
@@ -275,7 +274,6 @@ export const ViewGallery = () => {
       setBanner(res.data.banner);
       setCollection(res.data);
     } else {
-      console.log(res.data);
     }
     setRunning(false);
     setLoading(false);
@@ -997,10 +995,7 @@ export const ViewGallery = () => {
                       style={{ cursor: "pointer" }}
                       title="Download"
                       onClick={() => {
-                        console.log(
-                          authData.user.role_id === 3 &&
-                            collection.lock_gallery === true
-                        );
+
                         if (authData.user.role_id !== 3) {
                           setDownloadGalleryModal(true);
                         } else if (
@@ -1117,9 +1112,6 @@ export const ViewGallery = () => {
                                                 title="Download"
                                                 onClick={(event) => {
                                                   event.stopPropagation();
-                                                  console.log(
-                                                    collection.lock_gallery
-                                                  );
 
                                                   setSelectedImageUrl(
                                                     image.path_display

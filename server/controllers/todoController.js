@@ -105,8 +105,6 @@ const createTask = async (req, res) => {
       is_favourite,
     } = req.body;
 
-    console.log(req.body);
-
     if (id === "") {
       newTask = await TaskTodo.create({
         user_id,
@@ -145,7 +143,6 @@ const createTask = async (req, res) => {
     }
 
     if (comments.trim() !== "") {
-      console.log("Adding new comment");
       newComment = await TaskComment.create({
         user_id,
         task_id: newTask.id,
@@ -245,7 +242,6 @@ const deleteTask = async (req, res) => {
 const createTag = async (req, res) => {
   try {
     const { tasktag_title, subdomain_id } = req.body;
-    console.log(req.body);
     const newTag = await TaskTag.create({ tasktag_title, subdomain_id });
     res.status(201).json({ success: true, tag: newTag });
   } catch (error) {

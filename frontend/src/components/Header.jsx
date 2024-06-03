@@ -41,13 +41,11 @@ const Header = () => {
     let menuToggleElement = document.querySelector(
       ".nav-link.nav-menu-main.hidden-xs"
     );
-    console.log(menuToggleElement);
 
     const body = document.getElementsByTagName("body")[0];
 
     if (menuToggleElement) {
       menuToggleElement.classList.toggle("is-active");
-      console.log(menuToggleElement);
 
       if (body.classList.contains("menu-hide")) {
         body.classList.remove("vertical-menu-modern")

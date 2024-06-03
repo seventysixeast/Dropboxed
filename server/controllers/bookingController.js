@@ -139,7 +139,6 @@ async function addevent(data) {
       if (authResponse) {
         return createOAuth2Client(authResponse.access_token);
       } else {
-        console.log(`Skipping user ${theUsers[index].id} due to expired token`);
         return null;
       }
     });
@@ -586,7 +585,6 @@ const deleteBooking = async (req, res) => {
       if (authResponse) {
         return createOAuth2Client(authResponse.access_token);
       } else {
-        console.log(`Skipping user ${theUsers[index].id} due to expired token`);
         return null;
       }
     });
