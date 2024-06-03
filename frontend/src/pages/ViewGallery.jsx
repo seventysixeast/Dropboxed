@@ -997,15 +997,21 @@ export const ViewGallery = () => {
                       style={{ cursor: "pointer" }}
                       title="Download"
                       onClick={() => {
+                        console.log(
+                          authData.user.role_id === 3 &&
+                            collection.lock_gallery === true
+                        );
                         if (authData.user.role_id !== 3) {
                           setDownloadGalleryModal(true);
                         } else if (
-                          (authData.user.role_id =
-                            3 && collection.lock_gallery === true)
+                          authData.user.role_id === 3 &&
+                          collection.lock_gallery === true
                         ) {
                           toast.error(
                             "Gallery is locked! Please contact admin."
                           );
+                        } else {
+                          setDownloadGalleryModal(true);
                         }
                       }}
                     ></span>
@@ -1123,7 +1129,10 @@ export const ViewGallery = () => {
                                                   ) {
                                                     setDownloadImageModal(true);
                                                   } else if (
-                                                    collection.lock_gallery
+                                                    authData.user.role_id ===
+                                                      3 &&
+                                                    collection.lock_gallery ===
+                                                      true
                                                   ) {
                                                     toast.error(
                                                       "Gallery is locked! Please contact admin."

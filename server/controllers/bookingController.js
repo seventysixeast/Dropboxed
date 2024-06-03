@@ -264,23 +264,63 @@ async function insertEvent(calendar, calendarId, eventId, data, start, end) {
   if (!calendarId) {
     throw new Error("Missing required parameter: calendarId");
   }
+  let packageNames = "";
+  if (data.package_ids) {
+    const packageIds = data.package_ids.split(", ").map((id) => parseInt(id));
+    const packages = await Package.findAll({
+      where: { id: packageIds },
+      attributes: ["package_name"],
+    });
+    packageNames = packages.map((package) => package.package_name).join(", ");
+  }
+
+  let photographerNames = "";
+  if (data.photographer_id) {
+    const photographerIds = data.photographer_id
+      .split(", ")
+      .map((id) => parseInt(id));
+    const photographers = await Users.findAll({
+      where: { id: photographerIds },
+      attributes: ["name"],
+    });
+    photographerNames = photographers
+      .map((photographer) => photographer.name)
+      .join(", ");
+  }
+  if (photographerNames === "") {
+    photographerNames = "N/A";
+  }
+  // find user with data.subdomain_id and get the name and email
+  const user = await User.findOne({
+    where: { id: data.subdomain_id },
+    attributes: ["name", "email"],
+  });
+
+
   return calendar.events.insert({
     calendarId: calendarId,
     resource: {
       id: eventId,
-      summary: data.booking_title || "Untitled Event",
+      summary: `${data.booking_title}`,
+      description: `Services: ${packageNames}, Client Name: ${data.client_name}, Provider Name: ${photographerNames}`,
       start: {
         dateTime: start.toISOString(),
-        timeZone: "Australia/Sydney",
+        timeZone: "UTC",
       },
       end: {
         dateTime: end.toISOString(),
-        timeZone: "Australia/Sydney",
+        timeZone: "UTC",
       },
       status: "confirmed",
+      attendees: [
+        {
+          email: user.email,
+          displayName: user.name,
+          organizer: true,
+        }
+      ],
     },
   });
-
 }
 
 const createBooking = async (req, res) => {
