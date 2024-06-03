@@ -770,9 +770,7 @@ export const ViewGallery = () => {
       }
     );
     const existingLinkData = await existingLinkResponse.json();
-    console.log(existingLinkData);
     const existingFileLink = existingLinkData.links.find(link => link['.tag'] === 'file');
-    console.log(existingFileLink);
     if (existingFileLink) {
       sharedLinkData = existingFileLink
       const link = sharedLinkData.url;
