@@ -97,19 +97,27 @@ const ToDo = () => {
     const response = await getClientPhotographers(formData);
     if (response.success) {
       if (roleId !== 3) {
-        const activeClients = response.data.filter(
+        let activeClients = response.data.filter(
           (client) => client.status === "Active"
         );
+        const userWithId = response.data.find(
+          (client) => client.id === parseInt(user.id)
+        );
+        activeClients.push(userWithId);
         setClients(activeClients);
       } else {
         const activeClients = response.data.filter(
           (client) => client.status === "Active"
         );
-        const filteredClients = activeClients.filter(
+        let filteredClients = activeClients.filter(
           (client) => client.role_id === 2 || client.role_id === 5
         );
 
-        setClients(filteredClients);
+        const userWithId = activeClients.find(
+          (client) => client.id === parseInt(user.id)
+        );
+        filteredClients.push(userWithId);
+        setClients(activeClients);
       }
     } else {
       toast.error("Failed to get clients!");
@@ -255,7 +263,7 @@ const ToDo = () => {
 
   const handleTaskClick = async (task) => {
     const client = clients.find((c) => c.id === task.assign_user);
-
+    console.log(client);
     if (client) {
       setSelectedClient({
         value: client.id,
@@ -465,8 +473,6 @@ const ToDo = () => {
 
     fetchData();
   }, [accesstoken]);
-
-  console.log(user.role_id);
 
   return (
     <>
@@ -691,6 +697,7 @@ const ToDo = () => {
                                 id="assignedPerson"
                                 value={selectedClient}
                                 required
+                                isDisabled={roleId === 3}
                                 onChange={handleClientChange}
                                 options={_.chain(clients)
                                   .groupBy("role_id")
