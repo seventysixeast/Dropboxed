@@ -169,7 +169,7 @@ const createClient = async (req, res) => {
 
       // Send email notification
       var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, client.name, client.email, password);
-      sendEmail(req.body.email, "Welcome to Our Studiio.au", SEND_EMAIL);
+      sendEmail(req.body.email, "Welcome to `" + user.subdomain + "`!", SEND_EMAIL);
 
     }
     // Update Redis cache

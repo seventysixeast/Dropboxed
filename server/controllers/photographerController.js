@@ -93,7 +93,7 @@ const createPhotographer = async (req, res) => {
 
       // Send email notification
       var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, req.body.name, req.body.email, password);
-      sendEmail(req.body.email, "Welcome to Our Studiio.au", SEND_EMAIL);
+      sendEmail(req.body.email, "Welcome to `" + user.subdomain + "`!", SEND_EMAIL);
       
       res.status(200).json({
         success: true,

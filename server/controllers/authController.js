@@ -108,7 +108,7 @@ exports.login = async (req, res) => {
     if (isFirstLogin) {
       // Send Welcome email
       var SEND_EMAIL = WELCOME_EMAIL();
-      sendEmail(user.email, "Welcome to Our Studiio.au", SEND_EMAIL);
+      sendEmail(user.email, "Welcome to Studiio.au!", SEND_EMAIL);
       // Update the is_first_login flag
       user.is_first_login = false;
       await user.save();
@@ -489,7 +489,7 @@ exports.verifyToken = async (req, res) => {
     if (isFirstLogin) {
       // Send Welcome email
       var SEND_EMAIL = WELCOME_EMAIL();
-      sendEmail(user.email, "Welcome to Our Studiio.au", SEND_EMAIL);
+      sendEmail(user.email, "Welcome to Studiio.au!", SEND_EMAIL);
       // Update the is_first_login flag
       user.is_first_login = false;
       await user.save();
