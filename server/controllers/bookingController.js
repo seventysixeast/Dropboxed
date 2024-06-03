@@ -233,13 +233,45 @@ async function updateEvent(calendar, calendarId, eventId, data, start, end) {
     throw new Error("Missing required parameter: eventId");
   }
 
+  let packageNames = "";
+  if (data.package_ids) {
+    const packageIds = data.package_ids.split(", ").map((id) => parseInt(id));
+    const packages = await Package.findAll({
+      where: { id: packageIds },
+      attributes: ["package_name"],
+    });
+    packageNames = packages.map((package) => package.package_name).join(", ");
+  }
+
+  let photographerNames = "";
+  if (data.photographer_id) {
+    const photographerIds = data.photographer_id
+      .split(", ")
+      .map((id) => parseInt(id));
+    const photographers = await Users.findAll({
+      where: { id: photographerIds },
+      attributes: ["name"],
+    });
+    photographerNames = photographers
+      .map((photographer) => photographer.name)
+      .join(", ");
+  }
+  if (photographerNames === "") {
+    photographerNames = "N/A";
+  }
+  const user = await User.findOne({
+    where: { id: data.subdomain_id },
+    attributes: ["name", "email"],
+  });
+
   try {
     const response = await calendar.events.update({
       calendarId: calendarId,
       eventId: eventId,
       resource: {
         id: eventId,
-        summary: data.booking_title || "Untitled Event",
+        summary: `${data.booking_title}`,
+        description: `Services: ${packageNames}, Client Name: ${data.client_name}, Provider Name: ${photographerNames}`,
         start: {
           dateTime: start.toISOString(),
           timeZone: "UTC",
@@ -250,6 +282,13 @@ async function updateEvent(calendar, calendarId, eventId, data, start, end) {
         },
         status: "confirmed",
       },
+      attendees: [
+        {
+          email: user.email,
+          displayName: user.name,
+          organizer: true,
+        }
+      ],
     });
 
     return response.data;

@@ -466,6 +466,8 @@ const ToDo = () => {
     fetchData();
   }, [accesstoken]);
 
+  console.log(user.role_id);
+
   return (
     <>
       <LoadingOverlay loading={loading} />
@@ -537,15 +539,17 @@ const ToDo = () => {
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
                       <p className="filter-label mt-2 mb-1">Labels</p>
-                      <ReTooltip title="Adds new tag." placement="top">
-                        <button
-                          className="btn btn-primary btn-sm mt-2 mb-1"
-                          style={{ padding: "5px" }}
-                          onClick={() => setShowAddTagModal(!showAddTagModal)}
-                        >
-                          <i className="feather icon-plus"></i>
-                        </button>
-                      </ReTooltip>
+                      {roleId !== 3 && (
+                        <ReTooltip title="Adds new tag." placement="top">
+                          <button
+                            className="btn btn-primary btn-sm mt-2 mb-1"
+                            style={{ padding: "5px" }}
+                            onClick={() => setShowAddTagModal(!showAddTagModal)}
+                          >
+                            <i className="feather icon-plus"></i>
+                          </button>
+                        </ReTooltip>
+                      )}
                     </div>
                     <div className="list-group">
                       {tags.map((tag, index) => (
@@ -770,14 +774,16 @@ const ToDo = () => {
                               }}
                             />
                           </div>
-                          <div className="ml-25">
-                            <i
-                              className="feather icon-plus-circle cursor-pointer add-tags"
-                              onClick={() =>
-                                setShowAddTagModal(!showAddTagModal)
-                              }
-                            />
-                          </div>
+                          {roleId !== 3 && (
+                            <div className="ml-25">
+                              <i
+                                className="feather icon-plus-circle cursor-pointer add-tags"
+                                onClick={() =>
+                                  setShowAddTagModal(!showAddTagModal)
+                                }
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1049,14 +1055,16 @@ const ToDo = () => {
                                 />
                               </span>
                             </div>
-                            <div className="ml-25">
-                              <i
-                                className="feather icon-plus-circle cursor-pointer add-tags"
-                                onClick={() =>
-                                  setShowAddTagModal(!showAddTagModal)
-                                }
-                              />
-                            </div>
+                            {roleId !== 3 && (
+                              <div className="ml-25">
+                                <i
+                                  className="feather icon-plus-circle cursor-pointer add-tags"
+                                  onClick={() =>
+                                    setShowAddTagModal(!showAddTagModal)
+                                  }
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
