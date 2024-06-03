@@ -416,6 +416,7 @@ const Collections = () => {
   };
 
   const deleteCollectionData = async () => {
+    setLoading(true)
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", collectionIdToDelete);
@@ -437,6 +438,7 @@ const Collections = () => {
   };
 
   const handleGalleryLockChange = async (data) => {
+    setLoading(true)
     try {
       setIsGalleryLocked(!isGalleryLocked);
       const formDataToSend = new FormData();
@@ -455,6 +457,7 @@ const Collections = () => {
   };
 
   const handleGalleryNotify = async (id) => {
+    setLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", id);
