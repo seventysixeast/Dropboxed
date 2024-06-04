@@ -1,6 +1,7 @@
 const Collection = require('../models/Collections');
 const User = require('../models/Users');
 const Package = require('../models/Packages');
+const Order = require('../models/Orders');
 
 function createSlug(title) {
   return title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
@@ -393,6 +394,10 @@ const getOrderDataForInvoice = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Admin user not found' });
     }
 
+    const clientUser = await User.findOne({
+      where: { id: collection.client_id }
+    });
+
     // Fetch packages data
     const packageIds = collection.package_ids.split(',').map(id => parseInt(id.trim(), 10));
     const packages = await Package.findAll({
@@ -423,7 +428,18 @@ const getOrderDataForInvoice = async (req, res) => {
       admin: {
         id: adminUser.id,
         name: adminUser.name,
-        address: adminUser.address
+        company: adminUser.company,
+        website: adminUser.website,
+        account_name: adminUser.account_name,
+        address: adminUser.address,
+        phone: adminUser.phone,
+        email: adminUser.email,
+        abn_acn: adminUser.abn_acn,
+        bsb_number: adminUser.bsb_number,
+      },
+      client: {
+        name: adminUser.name,
+        address: adminUser.address,
       },
       packages: packages.map(pkg => ({
         id: pkg.id,
@@ -441,6 +457,17 @@ const getOrderDataForInvoice = async (req, res) => {
   }
 };
 
+const saveInvoiceToDatabase = async (req, res) => {
+  // Assuming you have a database connection setup
+  try {
+    console.log(req.user.userId);
+    console.log(req.body)
+       return { success: true };
+  } catch (error) {
+      console.error('Error saving invoice:', error);
+      return { success: false, error: error.message };
+  }
+};
 
 
-module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify, getOrderDataForInvoice };
+module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify, getOrderDataForInvoice, saveInvoiceToDatabase };

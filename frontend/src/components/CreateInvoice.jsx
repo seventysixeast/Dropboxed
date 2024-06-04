@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import './EditInvoiceModal.css';  // Import the CSS file for styling
-import { getOrderDataForInvoice } from '../api/collectionApis';
+import './EditInvoiceModal.css';
+import { getOrderDataForInvoice, saveInvoice } from '../api/collectionApis';
+
 const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
-  console.log("collectionId",collectionId)
+  console.log("collectionId", collectionId);
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
+  const [items, setItems] = useState([]);
+  const [taxRate, setTaxRate] = useState(10);
+  const [note, setNote] = useState('');
+  const [invoiceLink, setInvoiceLink] = useState('');
 
   useEffect(() => {
     if (isOpen && collectionId) {
       const fetchInvoiceData = async () => {
         try {
           const data = await getOrderDataForInvoice(collectionId);
-          setInvoiceData(data);
-          console.log("data",data)
+          setInvoiceData(data.data);
+          setItems(data.data.packages || []);
+          console.log("data", data);
         } catch (err) {
           setError(err.message);
         }
@@ -21,145 +27,194 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
       fetchInvoiceData();
     }
   }, [isOpen, collectionId]);
+
+  const addItem = () => {
+    setItems([...items, { id: Date.now(), name: '', description: '', quantity: 1, price: 0 }]);
+  };
+
+  const deleteItem = (index) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const handleItemChange = (index, field, value) => {
+    const newItems = items.slice();
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
+  };
+
+  const calculateSubtotal = () => {
+    return items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  };
+
+  const calculateTaxAmount = (subtotal) => {
+    return (subtotal * taxRate) / 100;
+  };
+
+  const calculateTotal = (subtotal, taxAmount) => {
+    return subtotal + taxAmount;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const subtotal = calculateSubtotal();
+    const taxAmount = calculateTaxAmount(subtotal);
+    const total = calculateTotal(subtotal, taxAmount);
+
+    const invoice = {
+      collectionId,
+      items,
+      subtotal,
+      taxRate,
+      taxAmount,
+      total,
+      note,
+      invoiceLink
+    };
+
+    try {
+      const response = await saveInvoice(invoice);
+      if (response.success) {
+        alert("Invoice saved successfully!");
+        onClose(); // Close the modal on successful save
+      } else {
+        alert("Failed to save the invoice.");
+      }
+    } catch (error) {
+      alert("An error occurred while saving the invoice.");
+    }
+  };
+
+  const subtotal = calculateSubtotal();
+  const taxAmount = calculateTaxAmount(subtotal);
+  const total = calculateTotal(subtotal, taxAmount);
+
   return (
     <div id="edit-invoice-modal" className={`modal ${isOpen ? 'fade show' : 'fade'}`} tabIndex="-1" role="dialog" style={{ display: isOpen ? 'block' : 'none' }}>
-      <div className="modal-dialog modal-lg" role="docum.lent">
+      <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content">
           <div className="modal-header" style={{ backgroundColor: "#DEE6EE" }}>
-            <h5 className="modal-title">Edit Invoice {collectionId}</h5>
+            <h5 className="modal-title">Add Invoice {collectionId}</h5>
             <button type="button" className="close" aria-label="Close" onClick={onClose}>
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <form>
-            <div className="modal-body">
-              <div className="row">
-                <div className="col-md-6">
-                  <h4>From,</h4>
-                  <p>
-                    Media Drive Systems<br />
-                    22 Farrelly Ave<br />
-                    Cumbalum NSW 2478<br />
-                    0413799054<br />
-                    pete@mediadrive.com.au<br />
-                    ABN 72600082460
-                  </p>
-                </div>
-                <div className="col-md-6">
-                  <h4>To,</h4>
-                  <div className="form-group">
-                    <input type="text" className="form-control" placeholder="Client Name" />
+          {invoiceData?.collection?.id && (
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                <div className="row">
+                  <div className="col-md-6">
+                    <h4>From,</h4>
+                    <p>
+                      {invoiceData.admin.account_name}<br />
+                      {invoiceData.admin.address}<br />
+                      {invoiceData.admin.phone}<br />
+                      {invoiceData.admin.email}<br />
+                      {invoiceData.admin.abn_acn}
+                    </p>
                   </div>
-                  <div className="form-group">
-                    <textarea className="form-control" rows="3" placeholder="Client Address"></textarea>
-                  </div>
-                </div>
-              </div>
-              <div className="table-responsive">
-                <table className="table table-bordered mt-3">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>Item Name</th>
-                      <th>Description</th>
-                      <th>Quantity</th>
-                      <th>Price</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><input type="checkbox" className="form-check-input" /></td>
-                      <td><input type="text" className="form-control" value="Studio Package" /></td>
-                      <td><input type="text" className="form-control" value="0 High resolution images, 0 Aerial photos, 0 Studio Floor plan" /></td>
-                      <td><input type="number" className="form-control" value="1" /></td>
-                      <td><input type="number" className="form-control" value="385.00" /></td>
-                      <td><input type="number" className="form-control" value="385.00" readOnly /></td>
-                    </tr>
-                    <tr>
-                      <td><input type="checkbox" className="form-check-input" /></td>
-                      <td><input type="text" className="form-control" /></td>
-                      <td><input type="text" className="form-control" /></td>
-                      <td><input type="number" className="form-control" /></td>
-                      <td><input type="number" className="form-control" /></td>
-                      <td><input type="number" className="form-control" readOnly /></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <button type="button" className="btn btn-danger">- Delete</button>
-              <button type="button" className="btn btn-success">+ Add More</button>
-
-              <div className="form-group mt-3">
-                <label htmlFor="notes">Notes:</label>
-                <textarea className="form-control" id="notes" rows="3" placeholder="Your Notes"></textarea>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="invoice-link">Invoice Link:</label>
-                <input type="text" className="form-control" id="invoice-link" />
-              </div>
-
-              <div className="row mt-4">
-                <div className="col-md-8">
-                  <button type="button" className="btn btn-primary">Update Invoice</button>
-                </div>
-                <div className="col-md-4">
-                  <div className="form-group row">
-                    <label className="col-sm-4 col-form-label">Subtotal:</label>
-                    <div className="col-sm-8">
-                      <input type="number" className="form-control" value="350.00" readOnly />
+                  <div className="col-md-6">
+                    <h4>To,</h4>
+                    <div className="form-group">
+                      <input type="text" className="form-control" placeholder="Client Name" value={invoiceData.client.name} readOnly />
+                    </div>
+                    <div className="form-group">
+                      <textarea className="form-control" rows="3" placeholder="Client Address" value={invoiceData.client.address} readOnly></textarea>
                     </div>
                   </div>
-                  <div className="form-group row">
-                    <label className="col-sm-4 col-form-label">Tax Rate:</label>
-                    <div className="col-sm-8">
-                      <div className="input-group">
-                        <input type="number" className="form-control" value="10" />
-                        <div className="input-group-append">
-                          <span className="input-group-text">%</span>
+                </div>
+                <div className="table-responsive">
+                  <table className="table table-bordered mt-3">
+                    <thead>
+                      <tr>
+                        <th>Item Name</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item, index) => (
+                        <tr key={item.id}>
+                          <td><input type="text" className="form-control" value={item.name} onChange={(e) => handleItemChange(index, 'name', e.target.value)} /></td>
+                          <td><input type="text" className="form-control" value={item.description} onChange={(e) => handleItemChange(index, 'description', e.target.value)} /></td>
+                          <td><input type="number" className="form-control" value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value))} /></td>
+                          <td><input type="number" className="form-control" value={item.price} onChange={(e) => handleItemChange(index, 'price', parseFloat(e.target.value))} /></td>
+                          <td><input type="number" className="form-control" value={item.quantity * item.price} readOnly /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="form-group mt-3">
+                  <label htmlFor="notes">Notes:</label>
+                  <textarea className="form-control" id="notes" rows="3" placeholder="Your Notes" value={note} onChange={(e) => setNote(e.target.value)}></textarea>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="invoice-link">Invoice Link:</label>
+                  <input type="text" className="form-control" id="invoice-link" value={invoiceLink} onChange={(e) => setInvoiceLink(e.target.value)} />
+                </div>
+
+                <div className="row mt-4">
+                  <div className="col-md-8">
+                  </div>
+                  <div className="col-md-4">
+                    <div className="form-group row">
+                      <label className="col-sm-4 col-form-label">Subtotal:</label>
+                      <div className="col-sm-8">
+                        <input type="number" className="form-control" value={subtotal.toFixed(2)} readOnly />
+                      </div>
+                    </div>
+                    <div className="form-group row">
+                      <label className="col-sm-4 col-form-label">Tax Rate:</label>
+                      <div className="col-sm-8">
+                        <div className="input-group">
+                          <input type="number" className="form-control" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value))} />
+                          <div className="input-group-append">
+                            <span className="input-group-text">%</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="form-group row">
-                    <label className="col-sm-4 col-form-label">Tax Amount:</label>
-                    <div className="col-sm-8">
-                      <input type="number" className="form-control" value="35.00" readOnly />
+                    <div className="form-group row">
+                      <label className="col-sm-4 col-form-label">Tax Amount:</label>
+                      <div className="col-sm-8">
+                        <input type="number" className="form-control" value={taxAmount.toFixed(2)} readOnly />
+                      </div>
                     </div>
-                  </div>
-                  <div className="form-group row">
-                    <label className="col-sm-4 col-form-label">Total:</label>
-                    <div className="col-sm-8">
-                      <input type="number" className="form-control" value="385.00" readOnly />
+                    <div className="form-group row">
+                      <label className="col-sm-4 col-form-label">Total:</label>
+                      <div className="col-sm-8">
+                        <input type="number" className="form-control" value={total.toFixed(2)} readOnly />
+                      </div>
                     </div>
-                  </div>
-                  <div className="form-group row">
-                    <label className="col-sm-4 col-form-label">Amount Paid:</label>
-                    <div className="col-sm-8">
-                      <input type="number" className="form-control" />
+                    <div className="form-group row">
+                      <label className="col-sm-4 col-form-label">Amount Paid:</label>
+                      <div className="col-sm-8">
+                        <input type="number" className="form-control" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="form-group row">
-                    <label className="col-sm-4 col-form-label">Amount Due:</label>
-                    <div className="col-sm-8">
-                      <input type="number" className="form-control" value="385.00" readOnly />
+                    <div className="form-group row">
+                      <label className="col-sm-4 col-form-label">Amount Due:</label>
+                      <div className="col-sm-8">
+                        <input type="number" className="form-control" value={total.toFixed(2)} readOnly />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button type="submit" className="btn btn-primary">Update Invoice</button>
-              <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={onClose}>Close</button>
-            </div>
-          </form>
+              <div className="modal-footer">
+                <button type="submit" className="btn btn-primary">Save Invoice</button>
+                <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={onClose}>Close</button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>
   );
 };
-
-
 
 export default AddInvoiceModal;
