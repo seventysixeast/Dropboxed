@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useAuth } from "../context/authContext";
 import logoLight from "../assets/images/studiio-logo.png";
-import { getClient } from "../api/clientApis";
+import { getClient, userStatusCheck } from "../api/clientApis";
 import { useNavigate } from "react-router-dom";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
@@ -33,7 +33,7 @@ const Header = () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", user.id);
-      let res = await getClient(formDataToSend);
+      let res = await userStatusCheck(formDataToSend);
       if (res.data.status === "Inactive") {
         logout();
         navigate("/login");

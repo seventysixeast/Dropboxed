@@ -487,7 +487,7 @@ const providers = async (req, res) => {
     });
 
     const packages = await Package.findAll({
-      attributes: ["id", "package_name", "package_price", "package_type"],
+      attributes: ["id", "package_name", "package_price", "package_type", 'show_price'],
       where: {
         subdomain_id: subdomainId,
         status: 'Active',

@@ -53,6 +53,18 @@ const getClient = async (data) => {
   }
 };
 
+const userStatusCheck = async (data) => {
+  try {
+    const response = await API.post('/client/userStatusCheck', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to get client');
+    }
+    return response.data;
+  } catch (error) {
+    return error.response.data.error;
+  }
+};
+
 const deleteClient = async (data) => {
   try {
     const response = await API.post('/client/deleteClient', data);
@@ -89,4 +101,4 @@ const getAllPhotographers = async (data) => {
   }
 };
 
-export { getAllClients, createClient, getClient, deleteClient, activeInactiveClient, getAllPhotographers, getClientPhotographers };
+export { getAllClients, createClient, getClient, userStatusCheck, deleteClient, activeInactiveClient, getAllPhotographers, getClientPhotographers };

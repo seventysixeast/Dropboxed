@@ -53,6 +53,7 @@ const EditProfile = () => {
   }, []);
 
   const getUserData = async () => {
+    setLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", userId);
@@ -97,6 +98,7 @@ const EditProfile = () => {
     } catch (error) {
       toast.error(error);
     }
+    setLoading(false);
   };
 
   const handleInputChange = (e) => {

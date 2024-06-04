@@ -195,6 +195,19 @@ const getClient = async (req, res) => {
   }
 };
 
+const userStatusCheck = async (req, res) => {
+  try {
+    // attributes: ['id', 'status']
+    const client = await User.findOne({ where: { id: req.body.id }, attributes: ['id', 'status']} );
+    if (!client) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+    res.status(200).json({ success: true, data: client });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to data of client" });
+  }
+};
+
 const deleteClient = async (req, res) => {
   try {
     const clientId = req.body.id;
@@ -281,6 +294,7 @@ module.exports = {
   getAllClients,
   createClient,
   getClient,
+  userStatusCheck,
   deleteClient,
   activeInactiveClient,
   getAllPhotographers,
