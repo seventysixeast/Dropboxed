@@ -696,8 +696,8 @@ const ToDo = () => {
                                 placeholder="Select"
                                 id="assignedPerson"
                                 value={selectedClient}
+                                isDisabled={taskData.id !== ""}
                                 required
-                                isDisabled={roleId === 3}
                                 onChange={handleClientChange}
                                 options={_.chain(clients)
                                   .groupBy("role_id")
