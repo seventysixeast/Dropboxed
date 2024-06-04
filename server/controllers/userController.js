@@ -3,7 +3,12 @@ const bcrypt = require('bcrypt');
 
 const getUser = async (req, res) => {
   try {
-    const userData = await User.findOne({ where: { id: req.body.id } });
+    const userData = await User.findOne( {
+      attributes: ['id', 'username', 'name', 'email', 'status', 'business_name', 'profile_photo', 'logo', 'account_email', 'account_name', 'account_number', 'bsb_number', 'abn_acn', 'country', 'address', 'website', 'phone'],
+      where: {
+        id: req.body.id
+      }
+    });
     res.status(200).json({ success: true, data: userData });
   } catch (error) {
     res.status(500).json({ error: "Failed to get user" });
@@ -12,15 +17,13 @@ const getUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    let imageName = req.files && req.files.profile_photo.name;
     let userData = {
       username: req.body.username,
       name: req.body.name,
       status: req.body.status,
       business_name: req.body.business_name,
-      profile_photo: imageName || req.body.profile_photo
     };
-    if (req.files && Object.keys(req.files).length) {
+    if (req.files && req.files.profile_photo && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
       let fileUrl = `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
       file.mv(fileUrl, async function (err) {
@@ -28,6 +31,17 @@ const updateUser = async (req, res) => {
           console.log("in image move error...", fileUrl, err);
         }
       });
+      userData.profile_photo = req.files.profile_photo.name;
+    }
+    if (req.files && req.files.logo && Object.keys(req.files).length) {
+      let file = req.files.logo;
+      let fileUrl = `${process.cwd()}/public/clients/` + req.files.logo.name;
+      file.mv(fileUrl, async function (err) {
+        if (err) {
+          console.log("in image move error...", fileUrl, err);
+        }
+      });
+      userData.logo = req.files.logo.name;
     }
     let user = await User.update(userData, {
       where: {
@@ -41,6 +55,28 @@ const updateUser = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to update user" });
+  }
+};
+
+const changeBankingDetails = async (req, res) => {
+  console.log(req.body);
+  try {
+    const { id, account_email, account_name, account_number, bsb_number, abn_acn, country, address, website, phone } = req.body;
+    const user = await User.findOne({ where: { id } });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    await user.update({ account_email, account_name, account_number, bsb_number, abn_acn, country, address, website, phone });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Banking details updated successfully.'
+    });
+  } catch (error) {
+    console.error('Error changing banking details:', error);
+    return res.status(500).json({ error: 'Failed to update banking details.' });
   }
 };
 
@@ -74,4 +110,4 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = { getUser, updateUser, changePassword };
+module.exports = { getUser, updateUser, changeBankingDetails, changePassword };
