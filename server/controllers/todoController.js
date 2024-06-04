@@ -2,7 +2,11 @@ const TaskTodo = require("../models/Todo");
 const TaskTag = require("../models/TodoTags");
 const TaskComment = require("../models/TodoComments");
 const Users = require("../models/Users");
+const Todo = require("../models/Todo");
+const Notifications = require("../models/Notifications");
 const { Op } = require("sequelize");
+const { NEW_TASK, COMPLETED_TASK } = require('../helpers/emailTemplate');
+const { sendEmail } = require("../helpers/sendEmail");
 
 const getAllTasks = async (req, res) => {
   const subdomainId = parseInt(req.body.subdomain_id);
@@ -88,6 +92,7 @@ const getAllTasks = async (req, res) => {
 };
 
 const createTask = async (req, res) => {
+  console.log("req.body", req.body);
   let newTask, newComment;
   try {
     const {
@@ -150,10 +155,15 @@ const createTask = async (req, res) => {
         subdomain_id,
       });
     }
-
-
-
     res.status(201).json({ success: true, task: newTask, comment: newComment });
+
+    // send email
+    const subdomainData = await Users.findOne({ where: { id: subdomain_id } });
+    const asignUser = await Users.findOne({ where: { id: assign_user } });
+    const task_author = await Users.findOne({ where: { id: user_id } });
+    let SEND_EMAIL = NEW_TASK(subdomainData.subdomain, asignUser.name, task_author.name, task_title, task_assigndate, task_description, comments);
+    sendEmail(asignUser.email, "New Task Request", SEND_EMAIL);
+
   } catch (error) {
     console.error("Error creating task:", error);
     res.status(500).json({ error: "Failed to create task" });
@@ -198,6 +208,42 @@ const setTaskStatus = async (req, res) => {
   try {
     const { id, status } = req.body;
     await TaskTodo.update({ status }, { where: { id } });
+
+    const taskData = await Todo.findOne({ where: { id } });
+    if (!taskData) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    const commentsData = await TaskComment.findOne({ where: { task_id: id } });
+    const subdomainData = await Users.findOne({ where: { id: taskData.subdomain_id } });
+    const assignUserData = await Users.findOne({ where: { id: taskData.assign_user } });
+
+    if (!subdomainData || !assignUserData) {
+      return res.status(404).json({ error: "User or subdomain not found" });
+    }
+
+    const comments = commentsData ? commentsData.comments : "No comments";
+    if (status) {
+      // Prepare and send email
+      const SEND_EMAIL = COMPLETED_TASK(
+        subdomainData.subdomain,
+        assignUserData.name,
+        taskData.task_title,
+        taskData.task_assigndate,
+        taskData.task_description,
+        comments
+      );
+      await sendEmail(assignUserData.email, "Task Completed", SEND_EMAIL);
+
+      // Create notification
+      await Notifications.create({
+        notification: `Task is completed - ${taskData.task_title}`,
+        client_id: taskData.assign_user,
+        subdomain_id: taskData.subdomain_id,
+        date: new Date()
+      });
+    }
+
     res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error updating task status:", error);
