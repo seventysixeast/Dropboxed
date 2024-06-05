@@ -59,6 +59,14 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
     return subtotal + taxAmount;
   };
 
+  const resetData = () => {
+    setItems([]);
+    setTaxRate(10);
+    setNote("");
+    setInvoiceLink("");
+    setPaidAmount(0);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const subtotal = calculateSubtotal();
@@ -85,6 +93,7 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
       const response = await updateInvoice(invoice);
       if (response.success) {
         alert("Invoice updated successfully!");
+        resetData();
         onClose();
       } else {
         alert("Failed to update the invoice.");
@@ -101,7 +110,7 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
   const subtotal = calculateSubtotal();
   const taxAmount = calculateTaxAmount(subtotal);
   const total = calculateTotal(subtotal, taxAmount);
-  const dueAmount= total - paidAmount;
+  const dueAmount = total - paidAmount;
 
   return (
     <div
@@ -126,7 +135,7 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
           </div>
           {invoiceData?.collection?.id && (
             <form onSubmit={handleSubmit}>
-              <div className="modal-body" style={{overflowX: "hidden"}}>
+              <div className="modal-body" style={{ overflowX: "hidden" }}>
                 <div className="row">
                   <div className="col-md-6">
                     <h4>From,</h4>
@@ -181,6 +190,8 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                           <td>
                             <input
                               type="text"
+                              id={`item-name-${index}`}
+                              name={`item-name-${index}`}
                               className="form-control"
                               value={item.name}
                               onChange={(e) =>
@@ -191,6 +202,8 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                           <td>
                             <input
                               type="text"
+                              id={`item-description-${index}`}
+                              name={`item-description-${index}`}
                               className="form-control"
                               value={item.description}
                               onChange={(e) =>
@@ -205,6 +218,8 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                           <td>
                             <input
                               type="number"
+                              id={`item-quantity-${index}`}
+                              name={`item-quantity-${index}`}
                               className="form-control"
                               value={item.quantity}
                               onChange={(e) =>
@@ -219,6 +234,8 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                           <td>
                             <input
                               type="number"
+                              id={`item-price-${index}`}
+                              name={`item-price-${index}`}
                               className="form-control"
                               value={item.price}
                               onChange={(e) =>
@@ -247,8 +264,9 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                 <div className="form-group mt-3">
                   <label htmlFor="notes">Notes:</label>
                   <textarea
-                    className="form-control"
                     id="notes"
+                    name="notes"
+                    className="form-control"
                     rows="3"
                     placeholder="Your Notes"
                     value={note}
@@ -260,8 +278,9 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                   <label htmlFor="invoice-link">Invoice Link:</label>
                   <input
                     type="text"
-                    className="form-control"
                     id="invoice-link"
+                    name="invoice-link"
+                    className="form-control"
                     value={invoiceLink}
                     onChange={(e) => setInvoiceLink(e.target.value)}
                   />
@@ -332,7 +351,12 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                         Amount Paid:
                       </label>
                       <div className="col-sm-8">
-                        <input type="number" className="form-control" value={paidAmount} onChange={handlePaidAmountChange} />
+                        <input
+                          type="number"
+                          className="form-control"
+                          value={paidAmount}
+                          onChange={handlePaidAmountChange}
+                        />
                       </div>
                     </div>
                     <div className="form-group row">

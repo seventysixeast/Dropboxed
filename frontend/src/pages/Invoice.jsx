@@ -32,7 +32,6 @@ const Invoice = () => {
 
   const closeModal = () => {
     setModalIsOpen(false);
-    setInvoiceId(null);
   };
 
   const columns = [
