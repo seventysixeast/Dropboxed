@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./EditInvoiceModal.css";
-import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
-import { getInvoiceData } from "../api/invoiceApis";
-import phpUnserialize from 'php-unserialize';
+import { getInvoiceData, updateInvoice } from "../api/invoiceApis";
 
 const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState(null);
@@ -11,6 +9,8 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
   const [taxRate, setTaxRate] = useState(10);
   const [note, setNote] = useState("");
   const [invoiceLink, setInvoiceLink] = useState("");
+  const [paidAmount, setPaidAmount] = useState(0);
+
   useEffect(() => {
     if (isOpen && invoiceId) {
       const fetchInvoiceData = async () => {
@@ -18,37 +18,17 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
           let dataToSend = new FormData();
           dataToSend.append("invoiceId", invoiceId);
           let response = await getInvoiceData(dataToSend);
-          let invoiceItem = response.data.invoice;
-          let itemDescriptions = invoiceItem.item_descriptions;
-          console.log(itemDescriptions);
-          const parsedDescriptions = phpUnserialize(itemDescriptions);
-          console.log(parsedDescriptions);
-          const itemsArray = Object.keys(parsedDescriptions).map((key, i) => {
-            const item = parsedDescriptions[key];
-            return {
-              id: i,
-              name: item.product_name,
-              description: item.product_desc,
-              quantity: item.product_quantity,
-              price: item.product_price,
-            };
-          });
-      
+          let itemsArray = response.data.itemsArray;
           setItems(itemsArray);
-
           setInvoiceData(response.data);
+          setPaidAmount(response.data.invoice.paid_amount);
         } catch (err) {
           setError(err.message);
         }
       };
-
       fetchInvoiceData();
     }
   }, [isOpen, invoiceId]);
-
-  console.log(items);
-
-  console.log(invoiceData);
 
   const addItem = () => {
     setItems([
@@ -87,6 +67,7 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
 
     const invoice = {
       invoiceId,
+      orderId: invoiceData.invoice.order_id,
       items,
       subtotal,
       taxRate,
@@ -94,24 +75,33 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
       total,
       note,
       invoiceLink,
+      clientName: invoiceData.client.name,
+      clientAddress: invoiceData.client.address,
+      dueAmount: total - paidAmount,
+      paidAmount,
     };
 
     try {
-      const response = await saveInvoice(invoice);
+      const response = await updateInvoice(invoice);
       if (response.success) {
-        alert("Invoice saved successfully!");
+        alert("Invoice updated successfully!");
         onClose();
       } else {
-        alert("Failed to save the invoice.");
+        alert("Failed to update the invoice.");
       }
     } catch (error) {
-      alert("An error occurred while saving the invoice.");
+      alert("An error occurred while updating the invoice.");
     }
+  };
+
+  const handlePaidAmountChange = (e) => {
+    setPaidAmount(e.target.value);
   };
 
   const subtotal = calculateSubtotal();
   const taxAmount = calculateTaxAmount(subtotal);
   const total = calculateTotal(subtotal, taxAmount);
+  const dueAmount= total - paidAmount;
 
   return (
     <div
@@ -136,7 +126,7 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
           </div>
           {invoiceData?.collection?.id && (
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
+              <div className="modal-body" style={{overflowX: "hidden"}}>
                 <div className="row">
                   <div className="col-md-6">
                     <h4>From,</h4>
@@ -342,7 +332,7 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                         Amount Paid:
                       </label>
                       <div className="col-sm-8">
-                        <input type="number" className="form-control" />
+                        <input type="number" className="form-control" value={paidAmount} onChange={handlePaidAmountChange} />
                       </div>
                     </div>
                     <div className="form-group row">
@@ -353,7 +343,7 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
                         <input
                           type="number"
                           className="form-control"
-                          value={total.toFixed(2)}
+                          value={dueAmount}
                           readOnly
                         />
                       </div>

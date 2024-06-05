@@ -18,6 +18,7 @@
     "node-quickbooks": "^2.0.45",
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.0",
+    "php-serialize": "^4.1.1",
     "redis": "^4.6.13",
     "sequelize": "^6.37.2"
   },

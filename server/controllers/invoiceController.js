@@ -4,6 +4,9 @@ const Collection = require('../models/Collections');
 const Package = require('../models/Packages');
 const User = require('../models/Users');
 const { Op } = require("sequelize");
+const phpUnserialize = require('php-serialize').unserialize;
+const phpSerialize = require('php-serialize').serialize;
+
 
 const getAllInvoices = async (req, res) => {
     try {
@@ -40,7 +43,19 @@ const getInvoiceData = async (req, res) => {
             where: { id: packageIds }
         });
         const totalPrice = packages.reduce((sum, pkg) => sum + pkg.package_price, 0);
+        let itemDescriptions = invoice.item_descriptions;
 
+        let parsedDescriptions = phpUnserialize(itemDescriptions);
+        const itemsArray = Object.keys(parsedDescriptions).map((key, i) => {
+            const item = parsedDescriptions[key];
+            return {
+                id: i,
+                name: item.product_name,
+                description: item.product_desc,
+                quantity: item.product_quantity,
+                price: item.product_price,
+            };
+        });
         const responseData = {
             collection: {
                 id: collection.id,
@@ -70,8 +85,8 @@ const getInvoiceData = async (req, res) => {
                 bsb_number: adminUser.bsb_number,
             },
             client: {
-                name: adminUser.name,
-                address: adminUser.address,
+                name: clientUser.name,
+                address: clientUser.address,
             },
             packages: packages.map(pkg => ({
                 id: pkg.id,
@@ -80,8 +95,8 @@ const getInvoiceData = async (req, res) => {
                 details: pkg.image_type_details
             })),
             total_price: totalPrice,
-            invoice: invoice
-
+            invoice: invoice,
+            itemsArray: itemsArray
         };
 
         res.status(200).json({ success: true, data: responseData });
@@ -103,8 +118,64 @@ const deleteInvoice = async (req, res) => {
     }
 }
 
+const serializeItems = (items) => {
+    try {
+        return phpSerialize(items);
+    } catch (error) {
+        console.error('Error serializing items:', error);
+        throw error;
+    }
+};
+
+const updateInvoice = async (req, res) => {
+    console.log('Request body:', req.body);
+
+    const {
+        invoiceId,
+        orderId,
+        items,
+        subtotal,
+        taxRate,
+        taxAmount,
+        total,
+        note,
+        invoiceLink,
+        clientName,
+        clientAddress,
+        dueAmount,
+        paidAmount
+    } = req.body;
+
+    try {
+        const serializedItems = serializeItems(items);
+
+        await CustomInvoiceList.update({
+            order_id: orderId,
+            user_name: clientName,
+            user_address: clientAddress,
+            item_descriptions: serializedItems,
+            paid_amount: paidAmount,
+            due_amount: dueAmount,
+            total_price: total,
+            notes: note,
+            send_invoice: false,
+            paid_status: false,
+            invoice_link: invoiceLink,
+        }, {
+            where: { id: invoiceId }
+        });
+
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Error saving invoice:', error);
+        return res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+
 module.exports = {
     getAllInvoices,
     deleteInvoice,
-    getInvoiceData
+    getInvoiceData,
+    updateInvoice
 };

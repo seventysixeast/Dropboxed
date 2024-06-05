@@ -48,6 +48,23 @@ const deleteInvoiceById = async (data) => {
     }
 };
 
+const updateInvoice = async (data) => {
+    try {
+        const response = await API.post('/invoice/updateInvoice', data, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.status === 200) {
+            throw new Error('Failed to update collection');
+        }
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
 
-export { getAllInvoices, deleteInvoiceById, getInvoiceData };
+
+
+export { getAllInvoices, deleteInvoiceById, getInvoiceData, updateInvoice };
 
