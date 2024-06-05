@@ -1,22 +1,31 @@
 import React, { useState, useEffect } from "react";
 import "./EditInvoiceModal.css";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
-import { getInvoiceData } from "../api/invoiceApis";
 
 const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
+  console.log("collectionId", collectionId);
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
   const [items, setItems] = useState([]);
   const [taxRate, setTaxRate] = useState(10);
   const [note, setNote] = useState("");
   const [invoiceLink, setInvoiceLink] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+
   useEffect(() => {
     if (isOpen && collectionId) {
       const fetchInvoiceData = async () => {
         try {
           const data = await getOrderDataForInvoice(collectionId);
           setInvoiceData(data.data);
-          setItems(data.data.packages || []);
+          const initializedItems = (data.data.packages || []).map((item) => ({
+            ...item,
+            quantity: item.quantity || 1,
+          }));
+          setItems(initializedItems);
+          setClientName(data.data.client.name || "");
+          setClientAddress(data.data.client.address || "");
           console.log("data", data);
         } catch (err) {
           setError(err.message);
@@ -26,6 +35,13 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
       fetchInvoiceData();
     }
   }, [isOpen, collectionId]);
+
+  useEffect(() => {
+    // Recalculate values whenever items or taxRate changes
+    calculateSubtotal();
+    calculateTaxAmount();
+    calculateTotal();
+  }, [items, taxRate]);
 
   const addItem = () => {
     setItems([
@@ -64,6 +80,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
 
     const invoice = {
       collectionId,
+      clientName,
+      clientAddress,
       items,
       subtotal,
       taxRate,
@@ -136,8 +154,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
                         type="text"
                         className="form-control"
                         placeholder="Client Name"
-                        value={invoiceData.client.name}
-                        readOnly
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
                       />
                     </div>
                     <div className="form-group">
@@ -145,8 +163,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
                         className="form-control"
                         rows="3"
                         placeholder="Client Address"
-                        value={invoiceData.client.address}
-                        readOnly
+                        value={clientAddress}
+                        onChange={(e) => setClientAddress(e.target.value)}
                       ></textarea>
                     </div>
                   </div>
