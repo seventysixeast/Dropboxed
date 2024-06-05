@@ -3,51 +3,6 @@ const SITE_URL = process.env.SITE_URL;
 const VERIFY_URL = process.env.VERIFY_URL;
 const GALLERY_IMAGE_URL = process.env.GALLERY_IMAGE_URL;
 
-exports.SEND_OTP = (name, email, otp) => `
-<div style="display: flex; justify-content: center; align-items: center; height: auto;">
-    <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
-        <table cellpadding="0" cellspacing="0" width="100%">
-            <tbody>
-                <tr>
-                    <td style="padding-top: 10px; text-align:center;">
-                        <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px;" alt="Logo"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <table style="font-size: 14px; width: 100%; background: #fff; border-radius: 0;">
-                            <tbody>
-                                <tr>
-                                    <td style="padding: 30px; width: 100%;" valign="top">
-                                        <div style="font-size: 14px; font-weight: normal; line-height: 1.8em; text-align: left;">
-                                            <h3>Hello ${name}!</h3>
-                                            <p>Please enter the below mentioned OTP for reset password!</p>
-                                            Email: <a href="mailto:${email}">${email}</a> <br>
-                                            OTP: ${otp}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table style="margin: 10px auto 10px auto;" cellpadding="0" cellspacing="0" border="0">
-                            <tbody>
-                                <tr>
-                                    <td align="center" style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
-                                        <a href="https://www.studiio.au">https://www.studiio.au</a><br>
-                                        Questions? Reply to this email.
-                                        <p>Powered by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px; vertical-align: middle;" alt="Logo"/></p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </span>
-</div>
-`;
-
 exports.SEND_VERIFICATION_EMAIL = (subdomain, email, verificationToken) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
@@ -123,7 +78,52 @@ exports.SEND_VERIFICATION_CLIENT_EMAIL = (subdomain, email, verificationToken) =
                             <tbody>
                                 <tr>
                                     <td align="center" style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
-                                        <a href="https://www.studiio.au">https://${subdomain}.${VERIFY_URL}</a><br>
+                                        <a href="https://${subdomain}.${VERIFY_URL}">https://${subdomain}.${VERIFY_URL}</a><br>
+                                        Questions? Reply to this email.
+                                        <p>Powered by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px; vertical-align: middle;" alt="Logo"/></p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </span>
+</div>
+`;
+
+exports.SEND_OTP = (name, email, otp) => `
+<div style="display: flex; justify-content: center; align-items: center; height: auto;">
+    <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
+        <table cellpadding="0" cellspacing="0" width="100%">
+            <tbody>
+                <tr>
+                    <td style="padding-top: 10px; text-align:center;">
+                        <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px;" alt="Logo"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table style="font-size: 14px; width: 100%; background: #fff; border-radius: 0;">
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 30px; width: 100%;" valign="top">
+                                        <div style="font-size: 14px; font-weight: normal; line-height: 1.8em; text-align: left;">
+                                            <h3>Hello ${name}!</h3>
+                                            <p>Please enter the below mentioned OTP for reset password!</p>
+                                            Email: <a href="mailto:${email}">${email}</a> <br>
+                                            OTP: ${otp}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table style="margin: 10px auto 10px auto;" cellpadding="0" cellspacing="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td align="center" style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
+                                        <a href="https://www.studiio.au">https://www.studiio.au</a><br>
                                         Questions? Reply to this email.
                                         <p>Powered by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px; vertical-align: middle;" alt="Logo"/></p>
                                     </td>
@@ -442,7 +442,7 @@ exports.NEW_COLLECTION = (subdomain, data) => `
 
 exports.NEW_TASK = (subdomain, name, client_name, task, date, description, comments) => `
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <span style="width:100%; display:block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
+    <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
@@ -501,7 +501,7 @@ exports.NEW_TASK = (subdomain, name, client_name, task, date, description, comme
 
 exports.COMPLETED_TASK = (subdomain, name, task, date, description, comments) => `
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <span style="width:100%; display:block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
+    <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>

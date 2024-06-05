@@ -426,7 +426,7 @@ exports.clientSignup = async (req, res) => {
 
     clientController.updateRedisCache(subdomainUser.id);
 
-    const emailContent = SEND_VERIFICATION_CLIENT_EMAIL(name, email, verificationToken);
+    const emailContent = SEND_VERIFICATION_CLIENT_EMAIL(subdomain, email, verificationToken);
     sendEmail(email, "Welcome to studiio.au!", emailContent);
 
     res.status(200).json({
