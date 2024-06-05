@@ -67,6 +67,11 @@ const Users = sequelize.define('User', {
     allowNull: false,
     defaultValue: false
   },
+  is_first_login: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
   verification_token: {
     type: DataTypes.STRING(255),
     allowNull: true
