@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin } from "../api/photographerAdminApis";
+import { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin, updateStatusPhotographerAdmin } from "../api/photographerAdminApis";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
@@ -129,6 +129,23 @@ const ManagePhotographerAdmins = () => {
     }
   };
 
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", id);
+      formDataToSend.append("status", newStatus);
+      let res = await updateStatusPhotographerAdmin(formDataToSend);
+      if (res.success) {
+        toast.success("Status updated successfully");
+        getAllPhotographerAdminsData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   const columns = React.useMemo(
     () => [
       {
@@ -157,9 +174,14 @@ const ManagePhotographerAdmins = () => {
         Header: "Status",
         accessor: "status",
         Cell: ({ row }) => (
-          <span className={row.original.status === "Deleted" ? "text-danger" : ""}>
-            {row.original.status || "Active"}
-          </span>
+          <select
+            value={row.original.status}
+            onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
+            className={`form-control select2 ${row.original.status === "Deleted" ? "text-danger" : ""}`}
+          >
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
         )
       },
       {

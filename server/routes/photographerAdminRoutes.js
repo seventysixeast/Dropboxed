@@ -6,5 +6,6 @@ router.post('/getAllPhotographerAdmins', photographerAdminController.getAllPhoto
 router.post('/updatePhotographerAdmin', photographerAdminController.updatePhotographerAdmin);
 router.post('/getPhotographerAdmin', photographerAdminController.getPhotographerAdmin);
 router.post('/deletePhotographerAdmin', photographerAdminController.deletePhotographerAdmin);
+router.post('/updateStatusPhotographerAdmin', photographerAdminController.updateStatusPhotographerAdmin);
 
 module.exports = router;
