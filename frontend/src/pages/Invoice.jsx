@@ -183,6 +183,7 @@ const Invoice = () => {
   const handleEdit = (id) => {
     setInvoiceId(id);
     setModalIsOpen(true);
+    setLoading(true);
   };
 
   const handleDelete = (id) => {
@@ -199,6 +200,7 @@ const Invoice = () => {
     console.log("Paid invoice", id);
   };
 
+
   useEffect(() => {
     const fetchData = async () => {
       if (accesstoken !== undefined) {
@@ -212,6 +214,16 @@ const Invoice = () => {
 
     fetchData();
   }, [accesstoken]);
+
+  const handleLoading = () => {
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (modalIsOpen) {
+      setLoading(true);
+    }
+  }, [modalIsOpen]);
 
   return (
     <>
@@ -271,6 +283,7 @@ const Invoice = () => {
         isOpen={modalIsOpen}
         onClose={closeModal}
         invoiceId={invoiceId}
+        handleLoading={handleLoading}
       />
     </>
   );

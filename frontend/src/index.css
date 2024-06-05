@@ -1744,3 +1744,7 @@ a:not([href]) {
   padding: 1px 0.5rem !important;
 }
 
+.minColumnWidth{
+  width: 10rem;
+}
+

@@ -182,15 +182,36 @@ const getAllCollections = async (req, res) => {
         return acc;
       }, {});
 
-      collectionsData.forEach(collection => {
+      await Promise.all(collectionsData.map(async (collection) => {
         if (collection.package_ids) {
           const packageNames = collection.package_ids.split(',').map(id => packageNamesAndIds[parseInt(id.trim(), 10)] || '').filter(name => name).join(', ');
           collection.dataValues.packages_name = packageNames;
+          const packageIdsArray = collection.package_ids.split(', ').map(id => parseInt(id.trim(), 10));
+          let packages = packageData.filter(pkg => packageIdsArray.includes(pkg.id));
+          packages = packages.map(pkg => {
+            const imageTypeDetails = JSON.parse(pkg.image_type_details);
+            const imageTypeDetailsObj = {};
+            imageTypeDetails.forEach(detail => {
+              imageTypeDetailsObj[detail.image_type] = detail;
+            });
+            pkg.image_type_details = imageTypeDetailsObj;
+            return pkg;
+          });
+          collection.dataValues.packages = packages;
         }
-      });
+        const order = await Order.findOne({
+          where: {
+            collection_id: collection.id
+          }
+        });
+        if (order) {
+          collection.dataValues.orderFound = true;
+        } else {
+          collection.dataValues.orderFound = false;
+        }
+      }));
+
     }
-
-
     res.status(200).json({ success: true, data: collectionsData });
   } catch (error) {
     res.status(500).json({ error: "Failed to list collections" });

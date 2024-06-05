@@ -72,6 +72,7 @@ const AdminRouter = () => {
     { path: "/quickbooks/callback", element: <QuickBooksCallback /> },
     { path: "/create-invoice", element: <CreateInvoice /> },
     { path: "/login", element: <Login /> },
+    { path: "/orders", element: <Orders /> },
 
   ]);
   const shouldRenderHeaderAndSideNav = !location.pathname.startsWith('/view-gallery');
