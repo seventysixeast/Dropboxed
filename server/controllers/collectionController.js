@@ -482,7 +482,9 @@ const saveInvoiceToDatabase = async (req, res) => {
     taxAmount,
     total,
     note,
-    invoiceLink
+    invoiceLink,
+    clientName,
+    clientAddress
   } = req.body;
 
   try {

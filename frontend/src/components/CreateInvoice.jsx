@@ -11,13 +11,22 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
   const [taxRate, setTaxRate] = useState(10);
   const [note, setNote] = useState("");
   const [invoiceLink, setInvoiceLink] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+
   useEffect(() => {
     if (isOpen && collectionId) {
       const fetchInvoiceData = async () => {
         try {
           const data = await getOrderDataForInvoice(collectionId);
           setInvoiceData(data.data);
-          setItems(data.data.packages || []);
+          const initializedItems = (data.data.packages || []).map((item) => ({
+            ...item,
+            quantity: item.quantity || 1,
+          }));
+          setItems(initializedItems);
+          setClientName(data.data.client.name || "");
+          setClientAddress(data.data.client.address || "");
           console.log("data", data);
         } catch (err) {
           setError(err.message);
@@ -25,7 +34,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
       };
 
       fetchInvoiceData();
-    } else {
+    } else if (isOpen && invoiceId) {
       const fetchInvoiceData = async () => {
         try {
           let dataToSend = new FormData();
@@ -38,7 +47,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
             .map((item) => ({
               name: item.product_name,
               description: item.product_desc,
-              quantity: item.product_quantity,
+              quantity: item.product_quantity || 1,
               price: item.product_price,
             }))
             .filter((item) => item.name);
@@ -50,6 +59,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
           setTaxRate(data.invoice.tax_rate);
           setNote(data.invoice.notes);
           setInvoiceLink(data.invoice.invoice_link);
+          setClientName(data.invoice.client_name || "");
+          setClientAddress(data.invoice.client_address || "");
         } catch (err) {
           setError(err.message);
         }
@@ -58,6 +69,13 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
       fetchInvoiceData();
     }
   }, [isOpen, collectionId, invoiceId]);
+
+  useEffect(() => {
+    // Recalculate values whenever items or taxRate changes
+    calculateSubtotal();
+    calculateTaxAmount();
+    calculateTotal();
+  }, [items, taxRate]);
 
   const addItem = () => {
     setItems([
@@ -96,6 +114,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
 
     const invoice = {
       collectionId,
+      clientName,
+      clientAddress,
       items,
       subtotal,
       taxRate,
@@ -168,8 +188,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
                         type="text"
                         className="form-control"
                         placeholder="Client Name"
-                        value={invoiceData.client.name}
-                        readOnly
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
                       />
                     </div>
                     <div className="form-group">
@@ -177,8 +197,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
                         className="form-control"
                         rows="3"
                         placeholder="Client Address"
-                        value={invoiceData.client.address}
-                        readOnly
+                        value={clientAddress}
+                        onChange={(e) => setClientAddress(e.target.value)}
                       ></textarea>
                     </div>
                   </div>
