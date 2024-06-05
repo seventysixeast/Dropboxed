@@ -44,18 +44,20 @@ const getInvoiceData = async (req, res) => {
         });
         const totalPrice = packages.reduce((sum, pkg) => sum + pkg.package_price, 0);
         let itemDescriptions = invoice.item_descriptions;
-
-        let parsedDescriptions = phpUnserialize(itemDescriptions);
-        const itemsArray = Object.keys(parsedDescriptions).map((key, i) => {
-            const item = parsedDescriptions[key];
-            return {
-                id: i,
-                name: item.product_name,
-                description: item.product_desc,
-                quantity: item.product_quantity,
-                price: item.product_price,
+        if (itemDescriptions) {
+            itemDescriptions = phpUnserialize(itemDescriptions);
+        }
+        const itemsArray = [];
+        for (const key in itemDescriptions) {
+            const item = {
+                name: itemDescriptions[key]['product_name'],
+                description: itemDescriptions[key]['product_desc'],
+                quantity: itemDescriptions[key]['product_quantity'],
+                price: itemDescriptions[key]['product_price']
             };
-        });
+            itemsArray.push(item);
+        }
+
         const responseData = {
             collection: {
                 id: collection.id,
@@ -120,6 +122,13 @@ const deleteInvoice = async (req, res) => {
 
 const serializeItems = (items) => {
     try {
+        items.forEach(item => {
+            item.product_name = item.name;
+            item.product_desc = item.description;
+            item.product_quantity = item.quantity;
+            item.product_price = item.price;
+        })
+        console.log('Serialized items:', items);
         return phpSerialize(items);
     } catch (error) {
         console.error('Error serializing items:', error);
