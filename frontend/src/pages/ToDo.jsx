@@ -16,7 +16,7 @@ import {
 import Select from "react-select";
 import { getClientPhotographers } from "../api/clientApis";
 import _ from "lodash";
-import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
+import avatar1 from "../assets/images/dummy.png";
 import DeleteModal from "../components/DeleteModal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ReactQuill from "react-quill";
@@ -696,8 +696,8 @@ const ToDo = () => {
                                 placeholder="Select"
                                 id="assignedPerson"
                                 value={selectedClient}
+                                isDisabled={taskData.id !== ""}
                                 required
-                                isDisabled={roleId === 3}
                                 onChange={handleClientChange}
                                 options={_.chain(clients)
                                   .groupBy("role_id")
@@ -1352,6 +1352,7 @@ const ToDo = () => {
                                                 })}
                                             </div>
                                             <div className="avatar">
+                                              <ReTooltip title={task.author.name} placement="top">
                                               <img
                                                 src={
                                                   task.author.profile_photo
@@ -1361,6 +1362,7 @@ const ToDo = () => {
                                                 alt="charlie"
                                                 className="todo-profile-photo"
                                               />
+                                              </ReTooltip>
                                             </div>
                                             <a
                                               className="todo-item-favorite ml-75"

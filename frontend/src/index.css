@@ -1731,12 +1731,6 @@ a:not([href]) {
   }
 }
 
-html body .content .content-wrapper {
-  padding: 0%;
-  padding-left: 0.5rem !important;
-  padding-right: 0.5rem !important;
-}
-
 .todo-profile-photo {
   width: 24px !important;
   height: 24px !important;
@@ -1749,3 +1743,4 @@ html body .content .content-wrapper {
 .todo-application .sidebar .todo-sidebar .todo-app-menu .sidebar-menu-list {
   padding: 1px 0.5rem !important;
 }
+

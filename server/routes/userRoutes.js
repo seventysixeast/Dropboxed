@@ -4,6 +4,7 @@ const router = express.Router();
 
 router.post('/getUser', userController.getUser);
 router.post('/updateUser', userController.updateUser);
+router.post('/changeBankingDetails', userController.changeBankingDetails)
 router.post('/changePassword', userController.changePassword);
 
 module.exports = router;

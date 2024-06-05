@@ -4,7 +4,6 @@ const { Op } = require("sequelize");
 const getAllInvoices = async (req, res) => {
     try {
         const invoices = await CustomInvoiceList.findAll();
-        // send success and data
         res.status(200).json({ success: true, data: invoices });
     } catch (error) {
         res.status(500).json({ message: error.message });

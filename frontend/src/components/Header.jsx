@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useAuth } from "../context/authContext";
 import logoLight from "../assets/images/studiio-logo.png";
-import { getClient } from "../api/clientApis";
+import { getClient, userStatusCheck } from "../api/clientApis";
 import { useNavigate } from "react-router-dom";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
@@ -12,50 +12,60 @@ const Header = () => {
   const { user } = authData;
   const roleId = user.role_id;
 
+  const menuRef = useRef(null);
+
   const handleLogout = (e) => {
     e.preventDefault();
     logout();
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   useEffect(() => {
     checkUserStatus();
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+    
   }, []);
 
   const checkUserStatus = async () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", user.id);
-      let res = await getClient(formDataToSend);
-      if (res.data.status == "Inactive") {
+      let res = await userStatusCheck(formDataToSend);
+      if (res.data.status === "Inactive") {
         logout();
-        window.location.href = "/login";
+        navigate("/login");
       }
     } catch (error) {
       console.error("Error checking user status:", error);
     }
   };
 
-  const handleMenuToggle = async (e) => {
-    e.preventDefault(); 
-    let menuToggleElement = document.querySelector(
-      ".nav-link.nav-menu-main.hidden-xs"
-    );
-
+  const handleMenuToggle = () => {
     const body = document.getElementsByTagName("body")[0];
+    body.classList.toggle("menu-open");
+    body.classList.toggle("menu-hide");
+  };
 
-    if (menuToggleElement) {
-      menuToggleElement.classList.toggle("is-active");
-
-      if (body.classList.contains("menu-hide")) {
-        body.classList.remove("vertical-menu-modern")
-        body.classList.add("menu-open");
-        body.classList.remove("menu-hide");
-        
-      } else {
-        body.classList.remove("menu-open");
-        body.classList.add("menu-hide");
+  const handleClickOutside = (event) => {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      const body = document.getElementsByTagName("body")[0];
+      if (body.classList.contains("menu-open")) {
+        setTimeout(() => {
+          body.classList.remove("menu-open");
+          body.classList.add("menu-hide");
+        }, 200);
       }
+    }
+    const navbarContainer = document.querySelector(".open-navbar-container");
+    if (navbarContainer && !navbarContainer.contains(event.target)) {
+      navbarContainer.classList.remove("collapsed");
+    }
+    const navbarCollapse = document.querySelector(".navbar-collapse");
+    if (navbarCollapse && !navbarCollapse.contains(event.target)) {
+      navbarCollapse.classList.remove("show");
     }
   };
 
@@ -64,7 +74,7 @@ const Header = () => {
       <div className="navbar-wrapper">
         <div className="navbar-header">
           <ul className="nav navbar-nav flex-row">
-            <li className="nav-item mobile-menu  d-lg-none mr-auto">
+            <li className="nav-item mobile-menu d-lg-none mr-auto">
               <a
                 className="nav-link nav-menu-main toggle-menu hidden-xs"
                 onClick={handleMenuToggle}
@@ -73,17 +83,6 @@ const Header = () => {
               </a>
             </li>
             <li className="nav-item mr-auto">
-              {/* <a
-                className="navbar-brand"
-                href="/dashboard"
-              >
-              <a className="navbar-brand" href="/dashboard">
-                <img
-                  className="brand-logo dropLogo"
-                  alt="stack admin logo"
-                  src={logoLight}
-                />
-              </a> */}
               <span
                 className="navbar-brand"
                 onClick={() => navigate("/dashboard")}
@@ -121,35 +120,9 @@ const Header = () => {
         </div>
         <div className="navbar-container content">
           <div className="collapse navbar-collapse" id="navbar-mobile">
-            <ul className="nav navbar-nav mr-auto float-left d-flex align-items-center">
-              {/* <li className="nav-item d-none d-md-block">
-                <a className="nav-link nav-link-expand" href="#">
-                  <i className="ficon feather icon-maximize"></i>
-                </a>
-              </li> */}
-              {/* <li className="nav-item d-none d-md-block">
-                <a className="nav-link nav-link-expand py-0" href="#">
-                  <button className="btn btn-blue text-white glow ">+ New Gallery</button>
-                </a>
-              </li>
-              <li className="nav-item d-none d-md-block">
-                <a className="nav-link nav-link-expand py-0" href="#">
-                  <button className="btn btn-secondary glow">+ New Booking</button>
-                </a>
-              </li>
-              <li className="nav-item d-none d-md-block">
-                <a className="nav-link nav-link-expand py-0" href="#">
-                  <button className="btn btn-red text-white glow ">+ New Task</button>
-                </a>
-              </li>
-              <li className="nav-item d-none d-md-block">
-                <a className="nav-link nav-link-expand py-0" href="#">
-                  <button className="btn btn-blue text-white glow">+ New Client</button>
-                </a>
-              </li> */}
-            </ul>
+            <ul className="nav navbar-nav mr-auto float-left d-flex align-items-center"></ul>
             <ul className="nav navbar-nav float-right">
-              <li className="dropdown dropdown-user nav-item">
+              <li className="dropdown dropdown-user nav-item" ref={menuRef}>
                 <a
                   className="dropdown-toggle nav-link dropdown-user-link"
                   href="#"

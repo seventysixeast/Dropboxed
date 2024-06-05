@@ -21,7 +21,6 @@ const addGallery = async (req, res) => {
     let slug = baseSlug;
     let counter = 1;
 
-    // Check if the slug already exists in the Collection
     while (await Collection.findOne({ where: { slug } })) {
       slug = `${baseSlug}-${counter}`;
       counter++;
@@ -131,42 +130,61 @@ const getAllCollections = async (req, res) => {
       });
     }
 
-    const clientIds = collectionsData.map(collection => collection.client_id);
-    const photographerIds = collectionsData.map(collection => collection.photographer_ids);
-    const packageIds = collectionsData.map(collection => collection.package_ids);
+    const clientIds = collectionsData.map(collection => collection.client_id).filter(id => id);
+    const photographerIds = collectionsData.map(collection => collection.photographer_ids).filter(id => id);
+    const packageIds = collectionsData.map(collection => collection.package_ids).filter(id => id);
 
-    const uniqueClientIds = [...new Set(clientIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
-    const uniquePhotographerIds = [...new Set(photographerIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
-    const uniquePackageIds = [...new Set(packageIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+    if (clientIds.length > 0) {
+      const uniqueClientIds = [...new Set(clientIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+      const clientData = await User.findAll({ where: { id: uniqueClientIds } });
 
-    const clientData = await User.findAll({ where: { id: uniqueClientIds } });
-    const photographerData = await User.findAll({ where: { id: uniquePhotographerIds } });
-    const packageData = await Package.findAll({ where: { id: uniquePackageIds } });
+      const clientNamesAndIds = clientData.reduce((acc, client) => {
+        acc[client.id] = client.name;
+        return acc;
+      }, {});
 
-    const clientNamesAndIds = clientData.reduce((acc, client) => {
-      acc[client.id] = client.name;
-      return acc;
-    }, {});
+      collectionsData.forEach(collection => {
+        if (collection.client_id) {
+          const clientNames = collection.client_id.split(',').map(id => clientNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
+          collection.dataValues.client_name = clientNames;
+        }
+      });
+    }
 
-    const photographerNamesAndIds = photographerData.reduce((acc, photographer) => {
-      acc[photographer.id] = photographer.name;
-      return acc;
-    }, {});
+    if (photographerIds.length > 0) {
+      const uniquePhotographerIds = [...new Set(photographerIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+      const photographerData = await User.findAll({ where: { id: uniquePhotographerIds } });
 
-    const packageNamesAndIds = packageData.reduce((acc, pkg) => {
-      acc[pkg.id] = pkg.package_name;
-      return acc;
-    }, {});
+      const photographerNamesAndIds = photographerData.reduce((acc, photographer) => {
+        acc[photographer.id] = photographer.name;
+        return acc;
+      }, {});
 
-    collectionsData.forEach(collection => {
-      const clientNames = collection.client_id.split(',').map(id => clientNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
-      const photographerNames = collection.photographer_ids.split(',').map(id => photographerNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
-      const packageNames = collection.package_ids.split(',').map(id => packageNamesAndIds[parseInt(id.trim(), 10)] || '').filter(name => name).join(', ');
+      collectionsData.forEach(collection => {
+        if (collection.photographer_ids) {
+          const photographerNames = collection.photographer_ids.split(',').map(id => photographerNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
+          collection.dataValues.photographers_name = photographerNames;
+        }
+      });
+    }
 
-      collection.dataValues.client_name = clientNames;
-      collection.dataValues.photographers_name = photographerNames;
-      collection.dataValues.packages_name = packageNames;
-    });
+    if (packageIds.length > 0) {
+      const uniquePackageIds = [...new Set(packageIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+      const packageData = await Package.findAll({ where: { id: uniquePackageIds } });
+
+      const packageNamesAndIds = packageData.reduce((acc, pkg) => {
+        acc[pkg.id] = pkg.package_name;
+        return acc;
+      }, {});
+
+      collectionsData.forEach(collection => {
+        if (collection.package_ids) {
+          const packageNames = collection.package_ids.split(',').map(id => packageNamesAndIds[parseInt(id.trim(), 10)] || '').filter(name => name).join(', ');
+          collection.dataValues.packages_name = packageNames;
+        }
+      });
+    }
+
 
     res.status(200).json({ success: true, data: collectionsData });
   } catch (error) {

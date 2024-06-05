@@ -12,6 +12,18 @@ const getUser = async (data) => {
   }
 };
 
+const changeBankingDetails = async (data) => {
+  try {
+    const response = await API.post('/user/changeBankingDetails', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to change banking details');
+    }
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+}
+
 const updateUser = async (data) => {
   try {
     const response = await API.post('/user/updateUser', data, {
@@ -40,4 +52,4 @@ const changePassword = async (data) => {
   }
 };
 
-export { getUser, updateUser, changePassword };
+export { getUser, updateUser, changeBankingDetails, changePassword };
