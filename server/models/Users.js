@@ -169,6 +169,18 @@ const Users = sequelize.define('User', {
     allowNull: true,
     defaultValue: ''
   },
+  quickbooks_access_token: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  quickbooks_refresh_token: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  quickbooks_realm_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   deleted_at: {
     type: DataTypes.DATE,
     allowNull: true

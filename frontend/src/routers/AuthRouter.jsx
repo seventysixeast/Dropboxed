@@ -11,6 +11,7 @@ import ClientSignup from "../pages/ClientSignup";
 import DropboxOAuth from "../pages/DropboxAuth";
 import GoogleOAuth from "../pages/GoogleOAuth";
 import { ViewGallery } from "../pages/ViewGallery";
+import QuickBooksCallback from '../components/QuickBooksCallback';
 
 const AuthRouter = () => {
   const route = useRoutes([
@@ -25,6 +26,7 @@ const AuthRouter = () => {
     { path: "/google", element: <GoogleOAuth /> },
     { path: "*", element: <Navigate to="/login" /> },
     { path: "/view-gallery/:id", element: <ViewGallery /> },
+    { path: "/quickbooks/callback", element: <QuickBooksCallback /> }
     //{ path: "/token-verification", element: <TokenVerification /> }
   ]);
 

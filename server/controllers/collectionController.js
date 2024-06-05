@@ -2,8 +2,13 @@ const Collection = require('../models/Collections');
 const Notifications = require('../models/Notifications');
 const User = require('../models/Users');
 const Package = require('../models/Packages');
+const Order = require('../models/Orders');
+const CustomInvoiceList = require("../models/Invoices");
 const { NEW_COLLECTION } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
+const phpSerialize = require('php-serialize').serialize;
+
+
 
 function createSlug(title) {
   return title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
@@ -303,4 +308,154 @@ const updateGalleryNotify = async (req, res) => {
   }
 }
 
-module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify };
+const getOrderDataForInvoice = async (req, res) => {
+  try {
+    const { collectionId } = req.body;
+
+    const collection = await Collection.findOne({
+      where: { id: collectionId }
+    });
+
+    if (!collection) {
+      return res.status(404).json({ success: false, message: 'Collection not found' });
+    }
+
+    const adminUser = await User.findOne({
+      where: { id: collection.subdomain_id }
+    });
+
+    if (!adminUser) {
+      return res.status(404).json({ success: false, message: 'Admin user not found' });
+    }
+
+    const clientUser = await User.findOne({
+      where: { id: collection.client_id }
+    });
+
+    // Fetch packages data
+    const packageIds = collection.package_ids.split(',').map(id => parseInt(id.trim(), 10));
+    const packages = await Package.findAll({
+      where: { id: packageIds }
+    });
+
+    // Calculate total price
+    const totalPrice = packages.reduce((sum, pkg) => sum + pkg.package_price, 0);
+
+    // Structure the response data
+    const responseData = {
+      collection: {
+        id: collection.id,
+        client_address: collection.client_address,
+        name: collection.name,
+        slug: collection.slug,
+        dropbox_link: collection.dropbox_link,
+        video_link: collection.video_link,
+        image_type: collection.image_type,
+        price: collection.price,
+        status: collection.status,
+        lock_gallery: collection.lock_gallery,
+        notify_client: collection.notify_client,
+        image_count: collection.image_count,
+        created: collection.created,
+        modified: collection.modified
+      },
+      admin: {
+        id: adminUser.id,
+        name: adminUser.name,
+        company: adminUser.company,
+        website: adminUser.website,
+        account_name: adminUser.account_name,
+        address: adminUser.address,
+        phone: adminUser.phone,
+        email: adminUser.email,
+        abn_acn: adminUser.abn_acn,
+        bsb_number: adminUser.bsb_number,
+      },
+      client: {
+        name: adminUser.name,
+        address: adminUser.address,
+      },
+      packages: packages.map(pkg => ({
+        id: pkg.id,
+        name: pkg.package_name,
+        price: pkg.package_price,
+        details: pkg.image_type_details
+      })),
+      total_price: totalPrice
+    };
+
+    res.status(200).json({ success: true, data: responseData });
+  } catch (error) {
+    console.error('Error fetching order data for invoice:', error);
+    res.status(500).json({ error: 'Failed to fetch order data for invoice' });
+  }
+};
+
+const serializeItems = (items) => {
+  try {
+    items.forEach(item => {
+      item.product_name = item.name;
+      item.product_desc = item.description;
+      item.product_quantity = item.quantity;
+      item.product_price = item.price;
+    })
+    return phpSerialize(items);
+  } catch (error) {
+    console.error('Error serializing items:', error);
+    throw error;
+  }
+};
+
+const saveInvoiceToDatabase = async (req, res) => {
+  const userId = req.user.userId;
+  const {
+    collectionId,
+    items,
+    subtotal,
+    taxRate,
+    taxAmount,
+    total,
+    note,
+    invoiceLink,
+    clientName,
+    clientAddress
+  } = req.body;
+
+  try {
+    const newOrder = await Order.create({
+      user_id: userId,
+      collection_id: collectionId,
+      package_id: 0,
+      image_id: 0,
+      allow_download: 0,
+      invoice_link: invoiceLink,
+      invoice_price: total,
+    });
+
+    const orderId = newOrder.id;
+
+    const serializedItems = serializeItems(items);
+
+    // Save data to CustomInvoiceList table
+    await CustomInvoiceList.create({
+      order_id: newOrder.id,
+      user_name: clientName,
+      user_address: clientAddress,
+      item_descriptions: serializedItems,
+      //paid_amount: total,
+      due_amount: 0,
+      total_price: total,
+      notes: note,
+      send_invoice: false,
+      paid_status: false,
+      invoice_link: invoiceLink,
+    });
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error saving invoice:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify, getOrderDataForInvoice, saveInvoiceToDatabase };

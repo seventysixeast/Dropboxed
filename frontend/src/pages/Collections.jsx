@@ -25,6 +25,7 @@ import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
 import moment from "moment";
 import ReTooltip from "../components/Tooltip";
+import AddInvoiceNodal from "../components/CreateInvoice";
 import LoadingOverlay from "../components/Loader";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
@@ -64,6 +65,8 @@ const Collections = () => {
     lock_gallery: false,
     notify_client: "",
   });
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedCollectionId, setSelectedCollectionId] = useState(null);
 
   useEffect(() => {
     getClients();
@@ -145,6 +148,11 @@ const Collections = () => {
     } catch (error) {
       toast.error(error);
     }
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedCollectionId(null);
   };
 
   const handleNotifyChange = () => {
@@ -459,6 +467,9 @@ const Collections = () => {
   const handleGalleryNotify = async (id) => {
     setLoading(true);
     try {
+      console.log("id",id)
+      setSelectedCollectionId(id);
+      setModalIsOpen(true);
       const formDataToSend = new FormData();
       formDataToSend.append("id", id);
       const res = await updateGalleryNotify(formDataToSend);
@@ -683,7 +694,6 @@ const Collections = () => {
                         className="btn btn-outline-primary"
                         data-toggle="modal"
                         data-target="#bootstrap"
-                        // title conditional
                         title={
                           subdomainDropbox === ""
                             ? "Dropbox Not Linked"
@@ -747,6 +757,11 @@ const Collections = () => {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={deleteCollectionData}
         message="Are you sure you want to delete this collection?"
+      />
+      <AddInvoiceNodal
+        isOpen={modalIsOpen}
+        onClose={closeModal}
+        collectionId={selectedCollectionId}
       />
     </>
   );

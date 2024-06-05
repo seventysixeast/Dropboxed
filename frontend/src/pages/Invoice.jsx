@@ -6,9 +6,10 @@ import { deleteInvoiceById, getAllInvoices } from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
-import TableCustom from "../components/Table";
+import TableCustom from "../components/TableInvoice";
 import { verifyToken } from "../api/authApis";
 import LoadingOverlay from "../components/Loader";
+import EditInvoiceModal from "../components/EditInvoice";
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -19,6 +20,7 @@ const Invoice = () => {
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceId, setInvoiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [itemsLoading, setItemsLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +33,10 @@ const Invoice = () => {
 
   const resetData = async () => {
     setInvoiceId(null);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
   };
 
   const columns = [
@@ -175,8 +181,8 @@ const Invoice = () => {
   };
 
   const handleEdit = (id) => {
-    console.log("Edit invoice", id);
     setInvoiceId(id);
+    setModalIsOpen(true);
   };
 
   const handleDelete = (id) => {
@@ -260,6 +266,11 @@ const Invoice = () => {
         onClose={handleDeleteModalClose}
         onConfirm={deleteInvoice}
         message="Are you sure you want to delete this appointment?"
+      />
+      <EditInvoiceModal
+        isOpen={modalIsOpen}
+        onClose={closeModal}
+        invoiceId={invoiceId}
       />
     </>
   );

@@ -29,6 +29,10 @@ import { useAuth } from "../context/authContext";
 import AddService from "../pages/AddService";
 import DropboxOAuth from "../pages/DropboxAuth";
 import GoogleOAuth from "../pages/GoogleOAuth";
+import QuickBooksConnect from '../components/QuickBooksConnect';
+import QuickBooksCallback from '../components/QuickBooksCallback';
+import CreateInvoice from '../components/CreateInvoice';
+
 
 const AdminRouter = () => {
   const { authData } = useAuth();
@@ -65,6 +69,8 @@ const AdminRouter = () => {
     { path: "/services/*", element: <AddService /> },
     { path: "/dropbox", element: <DropboxOAuth /> },
     { path: "/google", element: <GoogleOAuth /> },
+    { path: "/quickbooks/callback", element: <QuickBooksCallback /> },
+    { path: "/create-invoice", element: <CreateInvoice /> },
     { path: "/login", element: <Login /> },
 
   ]);
