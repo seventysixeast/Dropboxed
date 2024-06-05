@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as Yup from "yup";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { login } from "../api/authApis";
@@ -13,11 +13,11 @@ import { verifyToken } from "../api/authApis";
 const Login = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
-  console.log("subdomain>>>",subdomain,window.location.href);
+  console.log("subdomain>>>", subdomain, window.location.href);
   const [userData, setUserData] = useState({
     userName: "",
     password: "",
-    rememberMe: false
+    rememberMe: false,
   });
   const [loading, setLoading] = useState(false);
 
@@ -31,64 +31,80 @@ const Login = () => {
   });
 
   useEffect(() => {
+    // check if user is authenticated
+    const accessToken = localStorage.getItem("accessToken");
+    const isAuth = localStorage.getItem("isAuth");
+    const user = localStorage.getItem("user");
+    if (accessToken && isAuth && user) {
+      window.location.href = "/dashboard";
+    }
+  }, []);
+
+  useEffect(() => {
     const getTokenFromUrl = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('token');
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get("token");
     };
 
     const handleTokenVerification = async (token) => {
-        try {
-            setLoading(true); // Show loader
-            const decryptedToken = decryptToken(token);
-            const { success, accessToken, user, message } = await verifyToken(decryptedToken);
-            console.log("success", success)
-            
-            if (success) {
-                // Save user data and access token in localStorage
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('isAuth', true);
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                // Show success toast
-                // toast.success('Token verification successful');
-                
-                // Redirect to dashboard
-                window.location.href = '/dashboard';
-                setLoading(false);
-            } else {
-                // Show error toast
-                toast.error(`Token verification failed: ${message}`);
-                // Redirect to login page
-                window.location.href = '/login';
-                setLoading(false);
-            }
-        } catch (error) {
-            setLoading(false);
-            console.error("Token verification failed:", error.message);
-            // Show error toast
-            toast.error('Token verification failed');
-            // Redirect to login page
-            window.location.href = '/login';
+      try {
+        setLoading(true); // Show loader
+        const decryptedToken = decryptToken(token);
+        const { success, accessToken, user, message } = await verifyToken(
+          decryptedToken
+        );
+        console.log("success", success);
+
+        if (success) {
+          // Save user data and access token in localStorage
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("isAuth", true);
+          localStorage.setItem("user", JSON.stringify(user));
+
+          // Show success toast
+          // toast.success('Token verification successful');
+
+          // Redirect to dashboard
+          window.location.href = "/dashboard";
+          setLoading(false);
+        } else {
+          // Show error toast
+          toast.error(`Token verification failed: ${message}`);
+          // Redirect to login page
+          window.location.href = "/login";
+          setLoading(false);
         }
+      } catch (error) {
+        setLoading(false);
+        console.error("Token verification failed:", error.message);
+        // Show error toast
+        toast.error("Token verification failed");
+        // Redirect to login page
+        window.location.href = "/login";
+      }
     };
 
     const token = getTokenFromUrl();
 
     if (token) {
-        handleTokenVerification(token);
+      handleTokenVerification(token);
     }
-
-}, []);
+  }, []);
 
   useEffect(() => {
-    document.body.classList.remove("vertical-layout", "vertical-menu-modern", "2-columns", "fixed-navbar");
+    document.body.classList.remove(
+      "vertical-layout",
+      "vertical-menu-modern",
+      "2-columns",
+      "fixed-navbar"
+    );
     const rememberMeCookie = Cookies.get("rememberMe");
     if (rememberMeCookie) {
       // Automatically populate username from cookie
-      setUserData(prevData => ({
+      setUserData((prevData) => ({
         ...prevData,
         userName: rememberMeCookie,
-        rememberMe: true // Set rememberMe to true if cookie exists
+        rememberMe: true, // Set rememberMe to true if cookie exists
       }));
     }
   }, []);
@@ -105,97 +121,99 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        setLoading(true); // Show loader
-        await validationSchema.validate(userData, { abortEarly: false });
-        console.log("subdomain1>>>",subdomain)
-        const loginData = subdomain ? { ...userData, subdomain } : userData;
-        const { success, message, accessToken, user } = await login(loginData);
-        //const { success, message, accessToken, user } = await login(userData);
-        if(success){
-          if(!accessToken){
-            toast.success('Login successful');
-          }
-          // Set rememberMe cookie if checked
-          if (userData.rememberMe) {
-            Cookies.set("rememberMe", userData.userName, { expires: 30 }); // Expires in 30 days
-          } else {
-            // Remove rememberMe cookie if not checked
-            Cookies.remove("rememberMe");
-          }
-        } else{
-          toast.error(message);
+      setLoading(true); // Show loader
+      await validationSchema.validate(userData, { abortEarly: false });
+      console.log("subdomain1>>>", subdomain);
+      const loginData = subdomain ? { ...userData, subdomain } : userData;
+      const { success, message, accessToken, user } = await login(loginData);
+      //const { success, message, accessToken, user } = await login(userData);
+      if (success) {
+        if (!accessToken) {
+          toast.success("Login successful");
         }
-        
-        const userSubdomain = user.subdomain.toLowerCase().replace(/\s/g, '');
-         const currentSubdomain = window.location.hostname.split('.')[0];
-        //const baseUrl = window.location.protocol + "//" + window.location.hostname;
+        // Set rememberMe cookie if checked
+        if (userData.rememberMe) {
+          Cookies.set("rememberMe", userData.userName, { expires: 30 }); // Expires in 30 days
+        } else {
+          // Remove rememberMe cookie if not checked
+          Cookies.remove("rememberMe");
+        }
+      } else {
+        toast.error(message);
+      }
 
-        //const DOMAIN_NAME = process.env.REACT_APP_DOMAIN_NAME
-        // Check if the current URL already contains a subdomain
-        //const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${userSubdomain}.` : "";
-        //console.log("redirectToSubdomain",redirectToSubdomain, "<-->",currentSubdomain); return false
-        //console.log("redirectToSubdomain",redirectToSubdomain)
-        if(!user.is_verified){
-          toast.success('Account verification pending');
-          return;
-        }
-        if (user.role_id === 1) {
-          setLoading(false);
-          const userDataWithProfilePhoto = { ...user, profile_photo: user.profile_photo || '' };
-          // Save user data and access token in localStorage
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('isAuth', true);
-          localStorage.setItem('user', JSON.stringify(userDataWithProfilePhoto));
-          const redirectUrl = `/dashboard`;
-          window.location.href = redirectUrl;
-          return;
-        }
-        if(subdomain){
-          setLoading(false);
-           // Save user data and access token in localStorage
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('isAuth', true);
-          localStorage.setItem('user', JSON.stringify(user));
-          // Set cookies with domain attribute
-          /*document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
+      const userSubdomain = user.subdomain.toLowerCase().replace(/\s/g, "");
+      const currentSubdomain = window.location.hostname.split(".")[0];
+      //const baseUrl = window.location.protocol + "//" + window.location.hostname;
+
+      //const DOMAIN_NAME = process.env.REACT_APP_DOMAIN_NAME
+      // Check if the current URL already contains a subdomain
+      //const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${userSubdomain}.` : "";
+      //console.log("redirectToSubdomain",redirectToSubdomain, "<-->",currentSubdomain); return false
+      //console.log("redirectToSubdomain",redirectToSubdomain)
+      if (!user.is_verified) {
+        toast.success("Account verification pending");
+        return;
+      }
+      if (user.role_id === 1) {
+        setLoading(false);
+        const userDataWithProfilePhoto = {
+          ...user,
+          profile_photo: user.profile_photo || "",
+        };
+        // Save user data and access token in localStorage
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("isAuth", true);
+        localStorage.setItem("user", JSON.stringify(userDataWithProfilePhoto));
+        const redirectUrl = `/dashboard`;
+        window.location.href = redirectUrl;
+        return;
+      }
+      if (subdomain) {
+        setLoading(false);
+        // Save user data and access token in localStorage
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("isAuth", true);
+        localStorage.setItem("user", JSON.stringify(user));
+        // Set cookies with domain attribute
+        /*document.cookie = `accessToken=${accessToken}; domain=.localhost; path=/`;
           document.cookie = `isAuth=true; domain=.localhost; path=/`;
           document.cookie = `user=${JSON.stringify(user)}; domain=.localhost; path=/`;*/
-          const redirectUrl = `/dashboard`;
-          window.location.href = redirectUrl;
-        } else {
-          setLoading(false);
-          const encryptedToken = encryptToken(accessToken);
-          // Construct the redirection URL
-         
-          const redirectUrl = `${window.location.protocol}//${userSubdomain}.${window.location.host}/login?token=${encodeURIComponent(encryptedToken)}`;
-          //console.log("redirectUrl",redirectUrl)
-          window.location.href = redirectUrl; // Redirecting to subdomain
-        }
-        
-    } catch (error) {
+        const redirectUrl = `/dashboard`;
+        window.location.href = redirectUrl;
+      } else {
         setLoading(false);
-        if (error.name === "ValidationError") {
-            const validationErrors = {};
-            error.inner.forEach((err) => {
-                validationErrors[err.path] = err.message;
-            });
-            setValidationErrors(validationErrors);
-        } else {
-            console.error("Login failed:", error.message);
-        }
-    }
-};
+        const encryptedToken = encryptToken(accessToken);
+        // Construct the redirection URL
 
-  
+        const redirectUrl = `${window.location.protocol}//${userSubdomain}.${
+          window.location.host
+        }/login?token=${encodeURIComponent(encryptedToken)}`;
+        //console.log("redirectUrl",redirectUrl)
+        window.location.href = redirectUrl; // Redirecting to subdomain
+      }
+    } catch (error) {
+      setLoading(false);
+      if (error.name === "ValidationError") {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        setValidationErrors(validationErrors);
+      } else {
+        console.error("Login failed:", error.message);
+      }
+    }
+  };
 
   return (
     <div className="bg-full-screen-image">
       {/* Loader overlay */}
-    {loading && (
-      <div className="loader-overlay">
-        <div className="loader"></div>
-      </div>
-    )}
+      {loading && (
+        <div className="loader-overlay">
+          <div className="loader"></div>
+        </div>
+      )}
       <div className="content-overlay" />
       <div className="content-wrapper">
         <div className="content-header row"></div>
@@ -216,10 +234,7 @@ const Login = () => {
                   </div>
                   <div className="card-content">
                     <div className="card-body">
-                      <form
-                        className="form-horizontal"
-                        onSubmit={handleSubmit}
-                      >
+                      <form className="form-horizontal" onSubmit={handleSubmit}>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
                             type="text"
@@ -233,7 +248,9 @@ const Login = () => {
                           <div className="form-control-position">
                             <i className="feather icon-user" />
                           </div>
-                          <small className="text-danger">{validationErrors.userName}</small>
+                          <small className="text-danger">
+                            {validationErrors.userName}
+                          </small>
                         </fieldset>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
@@ -248,7 +265,9 @@ const Login = () => {
                           <div className="form-control-position">
                             <i className="fa fa-key" />
                           </div>
-                          <small className="text-danger">{validationErrors.password}</small>
+                          <small className="text-danger">
+                            {validationErrors.password}
+                          </small>
                         </fieldset>
                         <div className="form-group row">
                           <div className="col-sm-6 col-12 text-center text-sm-left pr-0">
@@ -272,10 +291,7 @@ const Login = () => {
                             </fieldset>
                           </div>
                           <div className="col-sm-6 col-12 float-sm-left text-center text-sm-right">
-                            <Link
-                              to="/forgot"
-                              className="card-link"
-                            >
+                            <Link to="/forgot" className="card-link">
                               Forgot Password?
                             </Link>
                           </div>

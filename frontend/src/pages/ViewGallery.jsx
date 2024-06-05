@@ -122,7 +122,7 @@ export const ViewGallery = () => {
     const formData = new FormData();
     formData.append("subdomain_id", authData.user.subdomain_id);
     formData.append("role_id", authData.user.role_id);
-    formData.append('user_id', authData.user.role_id)
+    formData.append("user_id", authData.user.role_id);
     const response = await getAlltasks(formData);
     if (response.success) {
       setTasks(response.tasks);
@@ -145,11 +145,27 @@ export const ViewGallery = () => {
     formData.append("subdomain_id", authData.user.subdomain_id);
     const response = await getClientPhotographers(formData);
     if (response.success) {
-      setClients(response.data);
+      if (authData.user.role_id !== 3) {
+        const activeClients = response.data.filter(
+          (client) => client.status === "Active"
+        );
+        console.log(activeClients);
+        setClients(activeClients);
+      } else {
+        const activeClients = response.data.filter(
+          (client) => client.status === "Active"
+        );
+        const filteredClients = activeClients.filter(
+          (client) => client.role_id === 2 || client.role_id === 5
+        );
+
+        setClients(filteredClients);
+      }
     } else {
-      console.log(response.data);
+      toast.error("Failed to get clients!");
     }
   };
+
   const handleClientChange = (selectedOption) => {
     setSelectedClient(selectedOption);
   };
@@ -158,14 +174,19 @@ export const ViewGallery = () => {
     if (authData.user === null) return;
     const formData = new FormData();
 
-    if (taskData.userId === "") {
-      formData.append("user_id", authData.user.user_id);
-    } else {
-      formData.append("user_id", taskData.userId);
+    if (taskData.taskTitle === "") {
+      toast.error("Task title is required!");
+      return;
+    }
+
+    if (selectedClient.value === undefined) {
+      toast.error("Assigned user is required!");
+      return;
     }
 
     const formattedTags = selectedTags.map((tag) => tag.value).join(",");
     formData.append("id", taskData.id);
+    formData.append("user_id", authData.user.id);
     formData.append("task_tags", formattedTags);
     formData.append("subdomain_id", authData.user.subdomain_id);
     formData.append("role_id", authData.user.role_id);
@@ -1092,7 +1113,6 @@ export const ViewGallery = () => {
                                                   event.stopPropagation();
                                                   console.log(
                                                     collection.lock_gallery
-
                                                   );
 
                                                   setSelectedImageUrl(

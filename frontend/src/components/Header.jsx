@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
-import { useAuth } from '../context/authContext';
+import { useAuth } from "../context/authContext";
 import logoLight from "../assets/images/studiio-logo.png";
 import { getClient } from "../api/clientApis";
+import { useNavigate } from "react-router-dom";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const Header = () => {
+  const navigate = useNavigate();
   const { authData } = useAuth();
   const { logout } = useAuth();
   const { user } = authData;
@@ -13,7 +15,7 @@ const Header = () => {
   const handleLogout = (e) => {
     e.preventDefault();
     logout();
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   useEffect(() => {
@@ -23,14 +25,39 @@ const Header = () => {
   const checkUserStatus = async () => {
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('id', user.id);
+      formDataToSend.append("id", user.id);
       let res = await getClient(formDataToSend);
       if (res.data.status == "Inactive") {
         logout();
-        window.location.href = '/login';
+        window.location.href = "/login";
       }
     } catch (error) {
-      console.error('Error checking user status:', error);
+      console.error("Error checking user status:", error);
+    }
+  };
+
+  const handleMenuToggle = async (e) => {
+    e.preventDefault(); 
+    let menuToggleElement = document.querySelector(
+      ".nav-link.nav-menu-main.hidden-xs"
+    );
+    console.log(menuToggleElement);
+
+    const body = document.getElementsByTagName("body")[0];
+
+    if (menuToggleElement) {
+      menuToggleElement.classList.toggle("is-active");
+      console.log(menuToggleElement);
+
+      if (body.classList.contains("menu-hide")) {
+        body.classList.remove("vertical-menu-modern")
+        body.classList.add("menu-open");
+        body.classList.remove("menu-hide");
+        
+      } else {
+        body.classList.remove("menu-open");
+        body.classList.add("menu-hide");
+      }
     }
   };
 
@@ -39,25 +66,36 @@ const Header = () => {
       <div className="navbar-wrapper">
         <div className="navbar-header">
           <ul className="nav navbar-nav flex-row">
-            <li className="nav-item mobile-menu d-lg-none mr-auto">
+            <li className="nav-item mobile-menu  d-lg-none mr-auto">
               <a
-                className="nav-link nav-menu-main menu-toggle hidden-xs"
-                href="#"
+                className="nav-link nav-menu-main toggle-menu hidden-xs"
+                onClick={handleMenuToggle}
               >
                 <i className="feather icon-menu font-large-1"></i>
               </a>
             </li>
             <li className="nav-item mr-auto">
-              <a
+              {/* <a
                 className="navbar-brand"
                 href="/dashboard"
+              >
+              <a className="navbar-brand" href="/dashboard">
+                <img
+                  className="brand-logo dropLogo"
+                  alt="stack admin logo"
+                  src={logoLight}
+                />
+              </a> */}
+              <span
+                className="navbar-brand"
+                onClick={() => navigate("/dashboard")}
               >
                 <img
                   className="brand-logo dropLogo"
                   alt="stack admin logo"
                   src={logoLight}
                 />
-              </a>
+              </span>
             </li>
 
             <li className="nav-item d-none d-lg-block nav-toggle">
@@ -134,7 +172,10 @@ const Header = () => {
                   <span className="user-name">{user.userName}</span>
                 </a>
                 <div className="dropdown-menu dropdown-menu-right">
-                  {(roleId === 2 || roleId === 3 || roleId === 4 || roleId === 5) && (
+                  {(roleId === 2 ||
+                    roleId === 3 ||
+                    roleId === 4 ||
+                    roleId === 5) && (
                     <>
                       <a className="dropdown-item" href="/edit-profile">
                         <i className="feather icon-user"></i> Edit Profile

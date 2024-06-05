@@ -16,7 +16,7 @@ import {
   updateCollection,
   updateGalleryNotify,
 } from "../api/collectionApis";
-import { getRefreshToken } from "../api/authApis";
+import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
@@ -26,6 +26,7 @@ import axios from "axios";
 import moment from "moment";
 import ReTooltip from "../components/Tooltip";
 import AddInvoiceNodal from "../components/CreateInvoice";
+import LoadingOverlay from "../components/Loader";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -36,8 +37,9 @@ const Collections = () => {
   const subdomainId = user.subdomain_id;
   const userId = user.id;
   const roleId = user.role_id;
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [loading, setLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(true);
   const [clients, setClients] = useState([]);
   const [bookingTitles, setBookingTitles] = useState([]);
   const [services, setServices] = useState([]);
@@ -49,7 +51,7 @@ const Collections = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [subdomainDropbox, setSubdomainDropbox] = useState(null);
+  const [subdomainDropbox, setSubdomainDropbox] = useState("");
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -304,11 +306,13 @@ const Collections = () => {
   };
 
   const getAllCollectionsData = async () => {
-    const formData = new FormData();
-    formData.append("subdomainId", subdomainId);
-    formData.append("roleId", user.role_id);
-    formData.append("userId", user.id);
+    setLoading(true);
+    setItemsLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("subdomainId", subdomainId);
+      formData.append("roleId", user.role_id);
+      formData.append("userId", user.id);
       let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
@@ -318,6 +322,8 @@ const Collections = () => {
     } catch (error) {
       toast.error(error);
     }
+    setItemsLoading(false);
+    setLoading(false);
   };
 
   const updateImageCount = async (data) => {
@@ -370,11 +376,14 @@ const Collections = () => {
   const getDropboxRefresh = async () => {
     const formDataToSend = new FormData();
     formDataToSend.append("id", user.subdomain_id);
-
     try {
       const response = await getDropboxRefreshToken(formDataToSend);
       if (response.success) {
-        setSubdomainDropbox(response.data);
+        if (response.data !== null) {
+          setSubdomainDropbox(response.data);
+        } else {
+          setSubdomainDropbox("");
+        }
       } else {
         console.log(response.message);
       }
@@ -460,9 +469,7 @@ const Collections = () => {
       setModalIsOpen(true);
       const formDataToSend = new FormData();
       formDataToSend.append("id", id);
-
       const res = await updateGalleryNotify(formDataToSend);
-
       if (res && res.success) {
         toast.success(res.message);
         await getAllCollectionsData();
@@ -490,7 +497,11 @@ const Collections = () => {
       },
       { Header: "Gallery Title", accessor: "name" },
       { Header: "Address", accessor: "client_address" },
-      { Header: "Client", accessor: "client_name", className: roleId === 3 ? 'd-none' : '' },
+      {
+        Header: "Client",
+        accessor: "client_name",
+        className: roleId === 3 ? "d-none" : "",
+      },
       { Header: "Services", accessor: "packages_name" },
       { Header: "Photographers", accessor: "photographers_name" },
       {
@@ -512,7 +523,9 @@ const Collections = () => {
           row.original.notify_client ? (
             <ReTooltip title="Click to change status." placement="top">
               <div
-                className={`badge badge-pill badge-light-primary ${roleId === 3 ? 'd-none' : ''}`}
+                className={`badge badge-pill badge-light-primary ${
+                  roleId === 3 ? "d-none" : ""
+                }`}
                 style={{
                   cursor: "pointer",
                 }}
@@ -622,8 +635,22 @@ const Collections = () => {
 
   const data = React.useMemo(() => collections, [collections]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+    fetchData();
+  }, [accesstoken]);
+
   return (
     <>
+      <LoadingOverlay loading={loading} />
       <div className="app-content content">
         <div className="content-overlay"></div>
         <div className="content-wrapper">
@@ -647,7 +674,7 @@ const Collections = () => {
                   <div className="form-group d-flex">
                     {user.role_id == 5 && (
                       <>
-                        {user.dropbox_refresh == null && (
+                        {subdomainDropbox === "" && !itemsLoading && (
                           <a
                             href={`${dropboxAuthUrl}`}
                             className="btn btn-primary mr-1"
@@ -665,11 +692,11 @@ const Collections = () => {
                         data-toggle="modal"
                         data-target="#bootstrap"
                         title={
-                          user.dropbox_refresh == null
+                          subdomainDropbox === ""
                             ? "Dropbox Not Linked"
                             : "Add Collection"
                         }
-                        disabled={user.dropbox_refresh == null}
+                        disabled={subdomainDropbox === ""}
                         onClick={() => {
                           setShowAddGalleryModal(true);
                         }}
@@ -704,7 +731,24 @@ const Collections = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      <TableCustom data={data} columns={columns} />
+      {itemsLoading === false && (
+        <>
+          {data.length > 0 ? (
+            <TableCustom data={data} columns={columns} />
+          ) : (
+            <div
+              className="app-content content content-wrapper d-flex justify-content-center"
+              style={{ marginTop: "15rem" }}
+              role="status"
+            >
+              <p>
+                No Collections added yet. Click New Colletion to add new collection for
+                your Clients.
+              </p>
+            </div>
+          )}
+        </>
+      )}
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

@@ -39,7 +39,7 @@ export const BookingListComponent = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.accessToken;
+  const accesstoken = authData.token;
   const [providers, setProviders] = useState([]);
   const [packages, setPackages] = useState([]);
   const [packagePrice, setPackagePrices] = useState([]);
@@ -53,6 +53,7 @@ export const BookingListComponent = () => {
   const [bookingAddress, setBookingAddress] = useState(null);
   const [toTime, setToTime] = useState("60");
   const [loading, setLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(false);
   const [clientList, setClientList] = useState([]);
   const [events, setEvents] = useState([]);
   const [bookingsData, setBookingsData] = useState([]);
@@ -291,6 +292,8 @@ export const BookingListComponent = () => {
   };
 
   const getAllBookingsData = async () => {
+    setLoading(true);
+    setItemsLoading(true);
     const datatosend = {
       subdomainId: subdomainId,
       roleId: roleId,
@@ -375,6 +378,8 @@ export const BookingListComponent = () => {
       setBookingsData([]);
       setEvents([]);
     }
+    setLoading(false);
+    setItemsLoading(false);
   };
 
   const getBookingData = (data) => {
@@ -1072,6 +1077,20 @@ export const BookingListComponent = () => {
     </CustomTooltip>
   );
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    fetchData();
+  }, [accesstoken]);
+
   return (
     <>
       <LoadingOverlay loading={loading} />
@@ -1100,7 +1119,6 @@ export const BookingListComponent = () => {
                 <li>
                   <div className="form-group">
                     <div className="">
-
                       <ReTooltip
                         title="Subscribe for calendar alerts."
                         placement="top"
@@ -1205,9 +1223,7 @@ export const BookingListComponent = () => {
                                     >
                                       {roleId !== 3 && (
                                         <div className="modal-body d-flex px-4">
-                                          <p
-                                            style={{ width: "10rem" }}
-                                          >
+                                          <p style={{ width: "10rem" }}>
                                             Providers
                                           </p>
                                           <Select
@@ -1265,9 +1281,7 @@ export const BookingListComponent = () => {
                                         </div>
                                       )}
                                       <div className="modal-body d-flex px-4">
-                                        <p
-                                          style={{ width: "10rem" }}
-                                        >
+                                        <p style={{ width: "10rem" }}>
                                           Address
                                         </p>
                                         <div className="d-flex w-100">
@@ -1303,9 +1317,7 @@ export const BookingListComponent = () => {
                                         </div>
                                       </div>
                                       <div className="modal-body d-flex px-4">
-                                        <p
-                                          style={{ width: "10rem" }}
-                                        >
+                                        <p style={{ width: "10rem" }}>
                                           Service
                                         </p>
                                         <Select
@@ -1390,9 +1402,7 @@ export const BookingListComponent = () => {
                                       </div>
 
                                       <div className="modal-body d-flex px-4 ">
-                                        <p
-                                          style={{ width: "12rem" }}
-                                        >
+                                        <p style={{ width: "12rem" }}>
                                           Date / Time
                                         </p>
                                         <DatePicker
@@ -1620,11 +1630,7 @@ export const BookingListComponent = () => {
 
                                     <div className="tab-pane fade" id="tab2">
                                       <div className="modal-body d-flex px-4">
-                                        <p
-                                          style={{ width: "10rem" }}
-                                        >
-                                          Client
-                                        </p>
+                                        <p style={{ width: "10rem" }}>Client</p>
                                         <Select
                                           className="select2 w-100"
                                           name="clients"
@@ -1680,9 +1686,7 @@ export const BookingListComponent = () => {
                                         />
                                       </div>
                                       <div className="modal-body d-flex px-4">
-                                        <p
-                                          style={{ width: "11rem" }}
-                                        >
+                                        <p style={{ width: "11rem" }}>
                                           Comment
                                         </p>
                                         <textarea
@@ -1886,7 +1890,30 @@ export const BookingListComponent = () => {
           </div>
         </div>
       </div>
-      <TableCustom data={bookingsData} columns={filteredColumns} />
+      {itemsLoading ? (
+        <div className="spinner-border primary" role="status">
+          <span className="sr-only"></span>
+        </div>
+      ) : (
+        <>
+          {bookingsData.length > 0 ? (
+            <TableCustom data={bookingsData} columns={filteredColumns} />
+          ) : (
+            <div className="app-content content">
+              <div className="content-overlay"></div>
+              <div className="content-wrapper">
+                <div
+                  className="d-flex justify-content-center mb-5"
+                  role="status"
+                >
+                  <p>No Bookings found.</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={handleDeleteModalClose}

@@ -9,12 +9,13 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
+import { verifyToken } from "../api/authApis";
 
 const ImageTypes = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [imagesTypes, setImageTypes] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
@@ -73,13 +74,6 @@ const ImageTypes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const existingImageType = imagesTypes.find(
-        (type) => type.type === formData.type
-      );
-      if (existingImageType) {
-        toast.error("Image type already exists!");
-        return;
-      }
       const formDataToSend = new FormData();
       formDataToSend.append("id", formData.id);
       formDataToSend.append("type", formData.type);
@@ -89,10 +83,14 @@ const ImageTypes = () => {
       formDataToSend.append("subdomain_id", subdomainId);
 
       let res = await createImageType(formDataToSend);
-      toast.success(res.message);
-      resetFormData();
-      document.getElementById("closeModal").click();
-      getAllImageTypesData();
+      if(res && res.success){
+        toast.success(res.message);
+        resetFormData();
+        document.getElementById("closeModal").click();
+        getAllImageTypesData();
+      }else{
+        toast.error(res.message);
+      }
     } catch (error) {
       toast.error(error);
     }
@@ -175,6 +173,21 @@ const ImageTypes = () => {
   );
 
   const data = React.useMemo(() => imagesTypes, [imagesTypes]);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    fetchData();
+  }, [accesstoken]);
 
   return (
     <>

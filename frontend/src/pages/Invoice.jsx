@@ -6,8 +6,9 @@ import { deleteInvoiceById, getAllInvoices } from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
-import TableInvoice from "../components/TableInvoice";
-import AddInvoiceNodal from "../components/CreateInvoice";
+import TableCustom from "../components/TableInvoice";
+import { verifyToken } from "../api/authApis";
+import LoadingOverlay from "../components/Loader";
 import EditInvoiceModal from "../components/EditInvoice";
 
 const Invoice = () => {
@@ -15,16 +16,20 @@ const Invoice = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceId, setInvoiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);
     resetData();
   };
+
+  console.log(invoiceList);
 
   const resetData = async () => {
     setInvoiceId(null);
@@ -68,7 +73,7 @@ const Invoice = () => {
     },
     {
       Header: "Amount",
-      accessor: "total_price",
+      accessor: (row) => `$${row.total_price}`,
     },
     {
       Header: "Status",
@@ -144,6 +149,7 @@ const Invoice = () => {
   }, []);
 
   const getInvoiceList = async () => {
+    setItemsLoading(true);
     try {
       const formData = new FormData();
       formData.append("role_id", roleId);
@@ -153,9 +159,11 @@ const Invoice = () => {
     } catch (error) {
       console.error("Error fetching invoice list:", error);
     }
+    setItemsLoading(false);
   };
 
   const deleteInvoice = async () => {
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("id", invoiceId);
@@ -169,6 +177,7 @@ const Invoice = () => {
     } catch (error) {
       console.error("Error deleting invoice:", error);
     }
+    setLoading(false);
   };
 
   const handleEdit = (id) => {
@@ -190,8 +199,23 @@ const Invoice = () => {
     console.log("Paid invoice", id);
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    fetchData();
+  }, [accesstoken]);
+
   return (
     <>
+      <LoadingOverlay loading={loading} />
       <div className="app-content content">
         <div className="content-overlay"></div>
         <div className="content-wrapper">
@@ -217,7 +241,26 @@ const Invoice = () => {
           </div>
         </div>
       </div>
-      <TableInvoice data={invoiceList} columns={columns} />
+      {invoiceList.length > 0 ? (
+        <TableCustom data={invoiceList} columns={columns} />
+      ) : (
+        <>
+          <div className="col-12 d-flex justify-content-center ">
+            {itemsLoading ? (
+              <div
+                className="spinner-border primary"
+                style={{ marginTop: "15rem" }}
+                role="status"
+              >
+                <span className="sr-only"></span>
+              </div>
+            ) : (
+              <p>No invoices found. Add invoice by clicking Create Invoice.</p>
+            )}
+          </div>
+        </>
+      )}
+
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={handleDeleteModalClose}

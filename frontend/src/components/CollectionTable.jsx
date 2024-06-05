@@ -26,6 +26,7 @@ import axios from "axios";
 import Table2 from "./Table2";
 import moment from "moment";
 import ReTooltip from "./Tooltip";
+import LoadingOverlay from "./Loader";
 
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
@@ -51,6 +52,7 @@ const CollectionTable = () => {
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [subdomainDropbox, setSubdomainDropbox] = useState(null);
+  const [itemsLoading, setItemsLoading] = useState(true);
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -301,11 +303,12 @@ const CollectionTable = () => {
   };
 
   const getAllCollectionsData = async () => {
-    const formData = new FormData();
-    formData.append("subdomainId", subdomainId);
-    formData.append("roleId", user.role_id);
-    formData.append("userId", user.id);
+    setItemsLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("subdomainId", subdomainId);
+      formData.append("roleId", user.role_id);
+      formData.append("userId", user.id);
       let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
@@ -315,6 +318,7 @@ const CollectionTable = () => {
     } catch (error) {
       toast.error(error);
     }
+    setItemsLoading(false);
   };
 
   const updateImageCount = async (data) => {
@@ -407,7 +411,6 @@ const CollectionTable = () => {
       setFormData(initialFormData);
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
-      getAllCollectionsData();
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
@@ -522,7 +525,10 @@ const CollectionTable = () => {
             <ReTooltip title="Click to change status." placement="top">
               <div
                 className="badge badge-pill"
-                style={{ backgroundColor: "rgb(255, 116, 140)", cursor: "pointer" }}
+                style={{
+                  backgroundColor: "rgb(255, 116, 140)",
+                  cursor: "pointer",
+                }}
                 onClick={() => {
                   handleGalleryNotify(row.original.id, collections);
                 }}
@@ -568,7 +574,9 @@ const CollectionTable = () => {
           <div className="btnsrow">
             <ReTooltip title="Click to edit the collection." placement="top">
               <button
-                className={`btn btn-icon btn-outline-secondary mr-1 mb-1 ${roleId === 3 ? 'd-none': ''}`}
+                className={`btn btn-icon btn-outline-secondary mr-1 mb-1 ${
+                  roleId === 3 ? "d-none" : ""
+                }`}
                 onClick={() => getCollectionData(row.original.slug)}
                 data-toggle="modal"
                 data-target="#bootstrap"
@@ -587,11 +595,18 @@ const CollectionTable = () => {
                 <i className="feather white icon-trash"></i>
               </button>
             </ReTooltip>
-            <ReTooltip title="Click to copy link to the collection." placement="top">
+            <ReTooltip
+              title="Click to copy link to the collection."
+              placement="top"
+            >
               <button
-                className={`btn btn-icon btn-outline-warning mr-1 mb-1 ${roleId === 3 ? 'd-none': ''}`}
+                className={`btn btn-icon btn-outline-warning mr-1 mb-1 ${
+                  roleId === 3 ? "d-none" : ""
+                }`}
                 onClick={() => {
-                  navigator.clipboard.writeText(`${url2}view-gallery/${row.original.slug}`);
+                  navigator.clipboard.writeText(
+                    `${url2}view-gallery/${row.original.slug}`
+                  );
                   toast.success("Link Copied!");
                 }}
               >
@@ -602,11 +617,13 @@ const CollectionTable = () => {
         ),
       },
     ];
-  
+
     if (roleId === 3) {
-      return columns.filter(column => column.Header !== "Notify" && column.Header !== "Client");
+      return columns.filter(
+        (column) => column.Header !== "Notify" && column.Header !== "Client"
+      );
     }
-  
+
     return columns;
   }, [roleId]);
 
@@ -634,7 +651,33 @@ const CollectionTable = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      <Table2 data={data} columns={columns} />
+      {itemsLoading ? (
+        <div className="col-12 d-flex justify-content-center mb-3">
+          <div className="spinner-border primary" role="status">
+            <span className="sr-only"></span>
+          </div>
+        </div>
+      ) : (
+        <>
+          {data.length > 0 ? (
+            <Table2 data={data} columns={columns} />
+          ) : (
+            <div className="col-12 d-flex justify-content-center">
+              {roleId !== 3 ? (
+                <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
+                  No Collections found. Click New collection to add a
+                  collection.
+                </p>
+              ) : (
+                <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
+                  No collections found.
+                </p>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

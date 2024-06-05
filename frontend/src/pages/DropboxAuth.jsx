@@ -45,6 +45,8 @@ const DropboxOAuth = () => {
                 formData.append("id", userId);
 
                 const res = await authorizationToServer(formData);
+                localStorage.setItem("user", JSON.stringify(res.data.user));
+                localStorage.setItem("token", res.data.token);
             }
             window.location.href = state;
         } catch (error) {
@@ -57,30 +59,6 @@ const DropboxOAuth = () => {
         }
         setRunning(false);
     };
-
-    // const handleRefreshAccessToken = async () => {
-    //     setRunning(true);
-    //     try {
-    //         const response = await fetch('https://api.dropboxapi.com/oauth2/token', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/x-www-form-urlencoded'
-    //             },
-    //             body: new URLSearchParams({
-    //                 grant_type: 'refresh_token',
-    //                 refresh_token: refreshToken,
-    //                 redirect_uri: "http://localhost:3000/auth/dropbox",
-    //                 client_id: "ywbxb6ciymziv7g",
-    //                 client_secret: "4zheardnqvmrox1",
-    //             })
-    //         });
-
-    //         const data = await response.json();
-    //         setAccessToken(data.access_token);
-    //     } catch (error) {
-    //         setError('Failed to refresh access token');
-    //     }
-    // };
 
     useEffect(() => {
         if (running === false) {

@@ -8,6 +8,8 @@ const Users = require("../models/Users");
 const BusinessClients = require("../models/BusinessClients");
 const { Op } = require("sequelize");
 const moment = require("moment");
+const { NEW_BOOKING, UPDATE_BOOKING } = require('../helpers/emailTemplate');
+const { sendEmail } = require("../helpers/sendEmail");
 
 const client_id = process.env.GOOGLE_CLIENT_ID;
 const client_secret = process.env.GOOGLE_CLIENT_SECRET;
@@ -84,7 +86,6 @@ async function addevent(data) {
       where: { id: data.subdomain_id, calendar_sub: 1 },
     });
 
-    // Find photographers with calendar_sub = 1
     let photographers = [];
     if (data.photographer_id) {
       let photographerIds = data.photographer_id
@@ -99,12 +100,11 @@ async function addevent(data) {
       });
     }
 
-    // find user with data.user_id
     let theUser = await User.findOne({
       where: {
         id: data.user_id,
       },
-    })
+    });
 
     let userIds = [];
 
@@ -121,24 +121,48 @@ async function addevent(data) {
       userIds.push(parseInt(data.user_id));
     }
 
-    console.log(userIds);
-
-    const theUsers = await Users.findAll({ where: { id: userIds } });
+    let theUsers = await Users.findAll({ where: { id: userIds } });
 
     const authResponses = await Promise.all(
       theUsers.map(async (user) => {
         const code = user.refresh_token;
-        return await exchangeRefreshToken(code);
+        try {
+          return await exchangeRefreshToken(code);
+        } catch (error) {
+          console.error(`Error refreshing token for user ${user.id}:`, error);
+          return null;
+        }
       })
     );
 
-
-    const oAuth2Clients = authResponses.map((authResponse) =>
-      createOAuth2Client(authResponse.access_token)
-    );
+    const oAuth2Clients = authResponses.map((authResponse, index) => {
+      if (authResponse) {
+        return createOAuth2Client(authResponse.access_token);
+      } else {
+        console.log(`Skipping user ${theUsers[index].id} due to expired token`);
+        return null;
+      }
+    });
 
     for (let i = 0; i < theUsers.length; i++) {
       const user = theUsers[i];
+      if (!oAuth2Clients[i]) {
+
+        const userToUpdate = await User.findOne({
+          where: { id: user.id },
+        });
+        if (userToUpdate) {
+          userToUpdate.access_token = "";
+          userToUpdate.refresh_token = "";
+          userToUpdate.calendar_sub = 0;
+          userToUpdate.calendar_id = "";
+
+          await userToUpdate.save();
+        }
+        continue;
+      }
+
+
       const calendar = google.calendar({
         version: "v3",
         auth: oAuth2Clients[i],
@@ -259,61 +283,6 @@ async function insertEvent(calendar, calendarId, eventId, data, start, end) {
 
 }
 
-async function deleteevent(bookingId, userId) {
-  let theuser = await Users.findOne({ where: { id: userId } });
-  let code = theuser.dataValues.refresh_token;
-  let grant_type = "refresh_token";
-
-  const response = await axios
-    .post(
-      "https://oauth2.googleapis.com/token",
-      new URLSearchParams({
-        refresh_token: code,
-        client_id,
-        client_secret,
-        redirect_uri,
-        grant_type,
-        scope:
-          "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/calendar.readonly",
-        access_type: "offline",
-        prompt: "consent",
-        include_granted_scopes: "true",
-      }).toString(),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    )
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Refresh token exchange error:", error);
-      throw new Error("Refresh token exchange error");
-    });
-
-  const tokens = response;
-  oAuth2Client.setCredentials({
-    access_token: tokens.access_token,
-  });
-  const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
-  const id = "123" + bookingId;
-  const events = await calendar.events.list({
-    calendarId: theuser.calendar_id,
-    singleEvents: true,
-    orderBy: "startTime",
-    showDeleted: true,
-  });
-  const existingEvent = events.data.items.find((event) => event.id === id);
-  if (!existingEvent) {
-    return;
-  }
-  const resp = await calendar.events.delete({
-    calendarId: theuser.calendar_id,
-    eventId: id,
-  });
-  return resp;
-}
-
 const createBooking = async (req, res) => {
   try {
     let data = req.body;
@@ -321,23 +290,58 @@ const createBooking = async (req, res) => {
 
     const usersWithRoleId1 = await User.findAll({
       where: { id: req.body.user_id },
-      attributes: ["id", "name", "address"],
+      attributes: ["id", "name", "address", "email"]
     });
-    let client_address;
-    let client_name;
-    client_address = usersWithRoleId1[0].address || "";
-    client_name = usersWithRoleId1[0].name || "";
+
+    if (usersWithRoleId1.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    let client_address = usersWithRoleId1[0].address || "";
+    let client_name = usersWithRoleId1[0].name || "";
+    let client_email = usersWithRoleId1[0].email || "";
     data.client_address = client_address;
     data.client_name = client_name;
+    data.client_email = client_email;
 
     let booking;
     if (req.body.id) {
+      // Send email if booking_status is true
+      if (req.body.booking_status === true) {
+        const user = await User.findOne({
+          where: { id: data.photographer_id },
+          attributes: ['phone']
+        });
+
+        const subdomain_user = await User.findOne({
+          where: { id: subdomainId },
+          attributes: ['subdomain']
+        });
+
+        let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, client_name, data, user.phone);
+        sendEmail(client_email, "Update Booking", SEND_EMAIL);
+      }
       booking = await Booking.findOne({ where: { id: req.body.id } });
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
       }
       await booking.update(data);
     } else {
+      // Send email if booking_status is true
+      if (req.body.booking_status === true) {
+        const user = await User.findOne({
+          where: { id: data.photographer_id },
+          attributes: ['phone']
+        });
+
+        const subdomain_user = await User.findOne({
+          where: { id: subdomainId },
+          attributes: ['subdomain']
+        });
+
+        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, client_name, data, user.phone);
+        sendEmail(client_email, "New Booking", SEND_EMAIL);
+      }
       data.subdomain_id = subdomainId;
       booking = await Booking.create(data);
     }
@@ -382,6 +386,7 @@ const providers = async (req, res) => {
       where: {
         id: { [Op.in]: businessClients.map((client) => client.client_id) },
         role_id: 2,
+        status: 'Active',
       },
     });
 
@@ -392,7 +397,6 @@ const providers = async (req, res) => {
       },
     });
 
-    // add this user in users with roleId 2
     usersWithRoleId2.push(subdomain);
 
     const users = await User.findAll({
@@ -400,6 +404,7 @@ const providers = async (req, res) => {
       where: {
         id: { [Op.in]: businessClients.map((client) => client.client_id) },
         role_id: 3,
+        status: 'Active',
       },
     });
 
@@ -407,6 +412,7 @@ const providers = async (req, res) => {
       attributes: ["id", "package_name", "package_price", "package_type"],
       where: {
         subdomain_id: subdomainId,
+        status: 'Active',
       },
     });
 
@@ -482,13 +488,11 @@ const deleteBooking = async (req, res) => {
     const bookingId = parseInt(req.body.id);
     let bookingData = await Booking.findOne({ where: { id: bookingId } });
 
-    // Find photographer admin with calendar_sub = 1
     let photographerAdmin = await Users.findOne({
       attributes: ["calendar_sub"],
       where: { id: bookingData.subdomain_id, calendar_sub: 1 },
     });
 
-    // Find photographers with calendar_sub = 1
     let photographers = [];
     if (bookingData.photographer_id) {
       let photographerIds = bookingData.photographer_id
@@ -515,33 +519,56 @@ const deleteBooking = async (req, res) => {
 
     if (photographerAdmin) {
       userIds.push(bookingData.subdomain_id);
-      console.log(bookingData.subdomain_id);
     }
     if (clients) {
       userIds.push(bookingData.user_id);
-      console.log(bookingData.user_id);
     }
     if (photographers) {
       photographers.forEach((photographer) => userIds.push(photographer.id));
     }
-
-    console.log(userIds);
 
     const theUsers = await Users.findAll({ where: { id: userIds } });
 
     const authResponses = await Promise.all(
       theUsers.map(async (user) => {
         const code = user.refresh_token;
-        return await exchangeRefreshToken(code);
+        try {
+          return await exchangeRefreshToken(code);
+        } catch (error) {
+          console.error(`Error refreshing token for user ${user.id}:`, error);
+          return null;
+        }
       })
     );
 
-    const oAuth2Clients = authResponses.map((authResponse) =>
-      createOAuth2Client(authResponse.access_token)
-    );
+
+    const oAuth2Clients = authResponses.map((authResponse, index) => {
+      if (authResponse) {
+        return createOAuth2Client(authResponse.access_token);
+      } else {
+        console.log(`Skipping user ${theUsers[index].id} due to expired token`);
+        return null;
+      }
+    });
 
     for (let i = 0; i < theUsers.length; i++) {
+      const user = theUsers[i];
       const oAuth2Client = oAuth2Clients[i];
+      if (!oAuth2Clients[i]) {
+
+        const userToUpdate = await User.findOne({
+          where: { id: user.id },
+        });
+        if (userToUpdate) {
+          userToUpdate.access_token = "";
+          userToUpdate.refresh_token = "";
+          userToUpdate.calendar_sub = 0;
+          userToUpdate.calendar_id = "";
+
+          await userToUpdate.save();
+        }
+        continue;
+      }
       const calendarId = theUsers[i].calendar_id;
       const eventId = "123" + bookingId;
       const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
@@ -596,15 +623,39 @@ const getCalendarStatus = async (req, res) => {
 const updateBooking = async (req, res) => {
   try {
     const bookingId = req.body.id;
-    const updated = await Booking.update(req.body, {
+    const [updated] = await Booking.update(req.body, {
       where: { id: bookingId },
     });
+
     if (updated) {
-      res
-        .status(200)
-        .json({ success: true, message: "Booking updated successfully" });
+      const updatedBooking = await Booking.findOne({
+        where: { id: bookingId },
+        include: {
+          model: User,
+          attributes: ['email']
+        }
+      });
+      const client_email = updatedBooking.User.email;
+
+      const user = await User.findOne({
+        where: { id: updatedBooking.photographer_id },
+        attributes: ['phone']
+      });
+
+      const subdomain_user = await User.findOne({
+        where: { id: updatedBooking.subdomain_id },
+        attributes: ['subdomain']
+      });
+
+      let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, updatedBooking.client_name, updatedBooking, user.phone);
+      sendEmail(client_email, "New Booking", SEND_EMAIL);
+
+      res.status(200).json({
+        success: true,
+        message: "Booking updated successfully"
+      });
     } else {
-      res.status(404).json({ success: false, message: "Booking not found" });
+      res.status(404).json({ error: "Booking not found" });
     }
   } catch (error) {
     res.status(500).json({ error: "Failed to update Booking" });

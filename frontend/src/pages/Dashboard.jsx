@@ -11,16 +11,18 @@ import {
   addGallery,
   getAllCollections,
   getCollection,
+  getDropboxRefreshToken,
 } from "../api/collectionApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import { getRefreshToken } from "../api/authApis";
+import { getRefreshToken, verifyToken } from "../api/authApis";
 import axios from "axios";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 import CollectionTable from "../components/CollectionTable";
 import ReTooltip from "../components/Tooltip";
+import LoadingOverlay from "../components/Loader";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -31,8 +33,8 @@ export const Dashboard = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id;
+  const accesstoken = authData.token;
   const userId = user.id;
-  const accessToken = authData.token;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
@@ -49,9 +51,9 @@ export const Dashboard = () => {
   const [activeBookings, setActiveBookings] = useState(0);
   const [ordersCompleted, setOrdersCompleted] = useState(0);
   const [collectionData, setCollectionData] = useState("");
-
+  const [itemsLoading, setItemsLoading] = useState(false);
   const [galleryView, setGalleryView] = useState("grid");
-
+  const [subdomainDropbox, setSubdomainDropbox] = useState("");
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
@@ -142,8 +144,8 @@ export const Dashboard = () => {
       getAllCollectionsData();
     }
 
-    getRefreshToken(user.dropbox_refresh);
     getAllBookingsData();
+    getDropboxRefresh();
   }, []);
 
   useEffect(() => {
@@ -280,7 +282,7 @@ export const Dashboard = () => {
       setPreviewImage(null);
       setFormData({
         ...formData,
-        banner: '',
+        banner: "",
       });
     }
   };
@@ -382,11 +384,12 @@ export const Dashboard = () => {
   };
 
   const getAllCollectionsData = async () => {
-    const formData = new FormData();
-    formData.append("subdomainId", subdomainId);
-    formData.append("roleId", user.role_id);
-    formData.append("userId", user.id);
+    setItemsLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("subdomainId", subdomainId);
+      formData.append("roleId", user.role_id);
+      formData.append("userId", user.id);
       let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
@@ -410,13 +413,26 @@ export const Dashboard = () => {
     } catch (error) {
       toast.error(error);
     }
+    setItemsLoading(false);
   };
 
-  const textBeforeComma = (text) => {
-    if (typeof text === "string") {
-      return text.split(",")[0];
+  const getDropboxRefresh = async () => {
+    const formDataToSend = new FormData();
+    formDataToSend.append("id", user.subdomain_id);
+    try {
+      const response = await getDropboxRefreshToken(formDataToSend);
+      if (response.success) {
+        if (response.data !== null) {
+          setSubdomainDropbox(response.data);
+        } else {
+          setSubdomainDropbox("");
+        }
+      } else {
+        console.log(response.message);
+      }
+    } catch (error) {
+      console.log(error);
     }
-    return text;
   };
 
   const getCollectionData = async (id) => {
@@ -450,6 +466,20 @@ export const Dashboard = () => {
       console.error("Failed to get ImageTypes:", error.message);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    fetchData();
+  }, [accesstoken]);
 
   return (
     <>
@@ -658,36 +688,37 @@ export const Dashboard = () => {
 
                         {user.role_id == 5 && (
                           <>
-                            {user.dropbox_refresh == null && (
+                            {subdomainDropbox === "" && !itemsLoading && (
                               <a
                                 href={`${dropboxAuthUrl}`}
                                 className="btn btn-primary mr-1"
+                                style={{ paddingTop: "10px" }}
                               >
                                 Link Your Dropbox
                               </a>
                             )}
                           </>
                         )}
-                          <ReTooltip
-                            title="Create a new appointment."
-                            placement="top"
+                        <ReTooltip
+                          title="Create a new appointment."
+                          placement="top"
+                        >
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary mr-1"
+                            data-toggle="modal"
+                            data-target="#appointment"
+                            onClick={() => {
+                              window.location.href = "/booking-list-calendar";
+                            }}
                           >
-                            <button
-                              type="button"
-                              className="btn btn-outline-primary mr-1"
-                              data-toggle="modal"
-                              data-target="#appointment"
-                              onClick={() => {
-                                window.location.href = "/booking-list-calendar";
-                              }}
-                            >
-                              New Appointment
-                            </button>
-                          </ReTooltip>
+                            New Appointment
+                          </button>
+                        </ReTooltip>
                         {user.role_id !== 3 && (
                           <ReTooltip
                             title={
-                              user.dropbox_refresh == null
+                              subdomainDropbox === ""
                                 ? "Link your dropbox first!"
                                 : "Add a new collection."
                             }
@@ -698,7 +729,7 @@ export const Dashboard = () => {
                               className="btn btn-outline-primary"
                               data-toggle="modal"
                               data-target="#bootstrap"
-                              disabled={user.dropbox_refresh == null}
+                              disabled={subdomainDropbox === ""}
                               onClick={() => {
                                 if (galleryView == "grid") {
                                   setShowAddGalleryModal(true);
@@ -778,7 +809,8 @@ export const Dashboard = () => {
                                       className="gallery-link"
                                       data-toggle="modal"
                                       data-target="#bootstrap"
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.preventDefault();
                                         getCollectionData(item.slug);
                                       }}
                                     >
@@ -829,9 +861,29 @@ export const Dashboard = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="w-100 d-flex justify-content-center">
-                        <p className="text-center">No collections found.</p>
-                      </div>
+                      <>
+                        <div className="col-12 d-flex justify-content-center ">
+                          {itemsLoading ? (
+                            <div
+                              className="spinner-border primary"
+                              role="status"
+                            >
+                              <span className="sr-only"></span>
+                            </div>
+                          ) : (
+                            <>
+                              {user.role_id == 5 || user.role_id == 2 ? (
+                                <p>
+                                  No Collections found. Click New collection to
+                                  add a collection.
+                                </p>
+                              ) : (
+                                <p>No Collections found.</p>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>

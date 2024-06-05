@@ -56,4 +56,18 @@ const deleteService = async (data) => {
   }
 };
 
-export { getAllServices, getService, createService, deleteService };
+const updateServiceOrder = async (data) => {
+  try {
+    const response = await API.post("/service/updateServiceOrder", data);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Failed to update service order");
+    }
+  } catch (error) {
+    console.error("Error updating service order:", error);
+    throw error;
+  }
+};
+
+export { getAllServices, getService, createService, deleteService, updateServiceOrder };

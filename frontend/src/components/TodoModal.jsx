@@ -9,7 +9,6 @@ import "react-quill/dist/quill.snow.css";
 
 const TodoModal = ({
   isNewTaskModalOpen,
-  show,
   toggleNewTaskModal,
   taskData,
   setTaskData,
@@ -24,11 +23,21 @@ const TodoModal = ({
   taskAuthor,
   comments,
   handleComment,
-  modalRef,
   handleTextChange,
 }) => {
   const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
-
+  function getLabelForKey(key) {
+    switch (key) {
+      case "2":
+        return "Photographers";
+      case "3":
+        return "Clients";
+      case "5":
+        return "Admin";
+      default:
+        return "Other";
+    }
+  }
   return (
     <>
       <div
@@ -107,39 +116,49 @@ const TodoModal = ({
                 </div>
                 <div className="assigned d-flex justify-content-between">
                   <div className="form-group d-flex align-items-center mr-1">
-                    {/* users avatar */}
                     <div className="avatar">
                       <img
-                        src="#"
-                        className="avatar-user-image d-none"
-                        alt="#"
+                        src={
+                          selectedClient.profile_photo
+                            ? `${IMAGE_URL}/${selectedClient.profile_photo}`
+                            : avatar1
+                        }
+                        alt="charlie"
                         width={38}
                         height={38}
                       />
-                      <div className="avatar-content">
-                        <i className="feather icon-user font-medium-4" />
-                      </div>
                     </div>
                     <div className="select-box mr-1" style={{ width: "10rem" }}>
                       <Select
                         className="select2 font-sm"
-                        name="tags"
+                        name="assignedPerson"
+                        placeholder="Select"
+                        id="assignedPerson"
                         value={selectedClient}
                         required
                         onChange={handleClientChange}
                         options={_.chain(clients)
                           .groupBy("role_id")
                           .map((value, key) => ({
-                            label: key === "2" ? "Photographers" : "Clients",
+                            label: getLabelForKey(key),
                             options: value.map((client) => ({
                               value: client.id,
                               label: client.name,
-                              image:
-                                client.image !== null
-                                  ? IMAGE_URL + client.image
-                                  : avatar1,
+                              profile_photo: client.profile_photo,
                             })),
                           }))
+                          .sortBy((group) => {
+                            switch (group.label) {
+                              case "Admin":
+                                return 1;
+                              case "Photographers":
+                                return 2;
+                              case "Clients":
+                                return 3;
+                              default:
+                                return 4;
+                            }
+                          })
                           .value()}
                         isSearchable
                         components={{
@@ -150,9 +169,6 @@ const TodoModal = ({
                     </div>
                   </div>
                   <div className="form-group d-flex align-items-center position-relative">
-                    {/* calendar feather icon */}
-                    {/* date picker */}
-
                     <DatePicker
                       className="form-control custom-datepicker p-1"
                       id="datetimepicker4"
@@ -201,9 +217,6 @@ const TodoModal = ({
                         IndicatorSeparator: () => null,
                       }}
                     />
-                  </div>
-                  <div className="ml-25">
-                    <i className="feather icon-plus-circle cursor-pointer add-tags" />
                   </div>
                 </div>
               </div>
@@ -459,9 +472,6 @@ const TodoModal = ({
                         <span className="dropdown-wrapper" aria-hidden="true" />
                       </span>
                     </div>
-                    <div className="ml-25">
-                      <i className="feather icon-plus-circle cursor-pointer add-tags" />
-                    </div>
                   </div>
                 </div>
               </div>
@@ -513,7 +523,7 @@ const TodoModal = ({
                         });
                       }}
                     />
-                    <button
+                    {/* <button
                       type="button"
                       className="btn btn-sm btn-primary comment-btn"
                       onClick={(e) => {
@@ -522,7 +532,7 @@ const TodoModal = ({
                       }}
                     >
                       <span>Comment</span>
-                    </button>
+                    </button> */}
                   </div>
                 </div>
                 <div className="mt-1 d-flex justify-content-between">

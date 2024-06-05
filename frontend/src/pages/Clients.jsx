@@ -13,7 +13,7 @@ const Clients = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [previewImage, setPreviewImage] = useState(null);
   const [filteredClients, setFilteredClients] = useState([]);
   const [clients, setClients] = useState([]);
@@ -34,8 +34,6 @@ const Clients = () => {
 
   useEffect(() => {
     getAllClientsData();
-    verifyToken(accessToken);
-    // getClientData();
   }, [])
 
   useEffect(() => {
@@ -218,6 +216,21 @@ const Clients = () => {
     }
   };
 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    fetchData();
+  }, [accesstoken]);
+
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -387,7 +400,6 @@ const Clients = () => {
           </div>
         </div>
         <div className="row">
-          {console.log("filterStatus", filterStatus)}
           {filteredClients &&
             filteredClients
               .filter((item) => {
@@ -431,28 +443,28 @@ const Clients = () => {
                     <div className="text-center mt-auto">
                       <a
                         href={`mailto:${item.email}`}
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title={item.email}
                       >
                         <span className="icon-envelope"></span>
                       </a>
                       <a
                         href={`tel:${item.phone}`}
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title={item.phone}
                       >
                         <span className="icon-call-out"></span>
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title="View Collection"
                       >
                         <span className="icon-grid"></span>
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title="Edit"
                         onClick={() => getClientData(item.id)}
                         data-toggle="modal"
@@ -462,7 +474,7 @@ const Clients = () => {
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mr-1 mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
+                        className={`btn btn-social-icon mb-1 ${item.status === 'Inactive' ? 'dull-card' : ''}`}
                         title="Delete"
                         onClick={() => {
                           setShowDeleteModal(true);

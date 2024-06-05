@@ -59,14 +59,14 @@ const verifyToken = async (token) => {
     console.log("token", token);
     try {
         const response = await API.post("/auth/verify-token", { token });
+        console.log("response", response);
         if (response.status !== 200) {
-            // throw new Error("Token verification failed");
             const data = response.data;
             const { accessToken, user } = data;
             localStorage.removeItem("accessToken", accessToken);
             localStorage.removeItem("isAuth", true);
             localStorage.removeItem("user", JSON.stringify(user));
-            redirect("/login");
+            return data
         } else {
             console.log("response222", response.status);
             const data = response.data;

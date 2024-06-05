@@ -14,7 +14,7 @@ import {
   deleteTag,
 } from "../api/todoApis";
 import Select from "react-select";
-import { getClient, getClientPhotographers } from "../api/clientApis";
+import { getClientPhotographers } from "../api/clientApis";
 import _ from "lodash";
 import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import DeleteModal from "../components/DeleteModal";
@@ -23,17 +23,18 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import ReTooltip from "../components/Tooltip";
 import AddTagModal from "../components/AddTagModal";
-import { IconButton, Tooltip } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import moment from "moment";
+import { verifyToken } from "../api/authApis";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ToDo = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const userId = user.id;
+  const accesstoken = authData.token;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accessToken = authData.token;
   const [taskId, setTaskId] = useState("");
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState(tasks);
@@ -93,12 +94,14 @@ const ToDo = () => {
     const response = await getClientPhotographers(formData);
     if (response.success) {
       if (roleId !== 3) {
-        setClients(response.data);
+        const activeClients = response.data.filter((client) => client.status === "Active");
+        setClients(activeClients);
       } else {
-        // filter to only add clients with role_id 2
-        const filteredClients = response.data.filter(
-          (client) => client.role_id === 2
+        const activeClients = response.data.filter((client) => client.status === "Active");
+        const filteredClients = activeClients.filter(
+          (client) => client.role_id === 2 || client.role_id === 5
         );
+
         setClients(filteredClients);
       }
     } else {
@@ -188,7 +191,7 @@ const ToDo = () => {
     try {
       const response = await createTask(formData);
       if (response.success) {
-        if (taskData.id == "") {
+        if (taskData.id === "") {
           toast.success("Task created successfully!");
         } else {
           toast.success("Task updated successfully!");
@@ -231,18 +234,10 @@ const ToDo = () => {
         toast.success("Comment added successfully!");
         getTasks();
         setTaskData({
-          id: "",
-          userId: "",
-          taskTitle: "",
-          assignUser: "",
-          taskAssigndate: new Date(),
-          taskDescription: "",
-          taskTags: [],
+          ...taskData,
           comment: "",
-          status: 0,
-          isFavourite: 0,
         });
-        toggleNewTaskModal();
+        setComments(response.task.TaskComments);
       } else {
         toast.error("Failed to add comment!");
       }
@@ -252,19 +247,6 @@ const ToDo = () => {
   };
 
   const handleTaskClick = async (task) => {
-    setTaskData({
-      id: task.id,
-      userId: task.user_id,
-      taskTitle: task.task_title,
-      assignUser: task.assign_user,
-      taskAssigndate: new Date(task.task_assigndate),
-      taskDescription: task.task_description,
-      taskTags: task.task_tags,
-      status: task.status,
-      comment: "",
-      isFavourite: task.is_favourite,
-    });
-
     const client = clients.find((c) => c.id === task.assign_user);
 
     if (client) {
@@ -286,11 +268,26 @@ const ToDo = () => {
     if (tagIds.length > 0) {
       taskTags = tags.filter((tag) => tagIds.includes(tag.id));
     }
+    taskTags = taskTags.filter((tag) => tags.includes(tag));
 
     taskTags = taskTags.map((tag) => ({
       value: tag.id,
       label: tag.tasktag_title,
     }));
+    const formattedTags = taskTags.map((tag) => tag.value).join(", ");
+    setTaskData({
+      id: task.id,
+      userId: task.user_id,
+      taskTitle: task.task_title,
+      assignUser: task.assign_user,
+      taskAssigndate: new Date(task.task_assigndate),
+      taskDescription: task.task_description,
+      taskTags: formattedTags,
+      status: task.status,
+      comment: "",
+      isFavourite: task.is_favourite,
+    });
+
     setSelectedTags(taskTags);
 
     setComments(task.TaskComments);
@@ -423,6 +420,44 @@ const ToDo = () => {
     }
   };
 
+  function getLabelForKey(key) {
+    switch (key) {
+      case "2":
+        return "Photographers";
+      case "3":
+        return "Clients";
+      case "5":
+        return "Admin";
+      default:
+        return "Other";
+    }
+  }
+
+  const sortByTag = async (id) => {
+    const tagId = parseInt(id);
+    const tasksWithTag = tasks.filter((task) =>
+      task.task_tags.includes(tagId.toString())
+    );
+    setFilteredTasks(tasksWithTag);
+    setActiveFilter(id);
+  };
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    fetchData();
+  }, [accesstoken]);
+
+
   return (
     <div className="todo-application">
       <div className="app-content content">
@@ -522,8 +557,14 @@ const ToDo = () => {
                         }
                       >
                         <p
-                          className="list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer"
-                          style={{ padding: "4px" }}
+                          className={`list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer ${
+                            activeFilter === tag.id ? "active" : ""
+                          }`}
+                          style={{ padding: "0.8rem 1rem" }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            sortByTag(tag.id);
+                          }}
                         >
                           <span>{tag.tasktag_title}</span>
                           <span
@@ -640,14 +681,25 @@ const ToDo = () => {
                               options={_.chain(clients)
                                 .groupBy("role_id")
                                 .map((value, key) => ({
-                                  label:
-                                    key === "2" ? "Photographers" : "Clients",
+                                  label: getLabelForKey(key),
                                   options: value.map((client) => ({
                                     value: client.id,
                                     label: client.name,
                                     profile_photo: client.profile_photo,
                                   })),
                                 }))
+                                .sortBy((group) => {
+                                  switch (group.label) {
+                                    case "Admin":
+                                      return 1;
+                                    case "Photographers":
+                                      return 2;
+                                    case "Clients":
+                                      return 3;
+                                    default:
+                                      return 4;
+                                  }
+                                })
                                 .value()}
                               isSearchable
                               components={{
@@ -709,7 +761,10 @@ const ToDo = () => {
                           />
                         </div>
                         <div className="ml-25">
-                          <i className="feather icon-plus-circle cursor-pointer add-tags" />
+                          <i
+                            className="feather icon-plus-circle cursor-pointer add-tags"
+                            onClick={() => setShowAddTagModal(!showAddTagModal)}
+                          />
                         </div>
                       </div>
                     </div>
@@ -983,14 +1038,19 @@ const ToDo = () => {
                             </span>
                           </div>
                           <div className="ml-25">
-                            <i className="feather icon-plus-circle cursor-pointer add-tags" />
+                            <i
+                              className="feather icon-plus-circle cursor-pointer add-tags"
+                              onClick={() =>
+                                setShowAddTagModal(!showAddTagModal)
+                              }
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
 
                     <div className="card-body pb-1">
-                      {taskData.id != "" && (
+                      {taskData.id !== "" && (
                         <div className="d-flex align-items-center mb-1">
                           <div className="avatar mr-75">
                             <img
@@ -1041,20 +1101,22 @@ const ToDo = () => {
                               });
                             }}
                           />
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-primary comment-btn"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleComment();
-                            }}
-                          >
-                            <span>Comment</span>
-                          </button>
+                          {taskData.id !== "" && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-primary comment-btn"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleComment();
+                              }}
+                            >
+                              <span>Comment</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                       <div className="mt-1 d-flex justify-content-between">
-                        {taskData.id == "" ? (
+                        {taskData.id === "" ? (
                           <button
                             type="button"
                             onClick={handleSubmit}
@@ -1081,7 +1143,7 @@ const ToDo = () => {
         </div>
         <div className="content-right">
           <div className="content-overlay"></div>
-          <div className="content-wrapper">
+          <div className="content-wrapper m-0">
             <div className="content-header row mt-2"></div>
             <div className="content-body">
               {show || isNewTaskModalOpen ? (
@@ -1176,7 +1238,7 @@ const ToDo = () => {
                                         className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center`}
                                       >
                                         <div className="todo-title-area d-flex">
-                                          <i className="feather icon-more-vertical handle"></i>
+                                          <i className="feather icon-more-vertical"></i>
 
                                           <div className="custom-control custom-checkbox">
                                             <input
@@ -1223,9 +1285,12 @@ const ToDo = () => {
                                             className="task-info"
                                             style={{ marginRight: "4px" }}
                                           >
-                                            <small className="text-muted">
+                                            <small
+                                              className="text-muted border rounded"
+                                              style={{ padding: "6px" }}
+                                            >
                                               {moment(task.created_at).format(
-                                                "MMMM Do YYYY, h:mm:ss a"
+                                                "DD/MM/YYYY, h:mm a"
                                               )}
                                             </small>
                                           </div>
@@ -1248,6 +1313,7 @@ const ToDo = () => {
                                                           tag.id
                                                         )}`,
                                                         marginRight: "4px",
+                                                        fontSize: "0.7rem",
                                                       }}
                                                     >
                                                       {tag.tasktag_title}
@@ -1278,7 +1344,7 @@ const ToDo = () => {
                                             }
                                           >
                                             {filteredTasks[index]
-                                              .is_favourite == 0 ? (
+                                              .is_favourite === 0 ? (
                                               <i className="feather icon-star "></i>
                                             ) : (
                                               <svg

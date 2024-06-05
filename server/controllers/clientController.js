@@ -3,9 +3,11 @@ const BusinessClients = require("../models/BusinessClients");
 const Collections = require("../models/Collections");
 const redis = require("ioredis");
 const redisClient = new redis();
+const bcrypt = require('bcrypt');
+const { WELCOME_CLIENT_EMAIL } = require('../helpers/emailTemplate');
+const { sendEmail } = require("../helpers/sendEmail");
 
 const updateRedisCache = async (subdomain_id) => {
-  console.log("subdomain_id", subdomain_id);
   try {
     const clients = await BusinessClients.findAll({
       where: {
@@ -32,46 +34,14 @@ const updateRedisCache = async (subdomain_id) => {
   }
 };
 
-// const getAllClients = async (req, res) => {
-//   try {
-//     let clientsData = await redisClient.get("clientsData");
-//     if (!clientsData) {
-//       const clients = await BusinessClients.findAll({
-//         where: {
-//           business_id: req.body.subdomainId,
-//         },
-//         attributes: ["client_id"],
-//       });
-//       const clientIds = clients.map((client) => client.client_id);
-//       clientsData = await User.findAll({
-//         where: {
-//           role_id: 3,
-//           id: clientIds,
-//         },
-//         order: [["created", "DESC"]],
-//       });
-//       await redisClient.set(
-//         "clientsData",
-//         JSON.stringify(clientsData),
-//         "EX",
-//         3600
-//       );
-//     } else {
-//       clientsData = JSON.parse(clientsData);
-//     }
-//     res.status(200).json({ success: true, data: clientsData });
-//   } catch (error) {
-//     res.status(500).json({ error: "Failed to list clients" });
-//   }
-// };
-
 const getAllClients = async (req, res) => {
   try {
     const checkUser = await User.findOne({ where: { id: req.body.subdomainId } });
     if (checkUser.role_id === 2) {
       const clients = await Collections.findAll({
         where: {
-          photographer_ids: req.body.subdomainId
+          photographer_ids: req.body.subdomainId,
+          status: 'Active'
         },
         attributes: ['client_id']
       });
@@ -117,13 +87,13 @@ const getClientPhotographers = async (req, res) => {
     });
 
     let clientIds = clients.map((client) => client.client_id);
-    console.log("clientIds=====>", clientIds);
-
+    clientIds.push(parseInt(req.body.subdomain_id));
+    console.log(clientIds);
     const clientdata = await User.findAll({
       where: {
         id: clientIds,
       },
-      attributes: ["id", "name", "role_id", "profile_photo"],
+      attributes: ["id", "name", "role_id", "profile_photo", "status"],
       order: [["created", "DESC"]],
     });
     res.status(200).json({ success: true, data: clientdata });
@@ -134,6 +104,9 @@ const getClientPhotographers = async (req, res) => {
 
 const createClient = async (req, res) => {
   try {
+    // Generate random password
+    let password = Math.random().toString(36).slice(-8);
+    let hashedPassword = await bcrypt.hash(password, 10);
     let imageName = req.files && req.files.profile_photo.name;
     let clientData = {
       name: req.body.name,
@@ -142,6 +115,8 @@ const createClient = async (req, res) => {
       business_name: req.body.business_name,
       role_id: req.body.role_id,
       profile_photo: imageName || req.body.profile_photo,
+      password: hashedPassword,
+      is_verified: 1
     };
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
@@ -178,14 +153,22 @@ const createClient = async (req, res) => {
           return res.status(400).json({ error: "Phone number already exists" });
         }
       }
-      // Create the client
       client = await User.create(clientData);
-      // Link the client to the subdomain
       await BusinessClients.create({
         business_id: req.body.subdomainId,
         client_id: client.id,
-        status: 1,
+        status: 1
       });
+
+      const user = await User.findOne({
+        where: { id: req.body.subdomainId },
+        attributes: ['subdomain', 'email']
+      });
+
+      // Send email notification
+      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, client.name, client.email, password);
+      sendEmail(req.body.email, "Welcome to `" + user.subdomain + "`!", SEND_EMAIL);
+
     }
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
@@ -193,7 +176,7 @@ const createClient = async (req, res) => {
       success: true,
       message: req.body.id
         ? "Client updated successfully"
-        : "Client created successfully",
+        : "Client added successfully. Password sent to his email.",
       data: client,
     });
   } catch (error) {
@@ -282,6 +265,7 @@ const getAllPhotographers = async (req, res) => {
       where: {
         role_id: 2,
         id: photographerIds,
+        status: 'Active'
       },
     });
     res.status(200).json({ success: true, data: photographersData });
