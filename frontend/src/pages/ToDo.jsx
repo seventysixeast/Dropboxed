@@ -1352,10 +1352,12 @@ const ToDo = () => {
                                                 })}
                                             </div>
                                             <div className="avatar">
-                                              <ReTooltip title={task.author.name} placement="top">
+                                              <ReTooltip title={task.author && task.author.name
+                                                    ? task.author.name
+                                                    : avatar1} placement="top">
                                               <img
                                                 src={
-                                                  task.author.profile_photo
+                                                  task.author && task.author.profile_photo
                                                     ? `${IMAGE_URL}/${task.author.profile_photo}`
                                                     : avatar1
                                                 }

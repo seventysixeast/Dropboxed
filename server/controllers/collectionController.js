@@ -290,7 +290,6 @@ const updateGalleryNotify = async (req, res) => {
         let SEND_EMAIL = NEW_COLLECTION(user.subdomain, collection);
         await sendEmail(clientData.email, "New Collection", SEND_EMAIL);
 
-        // Create a new notification
         await Notifications.create({
           notification: `New gallery '${collection.name}' has been created.`,
           client_id: collection.client_id,
@@ -436,7 +435,6 @@ const saveInvoiceToDatabase = async (req, res) => {
 
     const serializedItems = serializeItems(items);
 
-    // Save data to CustomInvoiceList table
     await CustomInvoiceList.create({
       order_id: newOrder.id,
       user_name: clientName,
