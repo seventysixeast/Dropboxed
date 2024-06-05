@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import React from "react";
 import { FaUpload } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { deleteInvoiceById, getAllInvoices } from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
-import DeleteModal from '../components/DeleteModal';
+import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
-import TableInvoice from '../components/TableInvoice';
+import TableInvoice from "../components/TableInvoice";
+import AddInvoiceNodal from "../components/CreateInvoice";
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -17,7 +18,7 @@ const Invoice = () => {
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceId, setInvoiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);
@@ -25,6 +26,11 @@ const Invoice = () => {
   };
 
   const resetData = async () => {
+    setInvoiceId(null);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
     setInvoiceId(null);
   };
 
@@ -130,7 +136,7 @@ const Invoice = () => {
           </div>
         );
       },
-    }
+    },
   ];
 
   useEffect(() => {
@@ -140,34 +146,35 @@ const Invoice = () => {
   const getInvoiceList = async () => {
     try {
       const formData = new FormData();
-      formData.append('role_id', roleId);
-      formData.append('subdomain_id', subdomainId)
+      formData.append("role_id", roleId);
+      formData.append("subdomain_id", subdomainId);
       const response = await getAllInvoices(formData);
       setInvoiceList(response.data);
     } catch (error) {
-      console.error('Error fetching invoice list:', error);
+      console.error("Error fetching invoice list:", error);
     }
-  }
+  };
 
   const deleteInvoice = async () => {
     try {
       const formData = new FormData();
-      formData.append('id', invoiceId);
+      formData.append("id", invoiceId);
       const response = await deleteInvoiceById(formData);
       if (response.status === 200) {
-        toast.success('Invoice deleted successfully!');
+        toast.success("Invoice deleted successfully!");
       }
       setShowDeleteModal(false);
       resetData();
       getInvoiceList();
     } catch (error) {
-      console.error('Error deleting invoice:', error);
+      console.error("Error deleting invoice:", error);
     }
-  }
+  };
 
   const handleEdit = (id) => {
-    console.log("Edit invoice", id);
+    console.log(id);
     setInvoiceId(id);
+    setModalIsOpen(true);
   };
 
   const handleDelete = (id) => {
@@ -204,7 +211,9 @@ const Invoice = () => {
               </div>
             </div>
             <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
-              <a href="#" className="btn btn-outline-primary">Create Invoice</a>
+              <a href="#" className="btn btn-outline-primary">
+                Create Invoice
+              </a>
             </div>
           </div>
         </div>
@@ -215,6 +224,13 @@ const Invoice = () => {
         onClose={handleDeleteModalClose}
         onConfirm={deleteInvoice}
         message="Are you sure you want to delete this appointment?"
+      />
+      <AddInvoiceNodal
+        isOpen={modalIsOpen}
+        onClose={closeModal}
+        collectionId={null}
+        invoiceId={invoiceId}
+
       />
     </>
   );

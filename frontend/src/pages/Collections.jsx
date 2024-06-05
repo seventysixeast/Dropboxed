@@ -664,7 +664,6 @@ const Collections = () => {
                         className="btn btn-outline-primary"
                         data-toggle="modal"
                         data-target="#bootstrap"
-                        // title conditional
                         title={
                           user.dropbox_refresh == null
                             ? "Dropbox Not Linked"
