@@ -8,6 +8,7 @@ import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
 import TableInvoice from "../components/TableInvoice";
 import AddInvoiceNodal from "../components/CreateInvoice";
+import EditInvoiceModal from "../components/EditInvoice";
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -172,7 +173,6 @@ const Invoice = () => {
   };
 
   const handleEdit = (id) => {
-    console.log(id);
     setInvoiceId(id);
     setModalIsOpen(true);
   };
@@ -225,12 +225,10 @@ const Invoice = () => {
         onConfirm={deleteInvoice}
         message="Are you sure you want to delete this appointment?"
       />
-      <AddInvoiceNodal
+      <EditInvoiceModal
         isOpen={modalIsOpen}
         onClose={closeModal}
-        collectionId={null}
         invoiceId={invoiceId}
-
       />
     </>
   );

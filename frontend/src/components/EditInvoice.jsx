@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import "./EditInvoiceModal.css";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
 import { getInvoiceData } from "../api/invoiceApis";
+import phpUnserialize from 'php-unserialize';
 
-const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
+const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
   const [items, setItems] = useState([]);
@@ -11,13 +12,31 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
   const [note, setNote] = useState("");
   const [invoiceLink, setInvoiceLink] = useState("");
   useEffect(() => {
-    if (isOpen && collectionId) {
+    if (isOpen && invoiceId) {
       const fetchInvoiceData = async () => {
         try {
-          const data = await getOrderDataForInvoice(collectionId);
-          setInvoiceData(data.data);
-          setItems(data.data.packages || []);
-          console.log("data", data);
+          let dataToSend = new FormData();
+          dataToSend.append("invoiceId", invoiceId);
+          let response = await getInvoiceData(dataToSend);
+          let invoiceItem = response.data.invoice;
+          let itemDescriptions = invoiceItem.item_descriptions;
+          console.log(itemDescriptions);
+          const parsedDescriptions = phpUnserialize(itemDescriptions);
+          console.log(parsedDescriptions);
+          const itemsArray = Object.keys(parsedDescriptions).map((key, i) => {
+            const item = parsedDescriptions[key];
+            return {
+              id: i,
+              name: item.product_name,
+              description: item.product_desc,
+              quantity: item.product_quantity,
+              price: item.product_price,
+            };
+          });
+      
+          setItems(itemsArray);
+
+          setInvoiceData(response.data);
         } catch (err) {
           setError(err.message);
         }
@@ -25,7 +44,11 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
 
       fetchInvoiceData();
     }
-  }, [isOpen, collectionId]);
+  }, [isOpen, invoiceId]);
+
+  console.log(items);
+
+  console.log(invoiceData);
 
   const addItem = () => {
     setItems([
@@ -63,7 +86,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
     const total = calculateTotal(subtotal, taxAmount);
 
     const invoice = {
-      collectionId,
+      invoiceId,
       items,
       subtotal,
       taxRate,
@@ -77,7 +100,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
       const response = await saveInvoice(invoice);
       if (response.success) {
         alert("Invoice saved successfully!");
-        onClose(); // Close the modal on successful save
+        onClose();
       } else {
         alert("Failed to save the invoice.");
       }
@@ -101,7 +124,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content">
           <div className="modal-header" style={{ backgroundColor: "#DEE6EE" }}>
-            <h5 className="modal-title">Add Invoice {collectionId}</h5>
+            <h5 className="modal-title">Edit Invoice {invoiceId}</h5>
             <button
               type="button"
               className="close"
@@ -359,4 +382,4 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
   );
 };
 
-export default AddInvoiceModal;
+export default EditInvoiceModal;
