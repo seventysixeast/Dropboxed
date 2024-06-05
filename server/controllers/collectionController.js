@@ -6,6 +6,9 @@ const Order = require('../models/Orders');
 const CustomInvoiceList = require("../models/Invoices");
 const { NEW_COLLECTION } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
+const phpSerialize = require('php-serialize').serialize;
+
+
 
 function createSlug(title) {
   return title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
@@ -23,7 +26,6 @@ const addGallery = async (req, res) => {
     let slug = baseSlug;
     let counter = 1;
 
-    // Check if the slug already exists in the Collection
     while (await Collection.findOne({ where: { slug } })) {
       slug = `${baseSlug}-${counter}`;
       counter++;
@@ -276,7 +278,6 @@ const getOrderDataForInvoice = async (req, res) => {
   try {
     const { collectionId } = req.body;
 
-    // Fetch collection data
     const collection = await Collection.findOne({
       where: { id: collectionId }
     });
@@ -285,7 +286,6 @@ const getOrderDataForInvoice = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Collection not found' });
     }
 
-    // Fetch admin user data using subdomain_id
     const adminUser = await User.findOne({
       where: { id: collection.subdomain_id }
     });
@@ -358,17 +358,18 @@ const getOrderDataForInvoice = async (req, res) => {
 };
 
 const serializeItems = (items) => {
-  const serialized = items.map((item, index) => {
-    const details = JSON.parse(item.details);
-    return {
-      product_name: item.name,
-      product_desc: details.map(detail => `${detail.image_type_count} ${detail.image_type_label}`).join(', '),
-      product_quantity: String(item.quantity),
-      product_price: item.price.toFixed(2)
-    };
-  });
-
-  return `a:${serialized.length}:{${serialized.map((item, index) => `i:${index};a:4:{s:12:"product_name";s:${item.product_name.length}:"${item.product_name}";s:12:"product_desc";s:${item.product_desc.length}:"${item.product_desc}";s:16:"product_quantity";s:${item.product_quantity.length}:"${item.product_quantity}";s:13:"product_price";s:${item.product_price.length}:"${item.product_price}";}`).join('')}}`;
+  try {
+    items.forEach(item => {
+      item.product_name = item.name;
+      item.product_desc = item.description;
+      item.product_quantity = item.quantity;
+      item.product_price = item.price;
+    })
+    return phpSerialize(items);
+  } catch (error) {
+    console.error('Error serializing items:', error);
+    throw error;
+  }
 };
 
 const saveInvoiceToDatabase = async (req, res) => {
@@ -387,7 +388,6 @@ const saveInvoiceToDatabase = async (req, res) => {
   } = req.body;
 
   try {
-    // Insert into Orders table
     const newOrder = await Order.create({
       user_id: userId,
       collection_id: collectionId,
@@ -405,15 +405,15 @@ const saveInvoiceToDatabase = async (req, res) => {
     // Save data to CustomInvoiceList table
     await CustomInvoiceList.create({
       order_id: newOrder.id,
-      user_name: clientName,  
-      user_address: clientAddress,  
+      user_name: clientName,
+      user_address: clientAddress,
       item_descriptions: serializedItems,
       //paid_amount: total,
-      due_amount: 0, 
+      due_amount: 0,
       total_price: total,
       notes: note,
-      send_invoice: false,  
-      paid_status: false,  
+      send_invoice: false,
+      paid_status: false,
       invoice_link: invoiceLink,
     });
 

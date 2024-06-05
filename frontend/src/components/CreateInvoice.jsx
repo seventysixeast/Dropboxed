@@ -3,7 +3,6 @@ import "./EditInvoiceModal.css";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
 
 const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
-  console.log("collectionId", collectionId);
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
   const [items, setItems] = useState([]);
@@ -19,14 +18,31 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
         try {
           const data = await getOrderDataForInvoice(collectionId);
           setInvoiceData(data.data);
-          const initializedItems = (data.data.packages || []).map((item) => ({
+          let initializedItems = (data.data.packages || []).map((item) => ({
             ...item,
             quantity: item.quantity || 1,
           }));
+
+          initializedItems.forEach((item) => {
+            item.details = JSON.parse(item.details);
+            item.details = item.details
+              .map(
+                (detail) =>
+                  `${detail.image_type_count} ${detail.image_type_label}`
+              )
+              .join(", ");
+          });
+          // rename image.details to image.description
+          initializedItems = initializedItems.map((item) => {
+            const details = item.details;
+            delete item.details;
+            item.description = details;
+            return item;
+          });
+
           setItems(initializedItems);
           setClientName(data.data.client.name || "");
           setClientAddress(data.data.client.address || "");
-          console.log("data", data);
         } catch (err) {
           setError(err.message);
         }
@@ -35,7 +51,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
       fetchInvoiceData();
     }
   }, [isOpen, collectionId]);
-
+  console.log(items);
   useEffect(() => {
     // Recalculate values whenever items or taxRate changes
     calculateSubtotal();
