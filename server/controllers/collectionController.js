@@ -2,6 +2,7 @@ const Collection = require('../models/Collections');
 const User = require('../models/Users');
 const Package = require('../models/Packages');
 const Order = require('../models/Orders');
+const CustomInvoiceList = require("../models/Invoices");
 
 function createSlug(title) {
   return title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
@@ -457,17 +458,69 @@ const getOrderDataForInvoice = async (req, res) => {
   }
 };
 
-const saveInvoiceToDatabase = async (req, res) => {
-  // Assuming you have a database connection setup
-  try {
-    console.log(req.user.userId);
-    console.log(req.body)
-       return { success: true };
-  } catch (error) {
-      console.error('Error saving invoice:', error);
-      return { success: false, error: error.message };
-  }
+const serializeItems = (items) => {
+  const serialized = items.map((item, index) => {
+    const details = JSON.parse(item.details);
+    return {
+      product_name: item.name,
+      product_desc: details.map(detail => `${detail.image_type_count} ${detail.image_type_label}`).join(', '),
+      product_quantity: String(item.quantity),
+      product_price: item.price.toFixed(2)
+    };
+  });
+
+  return `a:${serialized.length}:{${serialized.map((item, index) => `i:${index};a:4:{s:12:"product_name";s:${item.product_name.length}:"${item.product_name}";s:12:"product_desc";s:${item.product_desc.length}:"${item.product_desc}";s:16:"product_quantity";s:${item.product_quantity.length}:"${item.product_quantity}";s:13:"product_price";s:${item.product_price.length}:"${item.product_price}";}`).join('')}}`;
 };
 
+const saveInvoiceToDatabase = async (req, res) => {
+  const userId = req.user.userId;
+  const {
+    collectionId,
+    items,
+    subtotal,
+    taxRate,
+    taxAmount,
+    total,
+    note,
+    invoiceLink
+  } = req.body;
+
+  try {
+    // Insert into Orders table
+    const newOrder = await Order.create({
+      user_id: userId,
+      collection_id: collectionId,
+      package_id: 0,
+      image_id: 0,
+      allow_download: 0,
+      invoice_link: invoiceLink,
+      invoice_price: total,
+    });
+
+    const orderId = newOrder.id;
+
+    const serializedItems = serializeItems(items);
+
+    // Save data to CustomInvoiceList table
+    await CustomInvoiceList.create({
+      order_id: newOrder.id,
+      user_name: '',  
+      user_address: '',  
+      item_descriptions: serializedItems,
+      //paid_amount: total,
+      due_amount: 0, 
+      total_price: total,
+      notes: note,
+      send_invoice: false,  
+      paid_status: false,  
+      invoice_link: invoiceLink,
+    });
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error saving invoice:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
 
 module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify, getOrderDataForInvoice, saveInvoiceToDatabase };
