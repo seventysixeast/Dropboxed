@@ -506,8 +506,8 @@ const saveInvoiceToDatabase = async (req, res) => {
     // Save data to CustomInvoiceList table
     await CustomInvoiceList.create({
       order_id: newOrder.id,
-      user_name: '',  
-      user_address: '',  
+      user_name: clientName,  
+      user_address: clientAddress,  
       item_descriptions: serializedItems,
       //paid_amount: total,
       due_amount: 0, 

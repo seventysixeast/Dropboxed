@@ -25,8 +25,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
             quantity: item.quantity || 1,
           }));
           setItems(initializedItems);
-          setClientName(data.data.client_name || "");
-          setClientAddress(data.data.client_address || "");
+          setClientName(data.data.client.name || "");
+          setClientAddress(data.data.client.address || "");
           console.log("data", data);
         } catch (err) {
           setError(err.message);
