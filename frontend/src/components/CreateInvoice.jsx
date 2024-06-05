@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./EditInvoiceModal.css";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
-import { getInvoiceData } from "../api/invoiceApis";
 
-const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
+const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
   console.log("collectionId", collectionId);
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
@@ -34,41 +33,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
       };
 
       fetchInvoiceData();
-    } else if (isOpen && invoiceId) {
-      const fetchInvoiceData = async () => {
-        try {
-          let dataToSend = new FormData();
-          dataToSend.append("invoiceId", invoiceId);
-          let data = await getInvoiceData(dataToSend);
-          console.log(data);
-          data.invoice.item_descriptions = JSON.parse(
-            data.invoice.item_descriptions
-          )
-            .map((item) => ({
-              name: item.product_name,
-              description: item.product_desc,
-              quantity: item.product_quantity || 1,
-              price: item.product_price,
-            }))
-            .filter((item) => item.name);
-
-          console.log(data.invoice.item_descriptions);
-
-          setInvoiceData(data.invoice);
-          setItems(data.invoice.item_descriptions);
-          setTaxRate(data.invoice.tax_rate);
-          setNote(data.invoice.notes);
-          setInvoiceLink(data.invoice.invoice_link);
-          setClientName(data.invoice.client_name || "");
-          setClientAddress(data.invoice.client_address || "");
-        } catch (err) {
-          setError(err.message);
-        }
-      };
-
-      fetchInvoiceData();
     }
-  }, [isOpen, collectionId, invoiceId]);
+  }, [isOpen, collectionId]);
 
   useEffect(() => {
     // Recalculate values whenever items or taxRate changes
