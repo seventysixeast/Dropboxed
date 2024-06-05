@@ -3,20 +3,30 @@ import "./EditInvoiceModal.css";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
 import { getInvoiceData } from "../api/invoiceApis";
 
-const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
+const AddInvoiceModal = ({ isOpen, onClose, collectionId, invoiceId }) => {
+  console.log("collectionId", collectionId);
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
   const [items, setItems] = useState([]);
   const [taxRate, setTaxRate] = useState(10);
   const [note, setNote] = useState("");
   const [invoiceLink, setInvoiceLink] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+
   useEffect(() => {
     if (isOpen && collectionId) {
       const fetchInvoiceData = async () => {
         try {
           const data = await getOrderDataForInvoice(collectionId);
           setInvoiceData(data.data);
-          setItems(data.data.packages || []);
+          const initializedItems = (data.data.packages || []).map((item) => ({
+            ...item,
+            quantity: item.quantity || 1,
+          }));
+          setItems(initializedItems);
+          setClientName(data.data.client_name || "");
+          setClientAddress(data.data.client_address || "");
           console.log("data", data);
         } catch (err) {
           setError(err.message);
@@ -24,8 +34,48 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
       };
 
       fetchInvoiceData();
+    } else if (isOpen && invoiceId) {
+      const fetchInvoiceData = async () => {
+        try {
+          let dataToSend = new FormData();
+          dataToSend.append("invoiceId", invoiceId);
+          let data = await getInvoiceData(dataToSend);
+          console.log(data);
+          data.invoice.item_descriptions = JSON.parse(
+            data.invoice.item_descriptions
+          )
+            .map((item) => ({
+              name: item.product_name,
+              description: item.product_desc,
+              quantity: item.product_quantity || 1,
+              price: item.product_price,
+            }))
+            .filter((item) => item.name);
+
+          console.log(data.invoice.item_descriptions);
+
+          setInvoiceData(data.invoice);
+          setItems(data.invoice.item_descriptions);
+          setTaxRate(data.invoice.tax_rate);
+          setNote(data.invoice.notes);
+          setInvoiceLink(data.invoice.invoice_link);
+          setClientName(data.invoice.client_name || "");
+          setClientAddress(data.invoice.client_address || "");
+        } catch (err) {
+          setError(err.message);
+        }
+      };
+
+      fetchInvoiceData();
     }
-  }, [isOpen, collectionId]);
+  }, [isOpen, collectionId, invoiceId]);
+
+  useEffect(() => {
+    // Recalculate values whenever items or taxRate changes
+    calculateSubtotal();
+    calculateTaxAmount();
+    calculateTotal();
+  }, [items, taxRate]);
 
   const addItem = () => {
     setItems([
@@ -64,6 +114,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
 
     const invoice = {
       collectionId,
+      clientName,
+      clientAddress,
       items,
       subtotal,
       taxRate,
@@ -136,8 +188,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
                         type="text"
                         className="form-control"
                         placeholder="Client Name"
-                        value={invoiceData.client.name}
-                        readOnly
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
                       />
                     </div>
                     <div className="form-group">
@@ -145,8 +197,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId }) => {
                         className="form-control"
                         rows="3"
                         placeholder="Client Address"
-                        value={invoiceData.client.address}
-                        readOnly
+                        value={clientAddress}
+                        onChange={(e) => setClientAddress(e.target.value)}
                       ></textarea>
                     </div>
                   </div>
