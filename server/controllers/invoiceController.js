@@ -6,6 +6,9 @@ const User = require('../models/Users');
 const { Op } = require("sequelize");
 const phpUnserialize = require('php-serialize').unserialize;
 const phpSerialize = require('php-serialize').serialize;
+const { emailTemplates } = require('../helpers/emailTemplate');
+const { sendEmail } = require("../helpers/sendEmail");// to, subject, html..
+
 
 
 const getAllInvoices = async (req, res) => {
@@ -181,10 +184,58 @@ const updateInvoice = async (req, res) => {
     }
 };
 
+const sendInvoice = async (req, res) => {
+    try {
+        const invoiceId = 882;//req.body.invoiceId;
+        const invoice = await CustomInvoiceList.findOne({ where: { id: invoiceId } });
+        const order = await Order.findOne({ where: { id: invoice.order_id } });
+        const client = await User.findOne({ where: { id: order.client_id } });
+
+        if (!invoice || !order || !client) {
+            return res.status(404).json({ success: false, message: 'Data not found' });
+        }
+
+        const clientEmail = client.email;
+        const clientName = client.name;
+
+        // Prepare invoice data for the email template
+        /*const invoiceData = {
+            clientName: clientName,
+            invoiceNumber: invoice.invoice_number,
+            invoiceDate: invoice.invoice_date,
+            dueDate: invoice.due_date,
+            amountDue: invoice.total,
+            items: invoice.itemsArray // Assuming itemsArray contains necessary item details
+        };*/
+        const invoiceData = {
+            clientName: "John Doe",
+            invoiceNumber: "12345",
+            invoiceDate: "2024-06-05",
+            dueDate: "2024-06-20",
+            amountDue: "$1000",
+            items: [
+              { name: "Service 1", description: "Description 1", price: "$500", quantity: 1, total: "$500" },
+              { name: "Service 2", description: "Description 2", price: "$250", quantity: 2, total: "$500" }
+            ]
+          };
+        // Generate the HTML content for the email using the provided template function
+        const emailContent = exports.INVOICE_EMAIL(invoiceData);
+
+        // Send the email using the sendEmail function
+        //sendEmail(clientEmail, "Your Invoice", emailContent, `/path/to/generated/invoice-${invoiceId}.pdf`);//this will use lator
+        sendEmail(clientEmail, "Your Invoice", emailContent);
+
+        res.status(200).json({ success: true, message: 'Invoice sent successfully' });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 module.exports = {
     getAllInvoices,
     deleteInvoice,
     getInvoiceData,
-    updateInvoice
+    updateInvoice,
+    sendInvoice
 };

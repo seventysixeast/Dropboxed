@@ -437,3 +437,80 @@ exports.NEW_COLLECTION = (subdomain, data) => `
     </span>
 </div>
 `;
+
+exports.INVOICE_EMAIL = (invoiceData) => `
+<div style="display: flex; justify-content: center; align-items: center; height: auto;">
+    <span style="width:50%; display:block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
+        <table cellpadding="0" cellspacing="0" width="100%">
+            <tbody>
+                <tr>
+                    <td style="padding-top: 10px; text-align:center;">
+                        <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px;" alt="Logo"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table style="font-size: 14px; width:100%; background: #fff; border-radius: 0;">
+                            <tbody>
+                                <tr>
+                                    <td style="padding:30px; width:100%;" valign="top">
+                                        <div style="font-size:14px;font-weight:normal;line-height:1.8em;text-align:left;">
+                                        <p>Dear ${invoiceData.clientName},</p>
+                                        <p>Thank you for your business. Here is your invoice:</p>
+                                        <p>Invoice Number: ${invoiceData.invoiceNumber}</p>
+                                        <p>Invoice Date: ${invoiceData.invoiceDate}</p>
+                                        <p>Due Date: ${invoiceData.dueDate}</p>
+                                        <p>Amount Due: ${invoiceData.amountDue}</p>
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="border: 1px solid #ddd; padding: 8px;">Item</th>
+                                                    <th style="border: 1px solid #ddd; padding: 8px;">Description</th>
+                                                    <th style="border: 1px solid #ddd; padding: 8px;">Price</th>
+                                                    <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
+                                                    <th style="border: 1px solid #ddd; padding: 8px;">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${invoiceData.items.map(item => `
+                                                <tr>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.name}</td>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.description}</td>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.price}</td>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.quantity}</td>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.total}</td>
+                                                </tr>`).join('')}
+                                            </tbody>
+                                        </table>
+                                        <p>If you have any questions about this invoice, please contact us at <a href="mailto:info@studiio.au">info@studiio.au</a></p>
+                                        <p>Thank you for your prompt payment.</p>
+                                        <p>Best regards,<br>
+                                        Studiio.au Team</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" style="padding-bottom:30px; width:100%;" valign="top">
+                                        <a href="${SITE_URL}dashboard" style="display:inline-block;padding:11px 30px;color:#fff;background:#00b5b8;text-decoration:none;" rel="noreferrer" target="_blank"><b>VIEW INVOICE</b></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table style="margin: 10px auto 10px auto;" cellpadding="0" cellspacing="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td align="center" style="font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;color: #001737;">
+                                        <a href="https://www.studiio.au">https://www.studiio.au</a><br>
+                                        Questions? Reply to this email.
+                                        <p>Power by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px; vertical-align: middle;" alt="Logo"/></p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </span>
+</div>
+`;
