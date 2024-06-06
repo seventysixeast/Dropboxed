@@ -6,7 +6,7 @@ const User = require('../models/Users');
 const { Op } = require("sequelize");
 const phpUnserialize = require('php-serialize').unserialize;
 const phpSerialize = require('php-serialize').serialize;
-const { emailTemplates } = require('../helpers/emailTemplate');
+const { INVOICE_EMAIL } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");// to, subject, html..
 
 
@@ -186,10 +186,13 @@ const updateInvoice = async (req, res) => {
 
 const sendInvoice = async (req, res) => {
     try {
-        const invoiceId = 882;//req.body.invoiceId;
+        const invoiceId = 882; // req.body.invoiceId;
         const invoice = await CustomInvoiceList.findOne({ where: { id: invoiceId } });
+        //console.log("invoice<<<", invoice);
         const order = await Order.findOne({ where: { id: invoice.order_id } });
-        const client = await User.findOne({ where: { id: order.client_id } });
+        //console.log("order<<<", order.client_id);
+        const client = await User.findOne({ where: { id: order.user_id } });
+        //console.log("client<<<", client);
 
         if (!invoice || !order || !client) {
             return res.status(404).json({ success: false, message: 'Data not found' });
@@ -199,33 +202,42 @@ const sendInvoice = async (req, res) => {
         const clientName = client.name;
 
         // Prepare invoice data for the email template
-        /*const invoiceData = {
+        const invoiceData = {
             clientName: clientName,
             invoiceNumber: invoice.invoice_number,
-            invoiceDate: invoice.invoice_date,
-            dueDate: invoice.due_date,
-            amountDue: invoice.total,
-            items: invoice.itemsArray // Assuming itemsArray contains necessary item details
-        };*/
-        const invoiceData = {
+            invoiceDate: order.created_at,
+            dueDate: order.created_at,
+            amountDue: invoice.total_price,
+            items: phpUnserialize(invoice.item_descriptions) // Assuming itemsArray contains necessary item details
+        };
+
+        /*const invoiceData = {
             clientName: "John Doe",
             invoiceNumber: "12345",
             invoiceDate: "2024-06-05",
             dueDate: "2024-06-20",
             amountDue: "$1000",
             items: [
-              { name: "Service 1", description: "Description 1", price: "$500", quantity: 1, total: "$500" },
-              { name: "Service 2", description: "Description 2", price: "$250", quantity: 2, total: "$500" }
+              { name: "Service 1", description: "Description 1", product_price: "$500", quantity: 1, total: "$500" },
+              { name: "Service 2", description: "Description 2", product_price: "$250", quantity: 2, total: "$500" }
             ]
-          };
+          };*/
+
         // Generate the HTML content for the email using the provided template function
-        const emailContent = exports.INVOICE_EMAIL(invoiceData);
+        const emailContent = INVOICE_EMAIL(invoiceData);
+        console.log("emailContent", emailContent);
 
         // Send the email using the sendEmail function
-        //sendEmail(clientEmail, "Your Invoice", emailContent, `/path/to/generated/invoice-${invoiceId}.pdf`);//this will use lator
-        sendEmail(clientEmail, "Your Invoice", emailContent);
+        // sendEmail(clientEmail, "Your Invoice", emailContent, `/path/to/generated/invoice-${invoiceId}.pdf`); //this will use later
+        sendEmail("kumarravi32832@gmail.com", "Your Invoice", emailContent);
 
-        res.status(200).json({ success: true, message: 'Invoice sent successfully' });
+        // Update send_invoice status in CustomInvoiceList table
+        await CustomInvoiceList.update({ send_invoice: 1 }, { where: { id: invoiceId } });
+
+        // Update send_invoice status in Collection table
+        await Collection.update({ send_invoice: 1 }, { where: { id: order.collection_id } });
+
+        res.status(200).json({ success: true, message: 'Invoice sent successfully and status updated' });
 
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

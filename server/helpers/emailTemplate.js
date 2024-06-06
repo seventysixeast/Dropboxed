@@ -460,7 +460,7 @@ exports.INVOICE_EMAIL = (invoiceData) => `
                                         <p>Invoice Number: ${invoiceData.invoiceNumber}</p>
                                         <p>Invoice Date: ${invoiceData.invoiceDate}</p>
                                         <p>Due Date: ${invoiceData.dueDate}</p>
-                                        <p>Amount Due: ${invoiceData.amountDue}</p>
+                                        <p>Amount Due: $ ${invoiceData.amountDue}</p>
                                         <table style="width: 100%; border-collapse: collapse;">
                                             <thead>
                                                 <tr>
@@ -476,9 +476,9 @@ exports.INVOICE_EMAIL = (invoiceData) => `
                                                 <tr>
                                                     <td style="border: 1px solid #ddd; padding: 8px;">${item.name}</td>
                                                     <td style="border: 1px solid #ddd; padding: 8px;">${item.description}</td>
-                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.price}</td>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.product_price}</td>
                                                     <td style="border: 1px solid #ddd; padding: 8px;">${item.quantity}</td>
-                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.total}</td>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">$ ${item.product_price}</td>
                                                 </tr>`).join('')}
                                             </tbody>
                                         </table>
