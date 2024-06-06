@@ -70,7 +70,6 @@ const addGallery = async (req, res) => {
       collection = await Collection.create(collectionData);
     }
 
-    // Send email if notify_client is true
     if (req.body.notify_client === "true") {
       const clientData = await User.findOne({
         where: { id: req.body.client },
@@ -80,7 +79,6 @@ const addGallery = async (req, res) => {
       let SEND_EMAIL = NEW_COLLECTION(user.subdomain, collectionData);
       sendEmail(clientData.email, "New Collection", SEND_EMAIL);
 
-      // Create notification
       await Notifications.create({
         notification: `New gallery '${collectionData.name}' has been created.`,
         client_id: req.body.client,
@@ -100,13 +98,10 @@ const addGallery = async (req, res) => {
   }
 };
 
-
 const getAllCollections = async (req, res) => {
   try {
     const { roleId, subdomainId, userId } = req.body;
     let collectionsData;
-
-    console.log('Request received with roleId:', roleId, 'subdomainId:', subdomainId, 'userId:', userId);
 
     if (roleId == 3) {
       collectionsData = await Collection.findAll({
@@ -137,21 +132,13 @@ const getAllCollections = async (req, res) => {
       });
     }
 
-    console.log('Collections Data:', collectionsData);
-
     const clientIds = collectionsData.map(collection => collection.client_id).filter(id => id);
     const photographerIds = collectionsData.map(collection => collection.photographer_ids).filter(id => id);
     const packageIds = collectionsData.map(collection => collection.package_ids).filter(id => id);
 
-    console.log('Client IDs:', clientIds);
-    console.log('Photographer IDs:', photographerIds);
-    console.log('Package IDs:', packageIds);
-
     if (clientIds.length > 0) {
       const uniqueClientIds = [...new Set(clientIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
       const clientData = await User.findAll({ where: { id: uniqueClientIds } });
-
-      console.log('Client Data:', clientData);
 
       const clientNamesAndIds = clientData.reduce((acc, client) => {
         acc[client.id] = client.name;
@@ -170,8 +157,6 @@ const getAllCollections = async (req, res) => {
       const uniquePhotographerIds = [...new Set(photographerIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
       const photographerData = await User.findAll({ where: { id: uniquePhotographerIds } });
 
-      console.log('Photographer Data:', photographerData);
-
       const photographerNamesAndIds = photographerData.reduce((acc, photographer) => {
         acc[photographer.id] = photographer.name;
         return acc;
@@ -188,8 +173,6 @@ const getAllCollections = async (req, res) => {
     if (packageIds.length > 0) {
       const uniquePackageIds = [...new Set(packageIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
       const packageData = await Package.findAll({ where: { id: uniquePackageIds } });
-
-      console.log('Package Data:', packageData);
 
       const packageNamesAndIds = packageData.reduce((acc, pkg) => {
         acc[pkg.id] = pkg.package_name;
