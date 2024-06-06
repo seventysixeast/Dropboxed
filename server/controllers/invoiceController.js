@@ -229,7 +229,7 @@ const sendInvoice = async (req, res) => {
 
         // Send the email using the sendEmail function
         // sendEmail(clientEmail, "Your Invoice", emailContent, `/path/to/generated/invoice-${invoiceId}.pdf`); //this will use later
-        sendEmail("kumarravi32832@gmail.com", "Your Invoice", emailContent);
+        sendEmail("gurvinder1902@gmail.com", "Your Invoice", emailContent);
 
         // Update send_invoice status in CustomInvoiceList table
         await CustomInvoiceList.update({ send_invoice: 1 }, { where: { id: invoiceId } });
