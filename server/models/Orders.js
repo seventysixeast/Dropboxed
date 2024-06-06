@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
+const Collections = require('./Collections');
 
 const Orders = sequelize.define('Orders', {
   id: {
@@ -17,7 +18,11 @@ const Orders = sequelize.define('Orders', {
   },
   collection_id: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: Collections,
+      key: 'id'
+    }
   },
   image_id: {
     type: DataTypes.INTEGER,
@@ -64,5 +69,7 @@ const Orders = sequelize.define('Orders', {
   tableName: 'orders',
   timestamps: false
 });
+
+Orders.belongsTo(Collections, { foreignKey: 'collection_id' });
 
 module.exports = Orders;

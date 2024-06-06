@@ -92,6 +92,18 @@ const SideNav = () => {
               </li>
               <li
                 className={`nav-item ${
+                  location.pathname === "/orders" ? "active" : ""
+                }`}
+              >
+                <Link to="/orders">
+                  <i className="feather icon-layers"></i>
+                  <span className="menu-title" data-i18n="orders">
+                    Orders
+                  </span>
+                </Link>
+              </li>
+              <li
+                className={`nav-item ${
                   location.pathname === "/invoice" ? "active" : ""
                 }`}
               >
