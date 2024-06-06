@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./EditInvoiceModal.css";
 import { getInvoiceData, updateInvoice } from "../api/invoiceApis";
 
-const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
+const EditInvoiceModal = ({ isOpen, onClose, invoiceId, handleLoading }) => {
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
   const [items, setItems] = useState([]);
@@ -25,6 +25,8 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId }) => {
         } catch (err) {
           setError(err.message);
         }
+        handleLoading();
+
       };
       fetchInvoiceData();
     }

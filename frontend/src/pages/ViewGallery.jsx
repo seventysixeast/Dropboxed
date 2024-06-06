@@ -149,7 +149,6 @@ export const ViewGallery = () => {
         const activeClients = response.data.filter(
           (client) => client.status === "Active"
         );
-        console.log(activeClients);
         setClients(activeClients);
       } else {
         const activeClients = response.data.filter(
@@ -275,7 +274,6 @@ export const ViewGallery = () => {
       setBanner(res.data.banner);
       setCollection(res.data);
     } else {
-      console.log(res.data);
     }
     setRunning(false);
     setLoading(false);
@@ -758,7 +756,6 @@ export const ViewGallery = () => {
 
     let sharedLinkData;
 
-    // Check if the shared link already exists
     const existingLinkResponse = await fetch(
       "https://api.dropboxapi.com/2/sharing/list_shared_links",
       {
@@ -773,9 +770,15 @@ export const ViewGallery = () => {
       }
     );
     const existingLinkData = await existingLinkResponse.json();
-
-    if (existingLinkData.links.length > 0) {
-      sharedLinkData = existingLinkData.links[0];
+    const existingFileLink = existingLinkData.links.find(link => link['.tag'] === 'file');
+    if (existingFileLink) {
+      sharedLinkData = existingFileLink
+      const link = sharedLinkData.url;
+      setTaskData({
+        ...taskData,
+        taskDescription: `<p>Image Name: ${image.path_display}</p>
+        <p>Image Link: <a href=${link} rel="noopener noreferrer" target="_blank">Image Link</a></p>`,
+      });
     } else {
       const sharedLinkResponse = await fetch(
         "https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings",
@@ -794,15 +797,13 @@ export const ViewGallery = () => {
         }
       );
 
-      sharedLinkData = await sharedLinkResponse.json();
+      const sharedLinkData2 = await sharedLinkResponse.json();
+      setTaskData({
+        ...taskData,
+        taskDescription: `<p>Image Name: ${image.path_display}</p>
+        <p>Image Link: <a href=${sharedLinkData2.url} rel="noopener noreferrer" target="_blank">Image Link</a></p>`,
+      });
     }
-
-    const link = sharedLinkData.url || sharedLinkData.links[0].url;
-    setTaskData({
-      ...taskData,
-      taskDescription: `<p>Image Name: ${image.path_display}</p>
-      <p>Image Link: <a href=${link} rel="noopener noreferrer" target="_blank">Image Link</a></p>`,
-    });
   };
 
   return (
@@ -997,15 +998,18 @@ export const ViewGallery = () => {
                       style={{ cursor: "pointer" }}
                       title="Download"
                       onClick={() => {
+
                         if (authData.user.role_id !== 3) {
                           setDownloadGalleryModal(true);
                         } else if (
-                          (authData.user.role_id =
-                            3 && collection.lock_gallery === true)
+                          authData.user.role_id === 3 &&
+                          collection.lock_gallery === true
                         ) {
                           toast.error(
                             "Gallery is locked! Please contact admin."
                           );
+                        } else {
+                          setDownloadGalleryModal(true);
                         }
                       }}
                     ></span>
@@ -1111,9 +1115,6 @@ export const ViewGallery = () => {
                                                 title="Download"
                                                 onClick={(event) => {
                                                   event.stopPropagation();
-                                                  console.log(
-                                                    collection.lock_gallery
-                                                  );
 
                                                   setSelectedImageUrl(
                                                     image.path_display
@@ -1123,7 +1124,10 @@ export const ViewGallery = () => {
                                                   ) {
                                                     setDownloadImageModal(true);
                                                   } else if (
-                                                    collection.lock_gallery
+                                                    authData.user.role_id ===
+                                                      3 &&
+                                                    collection.lock_gallery ===
+                                                      true
                                                   ) {
                                                     toast.error(
                                                       "Gallery is locked! Please contact admin."

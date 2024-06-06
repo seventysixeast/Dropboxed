@@ -1,6 +1,8 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Switch } from "@mui/material";
+import ReTooltip from "./Tooltip";
 
 const SortableItem = ({
   id,
@@ -55,7 +57,6 @@ const SortableItem = ({
             </h1>
             {roleId === 3 ? (
               <>
-                {" "}
                 {service.show_price && (
                   <h1 className="card-title">
                     ${service.package_price.toFixed(2)}
@@ -63,8 +64,22 @@ const SortableItem = ({
                 )}
               </>
             ) : (
-              <h1 className="card-title">
+              <h1 className="card-title d-flex align-items-center justify-content-center">
                 ${service.package_price.toFixed(2)}
+                {roleId !== 3 && (
+                  <ReTooltip title="Price visible to Clients." placement="top">
+                    {service.show_price && (
+                      <i
+                        className="feather icon-check"
+                        style={{
+                          color: "green",
+                          fontWeight: "bold",
+                          fontSize: "24px",
+                        }}
+                      ></i>
+                    )}
+                  </ReTooltip>
+                )}
               </h1>
             )}
 

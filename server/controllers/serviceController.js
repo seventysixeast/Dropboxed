@@ -11,7 +11,6 @@ const createService = async (req, res) => {
   data.is_video = isVideo;
   data.subdomain_id = subdomainId;
   data.package_price = packagePrice;
-  console.log(data);
   try {
     if (req.body.id) {
       const service = await Packages.update(data, {
@@ -103,7 +102,6 @@ const getAllServices = async (req, res) => {
 
 const getService = async (req, res) => {
   const id = req.body.id;
-  console.log(id);
 
   try {
     const service = await Packages.findOne({
@@ -131,7 +129,6 @@ const deleteService = async (req, res) => {
 const updateServiceOrder = async (req, res) => {
   const ids = req.body.ids;
   const orders = req.body.orders
-  console.log(req.body);
   try {
     for (let i = 0; i < ids.length; i++) {
       await Packages.update({ package_order: orders[i] }, { where: { id: ids[i] } });

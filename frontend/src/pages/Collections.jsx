@@ -27,6 +27,7 @@ import moment from "moment";
 import ReTooltip from "../components/Tooltip";
 import AddInvoiceNodal from "../components/CreateInvoice";
 import LoadingOverlay from "../components/Loader";
+import NoInvoiceModal from "../components/NoInvoiceModal";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -52,6 +53,7 @@ const Collections = () => {
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [subdomainDropbox, setSubdomainDropbox] = useState("");
+  const [showNoInvoiceModal, setShowNoInvoiceModal] = useState(false);
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -424,6 +426,7 @@ const Collections = () => {
   };
 
   const deleteCollectionData = async () => {
+    setLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", collectionIdToDelete);
@@ -445,6 +448,7 @@ const Collections = () => {
   };
 
   const handleGalleryLockChange = async (data) => {
+    setLoading(true);
     try {
       setIsGalleryLocked(!isGalleryLocked);
       const formDataToSend = new FormData();
@@ -463,10 +467,9 @@ const Collections = () => {
   };
 
   const handleGalleryNotify = async (id) => {
+    setLoading(true);
     try {
-      console.log("id",id)
-      setSelectedCollectionId(id);
-      setModalIsOpen(true);
+      console.log("id", id);
       const formDataToSend = new FormData();
       formDataToSend.append("id", id);
       const res = await updateGalleryNotify(formDataToSend);
@@ -502,7 +505,41 @@ const Collections = () => {
         accessor: "client_name",
         className: roleId === 3 ? "d-none" : "",
       },
-      { Header: "Services", accessor: "packages_name" },
+      {
+        Header: "Services",
+        Cell: ({ row }) => (
+          <div>
+            {row.original.packages.map((item, index) => (
+              <div key={index} className="d-flex">
+                <span className="">{item.package_name}</span>
+              </div>
+            ))}
+            {roleId !== 3 && (
+              <>
+                {row.original.orderFound ? (
+                  <ReTooltip title="Invoice Generated." placement="top">
+                    <button className="btn btn-sm btn-primary">
+                      <span>Invoice Generated</span>
+                    </button>
+                  </ReTooltip>
+                ) : (
+                  <ReTooltip title="Click to Create Invoice." placement="top">
+                    <button
+                      className="btn btn-sm btn-danger w-100"
+                      onClick={() => {
+                        setModalIsOpen(true);
+                        setSelectedCollectionId(row.original.id);
+                      }}
+                    >
+                      <span>Create Invoice</span>
+                    </button>
+                  </ReTooltip>
+                )}
+              </>
+            )}
+          </div>
+        ),
+      },
       { Header: "Photographers", accessor: "photographers_name" },
       {
         Header: "Unlock/Lock",
@@ -530,7 +567,13 @@ const Collections = () => {
                   cursor: "pointer",
                 }}
                 onClick={() => {
-                  handleGalleryNotify(row.original.id);
+                  {
+                    console.log(row.original.orderFound);
+                    row.original.orderFound
+                      ? handleGalleryNotify(row.original.id)
+                      : setShowNoInvoiceModal(true);
+                  }
+                  setSelectedCollectionId(row.original.id);
                 }}
               >
                 Notified
@@ -648,6 +691,23 @@ const Collections = () => {
     fetchData();
   }, [accesstoken]);
 
+  const handleCreateInvioce = async () => {
+    setLoading(true)
+    setShowNoInvoiceModal(false);
+    setModalIsOpen(true);
+  };
+
+  const handleLoading = () => {
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (modalIsOpen) {
+      setLoading(true);
+    }
+  }, [modalIsOpen]);
+
+
   return (
     <>
       <LoadingOverlay loading={loading} />
@@ -742,8 +802,8 @@ const Collections = () => {
               role="status"
             >
               <p>
-                No Collections added yet. Click New Colletion to add new collection for
-                your Clients.
+                No Collections added yet. Click New Colletion to add new
+                collection for your Clients.
               </p>
             </div>
           )}
@@ -759,6 +819,15 @@ const Collections = () => {
         isOpen={modalIsOpen}
         onClose={closeModal}
         collectionId={selectedCollectionId}
+        handleLoading={handleLoading}
+      />
+      <NoInvoiceModal
+        isOpen={showNoInvoiceModal}
+        onClose={() => {setShowNoInvoiceModal(false);
+          setSelectedCollectionId(null);
+        }}
+        onConfirm={handleCreateInvioce}
+        message="No invoice found for this collection. Create an invoice first."
       />
     </>
   );

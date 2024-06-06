@@ -56,10 +56,8 @@ const login = async (userData) => {
 };
 
 const verifyToken = async (token) => {
-    console.log("token", token);
     try {
         const response = await API.post("/auth/verify-token", { token });
-        console.log("response", response);
         if (response.status !== 200) {
             const data = response.data;
             const { accessToken, user } = data;
@@ -68,7 +66,6 @@ const verifyToken = async (token) => {
             localStorage.removeItem("user", JSON.stringify(user));
             return data
         } else {
-            console.log("response222", response.status);
             const data = response.data;
             const { accessToken, user } = data;
             localStorage.setItem("accessToken", accessToken);

@@ -255,20 +255,26 @@ export const BookingListComponent = () => {
 
   const handleSelectedChange = (selectedOptions) => {
     setSelectedService(selectedOptions);
-
     const selectedValues = selectedOptions.map((option) => option.value);
     const selectedValuesString = selectedValues.join(", ");
     setBookingData((prevData) => ({
       ...prevData,
       services: selectedValuesString,
     }));
-    const selectedPrices = selectedOptions.map((option) => {
-      const price = packagePrice.find((pack) => pack.id === option.value);
-      return price.price;
-    });
+    const showPrice = selectedOptions.some(
+      (option) => option.show_price === false
+    );
 
-    const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
-    setSelectedPackagePrice(totalPrice);
+    if (showPrice) {
+      setSelectedPackagePrice(0);
+    } else {
+      const selectedPrices = selectedOptions.map((option) => {
+        const price = packagePrice.find((pack) => pack.id === option.value);
+        return price.price;
+      });
+      const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
+      setSelectedPackagePrice(totalPrice);
+    }
   };
 
   const handleProviderChange = (selectedOptions) => {
@@ -1031,7 +1037,7 @@ export const BookingListComponent = () => {
 
   const CustomOption = ({ data, innerRef, innerProps }) => (
     <CustomTooltip
-      title={`Price: $${data.package_price}`}
+      title={data.show_price ? `Price: $${data.package_price}` : ""}
       arrow
       placement="left"
     >
@@ -1292,6 +1298,7 @@ export const BookingListComponent = () => {
                                               onChange: handleAddressChange,
                                               value: bookingAddress,
                                             }}
+                                            placeholder="Enter your address"
                                           />
                                           <p
                                             style={{
@@ -1332,6 +1339,7 @@ export const BookingListComponent = () => {
                                               label: pkg.package_name,
                                               value: pkg.id,
                                               package_price: pkg.package_price,
+                                              show_price: pkg.show_price,
                                             }))
                                             .sort((a, b) =>
                                               a.label < b.label ? -1 : 1

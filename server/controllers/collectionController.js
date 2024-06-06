@@ -17,7 +17,7 @@ function createSlug(title) {
 const addGallery = async (req, res) => {
   const user = await User.findOne({
     attributes: ['dropbox_refresh', 'subdomain'],
-    where: { id: req.body.subdomainId },
+    where: { id: req.body.subdomainId }
   });
 
   try {
@@ -135,49 +135,88 @@ const getAllCollections = async (req, res) => {
       });
     }
 
-    const clientIds = collectionsData.map(collection => collection.client_id);
-    const photographerIds = collectionsData.map(collection => collection.photographer_ids);
-    const packageIds = collectionsData.map(collection => collection.package_ids);
+    const clientIds = collectionsData.map(collection => collection.client_id).filter(id => id);
+    const photographerIds = collectionsData.map(collection => collection.photographer_ids).filter(id => id);
+    const packageIds = collectionsData.map(collection => collection.package_ids).filter(id => id);
 
-    const uniqueClientIds = [...new Set(clientIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
-    const uniquePhotographerIds = [...new Set(photographerIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
-    const uniquePackageIds = [...new Set(packageIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+    if (clientIds.length > 0) {
+      const uniqueClientIds = [...new Set(clientIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+      const clientData = await User.findAll({ where: { id: uniqueClientIds } });
 
-    const clientData = await User.findAll({ where: { id: uniqueClientIds } });
-    const photographerData = await User.findAll({ where: { id: uniquePhotographerIds } });
-    const packageData = await Package.findAll({ where: { id: uniquePackageIds } });
+      const clientNamesAndIds = clientData.reduce((acc, client) => {
+        acc[client.id] = client.name;
+        return acc;
+      }, {});
 
-    const clientNamesAndIds = clientData.reduce((acc, client) => {
-      acc[client.id] = client.name;
-      return acc;
-    }, {});
+      collectionsData.forEach(collection => {
+        if (collection.client_id) {
+          const clientNames = collection.client_id.split(',').map(id => clientNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
+          collection.dataValues.client_name = clientNames;
+        }
+      });
+    }
 
-    const photographerNamesAndIds = photographerData.reduce((acc, photographer) => {
-      acc[photographer.id] = photographer.name;
-      return acc;
-    }, {});
+    if (photographerIds.length > 0) {
+      const uniquePhotographerIds = [...new Set(photographerIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+      const photographerData = await User.findAll({ where: { id: uniquePhotographerIds } });
 
-    const packageNamesAndIds = packageData.reduce((acc, pkg) => {
-      acc[pkg.id] = pkg.package_name;
-      return acc;
-    }, {});
+      const photographerNamesAndIds = photographerData.reduce((acc, photographer) => {
+        acc[photographer.id] = photographer.name;
+        return acc;
+      }, {});
 
-    collectionsData.forEach(collection => {
-      const clientNames = collection.client_id.split(',').map(id => clientNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
-      const photographerNames = collection.photographer_ids.split(',').map(id => photographerNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
-      const packageNames = collection.package_ids.split(',').map(id => packageNamesAndIds[parseInt(id.trim(), 10)] || '').filter(name => name).join(', ');
+      collectionsData.forEach(collection => {
+        if (collection.photographer_ids) {
+          const photographerNames = collection.photographer_ids.split(',').map(id => photographerNamesAndIds[parseInt(id.trim(), 10)] || '').join(', ');
+          collection.dataValues.photographers_name = photographerNames;
+        }
+      });
+    }
 
-      collection.dataValues.client_name = clientNames;
-      collection.dataValues.photographers_name = photographerNames;
-      collection.dataValues.packages_name = packageNames;
-    });
+    if (packageIds.length > 0) {
+      const uniquePackageIds = [...new Set(packageIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
+      const packageData = await Package.findAll({ where: { id: uniquePackageIds } });
 
+      const packageNamesAndIds = packageData.reduce((acc, pkg) => {
+        acc[pkg.id] = pkg.package_name;
+        return acc;
+      }, {});
+
+      await Promise.all(collectionsData.map(async (collection) => {
+        if (collection.package_ids) {
+          const packageNames = collection.package_ids.split(',').map(id => packageNamesAndIds[parseInt(id.trim(), 10)] || '').filter(name => name).join(', ');
+          collection.dataValues.packages_name = packageNames;
+          const packageIdsArray = collection.package_ids.split(', ').map(id => parseInt(id.trim(), 10));
+          let packages = packageData.filter(pkg => packageIdsArray.includes(pkg.id));
+          packages = packages.map(pkg => {
+            const imageTypeDetails = JSON.parse(pkg.image_type_details);
+            const imageTypeDetailsObj = {};
+            imageTypeDetails.forEach(detail => {
+              imageTypeDetailsObj[detail.image_type] = detail;
+            });
+            pkg.image_type_details = imageTypeDetailsObj;
+            return pkg;
+          });
+          collection.dataValues.packages = packages;
+        }
+        const order = await Order.findOne({
+          where: {
+            collection_id: collection.id
+          }
+        });
+        if (order) {
+          collection.dataValues.orderFound = true;
+        } else {
+          collection.dataValues.orderFound = false;
+        }
+      }));
+
+    }
     res.status(200).json({ success: true, data: collectionsData });
   } catch (error) {
     res.status(500).json({ error: "Failed to list collections" });
   }
 };
-
 
 const updateGalleryLock = async (req, res) => {
   try {
@@ -265,9 +304,24 @@ const updateGalleryNotify = async (req, res) => {
       where: { id: collectionId }
     });
     if (updated) {
-      res.status(200).json({ success: true, message: "Collection updated successfully" });
+      const user = await User.findOne({ where: { id: collection.user_id } });
+      const clientData = await User.findOne({ where: { id: collection.client_id } });
+
+      if (user && clientData) {
+        let SEND_EMAIL = NEW_COLLECTION(user.subdomain, collection);
+        await sendEmail(clientData.email, "New Collection", SEND_EMAIL);
+
+        await Notifications.create({
+          notification: `New gallery '${collection.name}' has been created.`,
+          client_id: collection.client_id,
+          subdomain_id: user.subdomain_id,
+          date: new Date()
+        });
+      }
+
+      return res.status(200).json({ success: true, message: "Collection updated successfully" });
     } else {
-      res.status(404).json({ success: false, message: "Collection not found" });
+      return res.status(404).json({ success: false, message: "Collection not found" });
     }
   } catch (error) {
     res.status(500).json({ error: "Failed to update Collection" });
@@ -402,7 +456,6 @@ const saveInvoiceToDatabase = async (req, res) => {
 
     const serializedItems = serializeItems(items);
 
-    // Save data to CustomInvoiceList table
     await CustomInvoiceList.create({
       order_id: newOrder.id,
       user_name: clientName,

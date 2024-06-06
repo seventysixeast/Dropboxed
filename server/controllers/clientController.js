@@ -50,7 +50,8 @@ const getAllClients = async (req, res) => {
       const clientsData = await User.findAll({
         where: {
           role_id: 3,
-          id: clientIds
+          id: clientIds,
+          status: 'Active'
         },
         order: [["created", "DESC"]]
       });
@@ -66,7 +67,8 @@ const getAllClients = async (req, res) => {
       const clientsData = await User.findAll({
         where: {
           role_id: 3,
-          id: clientIds
+          id: clientIds,
+          status: 'Active'
         },
         order: [["created", "DESC"]]
       });
@@ -167,8 +169,7 @@ const createClient = async (req, res) => {
 
       // Send email notification
       var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, client.name, client.email, password);
-      sendEmail(req.body.email, "Welcome to `" + user.subdomain + "`!", SEND_EMAIL);
-
+      sendEmail(req.body.email, "Welcome to " + user.subdomain + "!", SEND_EMAIL);
     }
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
@@ -177,7 +178,7 @@ const createClient = async (req, res) => {
       message: req.body.id
         ? "Client updated successfully"
         : "Client added successfully. Password sent to his email.",
-      data: client,
+      data: client
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to add/update client" });
@@ -188,6 +189,19 @@ const getClient = async (req, res) => {
   try {
     const clientData = await User.findOne({ where: { id: req.body.id } });
     res.status(200).json({ success: true, data: clientData });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to data of client" });
+  }
+};
+
+const userStatusCheck = async (req, res) => {
+  try {
+    // attributes: ['id', 'status']
+    const client = await User.findOne({ where: { id: req.body.id }, attributes: ['id', 'status']} );
+    if (!client) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+    res.status(200).json({ success: true, data: client });
   } catch (error) {
     res.status(500).json({ error: "Failed to data of client" });
   }
@@ -216,7 +230,7 @@ const deleteClient = async (req, res) => {
       .json({
         success: true,
         message:
-          "Action successful. Record will be removed permanently after 30 days.",
+          "Action successful. Record will be removed permanently after 30 days."
       });
   } catch (error) {
     res.status(500).json({ error: "Failed to update client status" });
@@ -279,6 +293,7 @@ module.exports = {
   getAllClients,
   createClient,
   getClient,
+  userStatusCheck,
   deleteClient,
   activeInactiveClient,
   getAllPhotographers,
