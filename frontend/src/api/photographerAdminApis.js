@@ -60,4 +60,20 @@ const deletePhotographerAdmin = async (data) => {
   }
 };
 
-export { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin };
+const updateStatusPhotographerAdmin = async (data) => {
+  try {
+    const response = await API.post('/photographerAdmin/updateStatusPhotographerAdmin', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    if (response.status !== 200) {
+      throw new Error('Failed to create photographer admin');
+    }
+    return response.data;
+  } catch (error) {
+    return error.response.data.error;
+  }
+};
+
+export { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin,updateStatusPhotographerAdmin };
