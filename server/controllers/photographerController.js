@@ -88,13 +88,13 @@ const createPhotographer = async (req, res) => {
 
       const user = await User.findOne({
         where: { id: req.body.subdomainId },
-        attributes: ['subdomain','email']
+        attributes: ['subdomain', 'name', 'email', 'logo']
       });
 
       // Send email notification
-      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, req.body.name, req.body.email, password);
+      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.name ? user.name : user.subdomain, user.email, user.logo, req.body.name, req.body.email, password);
       sendEmail(req.body.email, "Welcome to " + user.subdomain + "!", SEND_EMAIL);
-      
+
       res.status(200).json({
         success: true,
         message: "Photographer added successfully. Password sent to his email."

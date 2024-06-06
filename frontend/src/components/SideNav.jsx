@@ -350,15 +350,6 @@ const SideNav = () => {
                   data-original-title="Master Admin"
                 ></i>
               </li>
-              {/* add dashboard */}
-              <li className=" nav-item">
-                <Link to="/dashboard">
-                  <i className="feather icon-home"></i>
-                  <span className="menu-title" data-i18n="Dashboard">
-                    Dashboard
-                  </span>
-                </Link>
-              </li>
               <li
                 className={`nav-item ${
                   location.pathname === "/manage-photographer-admins"

@@ -62,7 +62,7 @@ exports.login = async (req, res) => {
       return res.status(200).json({ success: false, message: 'Your account is deactivated. Please contact support for assistance.' });
     }
 
-    
+
 
     // Check if the user's roles are administrator (role_id = 1) and business owner (role_id = 5)
     if (user.role_id === 1 || user.role_id === 5) {
@@ -521,7 +521,7 @@ exports.forgotPassword = async (req, res) => {
     let email = req.body.email;
     let user = await User.findOne({
       where: { email: email },
-      attributes: ['name']
+      attributes: ['name', 'logo']
     });
 
     if (user) {
@@ -531,7 +531,7 @@ exports.forgotPassword = async (req, res) => {
         { where: { email: email } }
       );
 
-      var OTPEmail = SEND_OTP(user.name, email, code);
+      var OTPEmail = SEND_OTP(user.name, user.logo, email, code);
       sendEmail(email, "Password Reset", OTPEmail);
 
       return res.status(200).json({
@@ -624,5 +624,5 @@ exports.dropboxAuth = async (req, res) => {
       success: false,
       message: "Internal server error",
     });
-   }
+  }
 };
