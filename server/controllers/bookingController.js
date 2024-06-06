@@ -271,8 +271,9 @@ async function updateEvent(calendar, calendarId, eventId, data, start, end) {
       eventId: eventId,
       resource: {
         id: eventId,
-        summary: `${data.booking_title}`,
-        description: `Services: ${packageNames}, Client Name: ${data.client_name}, Provider Name: ${photographerNames}`,
+        summary: `Services: ${packageNames}`,
+        description: `Client Name: ${data.client_name}, Provider Name: ${photographerNames}`,
+        location: `${data.booking_title}`,
         start: {
           dateTime: start.toISOString(),
           timeZone: "UTC",
@@ -340,8 +341,9 @@ async function insertEvent(calendar, calendarId, eventId, data, start, end) {
     calendarId: calendarId,
     resource: {
       id: eventId,
-      summary: `${data.booking_title}`,
-      description: `Services: ${packageNames}, Client Name: ${data.client_name}, Provider Name: ${photographerNames}`,
+      summary: `Services: ${packageNames}`,
+      description: `Client Name: ${data.client_name}, Provider Name: ${photographerNames}`,
+      location: `${data.booking_title}`,
       start: {
         dateTime: start.toISOString(),
         timeZone: "UTC",

@@ -100,29 +100,31 @@ const ToDo = () => {
         let activeClients = response.data.filter(
           (client) => client.status === "Active"
         );
-        const userWithId = response.data.find(
-          (client) => client.id === parseInt(user.id)
-        );
-        activeClients.push(userWithId);
         setClients(activeClients);
       } else {
         const activeClients = response.data.filter(
           (client) => client.status === "Active"
         );
-        let filteredClients = activeClients.filter(
-          (client) => client.role_id === 2 || client.role_id === 5
+        const clientsWithRoleId2 = activeClients.filter(
+          (client) => client.role_id === 2
+        );
+
+        const clientsWithRoleId5 = activeClients.filter(
+          (client) => client.role_id === 5
         );
 
         const userWithId = activeClients.find(
           (client) => client.id === parseInt(user.id)
         );
-        filteredClients.push(userWithId);
-        setClients(activeClients);
+
+        setClients([...clientsWithRoleId2, ...clientsWithRoleId5, userWithId]);
       }
     } else {
       toast.error("Failed to get clients!");
     }
   };
+
+  console.log(clients);
 
   const handleTextChange = (value) => {
     setTaskData({
