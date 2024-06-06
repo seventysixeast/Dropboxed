@@ -106,6 +106,8 @@ const getAllCollections = async (req, res) => {
     const { roleId, subdomainId, userId } = req.body;
     let collectionsData;
 
+    console.log('Request received with roleId:', roleId, 'subdomainId:', subdomainId, 'userId:', userId);
+
     if (roleId == 3) {
       collectionsData = await Collection.findAll({
         where: {
@@ -124,7 +126,7 @@ const getAllCollections = async (req, res) => {
       });
       collectionsData = collectionsData.filter(collection => {
         const photographerIds = collection.photographer_ids.split(',').map(id => id.trim());
-        return photographerIds.includes(userId);
+        return photographerIds.includes(userId.toString());
       });
     } else {
       collectionsData = await Collection.findAll({
@@ -135,13 +137,21 @@ const getAllCollections = async (req, res) => {
       });
     }
 
+    console.log('Collections Data:', collectionsData);
+
     const clientIds = collectionsData.map(collection => collection.client_id).filter(id => id);
     const photographerIds = collectionsData.map(collection => collection.photographer_ids).filter(id => id);
     const packageIds = collectionsData.map(collection => collection.package_ids).filter(id => id);
 
+    console.log('Client IDs:', clientIds);
+    console.log('Photographer IDs:', photographerIds);
+    console.log('Package IDs:', packageIds);
+
     if (clientIds.length > 0) {
       const uniqueClientIds = [...new Set(clientIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
       const clientData = await User.findAll({ where: { id: uniqueClientIds } });
+
+      console.log('Client Data:', clientData);
 
       const clientNamesAndIds = clientData.reduce((acc, client) => {
         acc[client.id] = client.name;
@@ -160,6 +170,8 @@ const getAllCollections = async (req, res) => {
       const uniquePhotographerIds = [...new Set(photographerIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
       const photographerData = await User.findAll({ where: { id: uniquePhotographerIds } });
 
+      console.log('Photographer Data:', photographerData);
+
       const photographerNamesAndIds = photographerData.reduce((acc, photographer) => {
         acc[photographer.id] = photographer.name;
         return acc;
@@ -177,6 +189,8 @@ const getAllCollections = async (req, res) => {
       const uniquePackageIds = [...new Set(packageIds.flatMap(ids => ids.split(',').map(id => parseInt(id.trim(), 10))))];
       const packageData = await Package.findAll({ where: { id: uniquePackageIds } });
 
+      console.log('Package Data:', packageData);
+
       const packageNamesAndIds = packageData.reduce((acc, pkg) => {
         acc[pkg.id] = pkg.package_name;
         return acc;
@@ -184,39 +198,58 @@ const getAllCollections = async (req, res) => {
 
       await Promise.all(collectionsData.map(async (collection) => {
         if (collection.package_ids) {
-          const packageNames = collection.package_ids.split(',').map(id => packageNamesAndIds[parseInt(id.trim(), 10)] || '').filter(name => name).join(', ');
+          const packageNames = collection.package_ids.split(',')
+            .map(id => packageNamesAndIds[parseInt(id.trim(), 10)] || '')
+            .filter(name => name)
+            .join(', ');
+
           collection.dataValues.packages_name = packageNames;
-          const packageIdsArray = collection.package_ids.split(', ').map(id => parseInt(id.trim(), 10));
+
+          const packageIdsArray = collection.package_ids.split(',')
+            .map(id => parseInt(id.trim(), 10));
+
           let packages = packageData.filter(pkg => packageIdsArray.includes(pkg.id));
+
           packages = packages.map(pkg => {
-            const imageTypeDetails = JSON.parse(pkg.image_type_details);
-            const imageTypeDetailsObj = {};
-            imageTypeDetails.forEach(detail => {
-              imageTypeDetailsObj[detail.image_type] = detail;
-            });
+            let imageTypeDetailsObj = {};
+            if (typeof pkg.image_type_details === 'string') {
+              try {
+                const imageTypeDetails = JSON.parse(pkg.image_type_details);
+                imageTypeDetails.forEach(detail => {
+                  imageTypeDetailsObj[detail.image_type] = detail;
+                });
+              } catch (error) {
+                console.error(`Error parsing JSON for package id ${pkg.id}:`, error);
+              }
+            } else if (typeof pkg.image_type_details === 'object' && pkg.image_type_details !== null) {
+              imageTypeDetailsObj = pkg.image_type_details;
+            } else {
+              console.warn(`Unexpected data format for package id ${pkg.id}:`, pkg.image_type_details);
+            }
             pkg.image_type_details = imageTypeDetailsObj;
             return pkg;
           });
+
           collection.dataValues.packages = packages;
         }
+
         const order = await Order.findOne({
           where: {
             collection_id: collection.id
           }
         });
-        if (order) {
-          collection.dataValues.orderFound = true;
-        } else {
-          collection.dataValues.orderFound = false;
-        }
+
+        collection.dataValues.orderFound = !!order;
       }));
 
     }
     res.status(200).json({ success: true, data: collectionsData });
   } catch (error) {
+    console.error('Error occurred:', error);
     res.status(500).json({ error: "Failed to list collections" });
   }
 };
+
 
 const updateGalleryLock = async (req, res) => {
   try {
