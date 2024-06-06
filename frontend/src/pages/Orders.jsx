@@ -1,6 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getAllOrders } from "../api/ordersApis";
 
 const Order = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchAllOrders = async () => {
+    setLoading(true);
+    try {
+      const res = await getAllOrders();
+      setOrders(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAllOrders();
+  }, []);
+
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -42,31 +61,59 @@ const Order = () => {
                     <tbody>
                       <tr>
                         <td>961</td>
-                        <td>Pottsville Properties <br />
-                          <b>Username:</b>Pottsville Properties</td>
+                        <td>
+                          Pottsville Properties <br />
+                          <b>Username:</b>Pottsville Properties
+                        </td>
                         <td>79-83 Tweed Coast Rd</td>
-                        <td>Studio Photography- <br />
-                          <b>$195.00</b></td>
+                        <td>
+                          Studio Photography- <br />
+                          <b>$195.00</b>
+                        </td>
                         <td>$195</td>
                         <td>18-03-2024</td>
                         <td>
-                          <button type="button" className="btn btn-primary btn-min-width mr-1 mb-1 text-white">Delete Order</button>
-                          <button type="button" className="btn btn-danger btn-min-width mr-1 mb-1 text-white">Create Invoice</button>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-min-width mr-1 mb-1 text-white"
+                          >
+                            Delete Order
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-danger btn-min-width mr-1 mb-1 text-white"
+                          >
+                            Create Invoice
+                          </button>
                         </td>
                         <td className="d-none">No</td>
                       </tr>
                       <tr>
                         <td>960</td>
-                        <td>Harcourts Northern Rivers <br />
-                          <b>Username:</b>HarcourtsNR</td>
+                        <td>
+                          Harcourts Northern Rivers <br />
+                          <b>Username:</b>HarcourtsNR
+                        </td>
                         <td>20A Hartigan St</td>
-                        <td>Studio Photography- <br />
-                          <b>$195.00</b></td>
+                        <td>
+                          Studio Photography- <br />
+                          <b>$195.00</b>
+                        </td>
                         <td>$195</td>
                         <td>18-03-2024</td>
                         <td>
-                          <button type="button" className="btn btn-primary btn-min-width mr-1 mb-1 text-white">Delete Order</button>
-                          <button type="button" className="btn btn-danger btn-min-width mr-1 mb-1 text-white">Create Invoice</button>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-min-width mr-1 mb-1 text-white"
+                          >
+                            Delete Order
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-danger btn-min-width mr-1 mb-1 text-white"
+                          >
+                            Create Invoice
+                          </button>
                         </td>
                         <td className="d-none">No</td>
                       </tr>

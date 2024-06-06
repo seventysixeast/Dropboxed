@@ -124,8 +124,6 @@ const ToDo = () => {
     }
   };
 
-  console.log(clients);
-
   const handleTextChange = (value) => {
     setTaskData({
       ...taskData,
@@ -265,7 +263,6 @@ const ToDo = () => {
 
   const handleTaskClick = async (task) => {
     const client = clients.find((c) => c.id === task.assign_user);
-    console.log(client);
     if (client) {
       setSelectedClient({
         value: client.id,
@@ -1354,18 +1351,25 @@ const ToDo = () => {
                                                 })}
                                             </div>
                                             <div className="avatar">
-                                              <ReTooltip title={task.author && task.author.name
+                                              <ReTooltip
+                                                title={
+                                                  task.author &&
+                                                  task.author.name
                                                     ? task.author.name
-                                                    : avatar1} placement="top">
-                                              <img
-                                                src={
-                                                  task.author && task.author.profile_photo
-                                                    ? `${IMAGE_URL}/${task.author.profile_photo}`
                                                     : avatar1
                                                 }
-                                                alt="charlie"
-                                                className="todo-profile-photo"
-                                              />
+                                                placement="top"
+                                              >
+                                                <img
+                                                  src={
+                                                    task.author &&
+                                                    task.author.profile_photo
+                                                      ? `${IMAGE_URL}/${task.author.profile_photo}`
+                                                      : avatar1
+                                                  }
+                                                  alt="charlie"
+                                                  className="todo-profile-photo"
+                                                />
                                               </ReTooltip>
                                             </div>
                                             <a
