@@ -74,4 +74,36 @@ const deletePhotographerAdmin = async (req, res) => {
   }
 };
 
-module.exports = { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin };
+const updateStatusPhotographerAdmin = async (req, res) => {
+  try {
+
+    // let admin;
+    // if (req.body.id) {
+    //   admin = await User.findOne({ where: { id: req.body.id } });
+    //   if (!admin) {
+    //     return res.status(404).json({ error: 'photographer admin not found' });
+    //   }
+    //   // Update admin
+    //   await admin.update(data);
+    //   res.status(200).json({
+    //     success: true,
+    //     message: "Updated successfully."
+    //   });
+    // }
+
+    const photographerAdmin = await User.findOne({ where: { id: req.body.id } });
+    if (!photographerAdmin) {
+      return res.status(404).json({ success: false, message: 'Photographer admin not found' });
+    }
+    photographerAdmin.status = req.body.status;
+    await photographerAdmin.save();
+    res.status(200).json({
+      success: true,
+      message: "Updated successfully."
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update photographer admin" });
+  }
+};
+
+module.exports = { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin, updateStatusPhotographerAdmin };

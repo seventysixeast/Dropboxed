@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import React from "react";
 import { FaUpload } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { deleteInvoiceById, getAllInvoices } from "./../api/invoiceApis";
+import { deleteInvoiceById, getAllInvoices, sendInvoice } from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
@@ -137,6 +137,14 @@ const Invoice = () => {
                   Paid
                 </button>
               )}
+              <button
+                type="button"
+                className="btn btn-icon btn-outline-primary"
+                onClick={() => handleSendInvoice(id)}
+                title="Send Invoice"
+              >
+                <i class="icon-share"></i>
+              </button>
             </div>
           </div>
         );
@@ -147,6 +155,21 @@ const Invoice = () => {
   useEffect(() => {
     getInvoiceList();
   }, []);
+
+  const handleSendInvoice = async (id) => {
+    try {
+      const response = await sendInvoice({ invoiceId: id });
+      if (response.success) {
+        toast.success("Invoice sent successfully!");
+        getInvoiceList(); // Refresh the invoice list after sending the invoice
+      } else {
+        toast.error("Failed to send invoice!");
+      }
+    } catch (error) {
+      console.error("Error sending invoice:", error);
+      toast.error("Failed to send invoice!");
+    }
+  };
 
   const getInvoiceList = async () => {
     setItemsLoading(true);

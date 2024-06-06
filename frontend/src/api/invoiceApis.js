@@ -64,7 +64,22 @@ const updateInvoice = async (data) => {
     }
 }
 
+const sendInvoice = async (data) => {
+    try {
+        const response = await API.post('/invoice/send-invoice', data, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (response.status !== 200) {
+            throw new Error('Failed to send invoice');
+        }
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
 
 
-export { getAllInvoices, deleteInvoiceById, getInvoiceData, updateInvoice };
+export { getAllInvoices, deleteInvoiceById, getInvoiceData, updateInvoice, sendInvoice };
 
