@@ -65,8 +65,6 @@ app.use('/quickbooks', quickbooksRoutes);
 
 //app.use('/calender', calenderRoutes);
 
-
-
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Protected route" });
 });
@@ -92,8 +90,6 @@ app.get("/*", (req, res, next) => {
   else
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
