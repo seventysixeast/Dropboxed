@@ -1351,26 +1351,50 @@ const ToDo = () => {
                                                 })}
                                             </div>
                                             <div className="avatar">
-                                              <ReTooltip
-                                                title={
-                                                  task.author &&
-                                                  task.author.name
-                                                    ? task.author.name
-                                                    : avatar1
-                                                }
-                                                placement="top"
-                                              >
-                                                <img
-                                                  src={
-                                                    task.author &&
-                                                    task.author.profile_photo
-                                                      ? `${IMAGE_URL}/${task.author.profile_photo}`
+                                              {task.author.id === user.id ? (
+                                                <ReTooltip
+                                                  title={
+                                                    task.assignee &&
+                                                    task.assignee.name
+                                                      ? task.assignee.name
                                                       : avatar1
                                                   }
-                                                  alt="charlie"
-                                                  className="todo-profile-photo"
-                                                />
-                                              </ReTooltip>
+                                                  placement="top"
+                                                >
+                                                  <img
+                                                    src={
+                                                      task.assignee &&
+                                                      task.assignee
+                                                        .profile_photo
+                                                        ? `${IMAGE_URL}/${task.assignee.profile_photo}`
+                                                        : avatar1
+                                                    }
+                                                    alt="charlie"
+                                                    className="todo-profile-photo"
+                                                  />
+                                                </ReTooltip>
+                                              ) : (
+                                                <ReTooltip
+                                                  title={
+                                                    task.author &&
+                                                    task.author.name
+                                                      ? task.author.name
+                                                      : avatar1
+                                                  }
+                                                  placement="top"
+                                                >
+                                                  <img
+                                                    src={
+                                                      task.author &&
+                                                      task.author.profile_photo
+                                                        ? `${IMAGE_URL}/${task.author.profile_photo}`
+                                                        : avatar1
+                                                    }
+                                                    alt="charlie"
+                                                    className="todo-profile-photo"
+                                                  />
+                                                </ReTooltip>
+                                              )}
                                             </div>
                                             <a
                                               className="todo-item-favorite ml-75"
