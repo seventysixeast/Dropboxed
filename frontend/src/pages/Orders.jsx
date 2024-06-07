@@ -17,11 +17,13 @@ const Order = () => {
   const subdomainId = user.subdomain_id;
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [orderId, setOrderId] = useState(null);
   console.log(orders);
   const fetchAllOrders = async () => {
     setLoading(true);
+    setItemsLoading(true);
     try {
       let form = new FormData();
       form.append("subdomain_id", subdomainId);
@@ -31,15 +33,16 @@ const Order = () => {
       console.log(error);
     }
     setLoading(false);
+    setItemsLoading(false);
   };
 
   useEffect(() => {
     fetchAllOrders();
   }, []);
 
-  const columns = React.useMemo(
+  const theColumns = React.useMemo(
     () => [
-      { Header: "Id", accessor: "id" },
+      { Header: "Order No.", accessor: "id" },
       {
         Header: "Banner Image",
         Cell: ({ row }) => {
@@ -126,6 +129,13 @@ const Order = () => {
     [roleId]
   );
 
+  let columns;
+
+  if (roleId === 3) {
+    columns = theColumns.filter((column) => column.Header !== "Client");
+  } else {
+    columns = theColumns;
+  }
   const data = useMemo(() => orders, [orders]);
 
   return (

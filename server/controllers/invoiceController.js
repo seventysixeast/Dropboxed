@@ -13,7 +13,12 @@ const { sendEmail } = require("../helpers/sendEmail");// to, subject, html..
 
 const getAllInvoices = async (req, res) => {
     try {
-        const invoices = await CustomInvoiceList.findAll();
+        // where subdomain_id = req.body.subdomain_id
+        const invoices = await CustomInvoiceList.findAll({
+            where: {
+                subdomain_id: req.body.subdomain_id
+            }
+        });
         res.status(200).json({ success: true, data: invoices });
     } catch (error) {
         res.status(500).json({ message: error.message });

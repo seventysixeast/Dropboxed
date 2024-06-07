@@ -202,6 +202,18 @@ const SideNav = () => {
               </li>
               <li
                 className={`nav-item ${
+                  location.pathname === "/orders" ? "active" : ""
+                }`}
+              >
+                <Link to="/orders">
+                  <i className="feather icon-layers"></i>
+                  <span className="menu-title" data-i18n="orders">
+                    Orders
+                  </span>
+                </Link>
+              </li>
+              <li
+                className={`nav-item ${
                   location.pathname === "/collections" ? "active" : ""
                 }`}
               >
@@ -307,6 +319,18 @@ const SideNav = () => {
                   <i className="feather icon-monitor"></i>
                   <span className="menu-title" data-i18n="Templates">
                     Services
+                  </span>
+                </Link>
+              </li>
+              <li
+                className={`nav-item ${
+                  location.pathname === "/orders" ? "active" : ""
+                }`}
+              >
+                <Link to="/orders">
+                  <i className="feather icon-layers"></i>
+                  <span className="menu-title" data-i18n="orders">
+                    Orders
                   </span>
                 </Link>
               </li>

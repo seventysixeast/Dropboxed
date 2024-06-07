@@ -20,6 +20,7 @@ const getAllOrders = async (req, res) => {
                 },
             ],
         });
+        orders = orders.filter(order => order.Collections.length > 0);
 
         res.status(200).json({ success: true, data: orders });
     } catch (error) {
