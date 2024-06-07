@@ -7,13 +7,10 @@ const { Op } = require("sequelize");
 const phpUnserialize = require('php-serialize').unserialize;
 const phpSerialize = require('php-serialize').serialize;
 const { INVOICE_EMAIL } = require('../helpers/emailTemplate');
-const { sendEmail } = require("../helpers/sendEmail");// to, subject, html..
-
-
+const { sendEmail } = require("../helpers/sendEmail");
 
 const getAllInvoices = async (req, res) => {
     try {
-        // where subdomain_id = req.body.subdomain_id
         const invoices = await CustomInvoiceList.findAll({
             where: {
                 subdomain_id: req.body.subdomain_id
@@ -66,6 +63,13 @@ const getInvoiceData = async (req, res) => {
             itemsArray.push(item);
         }
 
+        const services = await Package.findAll({
+            where: {
+                subdomain_id: collection.subdomain_id,
+            },
+            order: [["id", "DESC"]],
+        });
+
         const responseData = {
             collection: {
                 id: collection.id,
@@ -93,10 +97,14 @@ const getInvoiceData = async (req, res) => {
                 email: adminUser.email,
                 abn_acn: adminUser.abn_acn,
                 bsb_number: adminUser.bsb_number,
+                logo: adminUser.logo
             },
             client: {
+                id: clientUser.id,
                 name: clientUser.name,
                 address: clientUser.address,
+                phone: clientUser.phone,
+                email: clientUser.email,
             },
             packages: packages.map(pkg => ({
                 id: pkg.id,
@@ -106,7 +114,8 @@ const getInvoiceData = async (req, res) => {
             })),
             total_price: totalPrice,
             invoice: invoice,
-            itemsArray: itemsArray
+            itemsArray: itemsArray,
+            services: services
         };
 
         res.status(200).json({ success: true, data: responseData });
@@ -115,7 +124,6 @@ const getInvoiceData = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
-
 
 const deleteInvoice = async (req, res) => {
     try {

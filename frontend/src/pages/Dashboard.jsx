@@ -977,25 +977,6 @@ export const Dashboard = () => {
           </div>
         </div>
       </div>
-      <AddGalleryModal
-        message="Add Collection"
-        isOpen={showAddGalleryModal}
-        formData={formData}
-        clients={clients}
-        bookingTitles={bookingTitles}
-        services={services}
-        photographers={photographers}
-        isGalleryLocked={isGalleryLocked}
-        isNotifyChecked={isNotifyChecked}
-        loading={loading}
-        previewImage={previewImage}
-        handleInputChange={handleInputChange}
-        handleBannerChange={handleBannerChange}
-        handleGalleryLockChange={handleGalleryLockChange}
-        handleNotifyChange={handleNotifyChange}
-        handleSubmit={handleSubmit}
-        onClose={resetFormData}
-      />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
     </>

@@ -1,15 +1,13 @@
 import React from "react";
-import { Navigate, useLocation, useRoutes } from "react-router-dom";
+import { useLocation, useRoutes } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SideNav from "../components/SideNav";
 import { Dashboard } from "../pages/Dashboard";
 import { BookingListComponent } from "../pages/BookingListComponent";
 import ToDo from "../pages/ToDo";
-import Orders from "../pages/Orders";
 import Clients from "../pages/Clients";
 import Invoice from "../pages/Invoice";
-import CardsPackages from "../pages/Services";
 import ImageTypes from "../pages/ImageTypes";
 import PhotographersTeam from "../pages/PhotographersTeam";
 import { ViewGallery } from "../pages/ViewGallery";
@@ -18,13 +16,10 @@ import Services from "../pages/Services";
 import { NotificationComponent } from "../pages/NotificationComponent";
 
 import Collections from "../pages/Collections";
-import Download from "../pages/Download";
-import Users from "../pages/Users";
 import Login from "../pages/Login";
 import ManagePhotographerAdmins from "../pages/ManagePhotographerAdmins";
 import EditProfile from "../pages/EditProfile";
 import ChangePassword from "../pages/ChangePassword";
-import SignUp from "../pages/SignUp";
 import { useAuth } from "../context/authContext";
 import AddService from "../pages/AddService";
 import DropboxOAuth from "../pages/DropboxAuth";
@@ -43,7 +38,6 @@ const AdminRouter = () => {
     { path: "/dashboard", element: <Dashboard /> },
     { path: "/booking-list-calendar", element: <BookingListComponent /> },
     { path: "/todo", element: <ToDo /> },
-    // { path: "/orders", element: <Orders /> },
     { path: "/clients", element: <Clients /> },
     { path: "/invoice", element: <Invoice /> },
     { path: "/image-types", element: <ImageTypes /> },
@@ -57,12 +51,7 @@ const AdminRouter = () => {
     { path: "/manage-photographer-admins", element: <ManagePhotographerAdmins /> },
     { path: "/edit-profile", element: <EditProfile /> },
     { path: "/change-password", element: <ChangePassword /> },
-    //{ path: "/login", element: <Login /> },
-    //{ path: "/signup", element: <SignUp /> },
     { path: "/collections", element: <Collections /> },
-    // { path: "/download", element: <Download /> },
-    // { path: "/users", element: <Users /> },
-    // { path: "/*", element: <Navigate to="/dashboard" /> },
     { path: "/services/add-service", element: <AddService /> },
     { path: "/services/edit-service/:id", element: <AddService /> },
     
@@ -72,7 +61,6 @@ const AdminRouter = () => {
     { path: "/quickbooks/callback", element: <QuickBooksCallback /> },
     { path: "/create-invoice", element: <CreateInvoice /> },
     { path: "/login", element: <Login /> },
-    { path: "/orders", element: <Orders /> },
   ]);
   
   const shouldRenderHeaderAndSideNav = !location.pathname.startsWith('/view-gallery');

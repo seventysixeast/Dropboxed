@@ -498,7 +498,6 @@ const Collections = () => {
           />
         ),
       },
-      { Header: "Gallery Title", accessor: "name" },
       { Header: "Address", accessor: "client_address" },
       {
         Header: "Client",
@@ -514,6 +513,13 @@ const Collections = () => {
                 <span className="">{item.package_name}</span>
               </div>
             ))}
+          </div>
+        ),
+      },
+      {
+        Header: "Invoice",
+        Cell: ({ row }) => (
+          <div className="btnsrow text-center">
             {roleId !== 3 && (
               <>
                 {row.original.orderFound ? (

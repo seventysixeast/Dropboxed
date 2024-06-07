@@ -3,7 +3,7 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import _ from "lodash";
-import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
+import avatar1 from "../assets/images/dummy.png";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -22,7 +22,6 @@ const TodoModal = ({
   handleSubmit,
   taskAuthor,
   comments,
-  handleComment,
   handleTextChange,
 }) => {
   const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;

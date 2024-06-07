@@ -18,16 +18,17 @@ import {
 } from "../api/collectionApis";
 import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
-import AddGalleryModal from "./addGalleryModal";
+import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import TableCustom from "./Table";
-import DeleteModal from "./DeleteModal";
+import TableCustom from "../components/Table";
+import Table2 from "../components/Table2";
+import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
-import Table2 from "./Table2";
 import moment from "moment";
-import ReTooltip from "./Tooltip";
-import LoadingOverlay from "./Loader";
-
+import ReTooltip from "../components/Tooltip";
+import AddInvoiceNodal from "../components/CreateInvoice";
+import LoadingOverlay from "../components/Loader";
+import NoInvoiceModal from "../components/NoInvoiceModal";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -38,21 +39,22 @@ const CollectionTable = () => {
   const subdomainId = user.subdomain_id;
   const userId = user.id;
   const roleId = user.role_id;
-  const accessToken = authData.token;
+  const accesstoken = authData.token;
   const [loading, setLoading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(true);
   const [clients, setClients] = useState([]);
   const [bookingTitles, setBookingTitles] = useState([]);
   const [services, setServices] = useState([]);
   const [photographers, setPhotographers] = useState([]);
   const [isGalleryLocked, setIsGalleryLocked] = useState(false);
   const [isNotifyChecked, setIsNotifyChecked] = useState(false);
-  const [showAddGalleryModal2, setShowAddGalleryModal2] = useState(false);
+  const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
   const [collections, setCollections] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
   const [collectionIdToDelete, setCollectionIdToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [subdomainDropbox, setSubdomainDropbox] = useState(null);
-  const [itemsLoading, setItemsLoading] = useState(true);
+  const [subdomainDropbox, setSubdomainDropbox] = useState("");
+  const [showNoInvoiceModal, setShowNoInvoiceModal] = useState(false);
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -66,6 +68,8 @@ const CollectionTable = () => {
     lock_gallery: false,
     notify_client: "",
   });
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedCollectionId, setSelectedCollectionId] = useState(null);
 
   useEffect(() => {
     getClients();
@@ -75,8 +79,7 @@ const CollectionTable = () => {
 
   const currentUrl = window.location.href;
   const url2 = new URL(currentUrl);
-  url2.pathname = url2.pathname.replace("/dashboard", "");
-
+  url2.pathname = url2.pathname.replace("/collections", "");
   const url = new URL(currentUrl);
 
   url.searchParams.set("userId", userId);
@@ -85,10 +88,6 @@ const CollectionTable = () => {
   );
 
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
-
-  useEffect(() => {
-    verifyToken(accessToken);
-  }, []);
 
   useEffect(() => {
     if (formData.client !== "" && formData.booking_title !== "") {
@@ -152,6 +151,11 @@ const CollectionTable = () => {
     } catch (error) {
       toast.error(error);
     }
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedCollectionId(null);
   };
 
   const handleNotifyChange = () => {
@@ -226,7 +230,7 @@ const CollectionTable = () => {
     setPreviewImage(null);
     setIsGalleryLocked(false);
     setIsNotifyChecked(false);
-    setShowAddGalleryModal2(false);
+    setShowAddGalleryModal(false);
   };
 
   const handleSubmit = async (e) => {
@@ -288,7 +292,9 @@ const CollectionTable = () => {
       if (res.success) {
         toast.success(res.message);
         resetFormData();
+        setShowAddGalleryModal(false);
         getAllCollectionsData();
+        setShowAddGalleryModal(false);
         const closeModalButton = document.getElementById("closeModalButton");
         if (closeModalButton) {
           closeModalButton.click();
@@ -303,6 +309,7 @@ const CollectionTable = () => {
   };
 
   const getAllCollectionsData = async () => {
+    setLoading(true);
     setItemsLoading(true);
     try {
       const formData = new FormData();
@@ -319,6 +326,7 @@ const CollectionTable = () => {
       toast.error(error);
     }
     setItemsLoading(false);
+    setLoading(false);
   };
 
   const updateImageCount = async (data) => {
@@ -334,9 +342,7 @@ const CollectionTable = () => {
           },
         }
       );
-
       let thePath = "";
-
       if (sharedData.data.path_lower == undefined) {
         thePath = "";
       } else {
@@ -373,11 +379,14 @@ const CollectionTable = () => {
   const getDropboxRefresh = async () => {
     const formDataToSend = new FormData();
     formDataToSend.append("id", user.subdomain_id);
-
     try {
       const response = await getDropboxRefreshToken(formDataToSend);
       if (response.success) {
-        setSubdomainDropbox(response.data);
+        if (response.data !== null) {
+          setSubdomainDropbox(response.data);
+        } else {
+          setSubdomainDropbox("");
+        }
       } else {
         console.log(response.message);
       }
@@ -411,12 +420,14 @@ const CollectionTable = () => {
       setFormData(initialFormData);
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
+      getAllCollectionsData();
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
   };
 
   const deleteCollectionData = async () => {
+    setLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("id", collectionIdToDelete);
@@ -437,26 +448,8 @@ const CollectionTable = () => {
     setIsGalleryLocked(!isGalleryLocked);
   };
 
-  const handleGalleryNotify = async (id) => {
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("id", id);
-
-      const res = await updateGalleryNotify(formDataToSend);
-
-      if (res && res.success) {
-        toast.success(res.message);
-        await getAllCollectionsData();
-      } else {
-        toast.error(res ? res.message : "Unknown error occurred");
-      }
-    } catch (error) {
-      console.error("Error in handleGalleryNotify:", error);
-      toast.error(`An error occurred. Please try again later.`);
-    }
-  };
-
   const handleGalleryLockChange = async (data) => {
+    setLoading(true);
     try {
       setIsGalleryLocked(!isGalleryLocked);
       const formDataToSend = new FormData();
@@ -474,8 +467,26 @@ const CollectionTable = () => {
     }
   };
 
+  const handleGalleryNotify = async (id) => {
+    setLoading(true);
+    try {
+      console.log("id", id);
+      const formDataToSend = new FormData();
+      formDataToSend.append("id", id);
+      const res = await updateGalleryNotify(formDataToSend);
+      if (res && res.success) {
+        toast.success(res.message);
+        await getAllCollectionsData();
+      } else {
+        toast.error(res ? res.message : "Unknown error occurred");
+      }
+    } catch (error) {
+      console.error("Error in handleGalleryNotify:", error);
+      toast.error(`An error occurred. Please try again later.`);
+    }
+  };
   const columns = React.useMemo(() => {
-    const columns = [
+    const allColumns = [
       { Header: "Id", accessor: "id" },
       {
         Header: "Banner Image",
@@ -487,10 +498,54 @@ const CollectionTable = () => {
           />
         ),
       },
-      { Header: "Gallery Title", accessor: "name" },
       { Header: "Address", accessor: "client_address" },
-      { Header: "Client", accessor: "client_name" },
-      { Header: "Services", accessor: "packages_name" },
+      {
+        Header: "Client",
+        accessor: "client_name",
+        className: roleId === 3 ? "d-none" : "",
+      },
+      {
+        Header: "Services",
+        Cell: ({ row }) => (
+          <div>
+            {row.original.packages.map((item, index) => (
+              <div key={index} className="d-flex">
+                <span className="">{item.package_name}</span>
+              </div>
+            ))}
+          </div>
+        ),
+      },
+      {
+        Header: "Invoice",
+        Cell: ({ row }) => (
+          <div className="btnsrow text-center">
+            {roleId !== 3 && (
+              <>
+                {row.original.orderFound ? (
+                  <ReTooltip title="Invoice Generated." placement="top">
+                    <button className="btn btn-sm btn-primary">
+                      <span>Invoice Generated</span>
+                    </button>
+                  </ReTooltip>
+                ) : (
+                  <ReTooltip title="Click to Create Invoice." placement="top">
+                    <button
+                      className="btn btn-sm btn-danger w-100"
+                      onClick={() => {
+                        setModalIsOpen(true);
+                        setSelectedCollectionId(row.original.id);
+                      }}
+                    >
+                      <span>Create Invoice</span>
+                    </button>
+                  </ReTooltip>
+                )}
+              </>
+            )}
+          </div>
+        ),
+      },
       { Header: "Photographers", accessor: "photographers_name" },
       {
         Header: "Unlock/Lock",
@@ -508,15 +563,31 @@ const CollectionTable = () => {
       },
       {
         Header: "Notify",
-        Cell: ({ row }) =>
-          row.original.notify_client ? (
+        Cell: ({ row }) => {
+          const { notify_client, orderFound, id } = row.original;
+          const handleClick = () => {
+            if (notify_client) {
+              if (!orderFound) {
+                console.log("empty");
+              }
+            } else {
+              if (orderFound) {
+                handleGalleryNotify(id);
+              } else {
+                setShowNoInvoiceModal(true);
+              }
+              setSelectedCollectionId(id);
+            }
+          };
+
+          return notify_client ? (
             <ReTooltip title="Click to change status." placement="top">
               <div
-                className="badge badge-pill badge-light-primary"
+                className={`badge badge-pill badge-light-primary ${
+                  roleId === 3 ? "d-none" : ""
+                }`}
                 style={{ cursor: "pointer" }}
-                onClick={() => {
-                  handleGalleryNotify(row.original.id);
-                }}
+                onClick={handleClick}
               >
                 Notified
               </div>
@@ -529,14 +600,13 @@ const CollectionTable = () => {
                   backgroundColor: "rgb(255, 116, 140)",
                   cursor: "pointer",
                 }}
-                onClick={() => {
-                  handleGalleryNotify(row.original.id, collections);
-                }}
+                onClick={handleClick}
               >
                 Pending
               </div>
             </ReTooltip>
-          ),
+          );
+        },
       },
       {
         Header: "Image Counts",
@@ -545,7 +615,9 @@ const CollectionTable = () => {
             <ReTooltip title="Click to update image count." placement="top">
               <div
                 className="badge badge-pill badge-light-primary"
-                style={{ cursor: "pointer" }}
+                style={{
+                  cursor: "pointer",
+                }}
                 onClick={(e) => {
                   e.preventDefault();
                   updateImageCount(row.original);
@@ -572,37 +644,41 @@ const CollectionTable = () => {
         Header: "Action",
         Cell: ({ row }) => (
           <div className="btnsrow">
-            <ReTooltip title="Click to edit the collection." placement="top">
+            <ReTooltip title="Click to view the collection." placement="top">
               <button
-                className={`btn btn-icon btn-outline-secondary mr-1 mb-1 ${
-                  roleId === 3 ? "d-none" : ""
-                }`}
+                className="btn btn-icon btn-outline-primary mr-1 mb-1"
                 onClick={() => getCollectionData(row.original.slug)}
                 data-toggle="modal"
                 data-target="#bootstrap"
               >
-                <i className="feather white icon-edit"></i>
+                <i className="feather white icon-eye"></i>
               </button>
             </ReTooltip>
-            <ReTooltip title="Click to delete the collection." placement="top">
-              <button
-                className="btn btn-icon btn-outline-danger mr-1 mb-1"
-                onClick={() => {
-                  setShowDeleteModal(true);
-                  setCollectionIdToDelete(row.original.id);
-                }}
-              >
-                <i className="feather white icon-trash"></i>
-              </button>
-            </ReTooltip>
+            {roleId !== 3 && (
+              <>
+                <ReTooltip
+                  title="Click to delete the collection."
+                  placement="top"
+                >
+                  <button
+                    className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                    onClick={() => {
+                      setShowDeleteModal(true);
+                      setCollectionIdToDelete(row.original.id);
+                    }}
+                  >
+                    <i className="feather white icon-trash"></i>
+                  </button>
+                </ReTooltip>
+              </>
+            )}
+
             <ReTooltip
               title="Click to copy link to the collection."
               placement="top"
             >
               <button
-                className={`btn btn-icon btn-outline-warning mr-1 mb-1 ${
-                  roleId === 3 ? "d-none" : ""
-                }`}
+                className="btn btn-icon btn-outline-warning mr-1 mb-1"
                 onClick={() => {
                   navigator.clipboard.writeText(
                     `${url2}view-gallery/${row.original.slug}`
@@ -619,22 +695,52 @@ const CollectionTable = () => {
     ];
 
     if (roleId === 3) {
-      return columns.filter(
-        (column) => column.Header !== "Notify" && column.Header !== "Client"
+      return allColumns.filter(
+        (col) => !["Client", "Notify"].includes(col.Header)
       );
     }
 
-    return columns;
+    return allColumns;
   }, [roleId]);
 
   const data = React.useMemo(() => collections, [collections]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = "/login";
+        }
+      }
+    };
+    fetchData();
+  }, [accesstoken]);
+
+  const handleCreateInvioce = async () => {
+    setLoading(true);
+    setShowNoInvoiceModal(false);
+    setModalIsOpen(true);
+  };
+
+  const handleLoading = () => {
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (modalIsOpen) {
+      setLoading(true);
+    }
+  }, [modalIsOpen]);
+
   return (
     <>
+      <LoadingOverlay loading={loading} />
       <AddGalleryModal
         message={formData.id ? "Update Collection" : "Add Collection"}
         button={formData.id ? "Update" : "Add"}
-        isOpen={showAddGalleryModal2}
+        isOpen={showAddGalleryModal}
         formData={formData}
         previewImage={previewImage}
         clients={clients}
@@ -651,38 +757,45 @@ const CollectionTable = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      {itemsLoading ? (
-        <div className="col-12 d-flex justify-content-center mb-3">
-          <div className="spinner-border primary" role="status">
-            <span className="sr-only"></span>
-          </div>
-        </div>
-      ) : (
+      {itemsLoading === false && (
         <>
           {data.length > 0 ? (
             <Table2 data={data} columns={columns} />
           ) : (
-            <div className="col-12 d-flex justify-content-center">
-              {roleId !== 3 ? (
-                <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
-                  No Collections found. Click New collection to add a
-                  collection.
-                </p>
-              ) : (
-                <p style={{ marginTop: "1rem", marginBottom: "5rem" }}>
-                  No collections found.
-                </p>
-              )}
+            <div
+              className="app-content content content-wrapper d-flex justify-content-center"
+              style={{ marginTop: "15rem" }}
+              role="status"
+            >
+              <p>
+                No Collections added yet. Click New Colletion to add new
+                collection for your Clients.
+              </p>
             </div>
           )}
         </>
       )}
-
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={deleteCollectionData}
         message="Are you sure you want to delete this collection?"
+      />
+      <AddInvoiceNodal
+        isOpen={modalIsOpen}
+        onClose={closeModal}
+        collectionId={selectedCollectionId}
+        handleLoading={handleLoading}
+        handleGalleryNotify={handleGalleryNotify}
+      />
+      <NoInvoiceModal
+        isOpen={showNoInvoiceModal}
+        onClose={() => {
+          setShowNoInvoiceModal(false);
+          setSelectedCollectionId(null);
+        }}
+        onConfirm={handleCreateInvioce}
+        message="No invoice found for this collection. Create an invoice first."
       />
     </>
   );

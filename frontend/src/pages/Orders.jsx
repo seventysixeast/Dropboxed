@@ -20,7 +20,6 @@ const Order = () => {
   const [itemsLoading, setItemsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [orderId, setOrderId] = useState(null);
-  console.log(orders);
   const fetchAllOrders = async () => {
     setLoading(true);
     setItemsLoading(true);

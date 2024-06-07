@@ -130,7 +130,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading, handleG
       const response = await saveInvoice(invoice);
       if (response.success) {
         toast.success("Invoice saved successfully!");
-        onClose(); // Close the modal on successful save
+        onClose();
       } else {
         toast.error("Failed to save the invoice.");
       }
