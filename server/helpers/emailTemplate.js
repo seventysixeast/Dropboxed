@@ -20,7 +20,7 @@ exports.SEND_VERIFICATION_EMAIL = (subdomain, email, verificationToken) => `
                                 <tr>
                                     <td style="padding: 30px; width: 100%;" valign="top">
                                         <div style="font-size: 14px; font-weight: normal; line-height: 1.8em; text-align: left;">
-                                            <p>Welcome to studiio.au!</p>
+                                            <p>Welcome to Studiio.au!</p>
                                             <p>To complete your registration, please verify your email address by clicking on the following link:</p>
                                             <p><a href="https://${subdomain}.${VERIFY_URL}verify-email/${verificationToken}">Verify Email</a></p>
                                             <p>If you did not sign up for <a href="mailto:${email}">${email}</a>, you can ignore this email.</p>
@@ -155,7 +155,7 @@ exports.WELCOME_EMAIL = () => `
                                 <tr>
                                     <td style="padding: 30px; width:100%;" valign="top">
                                         <div style="font-size: 14px; font-weight: normal; line-height: 1.8em; text-align: left;">
-                                            <p>Welcome to studiio.au!</p>
+                                            <p>Welcome to Studiio.au!</p>
                                             <p>We're thrilled to have you join our community.</p>
                                             <p>At studiio.au, you'll find all the tools you and your business will need to manage your bookings, galleries, invoices and more. Whether you're here to organise your business better, or take on a new system we're here to make your experience enjoyable and seamless.</p>
                                             <p>If you have any questions or need assistance, feel free to reach out to our support team at <a href="mailto:info@studiio.au">info@studiio.au</a></p>

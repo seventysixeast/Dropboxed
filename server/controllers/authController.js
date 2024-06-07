@@ -426,7 +426,7 @@ exports.clientSignup = async (req, res) => {
 
     clientController.updateRedisCache(subdomainUser.id);
 
-    const emailContent = SEND_VERIFICATION_CLIENT_EMAIL(subdomain, email, verificationToken);
+    const emailContent = SEND_VERIFICATION_CLIENT_EMAIL(subdomain.charAt(0).toUpperCase() + subdomain.slice(1), email, verificationToken);
     sendEmail(email, `Welcome to ${subdomain.charAt(0).toUpperCase() + subdomain.slice(1)}!`, emailContent);
 
     res.status(200).json({

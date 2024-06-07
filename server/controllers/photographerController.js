@@ -92,7 +92,7 @@ const createPhotographer = async (req, res) => {
       });
 
       // Send email notification
-      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.name ? user.name : user.subdomain, user.email, user.logo, req.body.name, req.body.email, password);
+      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1) : user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1), user.email, user.logo, req.body.name, req.body.email, password);
       sendEmail(req.body.email, `Welcome to ${user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1)}!`, SEND_EMAIL);
 
       res.status(200).json({
