@@ -169,7 +169,7 @@ const createClient = async (req, res) => {
 
       // Send email notification
       var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.name ? user.name : user.subdomain, user.email, user.logo, client.name, client.email, password);
-      sendEmail(req.body.email, "Welcome to " + user.subdomain + "!", SEND_EMAIL);
+      sendEmail(req.body.email, `Welcome to ${user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1)}!`, SEND_EMAIL);
     }
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);

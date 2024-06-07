@@ -9,7 +9,7 @@ const axios = require("axios");
 const BusinessClients = require("../models/BusinessClients");
 const clientController = require("../controllers/clientController");
 const sequelize = require('../config/sequelize');
-const { SEND_VERIFICATION_EMAIL, SEND_VERIFICATION_CLIENT_EMAIL, SEND_OTP, WELCOME_EMAIL } = require("../helpers/emailTemplate");
+const { SEND_VERIFICATION_EMAIL, SEND_VERIFICATION_CLIENT_EMAIL, SEND_OTP, WELCOME_EMAIL,WELCOME_CLIENT_EMAIL } = require("../helpers/emailTemplate");
 const { sendEmail, generateVerificationToken } = require("../helpers/sendEmail");
 
 const oAuth2Client = new OAuth2(
@@ -102,8 +102,13 @@ exports.login = async (req, res) => {
     const isFirstLogin = user.is_first_login;
     if (isFirstLogin) {
       // Send Welcome email
-      var SEND_EMAIL = WELCOME_EMAIL();
-      sendEmail(user.email, "Welcome to Studiio.au!", SEND_EMAIL);
+      if (user.role_id === 2) {
+        var SEND_EMAIL = WELCOME_CLIENT_EMAIL();
+        sendEmail(user.email, `Welcome to ${user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1)}!`, SEND_EMAIL);
+      } else {
+        var SEND_EMAIL = WELCOME_EMAIL();
+        sendEmail(user.email, "Welcome to Studiio.au!", SEND_EMAIL);
+      }
       // Update the is_first_login flag
       user.is_first_login = false;
       await user.save();
@@ -204,7 +209,7 @@ exports.signup = async (req, res) => {
 
     // Send email notification
     var SEND_EMAIL = SEND_VERIFICATION_EMAIL(studioName, email, verificationToken);
-    sendEmail(email, "Welcome to studiio.au!", SEND_EMAIL);
+    sendEmail(email, "Welcome to Studiio.au!", SEND_EMAIL);
 
     res.status(200).json({
       success: true,
@@ -422,7 +427,7 @@ exports.clientSignup = async (req, res) => {
     clientController.updateRedisCache(subdomainUser.id);
 
     const emailContent = SEND_VERIFICATION_CLIENT_EMAIL(subdomain, email, verificationToken);
-    sendEmail(email, "Welcome to studiio.au!", emailContent);
+    sendEmail(email, `Welcome to ${subdomain.charAt(0).toUpperCase() + subdomain.slice(1)}!`, emailContent);
 
     res.status(200).json({
       success: true,
