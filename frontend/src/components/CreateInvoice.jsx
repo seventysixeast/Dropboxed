@@ -22,6 +22,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
   const [invoiceLink, setInvoiceLink] = useState("");
   const [clientName, setClientName] = useState("");
   const [clientAddress, setClientAddress] = useState("");
+  const [amountPaid, setAmountPaid] = useState(0);
 
   useEffect(() => {
     if (isOpen && collectionId !== null) {
@@ -98,11 +99,16 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
     return subtotal + taxAmount;
   };
 
+  const handleAmountPaidChange = (e) => {
+    setAmountPaid(parseFloat(e.target.value));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const subtotal = calculateSubtotal();
     const taxAmount = calculateTaxAmount(subtotal);
     const total = calculateTotal(subtotal, taxAmount);
+    const amountDue = total - amountPaid;
 
     const invoice = {
       collectionId,
@@ -115,6 +121,8 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
       total,
       note,
       invoiceLink,
+      amountPaid,
+      amountDue,
     };
 
     try {
@@ -133,6 +141,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
   const subtotal = calculateSubtotal();
   const taxAmount = calculateTaxAmount(subtotal);
   const total = calculateTotal(subtotal, taxAmount);
+  const amountDue = total - amountPaid;
 
   const resetForm = () => {
     setInvoiceData({
@@ -154,6 +163,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
     setInvoiceLink("");
     setClientName("");
     setClientAddress("");
+    setAmountPaid(0);
   };
 
   return (
@@ -398,7 +408,12 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
                           Amount Paid:
                         </label>
                         <div className="col-sm-8">
-                          <input type="number" className="form-control" />
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={amountPaid}
+                            onChange={handleAmountPaidChange}
+                          />
                         </div>
                       </div>
                       <div className="form-group row">
@@ -409,7 +424,7 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
                           <input
                             type="number"
                             className="form-control"
-                            value={total.toFixed(2)}
+                            value={amountDue.toFixed(2)}
                             readOnly
                           />
                         </div>

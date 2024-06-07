@@ -230,6 +230,7 @@ const getAllCollections = async (req, res) => {
   } catch (error) {
     console.error('Error occurred:', error);
     res.status(500).json({ error: "Failed to list collections" });
+    console.log("error>>>>>>>>>>>>>>>>>>>>>>",error.message)
   }
 };
 
@@ -415,6 +416,7 @@ const getOrderDataForInvoice = async (req, res) => {
         id: pkg.id,
         name: pkg.package_name,
         price: pkg.package_price,
+        show_price: pkg.show_price,
         details: pkg.image_type_details
       })),
       total_price: totalPrice
@@ -450,6 +452,8 @@ const saveInvoiceToDatabase = async (req, res) => {
     subtotal,
     taxRate,
     taxAmount,
+    amountPaid,
+    amountDue,
     total,
     note,
     invoiceLink,
@@ -477,8 +481,8 @@ const saveInvoiceToDatabase = async (req, res) => {
       user_name: clientName,
       user_address: clientAddress,
       item_descriptions: serializedItems,
-      //paid_amount: total,
-      due_amount: 0,
+      paid_amount: amountPaid,
+      due_amount: amountDue,
       total_price: total,
       notes: note,
       send_invoice: false,
