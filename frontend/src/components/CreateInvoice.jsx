@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./EditInvoiceModal.css";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
+import { toast } from "react-toastify";
 
-const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
+const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading, handleGalleryNotify }) => {
   const [invoiceData, setInvoiceData] = useState({
     admin: {
       account_name: "",
@@ -128,11 +129,12 @@ const AddInvoiceModal = ({ isOpen, onClose, collectionId, handleLoading }) => {
     try {
       const response = await saveInvoice(invoice);
       if (response.success) {
-        alert("Invoice saved successfully!");
+        toast.success("Invoice saved successfully!");
         onClose(); // Close the modal on successful save
       } else {
-        alert("Failed to save the invoice.");
+        toast.error("Failed to save the invoice.");
       }
+      handleGalleryNotify(collectionId)
     } catch (error) {
       alert("An error occurred while saving the invoice.");
     }

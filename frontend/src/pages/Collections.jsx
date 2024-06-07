@@ -556,25 +556,31 @@ const Collections = () => {
       },
       {
         Header: "Notify",
-        Cell: ({ row }) =>
-          row.original.notify_client ? (
+        Cell: ({ row }) => {
+          const { notify_client, orderFound, id } = row.original;
+          const handleClick = () => {
+            if (notify_client) {
+              if (!orderFound) {
+                console.log("empty");
+              }
+            } else {
+              if (orderFound) {
+                handleGalleryNotify(id);
+              } else {
+                setShowNoInvoiceModal(true);
+              }
+              setSelectedCollectionId(id);
+            }
+          };
+
+          return notify_client ? (
             <ReTooltip title="Click to change status." placement="top">
               <div
                 className={`badge badge-pill badge-light-primary ${
                   roleId === 3 ? "d-none" : ""
                 }`}
-                style={{
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  {
-                    console.log(row.original.orderFound);
-                    row.original.orderFound
-                      ? handleGalleryNotify(row.original.id)
-                      : setShowNoInvoiceModal(true);
-                  }
-                  setSelectedCollectionId(row.original.id);
-                }}
+                style={{ cursor: "pointer" }}
+                onClick={handleClick}
               >
                 Notified
               </div>
@@ -587,14 +593,13 @@ const Collections = () => {
                   backgroundColor: "rgb(255, 116, 140)",
                   cursor: "pointer",
                 }}
-                onClick={() => {
-                  handleGalleryNotify(row.original.id, collections);
-                }}
+                onClick={handleClick}
               >
                 Pending
               </div>
             </ReTooltip>
-          ),
+          );
+        },
       },
       {
         Header: "Image Counts",
@@ -692,7 +697,7 @@ const Collections = () => {
   }, [accesstoken]);
 
   const handleCreateInvioce = async () => {
-    setLoading(true)
+    setLoading(true);
     setShowNoInvoiceModal(false);
     setModalIsOpen(true);
   };
@@ -706,7 +711,6 @@ const Collections = () => {
       setLoading(true);
     }
   }, [modalIsOpen]);
-
 
   return (
     <>
@@ -820,10 +824,12 @@ const Collections = () => {
         onClose={closeModal}
         collectionId={selectedCollectionId}
         handleLoading={handleLoading}
+        handleGalleryNotify={handleGalleryNotify}
       />
       <NoInvoiceModal
         isOpen={showNoInvoiceModal}
-        onClose={() => {setShowNoInvoiceModal(false);
+        onClose={() => {
+          setShowNoInvoiceModal(false);
           setSelectedCollectionId(null);
         }}
         onConfirm={handleCreateInvioce}
