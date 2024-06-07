@@ -655,43 +655,68 @@ const EditInvoiceModal = ({ isOpen, onClose, invoiceId, handleLoading }) => {
                           <ul className="list-group cost-list">
                             <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                               <span className="cost-title mr-2">Subtotal </span>
-                              <span className="cost-value">${subtotal.toFixed(2)}</span>
+                              <span className="cost-value">
+                                ${subtotal.toFixed(2)}
+                              </span>
                             </li>
                             <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                               <span className="cost-title mr-2">Tax </span>
                               <span className="cost-value">{taxRate}%</span>
                             </li>
                             <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
-                              <span className="cost-title mr-2">Tax Amount </span>
-                              <span className="cost-value">${taxAmount.toFixed(2)}</span>
+                              <span className="cost-title mr-2">
+                                Tax Amount{" "}
+                              </span>
+                              <span className="cost-value">
+                                ${taxAmount.toFixed(2)}
+                              </span>
                             </li>
                             <li className="dropdown-divider" />
                             <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                               <span className="cost-title mr-2">
                                 Invoice Total{" "}
                               </span>
-                              <span className="cost-value">${total.toFixed(2)}</span>
+                              <span className="cost-value">
+                                ${total.toFixed(2)}
+                              </span>
                             </li>
                             <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                               <span className="cost-title mr-2">
                                 Amount Paid
                               </span>
-                              <span className="cost-value">-${invoiceData.invoice.paid_amount.toFixed(2)}</span>
+                              <span className="cost-value">
+                                -${paidAmount.toFixed(2)}
+                              </span>
                             </li>
                             <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                               <span className="cost-title mr-2">
                                 Balance (USD){" "}
                               </span>
-                              <span className="cost-value">${dueAmount.toFixed(2)}</span>
+                              <span className="cost-value">
+                                ${dueAmount.toFixed(2)}
+                              </span>
                             </li>
                           </ul>
-                          <a
+                          {/* <a
                             href="invoice-view.html"
                             className="btn btn-primary mt-1 btn-block"
                           >
                             <i className="feather icon-eye common-size" />{" "}
                             Preview
-                          </a>
+                          </a> */}
+                          <div className="modal-footer">
+                            <button type="submit" className="btn btn-primary">
+                              Save Invoice
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              data-dismiss="modal"
+                              onClick={onClose}
+                            >
+                              Close
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

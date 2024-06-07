@@ -573,10 +573,10 @@ export const Dashboard = () => {
                         <div className="card">
                           <div className="card-content">
                             <div className="media align-items-stretch">
-                              <div className="p-2 text-center bg-primary ">
-                                <i className="icon-picture font-large-2 white"></i>
+                            <div className="p-2 text-center bg-danger">
+                                <i className="icon-cloud-upload font-large-2 white"></i>
                               </div>
-                              <div className="p-2 bg-gradient-x-primary white media-body">
+                              <div className="p-1 bg-gradient-x-danger white media-body">
                                 <h5>{jobsInProgress}</h5>
                                 <p className="text-bold-400 mb-0">
                                   Job In Progress
@@ -590,10 +590,11 @@ export const Dashboard = () => {
                         <div className="card">
                           <div className="card-content">
                             <div className="media align-items-stretch">
-                              <div className="p-2 text-center bg-danger">
-                                <i className="icon-cloud-upload font-large-2 white"></i>
+
+                              <div className="p-2 text-center bg-primary ">
+                                <i className="icon-picture font-large-2 white"></i>
                               </div>
-                              <div className="p-1 bg-gradient-x-danger white media-body">
+                              <div className="p-2 bg-gradient-x-primary white media-body">
                                 <h5>{ordersCompleted}</h5>
                                 <p className="text-bold-400 mb-0">
                                   Completed Orders
@@ -889,91 +890,6 @@ export const Dashboard = () => {
                 </div>
               )}
             </section>
-
-            <h4 className="card-title assigned_gallery">Your Orders</h4>
-            <div className="users-list-table">
-              <div className="card">
-                <div className="card-content">
-                  <div className="card-body">
-                    <div className="table-responsive">
-                      <table className="table table-striped table-bordered zero-configuration">
-                        <thead>
-                          <tr>
-                            <th>Order.No.</th>
-                            <th>Date</th>
-                            <th>Collection Name</th>
-                            <th>Package Name</th>
-                            <th>Package Price</th>
-                            <th>Extras</th>
-                            <th>Extras Price</th>
-                            <th>Total Price</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>300</td>
-                            <td>23/03/2024</td>
-                            <td>
-                              <a href="../../../html/ltr/vertical-menu-template/page-users-view.html">
-                                dean3004
-                              </a>
-                            </td>
-                            <td>package1</td>
-                            <td>$15</td>
-                            <td>$5</td>
-                            <td>$5</td>
-                            <td>$25</td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                                title="Edit"
-                              >
-                                <i className="fa fa-pencil"></i>
-                              </button>
-                              <button
-                                className="btn btn-sm btn-outline-danger mr-1 mb-1"
-                                title="Delete"
-                              >
-                                <i className="fa fa-remove"></i>
-                              </button>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>301</td>
-                            <td>23/03/2024</td>
-                            <td>
-                              <a href="../../../html/ltr/vertical-menu-template/page-users-view.html">
-                                zena0604
-                              </a>
-                            </td>
-                            <td>package2</td>
-                            <td>$15</td>
-                            <td>$5</td>
-                            <td>$5 </td>
-                            <td>$25</td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-secondary mr-1 mb-1"
-                                title="Edit"
-                              >
-                                <i className="fa fa-pencil"></i>
-                              </button>
-                              <button
-                                className="btn btn-sm btn-outline-danger mr-1 mb-1"
-                                title="Delete"
-                              >
-                                <i className="fa fa-remove"></i>
-                              </button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
