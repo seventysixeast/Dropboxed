@@ -16,7 +16,7 @@ function createSlug(title) {
 
 const addGallery = async (req, res) => {
   const user = await User.findOne({
-    attributes: ['dropbox_refresh', 'subdomain'],
+    attributes: ['dropbox_refresh', 'subdomain', 'logo'],
     where: { id: req.body.subdomainId }
   });
 
@@ -76,7 +76,7 @@ const addGallery = async (req, res) => {
         attributes: ['email']
       });
 
-      let SEND_EMAIL = NEW_COLLECTION(user.subdomain, collectionData);
+      let SEND_EMAIL = NEW_COLLECTION(user.subdomain, user.logo, collectionData);
       sendEmail(clientData.email, "New Collection", SEND_EMAIL);
 
       await Notifications.create({
@@ -325,7 +325,7 @@ const updateGalleryNotify = async (req, res) => {
       const clientData = await User.findOne({ where: { id: collection.client_id } });
 
       if (user && clientData) {
-        let SEND_EMAIL = NEW_COLLECTION(user.subdomain, collection);
+        let SEND_EMAIL = NEW_COLLECTION(user.subdomain, user.logo, collection);
         await sendEmail(clientData.email, "New Collection", SEND_EMAIL);
 
         await Notifications.create({
