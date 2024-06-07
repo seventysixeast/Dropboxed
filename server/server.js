@@ -12,6 +12,7 @@ const photographerAdminRoutes = require('./routes/photographerAdminRoutes');
 const todoRoutes = require('./routes/todoRoutes');
 const userRoutes = require('./routes/userRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
+const ordersRoutes = require('./routes/ordersRoutes');
 const quickbooksRoutes = require('./routes/quickbooksRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const crypto = require('crypto');
@@ -62,10 +63,7 @@ app.use('/todo', todoRoutes);
 app.use('/user', userRoutes);
 app.use('/invoice', invoiceRoutes);
 app.use('/quickbooks', quickbooksRoutes);
-
-//app.use('/calender', calenderRoutes);
-
-
+app.use('/orders', ordersRoutes);
 
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Protected route" });
@@ -81,19 +79,18 @@ app.get("/*", (req, res, next) => {
     req.url.includes("/notification/") ||
     req.url.includes("/photographer/") ||
     req.url.includes("/collection/") ||
-    //req.url.includes("/calender/") ||
     req.url.includes("/assets/") ||
     req.url.includes("/todo/") ||
     req.url.includes("/user/") ||
-    req.url.includes("/invoice/")
+    req.url.includes("/invoice/") ||
+    req.url.includes("/orders/") ||
+    req.url.includes("/quickbooks/")
 
   )
     return next();
   else
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

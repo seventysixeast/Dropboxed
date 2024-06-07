@@ -257,24 +257,22 @@ export const BookingListComponent = () => {
     setSelectedService(selectedOptions);
     const selectedValues = selectedOptions.map((option) => option.value);
     const selectedValuesString = selectedValues.join(", ");
+
     setBookingData((prevData) => ({
       ...prevData,
       services: selectedValuesString,
     }));
-    const showPrice = selectedOptions.some(
-      (option) => option.show_price === false
-    );
 
-    if (showPrice) {
-      setSelectedPackagePrice(0);
-    } else {
-      const selectedPrices = selectedOptions.map((option) => {
-        const price = packagePrice.find((pack) => pack.id === option.value);
-        return price.price;
-      });
-      const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
-      setSelectedPackagePrice(totalPrice);
-    }
+    const selectedPrices = selectedOptions.map((option) => {
+      if (!option.show_price) {
+        return 0;
+      }
+      const price = packagePrice.find((pack) => pack.id === option.value);
+      return price.price;
+    });
+
+    const totalPrice = selectedPrices.reduce((acc, price) => acc + price, 0);
+    setSelectedPackagePrice(totalPrice);
   };
 
   const handleProviderChange = (selectedOptions) => {

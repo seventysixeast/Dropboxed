@@ -67,6 +67,7 @@ const TaskTodo = sequelize.define(
 
 TaskTodo.hasMany(TaskComment, { foreignKey: 'task_id' });
 TaskTodo.belongsTo(Users, { foreignKey: 'user_id', as: 'author' });
+TaskTodo.belongsTo(Users, { foreignKey: 'assign_user', as: 'assignee' });
 
 
 module.exports = TaskTodo;

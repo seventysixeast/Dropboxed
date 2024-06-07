@@ -4,7 +4,7 @@ const TaskComment = require("../models/TodoComments");
 const Users = require("../models/Users");
 const Todo = require("../models/Todo");
 const Notifications = require("../models/Notifications");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const { NEW_TASK, COMPLETED_TASK } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
 
@@ -27,6 +27,11 @@ const getAllTasks = async (req, res) => {
           {
             model: Users,
             as: "author",
+            attributes: ["id", "name", "profile_photo"],
+          },
+          {
+            model: Users,
+            as: "assignee",
             attributes: ["id", "name", "profile_photo"],
           },
         ],
