@@ -166,7 +166,7 @@ const createTask = async (req, res) => {
     const subdomainData = await Users.findOne({ where: { id: subdomain_id } });
     const asignUser = await Users.findOne({ where: { id: assign_user } });
     const task_author = await Users.findOne({ where: { id: user_id } });
-    let SEND_EMAIL = NEW_TASK(subdomainData.subdomain, asignUser.name, task_author.name, task_title, task_assigndate, task_description, comments);
+    let SEND_EMAIL = NEW_TASK(subdomainData.subdomain, subdomainData.logo, asignUser.name, task_author.name, task_title, task_assigndate, task_description, comments);
     sendEmail(asignUser.email, "New Task Request", SEND_EMAIL);
 
   } catch (error) {
@@ -232,6 +232,7 @@ const setTaskStatus = async (req, res) => {
       // Prepare and send email
       const SEND_EMAIL = COMPLETED_TASK(
         subdomainData.subdomain,
+        subdomainData.logo,
         assignUserData.name,
         taskData.task_title,
         taskData.task_assigndate,

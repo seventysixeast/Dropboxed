@@ -165,7 +165,7 @@ const Login = () => {
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("isAuth", true);
         localStorage.setItem("user", JSON.stringify(userDataWithProfilePhoto));
-        const redirectUrl = `/dashboard`;
+        const redirectUrl = `/manage-photographer-admins`;
         window.location.href = redirectUrl;
         return;
       }

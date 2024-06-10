@@ -164,12 +164,12 @@ const createClient = async (req, res) => {
 
       const user = await User.findOne({
         where: { id: req.body.subdomainId },
-        attributes: ['subdomain', 'email']
+        attributes: ['subdomain', 'name', 'email', 'logo']
       });
 
       // Send email notification
-      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain, user.email, client.name, client.email, password);
-      sendEmail(req.body.email, "Welcome to " + user.subdomain + "!", SEND_EMAIL);
+      var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1) : user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1), user.email, user.logo, client.name, client.email, password);
+      sendEmail(req.body.email, `Welcome to ${user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1)}!`, SEND_EMAIL);
     }
     // Update Redis cache
     await updateRedisCache(req.body.subdomainId);
@@ -197,7 +197,7 @@ const getClient = async (req, res) => {
 const userStatusCheck = async (req, res) => {
   try {
     // attributes: ['id', 'status']
-    const client = await User.findOne({ where: { id: req.body.id }, attributes: ['id', 'status']} );
+    const client = await User.findOne({ where: { id: req.body.id }, attributes: ['id', 'status'] });
     if (!client) {
       return res.status(404).json({ error: "Client not found" });
     }

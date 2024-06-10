@@ -35,6 +35,7 @@ export const Dashboard = () => {
   const subdomainId = user.subdomain_id;
   const accesstoken = authData.token;
   const userId = user.id;
+  const roleId = user.role_id;
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
@@ -564,6 +565,7 @@ export const Dashboard = () => {
             </div>
           </div>
           <div className="content-body">
+<<<<<<< HEAD
             <div className="row grouped-multiple-statistics-card pb-2">
               <div className="col-12">
                 <div className="card">
@@ -581,10 +583,32 @@ export const Dashboard = () => {
                                 <p className="text-bold-400 mb-0">
                                   Job In Progress
                                 </p>
+=======
+            {roleId !== 3 && (
+              <div className="row grouped-multiple-statistics-card pb-2">
+                <div className="col-12">
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="row">
+                        <div className="col-xl-3 col-lg-6 col-12">
+                          <div className="card">
+                            <div className="card-content">
+                              <div className="media align-items-stretch">
+                                <div className="p-2 text-center bg-primary ">
+                                  <i className="icon-picture font-large-2 white"></i>
+                                </div>
+                                <div className="p-2 bg-gradient-x-primary white media-body">
+                                  <h5>{jobsInProgress}</h5>
+                                  <p className="text-bold-400 mb-0">
+                                    Job In Progress
+                                  </p>
+                                </div>
+>>>>>>> stage
                               </div>
                             </div>
                           </div>
                         </div>
+<<<<<<< HEAD
                       </div>
                       <div className="col-xl-3 col-lg-6 col-12">
                         <div className="card">
@@ -599,40 +623,55 @@ export const Dashboard = () => {
                                 <p className="text-bold-400 mb-0">
                                   Completed Orders
                                 </p>
+=======
+                        <div className="col-xl-3 col-lg-6 col-12">
+                          <div className="card">
+                            <div className="card-content">
+                              <div className="media align-items-stretch">
+                                <div className="p-2 text-center bg-danger">
+                                  <i className="icon-cloud-upload font-large-2 white"></i>
+                                </div>
+                                <div className="p-1 bg-gradient-x-danger white media-body">
+                                  <h5>{ordersCompleted}</h5>
+                                  <p className="text-bold-400 mb-0">
+                                    Completed Orders
+                                  </p>
+                                </div>
+>>>>>>> stage
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="col-xl-3 col-lg-6 col-12">
-                        <div className="card">
-                          <div className="card-content">
-                            <div className="media align-items-stretch">
-                              <div className="p-2 text-center bg-warning bg-darken-2">
-                                <i className="icon-calendar font-large-2 white"></i>
-                              </div>
-                              <div className="p-2 bg-gradient-x-warning white media-body">
-                                <h5>{activeBookings}</h5>
-                                <p className="text-bold-400 mb-0">
-                                  Active Booking
-                                </p>
+                        <div className="col-xl-3 col-lg-6 col-12">
+                          <div className="card">
+                            <div className="card-content">
+                              <div className="media align-items-stretch">
+                                <div className="p-2 text-center bg-warning bg-darken-2">
+                                  <i className="icon-calendar font-large-2 white"></i>
+                                </div>
+                                <div className="p-2 bg-gradient-x-warning white media-body">
+                                  <h5>{activeBookings}</h5>
+                                  <p className="text-bold-400 mb-0">
+                                    Active Booking
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="col-xl-3 col-lg-6 col-12">
-                        <div className="card">
-                          <div className="card-content">
-                            <div className="media align-items-stretch">
-                              <div className="p-2 text-center bg-success bg-darken-2">
-                                <i className="icon-bag font-large-2 white"></i>
-                              </div>
-                              <div className="p-2 bg-gradient-x-success white media-body">
-                                <h5>0</h5>
-                                <p className="text-bold-400 mb-0">
-                                  Active Invoices
-                                </p>
+                        <div className="col-xl-3 col-lg-6 col-12">
+                          <div className="card">
+                            <div className="card-content">
+                              <div className="media align-items-stretch">
+                                <div className="p-2 text-center bg-success bg-darken-2">
+                                  <i className="icon-bag font-large-2 white"></i>
+                                </div>
+                                <div className="p-2 bg-gradient-x-success white media-body">
+                                  <h5>0</h5>
+                                  <p className="text-bold-400 mb-0">
+                                    Active Invoices
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -642,7 +681,7 @@ export const Dashboard = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <section id="image-grid" className="app-content card">
               <div className="card-header">
@@ -657,9 +696,8 @@ export const Dashboard = () => {
                         <ReTooltip title="Change to grid view." placement="top">
                           <button
                             type="button"
-                            className={`btn btn-outline-primary mr-1 ${
-                              galleryView === "grid" ? "active" : ""
-                            }`}
+                            className={`btn btn-outline-primary mr-1 ${galleryView === "grid" ? "active" : ""
+                              }`}
                             data-toggle="modal"
                             data-target="#appointment"
                             onClick={() => {
@@ -672,9 +710,8 @@ export const Dashboard = () => {
                         <ReTooltip title="Change to list view." placement="top">
                           <button
                             type="button"
-                            className={`btn btn-outline-primary mr-1 ${
-                              galleryView === "list" ? "active" : ""
-                            }`}
+                            className={`btn btn-outline-primary mr-1 ${galleryView === "list" ? "active" : ""
+                              }`}
                             data-toggle="modal"
                             data-target="#appointment"
                             onClick={() => {
