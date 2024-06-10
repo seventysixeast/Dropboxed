@@ -419,7 +419,6 @@ const Collections = () => {
       setFormData(initialFormData);
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
-      getAllCollectionsData();
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }

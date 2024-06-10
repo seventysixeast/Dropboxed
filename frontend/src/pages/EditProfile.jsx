@@ -8,6 +8,7 @@ import {
 } from "../api/userApis";
 import { toast } from "react-toastify";
 import LoadingOverlay from "../components/Loader";
+import * as yup from "yup";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const EditProfile = () => {
@@ -27,6 +28,7 @@ const EditProfile = () => {
     profile_photo: null,
     logo: "",
   });
+  const [errors, setErrors] = useState({ website: "" });
 
   const [bankDetails, setBankDetails] = useState({
     account_email: "",
@@ -39,6 +41,13 @@ const EditProfile = () => {
     website: "",
     phone: "",
   });
+
+  const websiteSchema = yup
+  .string()
+  .matches(
+    /^(https?:\/\/)?((([a-zA-Z0-9\-]+)\.)+[a-zA-Z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-zA-Z0-9%_.~+]*)*(\?[;&a-zA-Z0-9%_.~+=-]*)?(#[-a-zA-Z0-9_]*)?$/,
+    'Please enter a valid URL'
+  );
 
   const [changePasswordData, setChangePasswordData] = useState({
     old_password: "",
@@ -193,29 +202,25 @@ const EditProfile = () => {
     setLoading(false);
   };
 
-  const handleBankInputChange = (e) => {
+  const handleBankInputChange = async (e) => {
     const { name, value } = e.target;
-    let bankingDetails = { ...bankDetails };
-    if (name === "account_email") {
-      bankingDetails.account_email = value;
-    } else if (name === "account_name") {
-      bankingDetails.account_name = value;
-    } else if (name === "account_number") {
-      bankingDetails.account_number = value;
-    } else if (name === "bsb_number") {
-      bankingDetails.bsb_number = value;
-    } else if (name === "abn_acn") {
-      bankingDetails.abn_acn = value;
-    } else if (name === "country") {
-      bankingDetails.country = value;
-    } else if (name === "address") {
-      bankingDetails.address = value;
-    } else if (name === "website") {
-      bankingDetails.website = value;
-    } else if (name === "phone") {
-      bankingDetails.phone = value;
+    setBankDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: value,
+    }));
+
+    try {
+      await websiteSchema.validate(value);
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "",
+      }));
+    } catch (error) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: error.message,
+      }));
     }
-    setBankDetails(bankingDetails);
   };
 
   const handlePasswordChanges = (e) => {
@@ -421,16 +426,15 @@ const EditProfile = () => {
                             accept="image/*"
                           />
                         </div>
-
                       </div>
                       <div className="col-12 d-flex flex-sm-row flex-column justify-content-end mt-1">
-                          <button
-                            type="submit"
-                            className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1"
-                          >
-                            Save Changes
-                          </button>
-                        </div>
+                        <button
+                          type="submit"
+                          className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
                     </form>
                   </div>
                 </div>
@@ -549,8 +553,10 @@ const EditProfile = () => {
                             name="website"
                             value={bankDetails.website}
                             onChange={handleBankInputChange}
-                            required
                           />
+                          {errors.website && (
+                            <div className="text-danger">{errors.website}</div>
+                          )}
                         </div>
                         <div className="col-12 d-flex flex-sm-row flex-column justify-content-end mt-1">
                           <button

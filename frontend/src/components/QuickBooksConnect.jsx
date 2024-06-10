@@ -14,7 +14,7 @@ const QuickBooksConnect = () => {
   };
 
   return (
-    <button className="btn btn-outline-primary mr-1" onClick={handleQuickBooksConnect}>Connect to QuickBooks</button>
+    <button className="btn btn-outline-primary mr-1 mb-1" onClick={handleQuickBooksConnect}>Connect to QuickBooks</button>
   );
 };
 

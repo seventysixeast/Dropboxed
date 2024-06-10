@@ -646,250 +646,251 @@ export const Dashboard = () => {
               </div>
             )}
 
-            <section id="image-grid" className="app-content card">
-              <div className="card-header">
-                <h4 className="card-title">Image gallery</h4>
-                <a className="heading-elements-toggle">
-                  <i className="fa fa-ellipsis-v font-medium-3"></i>
-                </a>
-                <div className="heading-elements">
-                  <ul className="list-inline mb-0">
-                    <li>
-                      <div className="form-group d-flex">
-                        <ReTooltip title="Change to grid view." placement="top">
-                          <button
-                            type="button"
-                            className={`btn btn-outline-primary mr-1 ${galleryView === "grid" ? "active" : ""
-                              }`}
-                            data-toggle="modal"
-                            data-target="#appointment"
-                            onClick={() => {
-                              setGalleryView("grid");
-                            }}
-                          >
-                            <i className="feather icon-grid"></i>
-                          </button>
-                        </ReTooltip>
-                        <ReTooltip title="Change to list view." placement="top">
-                          <button
-                            type="button"
-                            className={`btn btn-outline-primary mr-1 ${galleryView === "list" ? "active" : ""
-                              }`}
-                            data-toggle="modal"
-                            data-target="#appointment"
-                            onClick={() => {
-                              setGalleryView("list");
-                            }}
-                          >
-                            <i className="feather icon-list"></i>
-                          </button>
-                        </ReTooltip>
+<section id="image-grid" className="app-content card">
+  <div className="card-header">
+    <h4 className="card-title">Image gallery</h4>
+    <a className="heading-elements-toggle">
+      <i className="fa fa-ellipsis-v font-medium-3"></i>
+    </a>
+    <div className="heading-elements">
+      <ul className="list-inline mb-0">
+        <li>
+          <div className="form-group d-flex flex-wrap">
+            <ReTooltip title="Change to grid view." placement="top">
+              <button
+                type="button"
+                className={`btn btn-outline-primary mr-1 mb-1 ${galleryView === "grid" ? "active" : ""
+                  }`}
+                data-toggle="modal"
+                data-target="#appointment"
+                onClick={() => {
+                  setGalleryView("grid");
+                }}
+              >
+                <i className="feather icon-grid"></i>
+              </button>
+            </ReTooltip>
+            <ReTooltip title="Change to list view." placement="top">
+              <button
+                type="button"
+                className={`btn btn-outline-primary mr-1 mb-1 ${galleryView === "list" ? "active" : ""
+                  }`}
+                data-toggle="modal"
+                data-target="#appointment"
+                onClick={() => {
+                  setGalleryView("list");
+                }}
+              >
+                <i className="feather icon-list"></i>
+              </button>
+            </ReTooltip>
 
-                        <QuickBooksConnect />
+            <QuickBooksConnect />
 
-                        {user.role_id == 5 && (
-                          <>
-                            {subdomainDropbox === "" && !itemsLoading && (
-                              <a
-                                href={`${dropboxAuthUrl}`}
-                                className="btn btn-primary mr-1"
-                                style={{ paddingTop: "10px" }}
-                              >
-                                Link Your Dropbox
-                              </a>
-                            )}
-                          </>
-                        )}
-                        <ReTooltip
-                          title="Create a new appointment."
-                          placement="top"
+            {user.role_id == 5 && (
+              <>
+                {subdomainDropbox === "" && !itemsLoading && (
+                  <a
+                    href={`${dropboxAuthUrl}`}
+                    className="btn btn-primary mr-1 mb-1"
+                    style={{ paddingTop: "10px" }}
+                  >
+                    Link Your Dropbox
+                  </a>
+                )}
+              </>
+            )}
+            <ReTooltip
+              title="Create a new appointment."
+              placement="top"
+            >
+              <button
+                type="button"
+                className="btn btn-outline-primary mr-1 mb-1"
+                data-toggle="modal"
+                data-target="#appointment"
+                onClick={() => {
+                  window.location.href = "/booking-list-calendar";
+                }}
+              >
+                New Appointment
+              </button>
+            </ReTooltip>
+            {user.role_id !== 3 && (
+              <ReTooltip
+                title={
+                  subdomainDropbox === ""
+                    ? "Link your dropbox first!"
+                    : "Add a new collection."
+                }
+                placement="top"
+              >
+                <button
+                  type="button"
+                  className="btn btn-outline-primary mb-1"
+                  data-toggle="modal"
+                  data-target="#bootstrap"
+                  disabled={subdomainDropbox === ""}
+                  onClick={() => {
+                    if (galleryView == "grid") {
+                      setShowAddGalleryModal(true);
+                    } else {
+                      setShowAddGalleryModal2(true);
+                    }
+                  }}
+                >
+                  New Collection
+                </button>
+              </ReTooltip>
+            )}
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  {galleryView === "list" ? (
+    <CollectionTable />
+  ) : (
+    <div className="card-deck-wrapper">
+      <div className="grid-hover row">
+        {collections && collections.length > 0 ? (
+          collections.map((item) => (
+            <div className="col-md-3 mb-1" key={item.id}>
+              <a
+                href={`${url2}view-gallery/${item.slug}`}
+                className="gallery-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <figure className="effect-zoe">
+                  <img
+                    className="gallery-thumbnail equal-image"
+                    src={
+                      item.banner
+                        ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
+                        : "../../../app-assets/images/gallery/9.jpg"
+                    }
+                  />
+                  <figcaption
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      height: "20%",
+                    }}
+                    className="m-0 p-0"
+                  >
+                    <div
+                      className="col-6"
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <h2
+                        style={{
+                          fontSize: "0.8rem",
+                          fontWeight: "bold",
+                          whiteSpace: "normal",
+                          lineHeight: "1.2",
+                          textTransform: "capitalize",
+                          color: "#6f8189",
+                        }}
+                      >
+                        {item.client_name}
+                      </h2>
+                    </div>
+                    <div
+                      className="icon-links"
+                      style={{ marginBottom: "0" }}
+                    >
+                      {user.role_id !== 3 && (
+                        <span
+                          className="gallery-link"
+                          data-toggle="modal"
+                          data-target="#bootstrap"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            getCollectionData(item.slug);
+                          }}
                         >
-                          <button
-                            type="button"
-                            className="btn btn-outline-primary mr-1"
-                            data-toggle="modal"
-                            data-target="#appointment"
-                            onClick={() => {
-                              window.location.href = "/booking-list-calendar";
-                            }}
-                          >
-                            New Appointment
-                          </button>
-                        </ReTooltip>
-                        {user.role_id !== 3 && (
-                          <ReTooltip
-                            title={
-                              subdomainDropbox === ""
-                                ? "Link your dropbox first!"
-                                : "Add a new collection."
-                            }
-                            placement="top"
-                          >
-                            <button
-                              type="button"
-                              className="btn btn-outline-primary"
-                              data-toggle="modal"
-                              data-target="#bootstrap"
-                              disabled={subdomainDropbox === ""}
-                              onClick={() => {
-                                if (galleryView == "grid") {
-                                  setShowAddGalleryModal(true);
-                                } else {
-                                  setShowAddGalleryModal2(true);
-                                }
-                              }}
-                            >
-                              New Collection
-                            </button>
-                          </ReTooltip>
-                        )}
-                      </div>
-                    </li>
-                  </ul>
+                          <i className="feather icon-settings"></i>
+                        </span>
+                      )}
+                      <span
+                        className="gallery-link mx-1"
+                        title="Share"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCollectionData(item.slug);
+                          openSharePopup();
+                        }}
+                      >
+                        <i className="feather icon-share-2"></i>
+                      </span>
+                      <span
+                        className="gallery-link"
+                        onClick={(e) =>
+                          handleCopy(
+                            e,
+                            `${url2}view-gallery/${item.slug}`,
+                            item.id
+                          )
+                        }
+                        data-tooltip-id={`copyTooltip-${item.id}`}
+                        data-tooltip-content={
+                          tooltipText[item.id] ||
+                          "Copy to clipboard"
+                        }
+                      >
+                        <i className="feather icon-copy"></i>
+                      </span>
+                      <Tooltip
+                        id={`copyTooltip-${item.id}`}
+                        effect="solid"
+                        placement="top"
+                        style={{ fontSize: "0.6rem" }}
+                      />
+                    </div>
+                    <p className="description description-edit">
+                      {item.name}
+                    </p>
+                  </figcaption>
+                </figure>
+              </a>
+            </div>
+          ))
+        ) : (
+          <>
+            <div className="col-12 d-flex justify-content-center ">
+              {itemsLoading ? (
+                <div
+                  className="spinner-border primary"
+                  role="status"
+                >
+                  <span className="sr-only"></span>
                 </div>
-              </div>
-              {galleryView === "list" ? (
-                <CollectionTable />
               ) : (
-                <div className="card-deck-wrapper">
-                  <div className="grid-hover row">
-                    {collections && collections.length > 0 ? (
-                      collections.map((item) => (
-                        <div className="col-md-3 mb-1" key={item.id}>
-                          <a
-                            href={`${url2}view-gallery/${item.slug}`}
-                            className="gallery-link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <figure className="effect-zoe">
-                              <img
-                                className="gallery-thumbnail equal-image"
-                                src={
-                                  item.banner
-                                    ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
-                                    : "../../../app-assets/images/gallery/9.jpg"
-                                }
-                              />
-                              <figcaption
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  height: "20%",
-                                }}
-                                className="m-0 p-0"
-                              >
-                                <div
-                                  className="col-6"
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-start",
-                                  }}
-                                >
-                                  <h2
-                                    style={{
-                                      fontSize: "0.8rem",
-                                      fontWeight: "bold",
-                                      whiteSpace: "normal",
-                                      lineHeight: "1.2",
-                                      textTransform: "capitalize",
-                                      color: "#6f8189",
-                                    }}
-                                  >
-                                    {item.client_name}
-                                  </h2>
-                                </div>
-                                <div
-                                  className="icon-links"
-                                  style={{ marginBottom: "0" }}
-                                >
-                                  {user.role_id !== 3 && (
-                                    <span
-                                      className="gallery-link"
-                                      data-toggle="modal"
-                                      data-target="#bootstrap"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        getCollectionData(item.slug);
-                                      }}
-                                    >
-                                      <i className="feather icon-settings"></i>
-                                    </span>
-                                  )}
-                                  <span
-                                    className="gallery-link mx-1"
-                                    title="Share"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setCollectionData(item.slug);
-                                      openSharePopup();
-                                    }}
-                                  >
-                                    <i className="feather icon-share-2"></i>
-                                  </span>
-                                  <span
-                                    className="gallery-link"
-                                    onClick={(e) =>
-                                      handleCopy(
-                                        e,
-                                        `${url2}view-gallery/${item.slug}`,
-                                        item.id
-                                      )
-                                    }
-                                    data-tooltip-id={`copyTooltip-${item.id}`}
-                                    data-tooltip-content={
-                                      tooltipText[item.id] ||
-                                      "Copy to clipboard"
-                                    }
-                                  >
-                                    <i className="feather icon-copy"></i>
-                                  </span>
-                                  <Tooltip
-                                    id={`copyTooltip-${item.id}`}
-                                    effect="solid"
-                                    placement="top"
-                                    style={{ fontSize: "0.6rem" }}
-                                  />
-                                </div>
-                                <p className="description description-edit">
-                                  {item.name}
-                                </p>
-                              </figcaption>
-                            </figure>
-                          </a>
-                        </div>
-                      ))
-                    ) : (
-                      <>
-                        <div className="col-12 d-flex justify-content-center ">
-                          {itemsLoading ? (
-                            <div
-                              className="spinner-border primary"
-                              role="status"
-                            >
-                              <span className="sr-only"></span>
-                            </div>
-                          ) : (
-                            <>
-                              {user.role_id == 5 || user.role_id == 2 ? (
-                                <p>
-                                  No Collections found. Click New collection to
-                                  add a collection.
-                                </p>
-                              ) : (
-                                <p>No Collections found.</p>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+                <>
+                  {user.role_id == 5 || user.role_id == 2 ? (
+                    <p>
+                      No Collections found. Click New collection to
+                      add a collection.
+                    </p>
+                  ) : (
+                    <p>No Collections found.</p>
+                  )}
+                </>
               )}
-            </section>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )}
+</section>
+
           </div>
         </div>
       </div>

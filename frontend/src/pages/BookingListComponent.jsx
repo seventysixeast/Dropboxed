@@ -1412,7 +1412,7 @@ export const BookingListComponent = () => {
                                           Date / Time
                                         </p>
                                         <DatePicker
-                                          className="form-control custom-datepicker col-sm-12"
+                                          className="form-control custom-datepicker col-8"
                                           id="datetimepicker4"
                                           name="prefferedDate"
                                           selected={bookingData.prefferedDate}
@@ -1427,7 +1427,7 @@ export const BookingListComponent = () => {
                                         />
 
                                         <select
-                                          className="select2 form-control w-50 form-control col-sm-6 col-md-4 ml-1"
+                                          className="select2 form-control w-50 form-control col-sm-6 col-md-3"
                                           name="fromTime"
                                           id="fromTime"
                                           value={bookingData.fromTime}
@@ -1584,11 +1584,7 @@ export const BookingListComponent = () => {
                                       </div>
                                       {roleId !== 3 && (
                                         <div className="modal-body d-flex justify-content-center align-items-center px-4">
-                                          <label
-                                            htmlFor="notify"
-                                            style={{
-                                            }}
-                                          >
+                                          <label htmlFor="notify" style={{}}>
                                             Notify to Client
                                           </label>
                                           <Switch
@@ -1633,9 +1629,10 @@ export const BookingListComponent = () => {
                                     </div>
 
                                     <div className="tab-pane fade" id="tab2">
-                                    <div className="modal-body px-2 row">
-                                    <p className="col-sm-12 col-md-4">
-                                      Client</p>
+                                      <div className="modal-body px-2 row">
+                                        <p className="col-sm-12 col-md-4">
+                                          Client
+                                        </p>
                                         <Select
                                           className="select2 col-sm-12 col-md-8"
                                           name="clients"
@@ -1691,7 +1688,7 @@ export const BookingListComponent = () => {
                                         />
                                       </div>
                                       <div className="modal-body px-2 row">
-                                      <p className="col-sm-12 col-md-4">
+                                        <p className="col-sm-12 col-md-4">
                                           Comment
                                         </p>
                                         <textarea
