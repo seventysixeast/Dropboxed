@@ -1744,7 +1744,7 @@ export const BookingListComponent = () => {
                 <div className="col-12">
                   <div className="card">
                     <div className="card-content collapse show">
-                      <div className="card-body fc-theme-bootstrap">
+                      <div className="card-body fc-theme-bootstrap custom-week-view">
                         <FullCalendar
                           plugins={[
                             dayGridPlugin,
@@ -1880,12 +1880,12 @@ export const BookingListComponent = () => {
                                     "N/A"
                                   )}
                                 </span>
-
                                 <br />
                                 <b>{arg.event.title}</b>
                               </div>
                             );
                           }}
+                          className="custom-week-view"
                         />
                       </div>
                     </div>

@@ -565,25 +565,6 @@ export const Dashboard = () => {
             </div>
           </div>
           <div className="content-body">
-<<<<<<< HEAD
-            <div className="row grouped-multiple-statistics-card pb-2">
-              <div className="col-12">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="row">
-                      <div className="col-xl-3 col-lg-6 col-12">
-                        <div className="card">
-                          <div className="card-content">
-                            <div className="media align-items-stretch">
-                            <div className="p-2 text-center bg-danger">
-                                <i className="icon-cloud-upload font-large-2 white"></i>
-                              </div>
-                              <div className="p-1 bg-gradient-x-danger white media-body">
-                                <h5>{jobsInProgress}</h5>
-                                <p className="text-bold-400 mb-0">
-                                  Job In Progress
-                                </p>
-=======
             {roleId !== 3 && (
               <div className="row grouped-multiple-statistics-card pb-2">
                 <div className="col-12">
@@ -603,27 +584,10 @@ export const Dashboard = () => {
                                     Job In Progress
                                   </p>
                                 </div>
->>>>>>> stage
                               </div>
                             </div>
                           </div>
                         </div>
-<<<<<<< HEAD
-                      </div>
-                      <div className="col-xl-3 col-lg-6 col-12">
-                        <div className="card">
-                          <div className="card-content">
-                            <div className="media align-items-stretch">
-
-                              <div className="p-2 text-center bg-primary ">
-                                <i className="icon-picture font-large-2 white"></i>
-                              </div>
-                              <div className="p-2 bg-gradient-x-primary white media-body">
-                                <h5>{ordersCompleted}</h5>
-                                <p className="text-bold-400 mb-0">
-                                  Completed Orders
-                                </p>
-=======
                         <div className="col-xl-3 col-lg-6 col-12">
                           <div className="card">
                             <div className="card-content">
@@ -637,7 +601,6 @@ export const Dashboard = () => {
                                     Completed Orders
                                   </p>
                                 </div>
->>>>>>> stage
                               </div>
                             </div>
                           </div>
