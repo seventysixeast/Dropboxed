@@ -1226,12 +1226,12 @@ export const BookingListComponent = () => {
                                       id="tab1"
                                     >
                                       {roleId !== 3 && (
-                                        <div className="modal-body d-flex px-4">
-                                          <p style={{ width: "10rem" }}>
+                                        <div className="modal-body px-2 row">
+                                          <p className="col-sm-12 col-md-4">
                                             Providers
                                           </p>
                                           <Select
-                                            className="select2 w-100"
+                                            className="select2 col-sm-12 col-md-8"
                                             name="provider"
                                             value={selectedProvider}
                                             instanceId="provider"
@@ -1284,11 +1284,11 @@ export const BookingListComponent = () => {
                                           />
                                         </div>
                                       )}
-                                      <div className="modal-body d-flex px-4">
-                                        <p style={{ width: "10rem" }}>
+                                      <div className="modal-body px-2 row">
+                                        <p className="col-sm-12 col-md-4">
                                           Address
                                         </p>
-                                        <div className="d-flex w-100">
+                                        <div className="d-flex col-sm-12 col-md-8">
                                           <GooglePlacesAutocomplete
                                             apiKey="AIzaSyCQUMJXi-NEPTZ6kIPn8-Drxi0wQCJbuQ0"
                                             selectProps={{
@@ -1321,12 +1321,12 @@ export const BookingListComponent = () => {
                                           </p>
                                         </div>
                                       </div>
-                                      <div className="modal-body d-flex px-4">
-                                        <p style={{ width: "10rem" }}>
+                                      <div className="modal-body px-2 row">
+                                        <p className="col-sm-12 col-md-4">
                                           Service
                                         </p>
                                         <Select
-                                          className="select2 w-100"
+                                          className="select2 col-sm-12 col-md-8"
                                           name="services"
                                           id="services"
                                           instanceId={1}
@@ -1352,14 +1352,14 @@ export const BookingListComponent = () => {
                                         />
                                       </div>
 
-                                      <div className="modal-body d-flex px-4">
+                                      <div className="modal-body px-2 row">
                                         {roleId !== 3 ? (
-                                          <div style={{ width: "25rem" }}>
+                                          <div className="col-sm-12 col-md-4 mt-1">
                                             {" "}
                                             Price/ Duration
                                           </div>
                                         ) : (
-                                          <div style={{ width: "11rem" }}>
+                                          <div className="col-sm-12 col-md-4 mt-1">
                                             {" "}
                                             Price
                                           </div>
@@ -1367,14 +1367,14 @@ export const BookingListComponent = () => {
                                         <input
                                           type="text"
                                           id="price"
-                                          className="form-control mr-1"
+                                          className="form-control col-sm-6 col-md-3 ml-1 mt-1"
                                           name="price"
                                           value={`$ ${selectedPackagePrice}`}
                                           disabled
                                         />
                                         {roleId !== 3 && (
                                           <select
-                                            className="select2 form-control"
+                                            className="select2 form-control col-sm-6 col-md-4 ml-1 mt-1"
                                             name="toTime"
                                             id="toTime"
                                             value={toTime}
@@ -1407,12 +1407,12 @@ export const BookingListComponent = () => {
                                         )}
                                       </div>
 
-                                      <div className="modal-body d-flex px-4 ">
-                                        <p style={{ width: "12rem" }}>
+                                      <div className="modal-body px-2 row">
+                                        <p className="col-sm-12 col-md-4">
                                           Date / Time
                                         </p>
                                         <DatePicker
-                                          className="form-control custom-datepicker mr-1"
+                                          className="form-control col-sm-6 col-md-3"
                                           id="datetimepicker4"
                                           name="prefferedDate"
                                           selected={bookingData.prefferedDate}
@@ -1427,7 +1427,7 @@ export const BookingListComponent = () => {
                                         />
 
                                         <select
-                                          className="select2 form-control w-50 ml-1"
+                                          className="select2 form-control col-sm-6 col-md-3"
                                           name="fromTime"
                                           id="fromTime"
                                           value={bookingData.fromTime}
