@@ -49,7 +49,7 @@ const getInvoiceData = async (req, res) => {
         });
 
         const totalPrice = packages.reduce((sum, pkg) => sum + pkg.package_price, 0);
-        
+
         let itemDescriptions = invoice.item_descriptions;
         if (itemDescriptions) {
             itemDescriptions = phpUnserialize(itemDescriptions);
@@ -170,7 +170,8 @@ const updateInvoice = async (req, res) => {
         clientName,
         clientAddress,
         dueAmount,
-        paidAmount
+        paidAmount,
+        subdomainId
     } = req.body;
 
     try {
@@ -188,6 +189,7 @@ const updateInvoice = async (req, res) => {
             send_invoice: false,
             paid_status: false,
             invoice_link: invoiceLink,
+            subdomain_id: subdomainId
         }, {
             where: { id: invoiceId }
         });

@@ -164,6 +164,7 @@ const EditInvoiceModal = ({
       clientAddress: invoiceData.client.address,
       dueAmount: total - paidAmount,
       paidAmount,
+      subdomainId
     };
 
     try {
@@ -173,6 +174,7 @@ const EditInvoiceModal = ({
         invoice.orderId = invoiceData.invoice.order_id;
         response = await updateInvoice(invoice);
       } else {
+        invoice.collectionId = collectionId
         response = await saveInvoice(invoice);
       }
 
