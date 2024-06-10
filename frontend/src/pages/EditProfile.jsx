@@ -408,7 +408,7 @@ const EditProfile = () => {
                               ? previewLogo
                               : "../../../app-assets/images/portrait/medium/dummy.png"
                           }
-                          className="rounded-circle height-100 width-100 mt-2"
+                          className="width-100 mt-4"
                           alt="Preview"
                         />
                         <div className="media-body mt-3 ml-2">

@@ -2,6 +2,7 @@ require('dotenv').config();
 const SITE_URL = process.env.SITE_URL;
 const VERIFY_URL = process.env.VERIFY_URL;
 const GALLERY_IMAGE_URL = process.env.GALLERY_IMAGE_URL;
+const CLIENTS_IMAGE_URL = process.env.CLIENTS_IMAGE_URL;
 
 exports.SEND_VERIFICATION_EMAIL = (subdomain, email, verificationToken) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto;">
@@ -55,7 +56,7 @@ exports.SEND_VERIFICATION_CLIENT_EMAIL = (subdomain, email, verificationToken) =
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                        <h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>
+                        ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
                     </td>
                 </tr>
                 <tr>
@@ -93,14 +94,14 @@ exports.SEND_VERIFICATION_CLIENT_EMAIL = (subdomain, email, verificationToken) =
 </div>
 `;
 
-exports.SEND_OTP = (name, logo, email, otp) => `
+exports.SEND_OTP = (name, email, otp) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                    ${logo ? `<img src="${GALLERY_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                    <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px;" alt="Logo"/>
                 </td>
                 </tr>
                 <tr>
@@ -200,7 +201,7 @@ exports.WELCOME_CLIENT_EMAIL = (subdomain, subdomain_email, logo, name, email, p
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                        ${logo ? `<img src="${GALLERY_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                        ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
                     </td>
                 </tr>
                 <tr>
@@ -255,11 +256,11 @@ exports.WELCOME_CLIENT_EMAIL = (subdomain, subdomain_email, logo, name, email, p
 `;
 
 exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, teamMember) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh; padding: 0 10px; box-sizing: border-box;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
-                <td width="50%" valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px;">
+                <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;">
                     <h1 style="font-size: 18px; margin-bottom: 10px;">New Booking</h1>
                     <p>Hello ${name},</p>
                     <p>Your booking has been confirmed with ${subdomain}</p>
@@ -272,26 +273,25 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, t
                     <p>${subdomain}</p>
                     <p>You have received this message due to a recent booking</p>
                 </td>
-                <td width="50%" valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px;">
+                <td valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;">
                     <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                    <tr>
-                        <td align="center">
-                            ${logo ? `<img src="${GALLERY_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
-                        </td>
-                    </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="font-size: 16px; font-weight: bold;">${subdomain}</td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="font-size: 14px;">${subdomainContact}</td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="margin-top: 20px;">
-                            <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
-                        </td>
-                    </tr>
-                </table>
+                        <tr>
+                            <td align="center">
+                                ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="font-size: 16px; font-weight: bold;">${subdomain}</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="font-size: 14px;">${subdomainContact}</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="margin-top: 20px;">
+                                <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>
@@ -299,7 +299,7 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, t
             <tbody>
                 <tr>
                     <td style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
-                <p>Powered by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px; vertical-align: middle;" alt="Logo"/></p>
+                        <p>Powered by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px; vertical-align: middle;" alt="Logo"/></p>
                     </td>
                 </tr>
             </tbody>
@@ -309,11 +309,11 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, t
 `;
 
 exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, teamMember) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh; padding: 0 10px; box-sizing: border-box;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
-                <td width="50%" valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px;">
+                <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;">
                     <h1 style="font-size: 18px; margin-bottom: 10px;">Update Booking</h1>
                     <p>Hello ${name},</p>
                     <p>Your booking has been confirmed with ${subdomain}</p>
@@ -326,26 +326,25 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, name, data, contact
                     <p>${subdomain}</p>
                     <p>You have received this message due to a recent booking</p>
                 </td>
-                <td width="50%" valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px;">
+                <td valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;">
                     <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                    <tr>
-                        <td align="center">
-                            ${logo ? `<img src="${GALLERY_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
-                        </td>
-                    </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="font-size: 16px; font-weight: bold;">${subdomain}</td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="font-size: 14px;">${subdomainContact}</td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="margin-top: 20px;">
-                            <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
-                        </td>
-                    </tr>
-                </table>
+                        <tr>
+                            <td align="center">
+                                ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="font-size: 16px; font-weight: bold;">${subdomain}</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="font-size: 14px;">${subdomainContact}</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="margin-top: 20px;">
+                                <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>
@@ -353,7 +352,7 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, name, data, contact
             <tbody>
                 <tr>
                     <td style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
-                <p>Powered by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px; vertical-align: middle;" alt="Logo"/></p>
+                        <p>Powered by <img src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png" style="width: 150px; vertical-align: middle;" alt="Logo"/></p>
                     </td>
                 </tr>
             </tbody>
@@ -369,7 +368,7 @@ exports.NEW_COLLECTION = (subdomain, logo, data) => `
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                        ${logo ? `<img src="${GALLERY_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                        ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
                     </td>
                 </tr>
                 <tr>
@@ -425,7 +424,7 @@ exports.NEW_TASK = (subdomain, logo, name, client_name, task, date, description,
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                        ${logo ? `<img src="${GALLERY_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                        ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
                     </td>
                 </tr>
                 <tr>
@@ -486,7 +485,7 @@ exports.COMPLETED_TASK = (subdomain, logo, name, task, date, description, commen
             <tbody>
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
-                        ${logo ? `<img src="${GALLERY_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                        ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
                     </td>
                 </tr>
                 <tr>
