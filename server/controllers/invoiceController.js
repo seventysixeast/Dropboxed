@@ -47,7 +47,9 @@ const getInvoiceData = async (req, res) => {
         const packages = await Package.findAll({
             where: { id: packageIds }
         });
+
         const totalPrice = packages.reduce((sum, pkg) => sum + pkg.package_price, 0);
+        
         let itemDescriptions = invoice.item_descriptions;
         if (itemDescriptions) {
             itemDescriptions = phpUnserialize(itemDescriptions);

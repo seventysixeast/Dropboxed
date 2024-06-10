@@ -28,6 +28,7 @@ import ReTooltip from "../components/Tooltip";
 import AddInvoiceNodal from "../components/CreateInvoice";
 import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
+import EditInvoiceModal from "../components/EditInvoice";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -69,6 +70,8 @@ const Collections = () => {
   });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState(null);
+  const [isEditMode, setEditMode] = useState(false);
+  const [currentInvoiceId, setCurrentInvoiceId] = useState(null);
 
   useEffect(() => {
     getClients();
@@ -419,6 +422,7 @@ const Collections = () => {
       setFormData(initialFormData);
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
+      getAllCollectionsData();
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
@@ -824,12 +828,13 @@ const Collections = () => {
         onConfirm={deleteCollectionData}
         message="Are you sure you want to delete this collection?"
       />
-      <AddInvoiceNodal
+     <EditInvoiceModal
         isOpen={modalIsOpen}
         onClose={closeModal}
-        collectionId={selectedCollectionId}
+        invoiceId={currentInvoiceId}
         handleLoading={handleLoading}
-        handleGalleryNotify={handleGalleryNotify}
+        isEdit={isEditMode}
+        collectionId={selectedCollectionId}
       />
       <NoInvoiceModal
         isOpen={showNoInvoiceModal}

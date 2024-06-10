@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import React from "react";
 import { FaUpload } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { deleteInvoiceById, getAllInvoices, sendInvoice } from "./../api/invoiceApis";
+import {
+  deleteInvoiceById,
+  getAllInvoices,
+  sendInvoice,
+} from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
@@ -22,6 +26,7 @@ const Invoice = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [itemsLoading, setItemsLoading] = useState(true);
+  const [isEditMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleDeleteModalClose = () => {
@@ -207,6 +212,7 @@ const Invoice = () => {
     setInvoiceId(id);
     setModalIsOpen(true);
     setLoading(true);
+    setEditMode(true);
   };
 
   const handleDelete = (id) => {
@@ -222,7 +228,6 @@ const Invoice = () => {
   const handlePaid = (id) => {
     console.log("Paid invoice", id);
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -307,6 +312,8 @@ const Invoice = () => {
         onClose={closeModal}
         invoiceId={invoiceId}
         handleLoading={handleLoading}
+        isEdit={isEditMode}
+        collectionId={null}
       />
     </>
   );

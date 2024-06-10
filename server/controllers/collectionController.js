@@ -407,11 +407,15 @@ const getOrderDataForInvoice = async (req, res) => {
         email: adminUser.email,
         abn_acn: adminUser.abn_acn,
         bsb_number: adminUser.bsb_number,
-      },
-      client: {
+        logo: adminUser.logo
+    },
+    client: {
+        id: clientUser.id,
         name: clientUser.name,
         address: clientUser.address,
-      },
+        phone: clientUser.phone,
+        email: clientUser.email,
+    },
       packages: packages.map(pkg => ({
         id: pkg.id,
         name: pkg.package_name,
