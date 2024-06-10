@@ -1412,7 +1412,7 @@ export const BookingListComponent = () => {
                                           Date / Time
                                         </p>
                                         <DatePicker
-                                          className="form-control col-sm-6 col-md-3"
+                                          className="form-control custom-datepicker col-sm-12"
                                           id="datetimepicker4"
                                           name="prefferedDate"
                                           selected={bookingData.prefferedDate}
@@ -1427,7 +1427,7 @@ export const BookingListComponent = () => {
                                         />
 
                                         <select
-                                          className="select2 form-control col-sm-6 col-md-3"
+                                          className="select2 form-control w-50 form-control col-sm-6 col-md-4 ml-1"
                                           name="fromTime"
                                           id="fromTime"
                                           value={bookingData.fromTime}
@@ -1583,12 +1583,10 @@ export const BookingListComponent = () => {
                                         </select>
                                       </div>
                                       {roleId !== 3 && (
-                                        <div className="modal-body d-flex align-items-center px-4">
+                                        <div className="modal-body d-flex justify-content-center align-items-center px-4">
                                           <label
                                             htmlFor="notify"
                                             style={{
-                                              marginLeft: "8rem",
-                                              marginBottom: 0,
                                             }}
                                           >
                                             Notify to Client
@@ -1635,10 +1633,11 @@ export const BookingListComponent = () => {
                                     </div>
 
                                     <div className="tab-pane fade" id="tab2">
-                                      <div className="modal-body d-flex px-4">
-                                        <p style={{ width: "10rem" }}>Client</p>
+                                    <div className="modal-body px-2 row">
+                                    <p className="col-sm-12 col-md-4">
+                                      Client</p>
                                         <Select
-                                          className="select2 w-100"
+                                          className="select2 col-sm-12 col-md-8"
                                           name="clients"
                                           id={"clients"}
                                           instanceId={"clients"}
@@ -1691,15 +1690,15 @@ export const BookingListComponent = () => {
                                           }}
                                         />
                                       </div>
-                                      <div className="modal-body d-flex px-4">
-                                        <p style={{ width: "11rem" }}>
+                                      <div className="modal-body px-2 row">
+                                      <p className="col-sm-12 col-md-4">
                                           Comment
                                         </p>
                                         <textarea
                                           type="text"
                                           id="comment"
                                           value={bookingData.comment}
-                                          className="form-control"
+                                          className="form-control col-sm-12 col-md-8"
                                           placeholder="Notes for the customer."
                                           name="comment"
                                           onChange={handleChange}
