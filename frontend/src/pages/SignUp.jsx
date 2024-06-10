@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import * as Yup from "yup";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { signup } from "../api/authApis";
 import TermsOfServiceModal from "../components/TermsOfServiceModal";
@@ -17,6 +17,12 @@ const SignUp = () => {
     agreedToTerms: false,
   });
 
+  const [isPasswordVisible, setPasswordVisibility] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisibility(!isPasswordVisible);
+  };
+
   const [validationErrors, setValidationErrors] = useState({});
   const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
   const validationSchema = Yup.object().shape({
@@ -27,12 +33,12 @@ const SignUp = () => {
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
       .required("Password is required")
-      .matches(passwordRegex, "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"),
+      .matches(
+        passwordRegex,
+        "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"
+      ),
     country: Yup.string().required("Country is required"),
-    agreedToTerms: Yup.boolean().oneOf(
-      [true],
-      "You must agree to the terms"
-    ),
+    agreedToTerms: Yup.boolean().oneOf([true], "You must agree to the terms"),
   });
 
   const handleChange = (e) => {
@@ -47,7 +53,9 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await validationSchema.validate(userData, { abortEarly: false });
-      const subdomainValue = userData.studioName.toLowerCase().replace(/\s/g, '');
+      const subdomainValue = userData.studioName
+        .toLowerCase()
+        .replace(/\s/g, "");
 
       // Create a new object with studioName replaced
       const updatedUserData = { ...userData, studioName: subdomainValue };
@@ -97,10 +105,7 @@ const SignUp = () => {
 
                   <div className="card-content">
                     <div className="card-body">
-                      <form
-                        className="form-horizontal"
-                        onSubmit={handleSubmit}
-                      >
+                      <form className="form-horizontal" onSubmit={handleSubmit}>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
                             type="text"
@@ -114,8 +119,9 @@ const SignUp = () => {
                           <div className="form-control-position">
                             <i className="feather icon-user" />
                           </div>
-                          <small className="text-danger text-center">{validationErrors.studioName}</small>
-
+                          <small className="text-danger text-center">
+                            {validationErrors.studioName}
+                          </small>
                         </fieldset>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
@@ -130,12 +136,13 @@ const SignUp = () => {
                           <div className="form-control-position">
                             <i className="feather icon-mail" />
                           </div>
-                          <small className="text-danger">{validationErrors.email}</small>
-
+                          <small className="text-danger">
+                            {validationErrors.email}
+                          </small>
                         </fieldset>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
-                            type="password"
+                            type={isPasswordVisible ? "text" : "password"}
                             className="form-control"
                             id="user-password"
                             name="password"
@@ -144,10 +151,27 @@ const SignUp = () => {
                             placeholder="Enter Password"
                           />
                           <div className="form-control-position">
-                            <i className="fa fa-key" />
+                            <i className="fa fa-lock" />
                           </div>
-                          <small className="text-danger">{validationErrors.password}</small>
-
+                          <small className="text-danger">
+                            {validationErrors.password}
+                          </small>
+                          <div
+                            className="form-control-position"
+                            style={{
+                              right: "10px",
+                              top: "0px",
+                              position: "absolute",
+                              cursor: "pointer",
+                            }}
+                            onClick={togglePasswordVisibility}
+                          >
+                            <i
+                              className={`fa ${
+                                isPasswordVisible ? "fa-eye-slash" : "fa-eye"
+                              }`}
+                            />
+                          </div>
                         </fieldset>
                         <fieldset className="form-group position-relative">
                           <select
@@ -166,8 +190,9 @@ const SignUp = () => {
                           <div className="form-control-position">
                             <i className="fa fa-chevron-down"></i>
                           </div>
-                          <small className="text-danger">{validationErrors.country}</small>
-
+                          <small className="text-danger">
+                            {validationErrors.country}
+                          </small>
                         </fieldset>
                         <fieldset className="form-group position-relative">
                           <div className="custom-control custom-checkbox">
@@ -188,14 +213,31 @@ const SignUp = () => {
                               htmlFor="customCheck2"
                             >
                               I agree to the
-                              <a onClick={() => { setShowTermsOfServiceModal(true) }} style={{ color: '#009c9f' }}> Terms of Service </a>
+                              <a
+                                onClick={() => {
+                                  setShowTermsOfServiceModal(true);
+                                }}
+                                style={{ color: "#009c9f" }}
+                              >
+                                {" "}
+                                Terms of Service{" "}
+                              </a>
                               and
-                              <a onClick={() => { setShowPrivacyPolicyModal(true) }} style={{ color: '#009c9f' }}> Privacy Policy </a>
+                              <a
+                                onClick={() => {
+                                  setShowPrivacyPolicyModal(true);
+                                }}
+                                style={{ color: "#009c9f" }}
+                              >
+                                {" "}
+                                Privacy Policy{" "}
+                              </a>
                               for this site.
                             </label>
                           </div>
-                          <small className="text-danger">{validationErrors.agreedToTerms}</small>
-
+                          <small className="text-danger">
+                            {validationErrors.agreedToTerms}
+                          </small>
                         </fieldset>
 
                         <button

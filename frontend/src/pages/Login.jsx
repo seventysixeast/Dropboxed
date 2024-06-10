@@ -22,7 +22,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const [validationErrors, setValidationErrors] = useState({});
+  const [isPasswordVisible, setPasswordVisibility] = useState(false);
 
+  const togglePasswordVisibility = () => {
+    setPasswordVisibility(!isPasswordVisible);
+  };
   const validationSchema = Yup.object().shape({
     userName: Yup.string().required("Email is required"),
     password: Yup.string()
@@ -254,7 +258,7 @@ const Login = () => {
                         </fieldset>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
-                            type="password"
+                            type={isPasswordVisible ? "text" : "password"}
                             className="form-control"
                             id="user-password"
                             name="password"
@@ -263,7 +267,23 @@ const Login = () => {
                             placeholder="Enter Password"
                           />
                           <div className="form-control-position">
-                            <i className="fa fa-key" />
+                            <i className="feather icon-lock" />
+                          </div>
+                          <div
+                            className="form-control-position"
+                            style={{
+                              right: "10px",
+                              top: "0px",
+                              position: "absolute",
+                              cursor: "pointer"
+                            }}
+                            onClick={togglePasswordVisibility}
+                          >
+                            <i
+                              className={`fa ${
+                                isPasswordVisible ? "fa-eye-slash" : "fa-eye"
+                              }`}
+                            />
                           </div>
                           <small className="text-danger">
                             {validationErrors.password}
