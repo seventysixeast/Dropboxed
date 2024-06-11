@@ -256,38 +256,43 @@ exports.WELCOME_CLIENT_EMAIL = (subdomain, subdomain_email, logo, name, email, p
 `;
 
 exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, teamMember) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh; padding: 0 10px; box-sizing: border-box;">
-    <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+<div style="display: flex; justify-content: center; align-items: center; height: auto; padding: 0 10px; box-sizing: border-box;">
+    <span style="width: 100%; display: block; font-family: Arial, Verdana, sans-serif; margin: 0.3rem;">
+        <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
             <tr>
-                <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;">
+                <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 70%; box-sizing: border-box;">
                     <h1 style="font-size: 18px; margin-bottom: 10px;">New Booking</h1>
                     <p>Hello ${name},</p>
                     <p>Your booking has been confirmed with ${subdomain}</p>
+                    <hr>
                     <p><b>Date:</b> ${data.booking_date}</p>
                     <p><b>Time:</b> ${data.booking_time}</p>
                     <p><b>Project:</b> ${data.booking_title}</p>
                     <p><b>Team Member:</b> ${teamMember}</p>
                     <p><b>Contact:</b> ${contact}</p>
+                    <hr>
                     <p>Thank you,</p>
                     <p>${subdomain}</p>
                     <p>You have received this message due to a recent booking</p>
                 </td>
-                <td valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <td valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 30%; box-sizing: border-box;">
+                    <table style="width: 100%; margin-top: 30%; border-collapse: collapse;">
                         <tr>
                             <td align="center">
-                                ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                                ${logo? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
                             </td>
                         </tr>
                         <tr>
-                            <td align="center" style="font-size: 16px; font-weight: bold;">${subdomain}</td>
+                            <td align="center" style="font-size: 16px;">Studiio.au</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="font-size: 16px;">${subdomain}</td>
                         </tr>
                         <tr>
                             <td align="center" style="font-size: 14px;">${subdomainContact}</td>
                         </tr>
                         <tr>
-                            <td align="center" style="margin-top: 20px;">
+                            <td align="center">
                                 <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
                             </td>
                         </tr>
@@ -295,7 +300,7 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, t
                 </td>
             </tr>
         </table>
-        <table style="margin: 30px auto 10px auto;" cellpadding="0" cellspacing="0" border="0">
+        <table style="width: 100%; margin: 30px 30px 10px auto; border-collapse: collapse; text-align:right">
             <tbody>
                 <tr>
                     <td style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
@@ -309,38 +314,43 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, t
 `;
 
 exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, teamMember) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh; padding: 0 10px; box-sizing: border-box;">
-    <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+<div style="display: flex; justify-content: center; align-items: center; height: auto; padding: 0 10px; box-sizing: border-box;">
+    <span style="width: 100%; display: block; font-family: Arial, Verdana, sans-serif; margin: 0.3rem;">
+        <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
             <tr>
-                <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;">
+                <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 70%; box-sizing: border-box;">
                     <h1 style="font-size: 18px; margin-bottom: 10px;">Update Booking</h1>
                     <p>Hello ${name},</p>
                     <p>Your booking has been confirmed with ${subdomain}</p>
+                    <hr>
                     <p><b>Date:</b> ${data.booking_date}</p>
                     <p><b>Time:</b> ${data.booking_time}</p>
                     <p><b>Project:</b> ${data.booking_title}</p>
                     <p><b>Team Member:</b> ${teamMember}</p>
                     <p><b>Contact:</b> ${contact}</p>
+                    <hr>
                     <p>Thank you,</p>
                     <p>${subdomain}</p>
                     <p>You have received this message due to a recent booking</p>
                 </td>
-                <td valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <td valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 30%; box-sizing: border-box;">
+                    <table style="width: 100%; margin-top: 30%; border-collapse: collapse;">
                         <tr>
                             <td align="center">
-                                ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                                ${logo? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
                             </td>
                         </tr>
                         <tr>
-                            <td align="center" style="font-size: 16px; font-weight: bold;">${subdomain}</td>
+                            <td align="center" style="font-size: 16px;">Studiio.au</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="font-size: 16px;">${subdomain}</td>
                         </tr>
                         <tr>
                             <td align="center" style="font-size: 14px;">${subdomainContact}</td>
                         </tr>
                         <tr>
-                            <td align="center" style="margin-top: 20px;">
+                            <td align="center">
                                 <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
                             </td>
                         </tr>
@@ -348,7 +358,7 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, name, data, contact
                 </td>
             </tr>
         </table>
-        <table style="margin: 30px auto 10px auto;" cellpadding="0" cellspacing="0" border="0">
+        <table style="width: 100%; margin: 30px 30px 10px auto; border-collapse: collapse; text-align:right">
             <tbody>
                 <tr>
                     <td style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
@@ -362,7 +372,7 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, name, data, contact
 `;
 
 exports.NEW_COLLECTION = (subdomain, logo, data) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+<div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
@@ -418,7 +428,7 @@ exports.NEW_COLLECTION = (subdomain, logo, data) => `
 `;
 
 exports.NEW_TASK = (subdomain, logo, name, client_name, task, date, description, comments) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+<div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
@@ -479,7 +489,7 @@ exports.NEW_TASK = (subdomain, logo, name, client_name, task, date, description,
 `;
 
 exports.COMPLETED_TASK = (subdomain, logo, name, task, date, description, comments) => `
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+<div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
