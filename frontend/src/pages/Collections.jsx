@@ -422,7 +422,6 @@ const Collections = () => {
       setFormData(initialFormData);
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
-      getAllCollectionsData();
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
@@ -522,13 +521,15 @@ const Collections = () => {
       {
         Header: "Invoice",
         Cell: ({ row }) => (
-          <div className="btnsrow text-center">
+          <div className="text-center">
             {roleId !== 3 && (
               <>
                 {row.original.orderFound ? (
                   <ReTooltip title="Invoice Generated." placement="top">
                     <button className="btn btn-sm btn-primary">
-                      <span>Invoice Generated</span>
+                      <span style={{ whiteSpace: "nowrap", fontSize: "0.7rem" }}>
+                        Invoice Generated
+                      </span>
                     </button>
                   </ReTooltip>
                 ) : (
@@ -540,7 +541,9 @@ const Collections = () => {
                         setSelectedCollectionId(row.original.id);
                       }}
                     >
-                      <span>Create Invoice</span>
+                      <span style={{ whiteSpace: "nowrap", fontSize: "0.7rem" }}>
+                        Create Invoice
+                      </span>
                     </button>
                   </ReTooltip>
                 )}
@@ -613,7 +616,7 @@ const Collections = () => {
       {
         Header: "Image Counts",
         Cell: ({ row }) => (
-          <div className="btnsrow text-center">
+          <div className="text-center">
             <ReTooltip title="Click to update image count." placement="top">
               <div
                 className="badge badge-pill badge-light-primary"
@@ -634,7 +637,7 @@ const Collections = () => {
       {
         Header: "Created On",
         Cell: ({ row }) => (
-          <div className="btnsrow text-center">
+          <div className="text-center">
             <div className="badge badge-pill badge-light-primary">
               {moment(row.original.created).format("DD/MM/YYYY")}
             </div>
@@ -649,6 +652,7 @@ const Collections = () => {
             <ReTooltip title="Click to edit the collection." placement="top">
               <button
                 className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                style={{ padding: "0.5rem" }}
                 onClick={() => getCollectionData(row.original.slug)}
                 data-toggle="modal"
                 data-target="#bootstrap"
@@ -659,6 +663,7 @@ const Collections = () => {
             <ReTooltip title="Click to delete the collection." placement="top">
               <button
                 className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                style={{ padding: "0.5rem" }}
                 onClick={() => {
                   setShowDeleteModal(true);
                   setCollectionIdToDelete(row.original.id);
@@ -673,6 +678,7 @@ const Collections = () => {
             >
               <button
                 className="btn btn-icon btn-outline-warning mr-1 mb-1"
+                style={{ padding: "0.5rem" }}
                 onClick={() => {
                   navigator.clipboard.writeText(
                     `${url2}view-gallery/${row.original.slug}`
@@ -828,7 +834,7 @@ const Collections = () => {
         onConfirm={deleteCollectionData}
         message="Are you sure you want to delete this collection?"
       />
-     <EditInvoiceModal
+      <EditInvoiceModal
         isOpen={modalIsOpen}
         onClose={closeModal}
         invoiceId={currentInvoiceId}

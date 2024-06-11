@@ -326,6 +326,7 @@ const EditInvoiceModal = ({
                                   type="text"
                                   className="form-control"
                                   value={invoiceData.client.name || ""}
+                                  placeholder="Client Name"
                                 />
                               </div>
                               <div className="col-12 col-xs-12 mb-1">
@@ -333,6 +334,7 @@ const EditInvoiceModal = ({
                                   className="form-control"
                                   rows={3}
                                   value={invoiceData.client.address || ""}
+                                  placeholder="Address"
                                 />
                               </div>
                               <div className="col-12 col-xs-12 mb-1">
@@ -340,6 +342,7 @@ const EditInvoiceModal = ({
                                   type="email"
                                   className="form-control"
                                   value={invoiceData.client.email || ""}
+                                  placeholder="Client Email"
                                 />
                               </div>
                               <div className="col-12 col-xs-12 mb-1">
@@ -347,6 +350,7 @@ const EditInvoiceModal = ({
                                   type="text"
                                   className="form-control"
                                   value={invoiceData.client.phone || ""}
+                                  placeholder="Client Phone"
                                 />
                               </div>
                             </div>
@@ -487,7 +491,7 @@ const EditInvoiceModal = ({
                                 <input
                                   type="text"
                                   className="form-control"
-                                  defaultValue="Partial payment"
+                                  value={invoiceData.invoice?.paid_status || ""}
                                 />
                               </div>
                               <div className="regarding-discount form-group">

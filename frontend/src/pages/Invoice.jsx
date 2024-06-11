@@ -209,10 +209,10 @@ const Invoice = () => {
   };
 
   const handleEdit = (id) => {
+    setEditMode(true);
     setInvoiceId(id);
     setModalIsOpen(true);
     setLoading(true);
-    setEditMode(true);
   };
 
   const handleDelete = (id) => {

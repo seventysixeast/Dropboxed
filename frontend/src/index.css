@@ -1755,3 +1755,13 @@ a:not([href]) {
 .custom-week-view .fc-view-harness {
   min-width: 768px;
 }
+
+.btnsrow {
+  display: flex;
+  align-items: center;
+}
+
+.btnsrow .btn {
+  margin-right: 0.5rem;
+  margin-bottom: 0;
+}
