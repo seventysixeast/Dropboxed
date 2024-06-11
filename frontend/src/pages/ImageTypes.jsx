@@ -66,8 +66,8 @@ const ImageTypes = () => {
       id: "",
       type: "",
       price: "",
-      status: "",
-      gallery_status: "",
+      status: "Active",
+      gallery_status: "Image",
     });
   };
 

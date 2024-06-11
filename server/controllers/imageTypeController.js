@@ -17,6 +17,7 @@ const getImageTypes = async (req, res) => {
 const createImageType = async (req, res) => {
   try {
     const { id, type, price, status, gallery_status, subdomain_id } = req.body;
+    console.log(req.body);
     let imageType;
 
     const imageTypeData = {

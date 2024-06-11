@@ -102,10 +102,11 @@ const getAllServices = async (req, res) => {
 
 const getService = async (req, res) => {
   const id = req.body.id;
+  const subdomainId = req.body.subdomain_id;
 
   try {
     const service = await Packages.findOne({
-      where: { id: id },
+      where: { id: id, subdomain_id: subdomainId },
     });
     res.status(200).json({ success: true, data: service });
   } catch (error) {

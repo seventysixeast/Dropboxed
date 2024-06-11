@@ -15,8 +15,8 @@ const AddService = () => {
   const { id } = useParams();
   const { authData } = useAuth();
   const { user } = authData;
-  const subdomainId = user.subdomain_id;
   const roleId = user.role_id;
+  const subdomainId = user.subdomain_id;
   const [loading, setLoading] = useState(false);
   const [imageTypes, setImageTypes] = useState([]);
   const [cloneIndex, setCloneIndex] = useState(1);
@@ -30,7 +30,7 @@ const AddService = () => {
   });
 
   useEffect(() => {
-    if (id != undefined) {
+    if (id !== undefined) {
       getServiceById();
     }
   }, [id]);
@@ -56,23 +56,64 @@ const AddService = () => {
 
   const handleAddInstance = () => {
     setCloneIndex(cloneIndex + 1);
+    const newImageTypeDetails = [
+      ...serviceData.imageTypeDetails,
+      { type: { price: 0 }, label: "", count: "" },
+    ];
+
+    const newTotalPrice = newImageTypeDetails.reduce(
+      (total, imageTypeDetail) =>
+        total + parseInt(imageTypeDetail.type.price || 0),
+      0
+    );
+
     setServiceData({
       ...serviceData,
-      imageTypeDetails: [
-        ...serviceData.imageTypeDetails,
-        { type: "", label: "", count: "" },
-      ],
+      imageTypeDetails: newImageTypeDetails,
+      totalPrice: newTotalPrice,
     });
   };
 
   const handleRemoveInstance = (index) => {
-    const newServiceData = { ...serviceData };
-    newServiceData.imageTypeDetails.splice(index, 1);
-    setServiceData(newServiceData);
-    setCloneIndex(cloneIndex - 1);
+    if (serviceData.imageTypeDetails.length === 1) {
+      setServiceData({
+        ...serviceData,
+        imageTypeDetails: [{ type: "", label: "", count: "" }],
+        totalPrice: 0,
+      });
+    } else {
+      const newImageTypeDetails = serviceData.imageTypeDetails.filter(
+        (_, idx) => idx !== index
+      );
+
+      const newTotalPrice = newImageTypeDetails.reduce(
+        (total, imageTypeDetail) =>
+          total + parseInt(imageTypeDetail.type.price || 0),
+        0
+      );
+
+      setServiceData({
+        ...serviceData,
+        imageTypeDetails: newImageTypeDetails,
+        totalPrice: newTotalPrice,
+      });
+      setCloneIndex(cloneIndex - 1);
+    }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+      serviceData.imageTypeDetails.length === 0 ||
+      serviceData.imageTypeDetails.some(
+        (detail) => !detail.type || !detail.type.value
+      )
+    ) {
+      toast.error("Minimum one image type is required!");
+      return;
+    }
+
     const formData = new FormData();
 
     const isVideoArray = serviceData.imageTypeDetails.map((imageTypeDetail) => {
@@ -107,13 +148,13 @@ const AddService = () => {
     formData.append("package_order", "0");
     formData.append("show_price", serviceData.showPrice);
 
-    if (id != undefined) {
+    if (id !== undefined) {
       formData.append("id", id);
     }
 
     try {
       const response = await createService(formData);
-      if ((response.status = 200)) {
+      if (response.status === 200) {
         toast.success("Service added successfully!");
         setServiceData({
           serviceName: "",
@@ -138,6 +179,7 @@ const AddService = () => {
     const formData = new FormData();
     formData.append("id", id);
     formData.append("subdomain_id", subdomainId);
+    await getAllImageTypesData();
     try {
       let service = await getService(formData);
       const data = service.data;
@@ -159,7 +201,7 @@ const AddService = () => {
           count: detail.image_type_count,
         };
       });
-      if (data.status == "Active") {
+      if (data.status === "Active") {
         data.status = "ACTIVE";
       } else {
         data.status = "INACTIVE";
@@ -185,17 +227,16 @@ const AddService = () => {
   const handleImageTypeChange = (index, selectedOption) => {
     const updatedImageTypeDetails = [...serviceData.imageTypeDetails];
     updatedImageTypeDetails[index].type = selectedOption;
+
+    const newTotalPrice = updatedImageTypeDetails.reduce(
+      (total, { type }) => total + parseInt(type.price || 0),
+      0
+    );
+
     setServiceData({
       ...serviceData,
       imageTypeDetails: updatedImageTypeDetails,
-    });
-    let sum = 0;
-    updatedImageTypeDetails.forEach(({ type }) => {
-      sum += type.price;
-    });
-    setServiceData({
-      ...serviceData,
-      totalPrice: sum,
+      totalPrice: newTotalPrice,
     });
   };
 
