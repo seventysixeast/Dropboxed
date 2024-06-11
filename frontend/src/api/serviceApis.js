@@ -30,17 +30,18 @@ const getService = async (data) => {
 
 const createService = async (data) => {
   try {
-    const response = await API.post("/service/createService", data);
-    if (response.status === 200) {
-      return response.data;
-    } else {
-      throw new Error("Failed to create service");
-    }
+    const response = await API.post("/service/createService", data, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
   } catch (error) {
     console.error("Error creating service:", error);
     throw error;
   }
 };
+
 
 const deleteService = async (data) => {
   try {

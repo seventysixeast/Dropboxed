@@ -26,7 +26,7 @@ const AddService = () => {
     status: "INACTIVE",
     totalPrice: 0,
     subdomainId: user.subdomain_id,
-    showPrice: 1,
+    showPrice: true,
   });
 
   useEffect(() => {
@@ -103,7 +103,7 @@ const AddService = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (
       serviceData.imageTypeDetails.length === 0 ||
       serviceData.imageTypeDetails.some(
@@ -113,18 +113,18 @@ const AddService = () => {
       toast.error("Minimum one image type is required!");
       return;
     }
-
+  
     const formData = new FormData();
-
+  
     const isVideoArray = serviceData.imageTypeDetails.map((imageTypeDetail) => {
       return imageTypeDetail.type.isVideo;
     });
-
+  
     let isVideo = false;
     if (isVideoArray.includes("Video Link")) {
       isVideo = true;
     }
-
+  
     const imageTypeDetails = serviceData.imageTypeDetails.map(
       (imageTypeDetail) => {
         return {
@@ -134,9 +134,9 @@ const AddService = () => {
         };
       }
     );
-
+  
     let package_slug = serviceData.serviceName.replace(/ /g, "-");
-
+  
     formData.append("package_type", "SERVICE");
     formData.append("package_name", serviceData.serviceName);
     formData.append("package_slug", package_slug);
@@ -147,14 +147,14 @@ const AddService = () => {
     formData.append("status", serviceData.status);
     formData.append("package_order", "0");
     formData.append("show_price", serviceData.showPrice);
-
+  
     if (id !== undefined) {
       formData.append("id", id);
     }
-
+  
     try {
       const response = await createService(formData);
-      if (response.status === 200) {
+      if (response.success) {
         toast.success("Service added successfully!");
         setServiceData({
           serviceName: "",
@@ -162,6 +162,7 @@ const AddService = () => {
           status: "INACTIVE",
           totalPrice: 0,
           subdomainId: user.subdomain_id,
+          showPrice: true,
         });
         setCloneIndex(1);
         window.location.href = "/services";
@@ -173,6 +174,7 @@ const AddService = () => {
       toast.error("Failed to add service!");
     }
   };
+  
 
   const getServiceById = async () => {
     setLoading(true);
@@ -480,14 +482,14 @@ const AddService = () => {
 
                         <div className="col-md-12 my-3 ">
                           <div className="row">
-                            <label
-                              htmlFor="status"
+                            <p
                               className="form-label col-md-2 col-sm-6"
                             >
                               Status
-                            </label>
+                            </p>
                             <Select
                               className="select2 col-md-3 col-sm-6 mr-1 mb-1  p-0"
+                              id="status"
                               name="status"
                               value={statusOptions.find(
                                 (option) => option.value === serviceData.status
@@ -525,7 +527,7 @@ const AddService = () => {
 
                             <Switch
                               checked={serviceData.showPrice}
-                              id="notify"
+                              id="showPrice"
                               onClick={() =>
                                 setServiceData({
                                   ...serviceData,
