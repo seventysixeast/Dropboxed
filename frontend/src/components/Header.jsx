@@ -26,7 +26,6 @@ const Header = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-    
   }, []);
 
   const checkUserStatus = async () => {
@@ -68,10 +67,10 @@ const Header = () => {
           <ul className="nav navbar-nav flex-row">
             <li className="nav-item mobile-menu d-lg-none mr-auto">
               <a
-                className="nav-link nav-menu-main toggle-menu hidden-xs"
-                onClick={handleMenuToggle}
+                className="nav-link nav-menu-main menu-toggle hidden-xs"
+                href="#"
               >
-                <i className="feather icon-menu font-large-1"></i>
+                <i className="feather icon-menu font-large-1" />
               </a>
             </li>
             <li className="nav-item mr-auto">
