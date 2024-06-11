@@ -66,37 +66,29 @@ const Table2 = ({ data, columns }) => {
                         marginLeft: "0 !important",
                       }}
                     >
-                      <div
-                        className="col-sm-12 col-md-5"
-                        style={{ marginLeft: "-15px" }}
-                      >
-                        <span>
-                          {" "}
-                          Show{" "}
-                          <select
-                            value={pageSize}
-                            id="pageSize"
-                            onChange={(e) => {
-                              setPageSize(Number(e.target.value));
-                            }}
-                            className="custom-select custom-select-sm form-control form-control-sm w-25"
-                          >
-                            {[10, 25, 50, 100].map((pageSize) => (
-                              <option key={pageSize} value={pageSize}>
-                                Show {pageSize}
-                              </option>
-                            ))}
-                          </select>{" "}
-                          Entries
-                        </span>
+                      <div className="col-sm-4 col-md-2 m-0 p-0  align-items-center mr-1">
+                        <select
+                          value={pageSize}
+                          id="pageSize"
+                          onChange={(e) => {
+                            setPageSize(Number(e.target.value));
+                          }}
+                          className="custom-select custom-select-sm form-control form-control-sm"
+                        >
+                          {[10, 25, 50, 100].map((pageSize) => (
+                            <option key={pageSize} value={pageSize}>
+                              Show {pageSize} Entries
+                            </option>
+                          ))}
+                        </select>{" "}
                       </div>
-                      <div className="col-sm-12 col-md-7">
+
+                      <div className="col-sm-4 col-md-2 m-0 p-0  align-items-center ml-1">
                         <input
                           type="search"
-                          className="form-control form-control-sm float-right w-25"
-                          style={{ marginRight: "-16px" }}
+                          className="form-control form-control-sm float-right"
                           name="search"
-                          id="search" 
+                          id="search"
                           value={globalFilter || ""}
                           onChange={(e) => setGlobalFilter(e.target.value)}
                           placeholder="Search..."
@@ -111,37 +103,42 @@ const Table2 = ({ data, columns }) => {
                           className="tablealt-pagination dataTable table-inverse table-striped"
                         >
                           <thead>
-                            {headerGroups.map((headerGroup, headerGroupIndex) => (
-                              <tr {...headerGroup.getHeaderGroupProps()} key={headerGroupIndex}>
-                                {headerGroup.headers.map((column) => (
-                                  <th
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
-                                    key={column.id}
-                                  >
-                                    {column.render("Header")}
-                                    <span>
-                                      {column.isSorted ? (
-                                        column.isSortedDesc ? (
-                                          <i
-                                            className="fa fa-sort-desc"
-                                            style={{ marginLeft: "10px" }}
-                                          />
-                                        ) : (
-                                          <i
-                                            className="fa fa-sort-asc"
-                                            style={{ marginLeft: "10px" }}
-                                          />
-                                        )
-                                      ) : (
-                                        ""
+                            {headerGroups.map(
+                              (headerGroup, headerGroupIndex) => (
+                                <tr
+                                  {...headerGroup.getHeaderGroupProps()}
+                                  key={headerGroupIndex}
+                                >
+                                  {headerGroup.headers.map((column) => (
+                                    <th
+                                      {...column.getHeaderProps(
+                                        column.getSortByToggleProps()
                                       )}
-                                    </span>
-                                  </th>
-                                ))}
-                              </tr>
-                            ))}
+                                      key={column.id}
+                                    >
+                                      {column.render("Header")}
+                                      <span>
+                                        {column.isSorted ? (
+                                          column.isSortedDesc ? (
+                                            <i
+                                              className="fa fa-sort-desc"
+                                              style={{ marginLeft: "10px" }}
+                                            />
+                                          ) : (
+                                            <i
+                                              className="fa fa-sort-asc"
+                                              style={{ marginLeft: "10px" }}
+                                            />
+                                          )
+                                        ) : (
+                                          ""
+                                        )}
+                                      </span>
+                                    </th>
+                                  ))}
+                                </tr>
+                              )
+                            )}
                           </thead>
                           <tbody {...getTableBodyProps()}>
                             {page.map((row) => {
@@ -150,7 +147,10 @@ const Table2 = ({ data, columns }) => {
                                 <tr {...row.getRowProps()} key={row.id}>
                                   {row.cells.map((cell) => {
                                     return (
-                                      <td {...cell.getCellProps()} key={cell.column.id}>
+                                      <td
+                                        {...cell.getCellProps()}
+                                        key={cell.column.id}
+                                      >
                                         {cell.render("Cell")}
                                       </td>
                                     );

@@ -75,47 +75,53 @@ const TableCustom = ({ data, columns }) => {
                 <div className="card pb-4">
                   <div className="card-content collapse show">
                     <div className="card-body card-dashboard dataTables_wrapper dt-bootstrap4">
-                      <div className="d-flex flex-wrap justify-content-between mb-2" style={{ marginLeft: "0 !important" }}>
-                        <div className="col-12 col-md-4 d-flex align-items-center mb-2 mb-md-0">
-                          <span>
-                            Show{" "}
-                            <select
-                              value={pageSize}
-                              onChange={(e) => setPageSize(Number(e.target.value))}
-                              className="custom-select custom-select-sm form-control form-control-sm w-auto"
-                            >
-                              {[10, 25, 50, 100].map((pageSize) => (
-                                <option key={pageSize} value={pageSize}>
-                                  {pageSize}
-                                </option>
-                              ))}
-                            </select>{" "}
-                            Entries
-                          </span>
-                        </div>
-                        <div className="col-12 col-md-4 d-flex justify-content-center align-items-center mb-2 mb-md-0">
-                          <select
-                            value={paidFilter}
-                            onChange={(e) => setPaidFilter(e.target.value)}
-                            className="custom-select custom-select-sm form-control form-control-sm w-auto"
-                          >
-                            <option value="all">-- Select Status</option>
-                            <option value="sent">Sent</option>
-                            <option value="paid">Paid</option>
-                            <option value="pending">Pending</option>
-                          </select>
-                        </div>
-                        <div className="col-12 col-md-4 d-flex justify-content-md-end align-items-center">
-                          <input
-                            type="search"
-                            className="form-control form-control-sm w-100 w-md-auto"
-                            value={globalFilter || ""}
-                            onChange={(e) => setGlobalFilter(e.target.value)}
-                            placeholder="Search..."
-                            style={{ marginRight: "-16px" }}
-                          />
-                        </div>
-                      </div>
+                    <div
+  className="d-flex flex-wrap justify-content-between mb-2"
+  style={{ marginLeft: "0 !important" }}
+>
+<div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
+
+    <select
+      value={pageSize}
+      id="pageSize"
+      onChange={(e) => {
+        setPageSize(Number(e.target.value));
+      }}
+      className="custom-select custom-select-sm form-control form-control-sm"
+    >
+      {[10, 25, 50, 100].map((pageSize) => (
+        <option key={pageSize} value={pageSize}>
+          Show {pageSize} Entries
+        </option>
+      ))}
+    </select>
+  </div>
+  <div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
+
+    <select
+      value={paidFilter}
+      onChange={(e) => setPaidFilter(e.target.value)}
+      className="custom-select custom-select-sm form-control form-control-sm"
+    >
+      <option value="all">-- Select Status</option>
+      <option value="sent">Sent</option>
+      <option value="paid">Paid</option>
+      <option value="pending">Pending</option>
+    </select>
+  </div>
+  <div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
+    <input
+      type="search"
+      className="form-control form-control-sm"
+      name="search"
+      id="search"
+      value={globalFilter || ""}
+      onChange={(e) => setGlobalFilter(e.target.value)}
+      placeholder="Search..."
+    />
+  </div>
+</div>
+
                       <table
                         {...getTableProps()}
                         className="tablealt-pagination dataTable table-inverse table-striped"
@@ -177,8 +183,9 @@ const TableCustom = ({ data, columns }) => {
                       <div className="dataTables_paginate paging_full_numbers">
                         <ul className="pagination">
                           <li
-                            className={`paginate_button page-item first ${!canPreviousPage ? "disabled" : ""
-                              }`}
+                            className={`paginate_button page-item first ${
+                              !canPreviousPage ? "disabled" : ""
+                            }`}
                           >
                             <button
                               className="page-link"
@@ -188,8 +195,9 @@ const TableCustom = ({ data, columns }) => {
                             </button>
                           </li>
                           <li
-                            className={`paginate_button page-item previous ${!canPreviousPage ? "disabled" : ""
-                              }`}
+                            className={`paginate_button page-item previous ${
+                              !canPreviousPage ? "disabled" : ""
+                            }`}
                           >
                             <button
                               className="page-link"
@@ -208,8 +216,9 @@ const TableCustom = ({ data, columns }) => {
                             .map((page) => (
                               <li
                                 key={page}
-                                className={`paginate_button page-item ${pageIndex === page ? "active" : ""
-                                  }`}
+                                className={`paginate_button page-item ${
+                                  pageIndex === page ? "active" : ""
+                                }`}
                               >
                                 <button
                                   className="page-link"
@@ -225,8 +234,9 @@ const TableCustom = ({ data, columns }) => {
                             </li>
                           )}
                           <li
-                            className={`paginate_button page-item next ${!canNextPage ? "disabled" : ""
-                              }`}
+                            className={`paginate_button page-item next ${
+                              !canNextPage ? "disabled" : ""
+                            }`}
                           >
                             <button
                               className="page-link"
@@ -236,8 +246,9 @@ const TableCustom = ({ data, columns }) => {
                             </button>
                           </li>
                           <li
-                            className={`paginate_button page-item last ${!canNextPage ? "disabled" : ""
-                              }`}
+                            className={`paginate_button page-item last ${
+                              !canNextPage ? "disabled" : ""
+                            }`}
                           >
                             <button
                               className="page-link"
