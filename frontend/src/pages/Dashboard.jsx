@@ -686,8 +686,7 @@ export const Dashboard = () => {
                             <i className="feather icon-list"></i>
                           </button>
                         </ReTooltip>
-
-                        <QuickBooksConnect />
+                        {user.role_id == 5 && <QuickBooksConnect />}
 
                         {user.role_id == 5 && (
                           <>
@@ -751,7 +750,7 @@ export const Dashboard = () => {
                 </div>
               </div>
               {galleryView === "list" ? (
-                <CollectionTable  />
+                <CollectionTable />
               ) : (
                 <div className="card-deck-wrapper">
                   <div className="grid-hover row">

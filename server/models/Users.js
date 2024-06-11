@@ -186,6 +186,26 @@ const Users = sequelize.define('User', {
     type: DataTypes.STRING(255),
     allowNull: true
   },
+  quickbooks_customer_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    defaultValue: null
+  },
+  quickbooks_income_account_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    defaultValue: null
+  },
+  quickbooks_expense_account_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    defaultValue: null
+  },
+  quickbooks_asset_account_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    defaultValue: null
+  },
   deleted_at: {
     type: DataTypes.DATE,
     allowNull: true

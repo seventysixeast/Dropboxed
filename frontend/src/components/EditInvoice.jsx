@@ -15,6 +15,7 @@ const EditInvoiceModal = ({
   handleLoading,
   isEdit,
   collectionId,
+  getAllCollectionsData
 }) => {
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
@@ -182,6 +183,7 @@ const EditInvoiceModal = ({
         toast.success(
           `Invoice ${isEdit ? "updated" : "created"} successfully!`
         );
+        getAllCollectionsData();
         resetData();
         onClose();
       } else {
@@ -369,7 +371,7 @@ const EditInvoiceModal = ({
                                       <th>Quantity</th>
                                       <th>Price</th>
                                       <th>Total</th>
-                                      {roleId !== 3 && <th>Action</th>}
+                                      {/* {roleId !== 3 && <th>Action</th>} */}
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -447,7 +449,7 @@ const EditInvoiceModal = ({
                                             readOnly
                                           />
                                         </td>
-                                        {roleId !== 3 && (
+                                        {/* {roleId !== 3 && (
                                           <td>
                                             <button
                                               type="button"
@@ -462,14 +464,14 @@ const EditInvoiceModal = ({
                                               Delete
                                             </button>
                                           </td>
-                                        )}
+                                        )} */}
                                       </tr>
                                     ))}
                                   </tbody>
                                 </table>
                               </div>
                             </div>
-                            {roleId !== 3 && (
+                            {/* roleId !== 3 && (
                               <div className="form-group">
                                 <button
                                   className="btn btn-primary mt-1"
@@ -480,7 +482,8 @@ const EditInvoiceModal = ({
                                   Add Item
                                 </button>
                               </div>
-                            )}
+                            ) */}
+                            
                           </form>
                         </div>
                         <hr />

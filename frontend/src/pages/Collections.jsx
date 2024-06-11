@@ -859,6 +859,7 @@ const Collections = () => {
         handleLoading={handleLoading}
         isEdit={isEditMode}
         collectionId={selectedCollectionId}
+        getAllCollectionsData={getAllCollectionsData}
       />
       <NoInvoiceModal
         isOpen={showNoInvoiceModal}

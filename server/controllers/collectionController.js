@@ -7,6 +7,8 @@ const CustomInvoiceList = require("../models/Invoices");
 const { NEW_COLLECTION } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
 const phpSerialize = require('php-serialize').serialize;
+const QuickBooks = require('node-quickbooks');
+const { createQuickBooksInvoice, getQuickBooksAccessToken, refreshQuickBooksToken } = require('./quickbooksController');
 
 
 
@@ -230,7 +232,7 @@ const getAllCollections = async (req, res) => {
   } catch (error) {
     console.error('Error occurred:', error);
     res.status(500).json({ error: "Failed to list collections" });
-    console.log("error>>>>>>>>>>>>>>>>>>>>>>",error.message)
+    console.log("error>>>>>>>>>>>>>>>>>>>>>>", error.message)
   }
 };
 
@@ -408,19 +410,18 @@ const getOrderDataForInvoice = async (req, res) => {
         abn_acn: adminUser.abn_acn,
         bsb_number: adminUser.bsb_number,
         logo: adminUser.logo
-    },
-    client: {
+      },
+      client: {
         id: clientUser.id,
         name: clientUser.name,
         address: clientUser.address,
         phone: clientUser.phone,
         email: clientUser.email,
-    },
+      },
       packages: packages.map(pkg => ({
         id: pkg.id,
         name: pkg.package_name,
-        price: pkg.package_price,
-        show_price: pkg.show_price,
+        price: pkg.show_price ? pkg.package_price : 0,
         details: pkg.image_type_details
       })),
       total_price: totalPrice
@@ -431,6 +432,10 @@ const getOrderDataForInvoice = async (req, res) => {
     console.error('Error fetching order data for invoice:', error);
     res.status(500).json({ error: 'Failed to fetch order data for invoice' });
   }
+};
+
+const serializeInvoiceItems = (items) => {
+  return items.map(item => `${item.product_name} x${item.quantity}`).join(', ');
 };
 
 const serializeItems = (items) => {
@@ -449,7 +454,6 @@ const serializeItems = (items) => {
 };
 
 const saveInvoiceToDatabase = async (req, res) => {
-  const userId = req.user.userId;
   const {
     collectionId,
     items,
@@ -462,10 +466,77 @@ const saveInvoiceToDatabase = async (req, res) => {
     note,
     invoiceLink,
     clientName,
-    clientAddress
+    clientAddress,
+    subdomainId
   } = req.body;
+  console.log(req.body);
+  const userId = subdomainId;
 
   try {
+    // Find collection to get client ID
+    const collection = await Collection.findOne({ where: { id: collectionId } });
+    if (!collection) {
+      return res.status(404).json({ success: false, message: 'Collection not found' });
+    }
+
+    // Find the client user
+    const clientUser = await User.findOne({ where: { id: collection.client_id } });
+    if (!clientUser) {
+      return res.status(404).json({ success: false, message: 'Client user not found' });
+    }
+
+    // Get or create QuickBooks customer ID
+    const user = await User.findOne({ where: { id: userId } });
+    let quickbooks_invoice_id = "";
+    if (user.quickbooks_realm_id !== null) {
+
+      const realmId = user.quickbooks_realm_id;
+      //console.log("realmId",realmId)
+      let accessToken = await getQuickBooksAccessToken(userId);
+      //console.log("accessToken",accessToken)
+
+      // Refresh token if expired
+      /*if (!accessToken) {
+        accessToken = await refreshQuickBooksToken(userId);
+      }*/
+      accessToken = await refreshQuickBooksToken(userId);
+
+      const qbo = new QuickBooks(
+        process.env.QUICKBOOKS_CLIENT_ID,
+        process.env.QUICKBOOKS_CLIENT_SECRET,
+        accessToken,
+        false, // No OAuth 1.0
+        realmId,
+        true, // Use sandbox
+        false, // Turn off debugging
+        4, // Minor version
+        '2.0', // OAuth version
+        process.env.QUICKBOOKS_CLIENT_ID // Consumer key as token secret
+      );
+      console.log("clientUser", clientUser)
+      // Check if the client is already a customer in QuickBooks
+      let quickbooks_customer_id;
+      if (clientUser.quickbooks_customer_id) {
+        quickbooks_customer_id = clientUser.quickbooks_customer_id;
+      } else {
+        // Create a new customer in QuickBooks
+        quickbooks_customer_id = await createQuickBooksCustomer(userId, clientUser, qbo);
+        //console.log("quickbooks_customer_id>>>",newCustomer)
+
+
+        // Save the new QuickBooks client ID in the database
+        //await User.update({ quickbooks_customer_id: quickbooks_customer_id }, { where: { id: clientUser.id } });
+      }
+      console.log("quickbooks_customer_id>>", quickbooks_customer_id)
+      // Sync invoice with QuickBooks
+
+      const { invoice } = await createQuickBooksInvoice(userId, items, total, note, quickbooks_customer_id);
+      console.log("createdInvoice", invoice)
+      quickbooks_invoice_id = invoice.Id;
+    }
+
+
+    // Save to local database (uncomment if needed)
     const newOrder = await Order.create({
       user_id: userId,
       collection_id: collectionId,
@@ -474,14 +545,16 @@ const saveInvoiceToDatabase = async (req, res) => {
       allow_download: 0,
       invoice_link: invoiceLink,
       invoice_price: total,
+      subdomain_id: subdomainId
     });
+
+    console.log("newOrder", newOrder)
 
     const orderId = newOrder.id;
 
-    const serializedItems = serializeItems(items);
-
-    await CustomInvoiceList.create({
-      order_id: newOrder.id,
+    const serializedItems = phpSerialize(items);
+    const invoiceData = {
+      order_id: orderId,
       user_name: clientName,
       user_address: clientAddress,
       item_descriptions: serializedItems,
@@ -492,13 +565,78 @@ const saveInvoiceToDatabase = async (req, res) => {
       send_invoice: false,
       paid_status: false,
       invoice_link: invoiceLink,
-    });
+      subdomain_id: subdomainId
+    }
+    if (quickbooks_invoice_id !== "") {
+      invoiceData.quickbooks_invoice_id = quickbooks_invoice_id;
+    }
 
-    return res.status(200).json({ success: true });
+    const invoiceCreated = await CustomInvoiceList.create(
+      invoiceData
+    );
+
+    return res.status(200).json({ success: true, invoice: invoiceCreated, quickbooks_invoice_id: quickbooks_invoice_id });
   } catch (error) {
     console.error('Error saving invoice:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
 };
+
+// Function to create a customer in QuickBooks
+const createQuickBooksCustomer = (userId, clientUser, qbo) => {
+  return new Promise((resolve, reject) => {
+    qbo.createCustomer({
+      "FullyQualifiedName": clientUser.name,
+      "PrimaryEmailAddr": {
+        "Address": clientUser.email
+      },
+      "DisplayName": clientUser.name,
+      // "Suffix": "Jr", 
+      // "Title": "Mr", 
+      // "MiddleName": "B", 
+      "Notes": "Here are other details.",
+      // "FamilyName": "saruna", 
+      "PrimaryPhone": {
+        "FreeFormNumber": clientUser.phone
+      },
+      // "CompanyName": "saruna business", 
+      "BillAddr": {
+        "CountrySubDivisionCode": "NSW",
+        "City": clientUser.city,
+        "PostalCode": clientUser.postal_code,
+        "Line1": clientUser.address,
+        "Country": clientUser.country
+      }
+      // "GivenName": "saruna"
+    }, (error, newCustomer) => {
+      if (error) {
+        console.error('Error creating QuickBooks customer:', error);
+        reject(new Error('Could not create QuickBooks customer: ' + error.message));
+      } else {
+        // Check if newCustomer is defined and contains Id
+        if (!newCustomer || !newCustomer.Id) {
+          const errorMessage = 'Could not create QuickBooks customer: Customer ID not received';
+          console.error(errorMessage);
+          console.error('QuickBooks API Response:', newCustomer); // Log the response from QuickBooks API
+          reject(new Error(errorMessage));
+        } else {
+          console.log("newCustomer", newCustomer)
+          // Save the new QuickBooks client ID in the database
+          console.log("clientUser", clientUser.id)
+          User.update({ quickbooks_customer_id: newCustomer.Id }, { where: { id: clientUser.id } })
+            .then(() => {
+              resolve(newCustomer.Id);
+            })
+            .catch((updateError) => {
+              console.error('Error updating user with QuickBooks client ID:', updateError);
+              reject(new Error('Could not update user with QuickBooks client ID'));
+            });
+        }
+      }
+    });
+  });
+};
+
+
 
 module.exports = { addGallery, getAllCollections, getCollection, updateGalleryLock, getDropboxRefresh, deleteCollection, updateCollection, updateGalleryNotify, getOrderDataForInvoice, saveInvoiceToDatabase };

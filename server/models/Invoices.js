@@ -56,9 +56,17 @@ const CustomInvoiceList = sequelize.define(
             allowNull: false,
             defaultValue: false,
         },
+        quickbooks_invoice_id: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         invoice_link: {
             type: DataTypes.STRING(255),
             defaultValue: null,
+        },
+        subdomain_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
         },
         updated_at: {
             type: DataTypes.DATE,
