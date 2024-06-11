@@ -398,6 +398,11 @@ const Collections = () => {
   };
 
   const getCollectionData = async (id) => {
+    console.log(id);
+    setFormData({
+      ...formData,
+      id: id,
+    });
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("slug", id);
@@ -425,7 +430,9 @@ const Collections = () => {
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
+    setLoading(false);
   };
+
 
   const deleteCollectionData = async () => {
     setLoading(true);
@@ -500,9 +507,16 @@ const Collections = () => {
           />
         ),
       },
-      { Header: "Address", accessor: "client_address" },
       {
-        Header: "Client",
+        Header: "Address",
+        Cell: ({ row }) => (
+          <div style={{minWidth: '12rem'}}>
+            <span>{row.original.client_address}</span>
+          </div>
+        ),
+      },
+      {
+        Header: "Client",                                                                                                                                                                                                                                                                                                                                                                                                                     
         accessor: "client_name",
         className: roleId === 3 ? "d-none" : "",
       },
@@ -527,7 +541,9 @@ const Collections = () => {
                 {row.original.orderFound ? (
                   <ReTooltip title="Invoice Generated." placement="top">
                     <button className="btn btn-sm btn-primary">
-                      <span style={{ whiteSpace: "nowrap", fontSize: "0.7rem" }}>
+                      <span
+                        style={{ whiteSpace: "nowrap", fontSize: "0.7rem" }}
+                      >
                         Invoice Generated
                       </span>
                     </button>
@@ -541,7 +557,9 @@ const Collections = () => {
                         setSelectedCollectionId(row.original.id);
                       }}
                     >
-                      <span style={{ whiteSpace: "nowrap", fontSize: "0.7rem" }}>
+                      <span
+                        style={{ whiteSpace: "nowrap", fontSize: "0.7rem" }}
+                      >
                         Create Invoice
                       </span>
                     </button>

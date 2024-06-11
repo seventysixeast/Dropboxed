@@ -148,6 +148,7 @@ const ImageTypes = () => {
           <div className="btnsrow">
             <button
               className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+              style={{ padding: "0.5rem" }}
               title="Edit"
               onClick={() => getImageTypeData(row.original.id)}
               data-toggle="modal"
@@ -157,6 +158,7 @@ const ImageTypes = () => {
             </button>
             <button
               className="btn btn-icon btn-outline-danger mr-1 mb-1"
+              style={{ padding: "0.5rem" }}
               title="Delete"
               onClick={() => {
                 setShowDeleteModal(true);

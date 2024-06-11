@@ -67,27 +67,35 @@ const TableCustom = ({ data, columns }) => {
                           marginLeft: "0 !important",
                         }}
                       >
-                      <div className="col-sm-4 col-md-2 m-0 p-0  align-items-center mr-1">
-                        <select
-                          value={pageSize}
-                          id="pageSize"
-                          onChange={(e) => {
-                            setPageSize(Number(e.target.value));
-                          }}
-                          className="custom-select custom-select-sm form-control form-control-sm"
+                        <div
+                          className="col-sm-12 col-md-5"
+                          style={{ marginLeft: "-15px" }}
                         >
-                          {[10, 25, 50, 100].map((pageSize) => (
-                            <option key={pageSize} value={pageSize}>
-                              Show {pageSize} Entries
-                            </option>
-                          ))}
-                        </select>{" "}
-                      </div>
-
-                        <div className="col-sm-4 col-md-2 m-0 p-0  align-items-center ml-1">
+                          <span>
+                            {" "}
+                            Show{" "}
+                            <select
+                              value={pageSize}
+                              id="pageSize"
+                              onChange={(e) => {
+                                setPageSize(Number(e.target.value));
+                              }}
+                              className="custom-select custom-select-sm form-control form-control-sm w-25"
+                            >
+                              {[10, 25, 50, 100].map((pageSize) => (
+                                <option key={pageSize} value={pageSize}>
+                                  Show {pageSize}
+                                </option>
+                              ))}
+                            </select>{" "}
+                            Entries
+                          </span>
+                        </div>
+                        <div className="col-sm-12 col-md-7">
                           <input
                             type="search"
-                            className="form-control form-control-sm float-right"
+                            className="form-control form-control-sm float-right w-25"
+                            style={{ marginRight: "-16px" }}
                             name="search"
                             id="search"
                             value={globalFilter || ""}

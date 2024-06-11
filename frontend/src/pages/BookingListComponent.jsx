@@ -882,11 +882,12 @@ export const BookingListComponent = () => {
             new Date() <
             1000 * 60 * 60 * 3;
         return (
-          <div className="d-flex">
+          <div className="btnsrow">
             <ReTooltip title="Edit this booking." placement="top">
               <button
                 type="button"
-                className="btn btn-icon btn-outline-primary"
+                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                style={{ padding: "0.5rem" }}
                 onClick={() => getBookingData(row.original)}
                 data-toggle="modal"
                 data-target="#appointment"
@@ -897,7 +898,8 @@ export const BookingListComponent = () => {
             </ReTooltip>
             <ReTooltip title="Delete this booking." placement="top">
               <button
-                className="btn btn-icon btn-outline-danger ml-1"
+                className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                style={{ padding: "0.5rem" }}
                 onClick={() => {
                   setBookingIdToDelete(row.original.id);
                   setShowDeleteModal(true);

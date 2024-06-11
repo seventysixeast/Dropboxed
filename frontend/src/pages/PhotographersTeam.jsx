@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { getAllPhotographers, createPhotographer, getPhotographer, deletePhotographer } from "../api/photographerApis";
+import {
+  getAllPhotographers,
+  createPhotographer,
+  getPhotographer,
+  deletePhotographer,
+} from "../api/photographerApis";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
@@ -9,7 +14,7 @@ const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 const PhotographersTeam = () => {
   const { authData } = useAuth();
   const user = authData.user;
-  const subdomainId = user.subdomain_id
+  const subdomainId = user.subdomain_id;
   const [photographers, setPhotographers] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
@@ -21,7 +26,7 @@ const PhotographersTeam = () => {
     phone: "",
     business_name: "",
     profile_photo: "",
-    status: "Active"
+    status: "Active",
   });
 
   useEffect(() => {
@@ -30,7 +35,9 @@ const PhotographersTeam = () => {
 
   const getAllPhotographersData = async () => {
     try {
-      let allPhotographers = await getAllPhotographers({ subdomainId: user.id });
+      let allPhotographers = await getAllPhotographers({
+        subdomainId: user.id,
+      });
       if (allPhotographers && allPhotographers.data) {
         setPhotographers(allPhotographers.data);
       } else {
@@ -66,7 +73,7 @@ const PhotographersTeam = () => {
         setPreviewImage(reader.result);
         setFormData({
           ...formData,
-          profile_photo: file
+          profile_photo: file,
         });
       };
       reader.readAsDataURL(file);
@@ -74,7 +81,7 @@ const PhotographersTeam = () => {
       setPreviewImage(null);
       setFormData({
         ...formData,
-        profile_photo: ''
+        profile_photo: "",
       });
     }
   };
@@ -87,7 +94,7 @@ const PhotographersTeam = () => {
       phone: "",
       business_name: "",
       profile_photo: "",
-      status: "Active"
+      status: "Active",
     });
     setPreviewImage(null);
   };
@@ -96,20 +103,20 @@ const PhotographersTeam = () => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('subdomainId', subdomainId);
+      formDataToSend.append("subdomainId", subdomainId);
       formDataToSend.append("id", formData.id);
       formDataToSend.append("name", formData.name);
       formDataToSend.append("email", formData.email);
       formDataToSend.append("phone", formData.phone);
       formDataToSend.append("business_name", formData.business_name);
-      formDataToSend.append('profile_photo', formData.profile_photo);
+      formDataToSend.append("profile_photo", formData.profile_photo);
       formDataToSend.append("status", formData.status);
-      formDataToSend.append('role_id', 2);
+      formDataToSend.append("role_id", 2);
       let res = await createPhotographer(formDataToSend);
       if (res.success) {
         toast.success(res.message);
         resetFormData();
-        document.getElementById('closeModal').click();
+        document.getElementById("closeModal").click();
         getAllPhotographersData();
       } else {
         toast.error(res);
@@ -125,10 +132,10 @@ const PhotographersTeam = () => {
       formDataToSend.append("id", id);
       let photographerData = await getPhotographer(formDataToSend);
       if (photographerData.data.profile_photo !== "") {
-        let path = `${IMAGE_URL}/${photographerData.data.profile_photo}`
-        setPreviewImage(path)
+        let path = `${IMAGE_URL}/${photographerData.data.profile_photo}`;
+        setPreviewImage(path);
       } else {
-        setPreviewImage(null)
+        setPreviewImage(null);
       }
       setFormData(photographerData.data);
     } catch (error) {
@@ -162,7 +169,8 @@ const PhotographersTeam = () => {
           <span>
             <img
               src={
-                row.original.profile_photo && row.original.profile_photo !== "null"
+                row.original.profile_photo &&
+                row.original.profile_photo !== "null"
                   ? `${IMAGE_URL}/${row.original.profile_photo}`
                   : "../../../app-assets/images/portrait/medium/dummy.png"
               }
@@ -170,7 +178,7 @@ const PhotographersTeam = () => {
               alt="Photographer image"
             />
           </span>
-        )
+        ),
       },
       { Header: "Name", accessor: "name" },
       { Header: "Email", accessor: "email" },
@@ -179,9 +187,7 @@ const PhotographersTeam = () => {
       {
         Header: "Status",
         accessor: "status",
-        Cell: ({ row }) => (
-          <span>{row.original.status || "Active"}</span>
-        )
+        Cell: ({ row }) => <span>{row.original.status || "Active"}</span>,
       },
       {
         Header: "Action",
@@ -189,6 +195,7 @@ const PhotographersTeam = () => {
           <div className="btnsrow">
             <button
               className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+              style={{ padding: "0.5rem" }}
               title="Edit"
               onClick={() => getPhotographerData(row.original.id)}
               data-toggle="modal"
@@ -198,6 +205,7 @@ const PhotographersTeam = () => {
             </button>
             <button
               className="btn btn-icon btn-outline-danger mr-1 mb-1"
+              style={{ padding: "0.5rem" }}
               title="Delete"
               onClick={() => {
                 setShowDeleteModal(true);
@@ -212,7 +220,6 @@ const PhotographersTeam = () => {
     ],
     []
   );
-
 
   const data = React.useMemo(() => photographers, [photographers]);
 
@@ -230,7 +237,9 @@ const PhotographersTeam = () => {
                     <li className="breadcrumb-item">
                       <a href="/dashboard">Home</a>
                     </li>
-                    <li className="breadcrumb-item active">Photographers Team</li>
+                    <li className="breadcrumb-item active">
+                      Photographers Team
+                    </li>
                   </ol>
                 </div>
               </div>

@@ -14,6 +14,7 @@ import TableCustom from "../components/TableInvoice";
 import { verifyToken } from "../api/authApis";
 import LoadingOverlay from "../components/Loader";
 import EditInvoiceModal from "../components/EditInvoice";
+import ReTooltip from "../components/Tooltip";
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -105,53 +106,76 @@ const Invoice = () => {
         const isPaid = paid_status === 1;
         const isSent = send_invoice === 1;
 
+        const isDisabled =
+          roleId === 3 &&
+          new Date(`${original.booking_date}T${original.booking_time}`) -
+            new Date() <
+            1000 * 60 * 60 * 3;
+
         return (
-          <div className="align-items-center">
-            <div>
-              <button
-                type="button"
-                className="btn btn-icon btn-outline-primary"
-                onClick={() => handleEdit(id)}
-                title="Edit Invoice"
-              >
-                <i className="feather white icon-edit"></i>
-              </button>
-              <button
-                type="button"
-                className="btn btn-icon btn-outline-primary"
-                onClick={() => handleDelete(id)}
-                title="Delete Invoice"
-              >
-                <MdDelete fill="white" />
-              </button>
-            </div>
-            <div>
-              <button
-                type="button"
-                className="btn btn-icon btn-outline-primary"
-                onClick={() => handleUpload(id)}
-              >
-                <FaUpload fill="white" />
-              </button>
-              {!isPaid && (
+          <>
+            <div className="btnsrow">
+              <ReTooltip title="Edit Invoice" placement="top">
                 <button
                   type="button"
-                  className="btn btn-icon btn-outline-primary text-white"
-                  onClick={() => handlePaid(id)}
+                  className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                  style={{ padding: "0.5rem" }}
+                  onClick={() => handleEdit(id)}
+                  disabled={isDisabled}
                 >
-                  Paid
+                  <i className="feather white icon-edit"></i>
                 </button>
+              </ReTooltip>
+              <ReTooltip title="Delete Invoice" placement="top">
+                <button
+                  type="button"
+                  className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                  style={{ padding: "0.5rem" }}
+                  onClick={() => handleDelete(id)}
+                  disabled={isDisabled}
+                >
+                  <i className="feather white icon-trash"></i>
+                </button>
+              </ReTooltip>
+              <ReTooltip title="Upload Invoice" placement="top">
+                <button
+                  type="button"
+                  className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                  style={{ padding: "0.5rem" }}
+                  onClick={() => handleUpload(id)}
+                  disabled={isDisabled}
+                >
+                  <FaUpload fill="white" />
+                </button>
+              </ReTooltip>
+            {/* </div>
+            <div className="btnsrow"> */}
+              {!isPaid && (
+                <ReTooltip title="Mark as Paid" placement="top">
+                  <button
+                    type="button"
+                    className="btn btn-icon btn-outline-primary mr-1 mb-1 text-white"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => handlePaid(id)}
+                    disabled={isDisabled}
+                  >
+                    Paid
+                  </button>
+                </ReTooltip>
               )}
-              <button
-                type="button"
-                className="btn btn-icon btn-outline-primary"
-                onClick={() => handleSendInvoice(id)}
-                title="Send Invoice"
-              >
-                <i class="icon-share"></i>
-              </button>
+              <ReTooltip title="Send Invoice" placement="top">
+                <button
+                  type="button"
+                  className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                  style={{ padding: "0.5rem" }}
+                  onClick={() => handleSendInvoice(id)}
+                  disabled={isDisabled}
+                >
+                  <i className="icon-share"></i>
+                </button>
+              </ReTooltip>
             </div>
-          </div>
+          </>
         );
       },
     },
@@ -273,11 +297,11 @@ const Invoice = () => {
                 </div>
               </div>
             </div>
-            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
+            {/* <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
               <a href="#" className="btn btn-outline-primary">
                 Create Invoice
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
