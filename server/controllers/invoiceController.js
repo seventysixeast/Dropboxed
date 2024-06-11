@@ -146,7 +146,6 @@ const serializeItems = (items) => {
             item.product_quantity = item.quantity;
             item.product_price = item.price;
         })
-        console.log('Serialized items:', items);
         return phpSerialize(items);
     } catch (error) {
         console.error('Error serializing items:', error);
@@ -155,8 +154,6 @@ const serializeItems = (items) => {
 };
 
 const updateInvoice = async (req, res) => {
-    console.log('Request body:', req.body);
-
     const {
         invoiceId,
         orderId,
