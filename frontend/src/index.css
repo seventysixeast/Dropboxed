@@ -1748,7 +1748,6 @@ a:not([href]) {
   width: 10rem;
 }
 
-/* Responsive Fixes BP1 */
 .custom-week-view {
   overflow-x: auto;
 }
