@@ -37,6 +37,10 @@ const Package = sequelize.define('Package', {
     type: DataTypes.BOOLEAN,
     allowNull: false
   },
+  quickbooks_item_id: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   show_price: {
     type: DataTypes.BOOLEAN,
     allowNull: false
