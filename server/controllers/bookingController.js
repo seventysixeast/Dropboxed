@@ -396,9 +396,9 @@ const createBooking = async (req, res) => {
 
         const subdomain_user = await User.findOne({
           where: { id: subdomainId },
-          attributes: ['subdomain', 'logo', 'phone']
+          attributes: ['subdomain', 'logo', 'phone', 'address']
         });
-        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, client_name, data, user.phone, user.name);
+        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, user.phone, user.name);
         sendEmail(client_email, "New Booking", SEND_EMAIL);
 
         // Create notification
@@ -424,10 +424,10 @@ const createBooking = async (req, res) => {
 
         const subdomain_user = await User.findOne({
           where: { id: subdomainId },
-          attributes: ['subdomain', 'logo', 'phone']
+          attributes: ['subdomain', 'logo', 'phone', 'address']
         });
 
-        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, client_name, data, user.phone, user.name);
+        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, user.phone, user.name);
         sendEmail(client_email, "New Booking", SEND_EMAIL);
 
         // Create notification
@@ -740,10 +740,10 @@ const updateBooking = async (req, res) => {
 
       const subdomain_user = await User.findOne({
         where: { id: updatedBooking.subdomain_id },
-        attributes: ['id', 'subdomain', 'logo', 'phone']
+        attributes: ['id', 'subdomain', 'logo', 'phone', 'address']
       });
 
-      let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, updatedBooking.client_name, updatedBooking, user.phone, user.name);
+      let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, updatedBooking.client_name, updatedBooking, user.phone, user.name);
       sendEmail(client_email, "Update Booking", SEND_EMAIL);
 
       // Create notification

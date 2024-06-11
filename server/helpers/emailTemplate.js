@@ -255,7 +255,7 @@ exports.WELCOME_CLIENT_EMAIL = (subdomain, subdomain_email, logo, name, email, p
 </div>
 `;
 
-exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, teamMember) => `
+exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, contact, teamMember) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto; padding: 0 10px; box-sizing: border-box;">
     <span style="width: 100%; display: block; font-family: Arial, Verdana, sans-serif; margin: 0.3rem;">
         <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
@@ -279,21 +279,21 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, t
                     <table style="width: 100%; margin-top: 30%; border-collapse: collapse;">
                         <tr>
                             <td align="center">
-                                ${logo? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                                ${logo? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px; margin-bottom:30px" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8; margin-bottom:30px">${subdomain}</h1>`}
                             </td>
                         </tr>
                         <tr>
                             <td align="center" style="font-size: 16px;">Studiio.au</td>
                         </tr>
                         <tr>
-                            <td align="center" style="font-size: 16px;">${subdomain}</td>
+                            <td align="center" style="font-size: 16px;">${address}</td>
                         </tr>
                         <tr>
                             <td align="center" style="font-size: 14px;">${subdomainContact}</td>
                         </tr>
                         <tr>
                             <td align="center">
-                                <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
+                                <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none; margin-top:30px;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
                             </td>
                         </tr>
                     </table>
@@ -313,7 +313,7 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, t
 </div>
 `;
 
-exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, name, data, contact, teamMember) => `
+exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data, contact, teamMember) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto; padding: 0 10px; box-sizing: border-box;">
     <span style="width: 100%; display: block; font-family: Arial, Verdana, sans-serif; margin: 0.3rem;">
         <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
@@ -337,21 +337,21 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, name, data, contact
                     <table style="width: 100%; margin-top: 30%; border-collapse: collapse;">
                         <tr>
                             <td align="center">
-                                ${logo? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
+                                ${logo? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px; margin-bottom:30px" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8; margin-bottom:30px">${subdomain}</h1>`}
                             </td>
                         </tr>
                         <tr>
                             <td align="center" style="font-size: 16px;">Studiio.au</td>
                         </tr>
                         <tr>
-                            <td align="center" style="font-size: 16px;">${subdomain}</td>
+                            <td align="center" style="font-size: 16px;">${address}</td>
                         </tr>
                         <tr>
                             <td align="center" style="font-size: 14px;">${subdomainContact}</td>
                         </tr>
                         <tr>
                             <td align="center">
-                                <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
+                                <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none; margin-top:30px;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
                             </td>
                         </tr>
                     </table>
