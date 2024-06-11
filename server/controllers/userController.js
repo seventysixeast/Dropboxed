@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const getUser = async (req, res) => {
   try {
-    const userData = await User.findOne( {
+    const userData = await User.findOne({
       attributes: ['id', 'username', 'name', 'email', 'status', 'business_name', 'profile_photo', 'logo', 'account_email', 'account_name', 'account_number', 'bsb_number', 'abn_acn', 'country', 'address', 'website', 'phone'],
       where: {
         id: req.body.id
@@ -61,14 +61,14 @@ const updateUser = async (req, res) => {
 const changeBankingDetails = async (req, res) => {
   console.log(req.body);
   try {
-    const { id, account_email, account_name, account_number, bsb_number, abn_acn, country, address, website, phone } = req.body;
+    const { id, account_email, account_name, account_number, bsb_number, abn_acn, country, address, city, postal_code, website, phone } = req.body;
     const user = await User.findOne({ where: { id } });
 
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    await user.update({ account_email, account_name, account_number, bsb_number, abn_acn, country, address, website, phone });
+    await user.update({ account_email, account_name, account_number, bsb_number, abn_acn, country, address, city, postal_code, website, phone });
 
     return res.status(200).json({
       success: true,

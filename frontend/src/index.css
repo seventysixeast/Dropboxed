@@ -1748,3 +1748,10 @@ a:not([href]) {
   width: 10rem;
 }
 
+.custom-week-view {
+  overflow-x: auto;
+}
+
+.custom-week-view .fc-view-harness {
+  min-width: 768px;
+}

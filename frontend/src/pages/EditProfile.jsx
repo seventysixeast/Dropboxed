@@ -36,6 +36,8 @@ const EditProfile = () => {
     abn_acn: "",
     country: "",
     address: "",
+    city: "",
+    postal_code: "",
     website: "",
     phone: "",
   });
@@ -92,6 +94,8 @@ const EditProfile = () => {
       bankingDetails.abn_acn = userData.data.abn_acn;
       bankingDetails.country = userData.data.country;
       bankingDetails.address = userData.data.address;
+      bankingDetails.city = userData.data.city;
+      bankingDetails.postal_code = userData.data.postal_code;
       bankingDetails.website = userData.data.website;
       bankingDetails.phone = userData.data.phone;
       setBankDetails(bankingDetails);
@@ -210,6 +214,10 @@ const EditProfile = () => {
       bankingDetails.country = value;
     } else if (name === "address") {
       bankingDetails.address = value;
+    } else if (name === "city") {
+      bankingDetails.city = value;
+    } else if (name === "postal_code") {
+      bankingDetails.postal_code = value;
     } else if (name === "website") {
       bankingDetails.website = value;
     } else if (name === "phone") {
@@ -277,6 +285,8 @@ const EditProfile = () => {
       formDataToSend.append("bsb_number", bankDetails.bsb_number);
       formDataToSend.append("abn_acn", bankDetails.abn_acn);
       formDataToSend.append("address", bankDetails.address);
+      formDataToSend.append("city", bankDetails.city);
+      formDataToSend.append("postal_code", bankDetails.postal_code);
       formDataToSend.append("website", bankDetails.website);
       formDataToSend.append("phone", bankDetails.phone);
       let res = await changeBankingDetails(formDataToSend);
@@ -424,13 +434,13 @@ const EditProfile = () => {
 
                       </div>
                       <div className="col-12 d-flex flex-sm-row flex-column justify-content-end mt-1">
-                          <button
-                            type="submit"
-                            className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1"
-                          >
-                            Save Changes
-                          </button>
-                        </div>
+                        <button
+                          type="submit"
+                          className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
                     </form>
                   </div>
                 </div>
@@ -526,6 +536,28 @@ const EditProfile = () => {
                             className="form-control"
                             name="address"
                             value={bankDetails.address}
+                            onChange={handleBankInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-6 form-group">
+                          <label>City</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="city"
+                            value={bankDetails.city}
+                            onChange={handleBankInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-6 form-group">
+                          <label>Postal Code</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="postal_code"
+                            value={bankDetails.postal_code}
                             onChange={handleBankInputChange}
                             required
                           />
