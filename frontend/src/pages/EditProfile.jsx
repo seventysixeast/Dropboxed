@@ -38,6 +38,8 @@ const EditProfile = () => {
     abn_acn: "",
     country: "",
     address: "",
+    city: "",
+    postal_code: "",
     website: "",
     phone: "",
   });
@@ -101,6 +103,8 @@ const EditProfile = () => {
       bankingDetails.abn_acn = userData.data.abn_acn;
       bankingDetails.country = userData.data.country;
       bankingDetails.address = userData.data.address;
+      bankingDetails.city = userData.data.city;
+      bankingDetails.postal_code = userData.data.postal_code;
       bankingDetails.website = userData.data.website;
       bankingDetails.phone = userData.data.phone;
       setBankDetails(bankingDetails);
@@ -282,6 +286,8 @@ const EditProfile = () => {
       formDataToSend.append("bsb_number", bankDetails.bsb_number);
       formDataToSend.append("abn_acn", bankDetails.abn_acn);
       formDataToSend.append("address", bankDetails.address);
+      formDataToSend.append("city", bankDetails.city);
+      formDataToSend.append("postal_code", bankDetails.postal_code);
       formDataToSend.append("website", bankDetails.website);
       formDataToSend.append("phone", bankDetails.phone);
       let res = await changeBankingDetails(formDataToSend);
@@ -413,7 +419,7 @@ const EditProfile = () => {
                               ? previewLogo
                               : "../../../app-assets/images/portrait/medium/dummy.png"
                           }
-                          className="rounded-circle height-100 width-100 mt-2"
+                          className="width-100 mt-4"
                           alt="Preview"
                         />
                         <div className="media-body mt-3 ml-2">
@@ -530,6 +536,28 @@ const EditProfile = () => {
                             className="form-control"
                             name="address"
                             value={bankDetails.address}
+                            onChange={handleBankInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-6 form-group">
+                          <label>City</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="city"
+                            value={bankDetails.city}
+                            onChange={handleBankInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-6 form-group">
+                          <label>Postal Code</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="postal_code"
+                            value={bankDetails.postal_code}
                             onChange={handleBankInputChange}
                             required
                           />

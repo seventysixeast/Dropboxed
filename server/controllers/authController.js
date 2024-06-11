@@ -9,7 +9,7 @@ const axios = require("axios");
 const BusinessClients = require("../models/BusinessClients");
 const clientController = require("../controllers/clientController");
 const sequelize = require('../config/sequelize');
-const { SEND_VERIFICATION_EMAIL, SEND_VERIFICATION_CLIENT_EMAIL, SEND_OTP, WELCOME_EMAIL,WELCOME_CLIENT_EMAIL } = require("../helpers/emailTemplate");
+const { SEND_VERIFICATION_EMAIL, SEND_VERIFICATION_CLIENT_EMAIL, SEND_OTP, WELCOME_EMAIL, WELCOME_CLIENT_EMAIL } = require("../helpers/emailTemplate");
 const { sendEmail, generateVerificationToken } = require("../helpers/sendEmail");
 
 const oAuth2Client = new OAuth2(
@@ -102,8 +102,8 @@ exports.login = async (req, res) => {
     const isFirstLogin = user.is_first_login;
     if (isFirstLogin) {
       // Send Welcome email
-      if (user.role_id === 2) {
-        var SEND_EMAIL = WELCOME_CLIENT_EMAIL();
+      if (user.role_id === 3) {
+        var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1), user.email, user.logo, req.body.name, req.body.email, password);
         sendEmail(user.email, `Welcome to ${user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1)}!`, SEND_EMAIL);
       } else {
         var SEND_EMAIL = WELCOME_EMAIL();
@@ -485,15 +485,6 @@ exports.verifyToken = async (req, res) => {
         }
       }
     }
-    const isFirstLogin = user.is_first_login;
-    if (isFirstLogin) {
-      // Send Welcome email
-      var SEND_EMAIL = WELCOME_EMAIL();
-      sendEmail(user.email, "Welcome to Studiio.au!", SEND_EMAIL);
-      // Update the is_first_login flag
-      user.is_first_login = false;
-      await user.save();
-    }
     res.status(200).json({
       accessToken: token,
       user: {
@@ -506,8 +497,7 @@ exports.verifyToken = async (req, res) => {
         calendarSub: user.calendar_sub,
         role_id: user.role_id,
         dropbox_refresh: user.dropbox_refresh,
-        dropbox_access: user.dropbox_access,
-        isFirstLogin: isFirstLogin
+        dropbox_access: user.dropbox_access
       },
       success: true,
       message: "Success",
@@ -526,7 +516,7 @@ exports.forgotPassword = async (req, res) => {
     let email = req.body.email;
     let user = await User.findOne({
       where: { email: email },
-      attributes: ['name', 'logo']
+      attributes: ['name']
     });
 
     if (user) {
@@ -536,7 +526,7 @@ exports.forgotPassword = async (req, res) => {
         { where: { email: email } }
       );
 
-      var OTPEmail = SEND_OTP(user.name, user.logo, email, code);
+      var OTPEmail = SEND_OTP(user.name, email, code);
       sendEmail(email, "Password Reset", OTPEmail);
 
       return res.status(200).json({
