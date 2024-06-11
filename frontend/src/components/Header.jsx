@@ -59,14 +59,6 @@ const Header = () => {
         }, 200);
       }
     }
-    const navbarContainer = document.querySelector(".open-navbar-container");
-    if (navbarContainer && !navbarContainer.contains(event.target)) {
-      navbarContainer.classList.remove("collapsed");
-    }
-    const navbarCollapse = document.querySelector(".navbar-collapse");
-    if (navbarCollapse && !navbarCollapse.contains(event.target)) {
-      navbarCollapse.classList.remove("show");
-    }
   };
 
   return (
