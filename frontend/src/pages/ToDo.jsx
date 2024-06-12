@@ -326,6 +326,7 @@ const ToDo = () => {
   };
 
   const handleStatusCheckbox = async (data) => {
+    setLoading(true);
     let task = data;
     let formData = new FormData();
     formData.append("id", task.id);
