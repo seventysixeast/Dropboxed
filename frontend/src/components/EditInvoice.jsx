@@ -132,11 +132,11 @@ const EditInvoiceModal = ({
   };
 
   const calculateTaxAmount = (subtotal) => {
-    return (subtotal * taxRate) / 100;
+    return (subtotal / 11);
   };
 
   const calculateTotal = (subtotal, taxAmount) => {
-    return subtotal + taxAmount;
+    return subtotal; //+ taxAmount;
   };
 
   const resetData = () => {
