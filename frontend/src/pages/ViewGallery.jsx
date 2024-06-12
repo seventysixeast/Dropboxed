@@ -117,6 +117,8 @@ export const ViewGallery = () => {
     closeSharePopup();
   };
 
+  console.log(collection.lock_gallery);
+
   const getTasks = async () => {
     if (authData.user === null) return;
     const formData = new FormData();
