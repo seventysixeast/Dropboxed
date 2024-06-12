@@ -1769,3 +1769,13 @@ a:not([href]) {
 .tableHeaderMinWidth{
   min-width: 30rem;
 }
+
+.bg-full-screen-image {
+  background-size: cover !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  overflow-y: auto !important;
+}

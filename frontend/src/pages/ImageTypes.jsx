@@ -83,12 +83,12 @@ const ImageTypes = () => {
       formDataToSend.append("subdomain_id", subdomainId);
 
       let res = await createImageType(formDataToSend);
-      if(res && res.success){
+      if (res && res.success) {
         toast.success(res.message);
         resetFormData();
         document.getElementById("closeModal").click();
         getAllImageTypesData();
-      }else{
+      } else {
         toast.error(res.message);
       }
     } catch (error) {
@@ -131,16 +131,14 @@ const ImageTypes = () => {
       {
         Header: "Status",
         accessor: "status",
-        Cell: ({ row }) => (
-          <span>{row.original.status || "Active"}</span>
-        )
+        Cell: ({ row }) => <span>{row.original.status || "Active"}</span>,
       },
       {
         Header: "Gallery Status",
         accessor: "gallery_status",
         Cell: ({ row }) => (
           <span>{row.original.gallery_status || "Image"}</span>
-        )
+        ),
       },
       {
         Header: "Action",
@@ -175,7 +173,6 @@ const ImageTypes = () => {
   );
 
   const data = React.useMemo(() => imagesTypes, [imagesTypes]);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -223,7 +220,17 @@ const ImageTypes = () => {
                       Add New
                     </button>
 
-                    <div
+
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div
                       className="modal fade text-left"
                       id="bootstrap"
                       tabIndex="-1"
@@ -241,8 +248,12 @@ const ImageTypes = () => {
                               className="close"
                               data-dismiss="modal"
                               aria-label="Close"
+                              onClick={() => resetFormData()}
                             >
-                              <span aria-hidden="true">×</span>
+                              <i
+                                className="feather icon-x"
+                                aria-hidden="true"
+                              />
                             </button>
                           </div>
                           <form onSubmit={handleSubmit}>
@@ -315,13 +326,6 @@ const ImageTypes = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

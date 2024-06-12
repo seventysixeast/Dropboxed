@@ -51,16 +51,18 @@ const getInvoiceData = async (req, res) => {
         const totalPrice = packages.reduce((sum, pkg) => sum + pkg.package_price, 0);
 
         let itemDescriptions = invoice.item_descriptions;
+
+        console.log(itemDescriptions);
         if (itemDescriptions) {
             itemDescriptions = phpUnserialize(itemDescriptions);
         }
         const itemsArray = [];
         for (const key in itemDescriptions) {
             const item = {
-                name: itemDescriptions[key]['product_name'],
-                description: itemDescriptions[key]['product_desc'],
-                quantity: itemDescriptions[key]['product_quantity'],
-                price: itemDescriptions[key]['product_price']
+                name: itemDescriptions[key]['name'],
+                description: itemDescriptions[key]['description'],
+                quantity: itemDescriptions[key]['quantity'],
+                price: itemDescriptions[key]['price']
             };
             itemsArray.push(item);
         }
