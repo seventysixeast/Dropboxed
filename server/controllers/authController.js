@@ -526,7 +526,7 @@ exports.forgotPassword = async (req, res) => {
         { where: { email: email } }
       );
 
-      var OTPEmail = SEND_OTP(user.name, email, code);
+      var OTPEmail = SEND_OTP(email, code);
       sendEmail(email, "Password Reset", OTPEmail);
 
       return res.status(200).json({

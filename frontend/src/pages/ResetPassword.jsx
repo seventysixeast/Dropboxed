@@ -1,9 +1,10 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { resetPassword } from "../api/authApis";
 
 const ResetPassword = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const [user, setUser] = useState({
     email: "",
     otp: "",
@@ -69,7 +70,9 @@ const ResetPassword = () => {
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <img src={logoLight} alt="branding logo" />
+                        <a href={BASE_URL}>
+                          <img src={logoLight} alt="branding logo" />
+                        </a>
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
