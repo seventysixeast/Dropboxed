@@ -103,7 +103,6 @@ const AddService = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (
       serviceData.imageTypeDetails.length === 0 ||
       serviceData.imageTypeDetails.some(
