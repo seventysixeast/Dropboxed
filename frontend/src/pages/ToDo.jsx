@@ -745,6 +745,7 @@ const ToDo = () => {
                                   taskAssigndate: date,
                                 })
                               }
+                              disabled
                               dateFormat="dd-MM-yyyy"
                             />
                           </div>
