@@ -7,6 +7,7 @@ import TermsOfServiceModal from "../components/TermsOfServiceModal";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 
 const SignUp = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const [showTermsOfServiceModal, setShowTermsOfServiceModal] = useState(false);
   const [showPrivacyPolicyModal, setShowPrivacyPolicyModal] = useState(false);
   const [userData, setUserData] = useState({
@@ -95,7 +96,9 @@ const SignUp = () => {
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <img src={logoLight} alt="branding logo" />
+                        <a href={BASE_URL}>
+                          <img src={logoLight} alt="branding logo" />
+                        </a>
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
@@ -167,9 +170,8 @@ const SignUp = () => {
                             onClick={togglePasswordVisibility}
                           >
                             <i
-                              className={`fa ${
-                                isPasswordVisible ? "fa-eye-slash" : "fa-eye"
-                              }`}
+                              className={`fa ${isPasswordVisible ? "fa-eye-slash" : "fa-eye"
+                                }`}
                             />
                           </div>
                         </fieldset>

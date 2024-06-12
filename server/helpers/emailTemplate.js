@@ -94,7 +94,7 @@ exports.SEND_VERIFICATION_CLIENT_EMAIL = (subdomain, email, verificationToken) =
 </div>
 `;
 
-exports.SEND_OTP = (name, email, otp) => `
+exports.SEND_OTP = (email, otp) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
@@ -111,7 +111,7 @@ exports.SEND_OTP = (name, email, otp) => `
                                 <tr>
                                     <td style="padding: 30px; width: 100%;" valign="top">
                                         <div style="font-size: 14px; font-weight: normal; line-height: 1.8em; text-align: left;">
-                                            <h3>Hello ${name}!</h3>
+                                            <h3>Hello!</h3>
                                             <p>Please enter the below mentioned OTP for reset password!</p>
                                             Email: <a href="mailto:${email}">${email}</a> <br>
                                             OTP: ${otp}
@@ -257,7 +257,7 @@ exports.WELCOME_CLIENT_EMAIL = (subdomain, subdomain_email, logo, name, email, p
 
 exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, contact, teamMember) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto; padding: 0 10px; box-sizing: border-box;">
-    <span style="width: 100%; display: block; font-family: Arial, Verdana, sans-serif; margin: 0.3rem;">
+    <span style="width: 70%; display: block; font-family: Arial, Verdana, sans-serif; margin: 0.3rem;">
         <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
             <tr>
                 <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 70%; box-sizing: border-box;">
@@ -315,7 +315,7 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, c
 
 exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data, contact, teamMember) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto; padding: 0 10px; box-sizing: border-box;">
-    <span style="width: 100%; display: block; font-family: Arial, Verdana, sans-serif; margin: 0.3rem;">
+    <span style="width: 70%; display: block; font-family: Arial, Verdana, sans-serif; margin: 0.3rem;">
         <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
             <tr>
                 <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 70%; box-sizing: border-box;">
