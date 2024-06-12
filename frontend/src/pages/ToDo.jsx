@@ -173,6 +173,7 @@ const ToDo = () => {
   }
 
   const handleSubmit = async () => {
+    setLoading(true);
     const formData = new FormData();
 
     if (taskData.taskTitle === "") {

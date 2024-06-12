@@ -22,15 +22,24 @@ const AddTagModal = ({ showAddTagModal, setShowAddTagModal, onAddTag }) => {
       >
         <div className="modal-dialog" role="document">
           <div className="modal-content">
-            <div className="modal-header text-white" style={{ backgroundColor: "#DEE6EE" }}>
-              <h3 className="card-title px-2" style={{color: '#404e67'}} id="myModalLabel10">
+            <div
+              className="modal-header text-white"
+              style={{ backgroundColor: "#DEE6EE" }}
+            >
+              <h3
+                className="card-title px-2"
+                style={{ color: "#404e67" }}
+                id="myModalLabel10"
+              >
                 Add Tag
               </h3>
             </div>
             <div className="modal-body">
               <form onSubmit={handleTaskSubmit}>
-                <div className="form-group d-flex justify-content-between mx-4">
-                <label htmlFor="taskTagTitle" className="mb-0 mr-2">Tag Title:</label>
+                <div className="form-group d-flex justify-content-between align-items-center mx-4">
+                  <label htmlFor="taskTagTitle" className="mb-0 mr-2">
+                    Tag Title:
+                  </label>
                   <input
                     type="text"
                     className="form-control w-75"
@@ -41,6 +50,7 @@ const AddTagModal = ({ showAddTagModal, setShowAddTagModal, onAddTag }) => {
                     onChange={(e) => setTaskTagTitle(e.target.value)}
                   />
                 </div>
+
                 <div className="modal-footer">
                   <button
                     type="button"
