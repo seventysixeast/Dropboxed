@@ -65,7 +65,7 @@ const AddGalleryModal = ({
                   aria-label="Close"
                   onClick={onClose}
                 >
-                  <span aria-hidden="true">×</span>
+                  <i className="feather icon-x" aria-hidden="true" />
                 </button>
               </div>
               <form onSubmit={handleSubmit}>
@@ -289,7 +289,10 @@ const AddGalleryModal = ({
                 </div>
                 <div className="modal-footer">
                   {loading ? (
-                    <div className="spinner-border text-primary mr-2" role="status">
+                    <div
+                      className="spinner-border text-primary mr-2"
+                      role="status"
+                    >
                       <span className="sr-only">Loading...</span>
                     </div>
                   ) : (

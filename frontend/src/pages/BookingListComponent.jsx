@@ -1176,7 +1176,10 @@ export const BookingListComponent = () => {
                               aria-label="Close"
                               onClick={handleAppointmentModalClose}
                             >
-                              <span aria-hidden="true">×</span>
+                              <i
+                                className="feather icon-x"
+                                aria-hidden="true"
+                              />
                             </button>
                           </div>
                           <form onSubmit={handleSubmit} id="booking-form">
@@ -1442,7 +1445,6 @@ export const BookingListComponent = () => {
                                             12:00 AM
                                           </option>
 
-                                          
                                           <option value="00:30:00">
                                             12:30 AM
                                           </option>

@@ -217,7 +217,21 @@ const SignUp = () => {
                                 onClick={() => {
                                   setShowTermsOfServiceModal(true);
                                 }}
-                                style={{ color: "#009c9f" }}
+                                style={{
+                                  color: "#009c9f",
+                                  textDecoration: "none",
+                                  cursor: "pointer",
+                                  transition: "color 0.3s, text-shadow 0.3s", // Smooth transition for hover effects
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.color = "#006f72";
+                                  e.target.style.textShadow =
+                                    "2px 2px 4px rgba(0, 0, 0, 0.2)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.color = "#009c9f";
+                                  e.target.style.textShadow = "none";
+                                }}
                               >
                                 {" "}
                                 Terms of Service{" "}
@@ -227,7 +241,21 @@ const SignUp = () => {
                                 onClick={() => {
                                   setShowPrivacyPolicyModal(true);
                                 }}
-                                style={{ color: "#009c9f" }}
+                                style={{
+                                  color: "#009c9f",
+                                  textDecoration: "none",
+                                  cursor: "pointer",
+                                  transition: "color 0.3s, text-shadow 0.3s", // Smooth transition for hover effects
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.color = "#006f72";
+                                  e.target.style.textShadow =
+                                    "2px 2px 4px rgba(0, 0, 0, 0.2)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.color = "#009c9f";
+                                  e.target.style.textShadow = "none";
+                                }}
                               >
                                 {" "}
                                 Privacy Policy{" "}

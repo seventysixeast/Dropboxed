@@ -83,12 +83,12 @@ const ImageTypes = () => {
       formDataToSend.append("subdomain_id", subdomainId);
 
       let res = await createImageType(formDataToSend);
-      if(res && res.success){
+      if (res && res.success) {
         toast.success(res.message);
         resetFormData();
         document.getElementById("closeModal").click();
         getAllImageTypesData();
-      }else{
+      } else {
         toast.error(res.message);
       }
     } catch (error) {
@@ -131,16 +131,14 @@ const ImageTypes = () => {
       {
         Header: "Status",
         accessor: "status",
-        Cell: ({ row }) => (
-          <span>{row.original.status || "Active"}</span>
-        )
+        Cell: ({ row }) => <span>{row.original.status || "Active"}</span>,
       },
       {
         Header: "Gallery Status",
         accessor: "gallery_status",
         Cell: ({ row }) => (
           <span>{row.original.gallery_status || "Image"}</span>
-        )
+        ),
       },
       {
         Header: "Action",
@@ -175,7 +173,6 @@ const ImageTypes = () => {
   );
 
   const data = React.useMemo(() => imagesTypes, [imagesTypes]);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -222,103 +219,103 @@ const ImageTypes = () => {
                     >
                       Add New
                     </button>
-
-                    <div
-                      className="modal fade text-left"
-                      id="bootstrap"
-                      tabIndex="-1"
-                      role="dialog"
-                      aria-labelledby="myModalLabel35"
-                      aria-hidden="true"
-                      style={{ display: "none" }}
-                    >
-                      <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                          <div className="modal-header">
-                            <h3 className="card-title">Add Image Type</h3>
-                            <button
-                              type="button"
-                              className="close"
-                              data-dismiss="modal"
-                              aria-label="Close"
-                            >
-                              <span aria-hidden="true">×</span>
-                            </button>
-                          </div>
-                          <form onSubmit={handleSubmit}>
-                            <div className="modal-body">
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Type *</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  name="type"
-                                  value={formData.type}
-                                  onChange={handleInputChange}
-                                  required
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Price *</label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="price"
-                                  value={formData.price}
-                                  onChange={handleInputChange}
-                                  required
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Status *</label>
-                                <select
-                                  className="select2 form-control"
-                                  name="status"
-                                  value={formData.status}
-                                  onChange={handleInputChange}
-                                  required
-                                >
-                                  <option value="Active">Active</option>
-                                  <option value="Inactive">Inactive</option>
-                                </select>
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Gallery Status *</label>
-                                <select
-                                  className="select2 form-control"
-                                  name="gallery_status"
-                                  value={formData.gallery_status}
-                                  onChange={handleInputChange}
-                                  required
-                                >
-                                  <option value="Image">Image</option>
-                                  <option value="Video Link">Video Link</option>
-                                </select>
-                              </fieldset>
-                            </div>
-                            <div className="modal-footer">
-                              <input
-                                id="closeModal"
-                                type="reset"
-                                className="btn btn-secondary"
-                                data-dismiss="modal"
-                                value="Close"
-                                onClick={() => resetFormData()}
-                              />
-                              <input
-                                type="submit"
-                                className="btn btn-primary btn"
-                                value={formData.id ? "Update" : "Add"}
-                              />
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </li>
               </ul>
             </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="modal fade text-left"
+        id="bootstrap"
+        tabIndex="-1"
+        role="dialog"
+        aria-labelledby="myModalLabel35"
+        aria-hidden="true"
+        style={{ display: "none" }}
+      >
+        <div className="modal-dialog" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="card-title">Add Image Type</h3>
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                aria-label="Close"
+                onClick={() => resetFormData()}
+              >
+                <i className="feather icon-x" aria-hidden="true" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                <fieldset className="form-group floating-label-form-group">
+                  <label>Type *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="type"
+                    value={formData.type}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </fieldset>
+                <fieldset className="form-group floating-label-form-group">
+                  <label>Price *</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </fieldset>
+                <fieldset className="form-group floating-label-form-group">
+                  <label>Status *</label>
+                  <select
+                    className="select2 form-control"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </fieldset>
+                <fieldset className="form-group floating-label-form-group">
+                  <label>Gallery Status *</label>
+                  <select
+                    className="select2 form-control"
+                    name="gallery_status"
+                    value={formData.gallery_status}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="Image">Image</option>
+                    <option value="Video Link">Video Link</option>
+                  </select>
+                </fieldset>
+              </div>
+              <div className="modal-footer">
+                <input
+                  id="closeModal"
+                  type="reset"
+                  className="btn btn-secondary"
+                  data-dismiss="modal"
+                  value="Close"
+                  onClick={() => resetFormData()}
+                />
+                <input
+                  type="submit"
+                  className="btn btn-primary btn"
+                  value={formData.id ? "Update" : "Add"}
+                />
+              </div>
+            </form>
           </div>
         </div>
       </div>
