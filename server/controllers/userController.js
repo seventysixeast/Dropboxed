@@ -23,31 +23,37 @@ const updateUser = async (req, res) => {
       status: req.body.status,
       business_name: req.body.business_name,
     };
+
     if (req.files && req.files.profile_photo && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
-      let fileUrl = `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
+      let sanitizedFilename = file.name.replace(/\s+/g, '_');
+      let fileUrl = `${process.cwd()}/public/clients/` + sanitizedFilename;
       file.mv(fileUrl, async function (err) {
         if (err) {
           console.log("in image move error...", fileUrl, err);
         }
       });
-      userData.profile_photo = req.files.profile_photo.name;
+      userData.profile_photo = sanitizedFilename;
     }
+
     if (req.files && req.files.logo && Object.keys(req.files).length) {
       let file = req.files.logo;
-      let fileUrl = `${process.cwd()}/public/clients/` + req.files.logo.name;
+      let sanitizedFilename = file.name.replace(/\s+/g, '_');
+      let fileUrl = `${process.cwd()}/public/clients/` + sanitizedFilename;
       file.mv(fileUrl, async function (err) {
         if (err) {
           console.log("in image move error...", fileUrl, err);
         }
       });
-      userData.logo = req.files.logo.name;
+      userData.logo = sanitizedFilename;
     }
+
     let user = await User.update(userData, {
       where: {
         id: req.body.id
       }
     });
+
     res.status(200).json({
       success: true,
       message: "Changes updated successfully",

@@ -377,13 +377,13 @@ exports.NEW_COLLECTION = (subdomain, logo, data) => `
         <table cellpadding="0" cellspacing="0" width="100%">
             <tbody>
                 <tr>
-                    <td style="padding-top: 10px; text-align:center;">
+                    <td style="text-align:center;">
                         ${logo ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`}
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: center; padding-top: 10px;">
-                        <img src="${GALLERY_IMAGE_URL}/${data.banner}" alt="Banner Image" style="width: 100%; height: auto; max-height: 200px; object-fit: cover;">
+                    <td style="text-align: center;">
+                        <img src="${GALLERY_IMAGE_URL}/${data.banner}" alt="Banner Image" style="width: 100%; height: auto; max-height: 300px; object-fit: cover;">
                     </td>
                 </tr>
                 <tr>
