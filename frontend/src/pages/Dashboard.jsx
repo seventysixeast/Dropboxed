@@ -566,7 +566,7 @@ export const Dashboard = () => {
           </div>
           <div className="content-body">
             {roleId !== 3 && (
-              <div className="row grouped-multiple-statistics-card pb-2">
+              <div className="row grouped-multiple-statistics-card">
                 <div className="col-12">
                   <div className="card">
                     <div className="card-body">
