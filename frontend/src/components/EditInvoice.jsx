@@ -501,7 +501,11 @@ const EditInvoiceModal = ({
                                 <input
                                   type="text"
                                   className="form-control"
-                                  defaultValue="Happy to give you a 10% discount."
+                                  name="note"
+                                  onChange={(e) =>
+                                    setNote(e.target.value)
+                                  }
+                                  value={note}
                                 />
                               </div>
                             </div>
