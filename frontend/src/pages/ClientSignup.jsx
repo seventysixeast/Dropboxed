@@ -154,6 +154,7 @@ const ClientSignup = () => {
                             value={userData.phone}
                             onChange={handleChange}
                             placeholder="Phone"
+                            maxLength="10"
                           />
                           <div className="form-control-position">
                             <i className="feather icon-phone" />
