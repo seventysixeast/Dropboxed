@@ -68,8 +68,8 @@ const ClientSignup = () => {
         toast.success(response.message);
         navigate("/login");
       } else {
-        toast.error(response.error);
-        console.error("Registration failed:", response.error);
+        toast.error(response.message);
+        console.error("Registration failed:", response.message);
       }
     } catch (error) {
       if (error.name === "ValidationError") {
