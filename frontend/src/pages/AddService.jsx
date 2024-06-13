@@ -103,7 +103,6 @@ const AddService = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     if (
       serviceData.imageTypeDetails.length === 0 ||
       serviceData.imageTypeDetails.some(
@@ -113,18 +112,18 @@ const AddService = () => {
       toast.error("Minimum one image type is required!");
       return;
     }
-  
+
     const formData = new FormData();
-  
+
     const isVideoArray = serviceData.imageTypeDetails.map((imageTypeDetail) => {
       return imageTypeDetail.type.isVideo;
     });
-  
+
     let isVideo = false;
     if (isVideoArray.includes("Video Link")) {
       isVideo = true;
     }
-  
+
     const imageTypeDetails = serviceData.imageTypeDetails.map(
       (imageTypeDetail) => {
         return {
@@ -134,9 +133,9 @@ const AddService = () => {
         };
       }
     );
-  
+
     let package_slug = serviceData.serviceName.replace(/ /g, "-");
-  
+
     formData.append("package_type", "SERVICE");
     formData.append("package_name", serviceData.serviceName);
     formData.append("package_slug", package_slug);
@@ -147,11 +146,11 @@ const AddService = () => {
     formData.append("status", serviceData.status);
     formData.append("package_order", "0");
     formData.append("show_price", serviceData.showPrice);
-  
+
     if (id !== undefined) {
       formData.append("id", id);
     }
-  
+
     try {
       const response = await createService(formData);
       if (response.success) {
@@ -174,7 +173,6 @@ const AddService = () => {
       toast.error("Failed to add service!");
     }
   };
-  
 
   const getServiceById = async () => {
     setLoading(true);
@@ -306,8 +304,8 @@ const AddService = () => {
           fill="currentColor"
           className="bi bi-eye-fill"
           style={{
-            marginLeft: "0.3rem",
-            marginRight: "0.3rem",
+            marginLeft: "0.7rem",
+            marginRight: "0.7rem",
           }}
           viewBox="0 0 16 16"
         >
@@ -361,7 +359,7 @@ const AddService = () => {
                             <div className="row">
                               <label
                                 htmlFor="serviceName"
-                                className="form-label col-md-2 col-sm-12"
+                                className="form-label col-md-2 col-sm-12 d-flex align-items-center"
                               >
                                 Service Name
                               </label>
@@ -482,9 +480,7 @@ const AddService = () => {
 
                         <div className="col-md-12 my-3 ">
                           <div className="row">
-                            <p
-                              className="form-label col-md-2 col-sm-6"
-                            >
+                            <p className="form-label col-md-2 col-sm-12 d-flex align-items-center">
                               Status
                             </p>
                             <Select
@@ -519,8 +515,7 @@ const AddService = () => {
                             />
                             <label
                               htmlFor="showPrice"
-                              className="form-label col-md-2 col-sm-4"
-                              style={{ display: "flex", alignItems: "center" }}
+                              className="form-label col-md-2 col-sm-12 d-flex align-items-center"
                             >
                               Show Price:
                             </label>

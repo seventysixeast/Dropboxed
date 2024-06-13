@@ -228,7 +228,7 @@ const EditInvoiceModal = ({
               aria-label="Close"
               onClick={onClose}
             >
-              <span aria-hidden="true">×</span>
+              <i className="feather icon-x" aria-hidden="true" />
             </button>
           </div>
           <div

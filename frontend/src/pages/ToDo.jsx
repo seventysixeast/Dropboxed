@@ -173,6 +173,7 @@ const ToDo = () => {
   }
 
   const handleSubmit = async () => {
+    setLoading(true);
     const formData = new FormData();
 
     if (taskData.taskTitle === "") {
@@ -325,6 +326,7 @@ const ToDo = () => {
   };
 
   const handleStatusCheckbox = async (data) => {
+    setLoading(true);
     let task = data;
     let formData = new FormData();
     formData.append("id", task.id);
@@ -743,6 +745,7 @@ const ToDo = () => {
                                   taskAssigndate: date,
                                 })
                               }
+                              disabled
                               dateFormat="dd-MM-yyyy"
                             />
                           </div>

@@ -194,7 +194,7 @@ const PhotographersTeam = () => {
         Cell: ({ row }) => (
           <div className="btnsrow">
             <button
-              className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+              className="btn btn-icon btn-outline-secondary mr-1 my-1"
               style={{ padding: "0.5rem" }}
               title="Edit"
               onClick={() => getPhotographerData(row.original.id)}
@@ -204,7 +204,7 @@ const PhotographersTeam = () => {
               <i className="feather white icon-edit"></i>
             </button>
             <button
-              className="btn btn-icon btn-outline-danger mr-1 mb-1"
+              className="btn btn-icon btn-outline-danger mr-1 my-1"
               style={{ padding: "0.5rem" }}
               title="Delete"
               onClick={() => {
@@ -272,11 +272,14 @@ const PhotographersTeam = () => {
                             <h3 className="card-title">Add Photographer</h3>
                             <button
                               type="button"
-                              className="close"
+                              className="close outline-none"
                               data-dismiss="modal"
                               aria-label="Close"
                             >
-                              <span aria-hidden="true">×</span>
+                              <i
+                                className="feather icon-x"
+                                aria-hidden="true"
+                              />
                             </button>
                           </div>
                           <form onSubmit={handleSubmit}>

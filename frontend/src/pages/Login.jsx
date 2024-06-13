@@ -211,7 +211,6 @@ const Login = () => {
 
   return (
     <div className="bg-full-screen-image">
-      {/* Loader overlay */}
       {loading && (
         <div className="loader-overlay">
           <div className="loader"></div>
@@ -276,7 +275,11 @@ const Login = () => {
                               right: "10px",
                               top: "0px",
                               position: "absolute",
-                              cursor: "pointer"
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              height: "100%",
                             }}
                             onClick={togglePasswordVisibility}
                           >
@@ -285,6 +288,7 @@ const Login = () => {
                                 }`}
                             />
                           </div>
+
                           <small className="text-danger">
                             {validationErrors.password}
                           </small>
