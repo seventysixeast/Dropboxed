@@ -151,6 +151,7 @@ const EditInvoiceModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    handleLoading();
     const subtotal = calculateSubtotal();
     const taxAmount = calculateTaxAmount(subtotal);
     const total = calculateTotal(subtotal, taxAmount);

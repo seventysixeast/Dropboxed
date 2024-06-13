@@ -1,8 +1,8 @@
 const User = require("../models/Users");
 const BusinessClients = require("../models/BusinessClients");
 const Collections = require("../models/Collections");
-const redis = require("ioredis");
-const redisClient = new redis();
+// const redis = require("ioredis");
+// const redisClient = new redis();
 const bcrypt = require('bcrypt');
 const { WELCOME_CLIENT_EMAIL } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
@@ -172,7 +172,7 @@ const createClient = async (req, res) => {
       sendEmail(req.body.email, `Welcome to ${user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1)}!`, SEND_EMAIL);
     }
     // Update Redis cache
-    await updateRedisCache(req.body.subdomainId);
+    // await updateRedisCache(req.body.subdomainId);
     res.status(200).json({
       success: true,
       message: req.body.id
@@ -223,7 +223,7 @@ const deleteClient = async (req, res) => {
       { where: { id: clientId } }
     );
 
-    await updateRedisCache(req.body.subdomainId);
+    // await updateRedisCache(req.body.subdomainId);
 
     res
       .status(200)
@@ -252,7 +252,7 @@ const activeInactiveClient = async (req, res) => {
         .json({ success: false, message: "Client not found" });
     }
 
-    await updateRedisCache(req.body.subdomainId);
+    // await updateRedisCache(req.body.subdomainId);
 
     res.status(200).json({
       success: true,

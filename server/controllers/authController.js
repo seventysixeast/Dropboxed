@@ -429,7 +429,7 @@ exports.clientSignup = async (req, res) => {
       status: 1,
     });
 
-    clientController.updateRedisCache(subdomainUser.id);
+    // clientController.updateRedisCache(subdomainUser.id);
     
     let SEND_EMAIL = SEND_VERIFICATION_CLIENT_EMAIL(subdomain.charAt(0).toUpperCase() + subdomain.slice(1), subdomainUser.logo, email, verificationToken);
     sendEmail(email, `Welcome to ${subdomain.charAt(0).toUpperCase() + subdomain.slice(1)}!`, SEND_EMAIL);
