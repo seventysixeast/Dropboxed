@@ -570,6 +570,7 @@ const EditProfile = () => {
                             name="phone"
                             value={bankDetails.phone}
                             onChange={handleBankInputChange}
+                            maxLength="10"
                             required
                           />
                         </div>

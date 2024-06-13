@@ -49,7 +49,7 @@ exports.SEND_VERIFICATION_EMAIL = (subdomain, email, verificationToken) => `
 </div>
 `;
 
-exports.SEND_VERIFICATION_CLIENT_EMAIL = (subdomain, email, verificationToken) => `
+exports.SEND_VERIFICATION_CLIENT_EMAIL = (subdomain, logo, email, verificationToken) => `
 <div style="display: flex; justify-content: center; align-items: center; height: auto;">
     <span style="width: 100%; max-width: 600px; display: block; font-family: Arial, Verdana, sans-serif; padding-top: 0.5rem; border: 2px solid black; margin: 0.3rem;">
         <table cellpadding="0" cellspacing="0" width="100%">
