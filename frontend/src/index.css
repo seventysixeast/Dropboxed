@@ -1779,3 +1779,7 @@ a:not([href]) {
   left: 0 !important;
   overflow-y: auto !important;
 }
+
+.btn{
+  padding: 0.35rem .525rem !important;
+}

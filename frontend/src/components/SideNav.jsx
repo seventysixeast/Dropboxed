@@ -96,7 +96,7 @@ const SideNav = () => {
                 }`}
               >
                 <Link to="/invoice">
-                  <i className="feather icon-file-text"></i>
+                  <i className="feather icon-book-open"></i>
                   <span className="menu-title" data-i18n="Invoice">
                     Invoice List
                   </span>
@@ -120,7 +120,7 @@ const SideNav = () => {
                 }`}
               >
                 <Link to="/image-types">
-                  <i className="feather icon-file-text"></i>
+                  <i className="feather icon-image"></i>
                   <span className="menu-title" data-i18n="Image Types">
                     Image Types
                   </span>
@@ -132,7 +132,7 @@ const SideNav = () => {
                 }`}
               >
                 <Link to="/photographers-team">
-                  <i className="feather icon-file-text"></i>
+                  <i className="feather icon-camera"></i>
                   <span className="menu-title" data-i18n="Photographers Team">
                     Photographers Team
                   </span>

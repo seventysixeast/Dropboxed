@@ -1812,10 +1812,13 @@ export const BookingListComponent = () => {
                           eventResize={handleEventResize}
                           firstDay={1}
                           dateClick={(info) => {
-                            if (info.allDay === true) {
-                              return;
+                            const currentView = info.view.type;
+                        
+                            if (currentView === 'dayGridMonth' && info.allDay) {
+                              handleDateClick(info);
+                            } else if (currentView !== 'dayGridMonth' && !info.allDay) {
+                              handleDateClick(info);
                             }
-                            handleDateClick(info);
                           }}
                           initialView="timeGridWeek"
                           eventClick={(info) => {
