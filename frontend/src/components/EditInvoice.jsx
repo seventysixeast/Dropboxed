@@ -6,6 +6,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../context/authContext";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
+import Select from "react-select";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const EditInvoiceModal = ({
@@ -44,6 +45,7 @@ const EditInvoiceModal = ({
           setItems(itemsArray);
           setInvoiceData(response.data);
           setPaidAmount(response.data.invoice.paid_amount);
+          setNote(response.data.invoice.notes);
         } catch (err) {
           setError(err.message);
         }
@@ -493,17 +495,24 @@ const EditInvoiceModal = ({
                           <div className="row justify-content-between">
                             <div className="col-12 col-md-6 col-lg-6 col-xl-5">
                               <div className="regarding-payment form-group">
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={invoiceData.invoice?.paid_status || ""}
-                                />
+                                <select
+                                  className="select2 form-control w-50 form-control col-sm-6 col-md-3"
+                                  name="fromTime"
+                                  id="fromTime"
+                                  value={invoiceData.invoice?.paid_status}
+                                  style={{ cursor: "pointer" }}
+                                  required
+                                >
+                                  <option value="0">Pending</option>
+                                  <option value="1">Paid</option>
+                                </select>
                               </div>
                               <div className="regarding-discount form-group">
                                 <input
                                   type="text"
                                   className="form-control"
-                                  defaultValue="Happy to give you a 10% discount."
+                                  value={note}
+                                  onChange={(e) => setNote(e.target.value)}
                                 />
                               </div>
                             </div>
@@ -548,7 +557,7 @@ const EditInvoiceModal = ({
                                 </li>
                                 <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                                   <span className="cost-title mr-2">
-                                    Balance (USD){" "}
+                                    Balance{" "}
                                   </span>
                                   <span className="cost-value">
                                     ${dueAmount.toFixed(2)}

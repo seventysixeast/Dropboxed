@@ -80,6 +80,28 @@ const sendInvoice = async (data) => {
     }
 };
 
+const getActiveInvoices = async (data) => {
+    try {
+        const response = await API.post('/invoice/getActiveInvoices', data, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (response.status !== 200) {
+            throw new Error('Failed to get active invoices');
+        }
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
 
-export { getAllInvoices, deleteInvoiceById, getInvoiceData, updateInvoice, sendInvoice };
+export {
+    getAllInvoices,
+    deleteInvoiceById,
+    getInvoiceData,
+    updateInvoice,
+    sendInvoice,
+    getActiveInvoices
+};
 

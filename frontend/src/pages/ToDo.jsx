@@ -161,16 +161,16 @@ const ToDo = () => {
 
   function getBulletClass(index) {
     const colors = [
-      "#FF5733",  // Persimmon
-      "#33FF57",  // Spring Green
-      "#3357FF",  // Royal Blue
-      "#FFD700",  // Gold
-      "#8A2BE2",  // Blue Violet
-      "#FF69B4",  // Hot Pink
-      "#40E0D0",  // Turquoise
-      "#FFA500",  // Orange
-      "#9370DB",  // Medium Purple
-      "#00CED1"   // Dark Turquoise
+      "#FF5733",
+      "#33FF57",
+      "#3357FF",
+      "#FFD700",
+      "#8A2BE2",
+      "#FF69B4",
+      "#40E0D0",
+      "#FFA500",
+      "#9370DB",
+      "#00CED1",
     ];
     return `${colors[index % colors.length]}`;
   }

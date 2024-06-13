@@ -12,6 +12,18 @@ const newBooking = async (bookingData) => {
   }
 };
 
+const getProviders = async (data) => {
+  try {
+    const response = await API.post('/booking/providers', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to create calendar');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 const createCalendar = async (calendarData) => {
   try {
     const response = await API.post('/booking/create-calendar', calendarData);
@@ -140,4 +152,4 @@ const getAllPhotographers = async (data) => {
   }
 };
 
-export { newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles, getAllServices, getAllPhotographers, getCalendarStatus };
+export { getProviders, newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles, getAllServices, getAllPhotographers, getCalendarStatus };

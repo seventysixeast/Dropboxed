@@ -23,7 +23,7 @@ const AddService = () => {
   const [serviceData, setServiceData] = useState({
     serviceName: "",
     imageTypeDetails: [{ type: "", label: "", count: "" }],
-    status: "INACTIVE",
+    status: "ACTIVE",
     totalPrice: 0,
     subdomainId: user.subdomain_id,
     showPrice: true,
@@ -259,8 +259,8 @@ const AddService = () => {
   };
 
   const statusOptions = [
-    { value: "INACTIVE", label: "Inactive" },
     { value: "ACTIVE", label: "Active" },
+    { value: "INACTIVE", label: "Inactive" },
   ];
 
   const handleStatusChange = (selectedOption) => {
@@ -555,7 +555,6 @@ const AddService = () => {
           </div>
         </div>
       </div>
-
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
     </>

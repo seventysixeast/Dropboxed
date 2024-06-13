@@ -772,9 +772,11 @@ export const ViewGallery = () => {
       }
     );
     const existingLinkData = await existingLinkResponse.json();
-    const existingFileLink = existingLinkData.links.find(link => link['.tag'] === 'file');
+    const existingFileLink = existingLinkData.links.find(
+      (link) => link[".tag"] === "file"
+    );
     if (existingFileLink) {
-      sharedLinkData = existingFileLink
+      sharedLinkData = existingFileLink;
       const link = sharedLinkData.url;
       setTaskData({
         ...taskData,
@@ -1000,7 +1002,6 @@ export const ViewGallery = () => {
                       style={{ cursor: "pointer" }}
                       title="Download"
                       onClick={() => {
-
                         if (authData.user.role_id !== 3) {
                           setDownloadGalleryModal(true);
                         } else if (

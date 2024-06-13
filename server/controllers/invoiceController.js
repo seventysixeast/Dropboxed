@@ -260,10 +260,31 @@ const sendInvoice = async (req, res) => {
     }
 };
 
+const getActiveInvoiceNumber = async (req, res) => {
+    try {
+        let invoices = 0;
+        const activeInvoices = await CustomInvoiceList.findAll({
+            attributes: ["id"],
+            where: {
+                subdomain_id: req.body.subdomainId,
+                send_invoice: 0
+            },
+            order: [['id', 'DESC']]
+        });
+
+        invoices =  activeInvoices.length;
+
+        res.status(200).json({ success: true, data: invoices });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getAllInvoices,
     deleteInvoice,
     getInvoiceData,
     updateInvoice,
-    sendInvoice
+    sendInvoice,
+    getActiveInvoiceNumber
 };

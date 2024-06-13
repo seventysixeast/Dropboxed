@@ -7,5 +7,6 @@ router.post('/getInvoiceData', invoiceController.getInvoiceData);
 router.post('/deleteInvoice', invoiceController.deleteInvoice)
 router.post('/updateInvoice', invoiceController.updateInvoice)
 router.post('/send-invoice', invoiceController.sendInvoice);
+router.post('/getActiveInvoices', invoiceController.getActiveInvoiceNumber);
 
 module.exports = router;

@@ -23,6 +23,7 @@ import "react-tooltip/dist/react-tooltip.css";
 import CollectionTable from "../components/CollectionTable";
 import ReTooltip from "../components/Tooltip";
 import LoadingOverlay from "../components/Loader";
+import { getActiveInvoices } from "../api/invoiceApis";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -55,6 +56,7 @@ export const Dashboard = () => {
   const [itemsLoading, setItemsLoading] = useState(false);
   const [galleryView, setGalleryView] = useState("grid");
   const [subdomainDropbox, setSubdomainDropbox] = useState("");
+  const [activeInvoices, setActiveInvoices] = useState(0);
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
@@ -147,6 +149,7 @@ export const Dashboard = () => {
 
     getAllBookingsData();
     getDropboxRefresh();
+    getActiveInvoicesNumber();
   }, []);
 
   useEffect(() => {
@@ -193,6 +196,23 @@ export const Dashboard = () => {
       console.log(error);
     }
   };
+
+  const getActiveInvoicesNumber = async () => {
+    const datatosend = {
+      subdomainId: subdomainId,
+      roleId: user.role_id,
+      userId: userId,
+    };
+    try {
+      let data = await getActiveInvoices(datatosend);
+      console.log(data);
+      setActiveInvoices(data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  console.log(activeInvoices);
 
   const getServices = async (client, booking_title) => {
     try {
@@ -630,7 +650,7 @@ export const Dashboard = () => {
                                   <i className="icon-bag font-large-2 white"></i>
                                 </div>
                                 <div className="p-2 bg-gradient-x-success white media-body">
-                                  <h5>0</h5>
+                                  <h5>{activeInvoices}</h5>
                                   <p className="text-bold-400 mb-0">
                                     Active Invoices
                                   </p>

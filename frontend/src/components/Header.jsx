@@ -122,9 +122,9 @@ const Header = () => {
                   <div className="avatar avatar-online">
                     <img
                       src={
-                        user.profilePhoto
+                        user.profilePhoto 
                           ? `${IMAGE_URL}/${user.profilePhoto}`
-                          : "../app-assets/images/portrait/medium/dummy.png"
+                          : "../../../app-assets/images/portrait/medium/dummy.png"
                       }
                       style={{ width: "50px", height: "30px" }}
                       alt="profile"

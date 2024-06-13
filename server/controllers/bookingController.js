@@ -463,7 +463,8 @@ const createBooking = async (req, res) => {
 };
 
 const providers = async (req, res) => {
-  const { subdomainId } = req.body;
+  let subdomainId = req.body.subdomain_id;
+  let roleId = req.body.role_id;
   try {
     const businessClients = await BusinessClients.findAll({
       attributes: ["client_id"],
@@ -471,14 +472,10 @@ const providers = async (req, res) => {
         business_id: subdomainId,
         status: 1,
       },
-      include: {
-        model: User,
-        as: "client",
-      },
     });
 
     let usersWithRoleId2 = await User.findAll({
-      attributes: ["id", "name", "profile_photo"],
+      attributes: ["id", "name", "profile_photo", "status"],
       where: {
         id: { [Op.in]: businessClients.map((client) => client.client_id) },
         role_id: 2,
@@ -487,7 +484,7 @@ const providers = async (req, res) => {
     });
 
     let subdomain = await User.findOne({
-      attributes: ["id", "name", "profile_photo"],
+      attributes: ["id", "name", "profile_photo", "status"],
       where: {
         id: subdomainId,
       },
@@ -496,7 +493,7 @@ const providers = async (req, res) => {
     usersWithRoleId2.push(subdomain);
 
     const users = await User.findAll({
-      attributes: ["id", "name", "profile_photo", "address"],
+      attributes: ["id", "name", "profile_photo", "address", "status"],
       where: {
         id: { [Op.in]: businessClients.map((client) => client.client_id) },
         role_id: 3,

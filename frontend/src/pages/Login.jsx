@@ -190,8 +190,9 @@ const Login = () => {
         const encryptedToken = encryptToken(accessToken);
         // Construct the redirection URL
 
-        const redirectUrl = `${window.location.protocol}//${userSubdomain}.${window.location.host
-          }/login?token=${encodeURIComponent(encryptedToken)}`;
+        const redirectUrl = `${window.location.protocol}//${userSubdomain}.${
+          window.location.host
+        }/login?token=${encodeURIComponent(encryptedToken)}`;
         //console.log("redirectUrl",redirectUrl)
         window.location.href = redirectUrl; // Redirecting to subdomain
       }
@@ -243,6 +244,9 @@ const Login = () => {
                           <input
                             type="text"
                             className="form-control"
+                            style={{
+                              borderColor: validationErrors.userName ? "red" : ""
+                            }}
                             id="user-name"
                             name="userName"
                             value={userData.userName}
@@ -250,9 +254,9 @@ const Login = () => {
                             placeholder="Your Email"
                           />
                           <div className="form-control-position">
-                            <i className="feather icon-user" />
+                            <i className="feather icon-user" style={{color: validationErrors.userName ? "red" : ""}}/>
                           </div>
-                          <small className="text-danger">
+                          <small className="text-danger" >
                             {validationErrors.userName}
                           </small>
                         </fieldset>
@@ -260,6 +264,9 @@ const Login = () => {
                           <input
                             type={isPasswordVisible ? "text" : "password"}
                             className="form-control"
+                            style={{
+                              borderColor: validationErrors.password ? "red" : ""
+                            }}
                             id="user-password"
                             name="password"
                             value={userData.password}
@@ -267,28 +274,27 @@ const Login = () => {
                             placeholder="Enter Password"
                           />
                           <div className="form-control-position">
-                            <i className="feather icon-lock" />
+                            <i className="feather icon-lock" style={{ color: validationErrors.password ? "red" : ""}} />
                           </div>
                           <div
                             className="form-control-position"
                             style={{
                               right: "10px",
-                              top: "0px",
+                              top: "4px",
                               position: "absolute",
                               cursor: "pointer",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              height: "100%",
                             }}
                             onClick={togglePasswordVisibility}
                           >
                             <i
-                              className={`fa ${isPasswordVisible ? "fa-eye-slash" : "fa-eye"
-                                }`}
+                              className={`fa ${
+                                isPasswordVisible ? "fa-eye-slash" : "fa-eye"
+                              }`}
                             />
                           </div>
-
                           <small className="text-danger">
                             {validationErrors.password}
                           </small>

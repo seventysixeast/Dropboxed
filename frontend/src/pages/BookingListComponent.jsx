@@ -8,6 +8,7 @@ import {
   getAllBookings,
   deleteBooking,
   getCalendarStatus,
+  getProviders,
 } from "../api/bookingApis";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -222,8 +223,11 @@ export const BookingListComponent = () => {
   const fetchProviders = async () => {
     if (providers.length === 0) {
       try {
-        const response = await API.post("/booking/providers", { subdomainId });
-        const data = response.data;
+        const formDataToSend = new FormData();
+        formDataToSend.append("subdomain_id", subdomainId);
+        formDataToSend.append("role_id", roleId);
+        const response = await getProviders(formDataToSend);
+        const data = response;
         setProviders(data.usersWithRoleId2);
         setClientList(data.users);
         setPackages(data.packages);
@@ -1820,10 +1824,13 @@ export const BookingListComponent = () => {
                           firstDay={1}
                           dateClick={(info) => {
                             const currentView = info.view.type;
-                        
-                            if (currentView === 'dayGridMonth' && info.allDay) {
+
+                            if (currentView === "dayGridMonth" && info.allDay) {
                               handleDateClick(info);
-                            } else if (currentView !== 'dayGridMonth' && !info.allDay) {
+                            } else if (
+                              currentView !== "dayGridMonth" &&
+                              !info.allDay
+                            ) {
                               handleDateClick(info);
                             }
                           }}

@@ -235,8 +235,9 @@ const ImageTypes = () => {
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
                 <fieldset className="form-group floating-label-form-group">
-                  <label>Type *</label>
+                  <label htmlFor="type">Type *</label>
                   <input
+                    id="type"
                     type="text"
                     className="form-control"
                     name="type"
@@ -246,8 +247,9 @@ const ImageTypes = () => {
                   />
                 </fieldset>
                 <fieldset className="form-group floating-label-form-group">
-                  <label>Price *</label>
+                  <label htmlFor="price">Price *</label>
                   <input
+                    id="price"
                     type="number"
                     className="form-control"
                     name="price"
@@ -257,8 +259,9 @@ const ImageTypes = () => {
                   />
                 </fieldset>
                 <fieldset className="form-group floating-label-form-group">
-                  <label>Status *</label>
+                  <label htmlFor="status">Status *</label>
                   <select
+                    id="status"
                     className="select2 form-control"
                     name="status"
                     value={formData.status}
@@ -270,8 +273,9 @@ const ImageTypes = () => {
                   </select>
                 </fieldset>
                 <fieldset className="form-group floating-label-form-group">
-                  <label>Gallery Status *</label>
+                  <label htmlFor="gallery_status">Gallery Status *</label>
                   <select
+                    id="gallery_status"
                     className="select2 form-control"
                     name="gallery_status"
                     value={formData.gallery_status}

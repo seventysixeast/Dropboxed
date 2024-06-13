@@ -29,7 +29,6 @@ const getAllPhotographers = async (req, res) => {
 const createPhotographer = async (req, res) => {
   try {
     let imageName = req.files && req.files.profile_photo.name;
-    // Generate random password
     let password = Math.random().toString(36).slice(-8);
     let hashedPassword = await bcrypt.hash(password, 10);
     let photographerData = {
@@ -40,7 +39,8 @@ const createPhotographer = async (req, res) => {
       role_id: req.body.role_id,
       profile_photo: imageName || req.body.profile_photo,
       password: hashedPassword,
-      is_verified: 1
+      is_verified: 1,
+      status: req.body.status
     };
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
