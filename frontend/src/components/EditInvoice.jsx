@@ -511,8 +511,9 @@ const EditInvoiceModal = ({
                                 <input
                                   type="text"
                                   className="form-control"
-                                  value={note}
+                                  name="note"
                                   onChange={(e) => setNote(e.target.value)}
+                                  value={note}
                                 />
                               </div>
                             </div>

@@ -57,6 +57,11 @@ exports.login = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ status: false, message: 'Invalid email or password' });
+    }
+
     // Check if the user is active
     if (user.status == "inactive") {
       return res.status(200).json({ success: false, message: 'Your account is deactivated. Please contact support for assistance.' });
@@ -425,9 +430,9 @@ exports.clientSignup = async (req, res) => {
     });
 
     clientController.updateRedisCache(subdomainUser.id);
-
-    const emailContent = SEND_VERIFICATION_CLIENT_EMAIL(subdomain.charAt(0).toUpperCase() + subdomain.slice(1), email, verificationToken);
-    sendEmail(email, `Welcome to ${subdomain.charAt(0).toUpperCase() + subdomain.slice(1)}!`, emailContent);
+    
+    let SEND_EMAIL = SEND_VERIFICATION_CLIENT_EMAIL(subdomain.charAt(0).toUpperCase() + subdomain.slice(1), subdomainUser.logo, email, verificationToken);
+    sendEmail(email, `Welcome to ${subdomain.charAt(0).toUpperCase() + subdomain.slice(1)}!`, SEND_EMAIL);
 
     res.status(200).json({
       success: true,

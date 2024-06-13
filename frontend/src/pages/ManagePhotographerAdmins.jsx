@@ -304,6 +304,7 @@ const ManagePhotographerAdmins = () => {
                                   name="phone"
                                   value={formData.phone}
                                   onChange={handleInputChange}
+                                  maxLength="10"
                                   required
                                 />
                               </fieldset>
