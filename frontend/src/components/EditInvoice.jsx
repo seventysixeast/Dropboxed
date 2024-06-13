@@ -6,7 +6,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../context/authContext";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
-const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
+const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const EditInvoiceModal = ({
   isOpen,
@@ -15,7 +15,7 @@ const EditInvoiceModal = ({
   handleLoading,
   isEdit,
   collectionId,
-  getAllCollectionsData
+  getAllCollectionsData,
 }) => {
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
@@ -132,7 +132,7 @@ const EditInvoiceModal = ({
   };
 
   const calculateTaxAmount = (subtotal) => {
-    return (subtotal / 11);
+    return subtotal / 11;
   };
 
   const calculateTotal = (subtotal, taxAmount) => {
@@ -165,7 +165,7 @@ const EditInvoiceModal = ({
       clientAddress: invoiceData.client.address,
       dueAmount: total - paidAmount,
       paidAmount,
-      subdomainId
+      subdomainId,
     };
 
     try {
@@ -175,7 +175,7 @@ const EditInvoiceModal = ({
         invoice.orderId = invoiceData.invoice.order_id;
         response = await updateInvoice(invoice);
       } else {
-        invoice.collectionId = collectionId
+        invoice.collectionId = collectionId;
         response = await saveInvoice(invoice);
       }
 
@@ -307,15 +307,18 @@ const EditInvoiceModal = ({
                             />
                           </div>
                           <div className="col-sm-6 col-12 order-1 order-sm-1 d-flex justify-content-end align-items-center">
-                            <img
-                              src={
-                                invoiceData.admin.logo &&
-                                `${IMAGE_URL}/${invoiceData.admin.logo}`
-                              }
-                              alt="logo"
-                              height="auto"
-                              width={164}
-                            />
+                            <>
+                              {invoiceData.admin.logo ? (
+                                <img
+                                  src={`${IMAGE_URL}/${invoiceData.admin.logo}`}
+                                  alt="logo"
+                                  height="auto"
+                                  width={164}
+                                />
+                              ) : (
+                                <span>{invoiceData.admin.subdomain}</span>
+                              )}
+                            </>
                           </div>
                         </div>
                         <hr />
@@ -483,7 +486,6 @@ const EditInvoiceModal = ({
                                 </button>
                               </div>
                             ) */}
-                            
                           </form>
                         </div>
                         <hr />

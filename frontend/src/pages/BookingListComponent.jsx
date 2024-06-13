@@ -100,6 +100,14 @@ export const BookingListComponent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (bookingAddress === null) {
+      toast.error("Please enter Booking Address!");
+      return;
+    }
+    if (bookingData.services === "") {
+      toast.error("Please select a service!");
+      return;
+    }
     setLoading(true);
     try {
       const convertedTime = bookingData.fromTime;
@@ -1350,7 +1358,6 @@ export const BookingListComponent = () => {
                                           isSearchable
                                           isMulti
                                           hideSelectedOptions
-                                          required
                                           components={{
                                             Option: CustomOption,
                                           }}

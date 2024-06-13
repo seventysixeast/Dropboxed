@@ -566,13 +566,13 @@ export const Dashboard = () => {
           </div>
           <div className="content-body">
             {roleId !== 3 && (
-              <div className="row grouped-multiple-statistics-card">
+              <div className="row grouped-multiple-statistics-card mb-1">
                 <div className="col-12">
-                  <div className="card">
+                  <div className="card mb-1">
                     <div className="card-body">
                       <div className="row">
                         <div className="col-xl-3 col-lg-6 col-12">
-                          <div className="card">
+                          <div className="card ">
                             <div className="card-content">
                               <div className="media align-items-stretch">
                                 <div className="p-2 text-center bg-primary ">
@@ -864,7 +864,7 @@ export const Dashboard = () => {
                       ))
                     ) : (
                       <>
-                        <div className="col-12 d-flex justify-content-center ">
+                        <div className="col-12 d-flex justify-content-center pb-2">
                           {itemsLoading ? (
                             <div
                               className="spinner-border primary"

@@ -50,7 +50,6 @@ const AddTagModal = ({ showAddTagModal, setShowAddTagModal, onAddTag }) => {
                     onChange={(e) => setTaskTagTitle(e.target.value)}
                   />
                 </div>
-
                 <div className="modal-footer">
                   <button
                     type="button"
