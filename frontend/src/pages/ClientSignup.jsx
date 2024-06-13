@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import logoLight from "../assets/images/dropboxed-logo.png";
 
 const ClientSignup = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
     name: "",
@@ -23,7 +24,7 @@ const ClientSignup = () => {
   const togglePasswordVisibility = () => {
     setPasswordVisibility(!isPasswordVisible);
   };
-  
+
   useEffect(() => {
     const url = window.location.hostname;
     const subdomain = url.split(".")[0];
@@ -67,8 +68,8 @@ const ClientSignup = () => {
         toast.success(response.message);
         navigate("/login");
       } else {
-        toast.error(response.error);
-        console.error("Registration failed:", response.error);
+        toast.error(response.message);
+        console.error("Registration failed:", response.message);
       }
     } catch (error) {
       if (error.name === "ValidationError") {
@@ -97,7 +98,9 @@ const ClientSignup = () => {
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <img src={logoLight} alt="branding logo" />
+                        <a href={BASE_URL}>
+                          <img src={logoLight} alt="branding logo" />
+                        </a>
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
@@ -203,9 +206,8 @@ const ClientSignup = () => {
                             onClick={togglePasswordVisibility}
                           >
                             <i
-                              className={`fa ${
-                                isPasswordVisible ? "fa-eye-slash" : "fa-eye"
-                              }`}
+                              className={`fa ${isPasswordVisible ? "fa-eye-slash" : "fa-eye"
+                                }`}
                             />
                           </div>
                         </fieldset>
@@ -236,9 +238,8 @@ const ClientSignup = () => {
                             onClick={togglePasswordVisibility}
                           >
                             <i
-                              className={`fa ${
-                                isPasswordVisible ? "fa-eye-slash" : "fa-eye"
-                              }`}
+                              className={`fa ${isPasswordVisible ? "fa-eye-slash" : "fa-eye"
+                                }`}
                             />
                           </div>
                         </fieldset>

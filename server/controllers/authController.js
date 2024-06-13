@@ -366,11 +366,11 @@ exports.clientSignup = async (req, res) => {
     const profilePhoto = req.files && req.files.profile_photo;
 
     if (!email) {
-      return res.status(400).json({ success: false, error: "Email is required" });
+      return res.status(200).json({ success: false, message: "Email is required" });
     }
 
     if (!password) {
-      return res.status(400).json({ success: false, error: "Password is required" });
+      return res.status(200).json({ success: false, message: "Password is required" });
     }
 
     const subdomainUser = await User.findOne({
@@ -378,7 +378,7 @@ exports.clientSignup = async (req, res) => {
     });
 
     if (!subdomainUser) {
-      return res.status(400).json({ success: false, error: "Subdomain does not exist" });
+      return res.status(200).json({ success: false, message: "Subdomain does not exist" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -387,13 +387,13 @@ exports.clientSignup = async (req, res) => {
 
     const existingEmail = await User.findOne({ where: { email } });
     if (existingEmail) {
-      return res.status(400).json({ success: false, error: "Already registered with this Email id." });
+      return res.status(200).json({ success: false, message: "Already registered with this Email id." });
     }
 
     if (phone) {
       const existingPhone = await User.findOne({ where: { phone } });
       if (existingPhone) {
-        return res.status(400).json({ success: false, error: "Phone number already exists" });
+        return res.status(200).json({ success: false, message: "Phone number already exists" });
       }
     }
 
@@ -435,8 +435,8 @@ exports.clientSignup = async (req, res) => {
       data: client.id,
     });
   } catch (error) {
-    console.error("Error registering client:", error);
-    res.status(500).json({ success: false, error: "Failed to register client" });
+    console.error("Error registering client:", error.message);
+    res.status(200).json({ success: false, message: "Failed to register client" });
   }
 };
 
@@ -526,7 +526,7 @@ exports.forgotPassword = async (req, res) => {
         { where: { email: email } }
       );
 
-      var OTPEmail = SEND_OTP(user.name, email, code);
+      var OTPEmail = SEND_OTP(email, code);
       sendEmail(email, "Password Reset", OTPEmail);
 
       return res.status(200).json({

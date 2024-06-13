@@ -63,7 +63,7 @@ const TableCustom = ({ data, columns }) => {
                       <div
                         className="d-flex justify-content-between"
                         style={{
-                          marginBottom: "5px",
+                          marginBottom: "15px",
                           marginLeft: "0 !important",
                         }}
                       >

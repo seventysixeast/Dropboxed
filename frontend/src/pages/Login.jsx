@@ -190,9 +190,8 @@ const Login = () => {
         const encryptedToken = encryptToken(accessToken);
         // Construct the redirection URL
 
-        const redirectUrl = `${window.location.protocol}//${userSubdomain}.${
-          window.location.host
-        }/login?token=${encodeURIComponent(encryptedToken)}`;
+        const redirectUrl = `${window.location.protocol}//${userSubdomain}.${window.location.host
+          }/login?token=${encodeURIComponent(encryptedToken)}`;
         //console.log("redirectUrl",redirectUrl)
         window.location.href = redirectUrl; // Redirecting to subdomain
       }
@@ -228,7 +227,9 @@ const Login = () => {
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <img src={logoLight} alt="branding logo" />
+                        <a href={BASE_URL}>
+                          <img src={logoLight} alt="branding logo" />
+                        </a>
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
@@ -283,9 +284,8 @@ const Login = () => {
                             onClick={togglePasswordVisibility}
                           >
                             <i
-                              className={`fa ${
-                                isPasswordVisible ? "fa-eye-slash" : "fa-eye"
-                              }`}
+                              className={`fa ${isPasswordVisible ? "fa-eye-slash" : "fa-eye"
+                                }`}
                             />
                           </div>
 

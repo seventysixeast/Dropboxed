@@ -4,6 +4,7 @@ import logoLight from "../assets/images/dropboxed-logo.png";
 import { forgotPassword } from "../api/authApis";
 
 const ForgotPassword = () => {
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const [user, setUser] = useState({ email: "", password: "" });
 
   const handleChange = (e) => {
@@ -50,7 +51,9 @@ const ForgotPassword = () => {
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <img src={logoLight} alt="branding logo" />
+                        <a href={BASE_URL}>
+                          <img src={logoLight} alt="branding logo" />
+                        </a>
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">

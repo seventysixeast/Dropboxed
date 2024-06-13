@@ -356,6 +356,7 @@ const Clients = () => {
                                 className="form-control"
                                 name="phone"
                                 value={formData.phone}
+                                maxLength="10"
                                 onChange={handleInputChange}
                               />
                             </div>
