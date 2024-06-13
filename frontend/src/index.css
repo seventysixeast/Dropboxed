@@ -1783,3 +1783,10 @@ a:not([href]) {
 .btn{
   padding: 0.35rem .525rem !important;
 }
+
+.grid-hover {
+  position: relative;
+  margin: 0 auto;
+  padding: 0 0;
+  list-style: none;
+}
