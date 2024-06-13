@@ -46,6 +46,16 @@ const EditInvoiceModal = ({
           setInvoiceData(response.data);
           setPaidAmount(response.data.invoice.paid_amount);
           setNote(response.data.invoice.notes);
+          const newAddress = response.data.invoice.address;
+
+          setInvoiceData((prevData) => ({
+              ...prevData,
+              client: {
+                  ...prevData.client,
+                  address: newAddress
+              }
+          }));
+
         } catch (err) {
           setError(err.message);
         }
@@ -134,7 +144,7 @@ const EditInvoiceModal = ({
   };
 
   const calculateTaxAmount = (subtotal) => {
-    return subtotal / 11;
+    return subtotal / taxRate;
   };
 
   const calculateTotal = (subtotal, taxAmount) => {
@@ -342,6 +352,15 @@ const EditInvoiceModal = ({
                                   className="form-control"
                                   rows={3}
                                   value={invoiceData.client.address || ""}
+                                  onChange={(e) =>
+                                    setInvoiceData({
+                                      ...invoiceData,
+                                      client: {
+                                        ...invoiceData.client,
+                                        address: e.target.value,
+                                      },
+                                    })
+                                  }
                                   placeholder="Address"
                                 />
                               </div>
@@ -515,6 +534,7 @@ const EditInvoiceModal = ({
                                   name="note"
                                   onChange={(e) => setNote(e.target.value)}
                                   value={note}
+                                  placeholder="Add notes here!"
                                 />
                               </div>
                             </div>
