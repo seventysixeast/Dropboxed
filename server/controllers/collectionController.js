@@ -538,7 +538,7 @@ const saveInvoiceToDatabase = async (req, res) => {
 
     // Save to local database (uncomment if needed)
     const newOrder = await Order.create({
-      user_id: userId,
+      user_id: clientUser.id,
       collection_id: collectionId,
       package_id: 0,
       image_id: 0,

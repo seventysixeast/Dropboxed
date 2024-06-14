@@ -18,7 +18,8 @@ console.log("code", code,state,realmId)
           console.log("response>>>>",response)
           if (response.success) {
             const { subdomain } = response;
-            window.location.href = `http://${subdomain}.localhost:3000/dashboard`;
+            //window.location.href = `http://${subdomain}.localhost:3000/dashboard`;
+            window.location.href = `https://${subdomain}.${process.env.REACT_APP_DOMAIN_NAME}/dashboard`;
           } else {
             console.error('QuickBooks connection failed:', response.message);
           }
