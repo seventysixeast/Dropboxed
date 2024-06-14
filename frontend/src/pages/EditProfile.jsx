@@ -512,7 +512,7 @@ const EditProfile = () => {
                           />
                         </div>
                         <div className="col-md-6 form-group">
-                          <label>Account Email</label>
+                          <label>Country</label>
                           <select
                             name="country"
                             className="select2 form-control"
