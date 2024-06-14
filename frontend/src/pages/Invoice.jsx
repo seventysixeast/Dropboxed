@@ -190,7 +190,7 @@ const Invoice = () => {
       const response = await sendInvoice({ invoiceId: id });
       if (response.success) {
         toast.success("Invoice sent successfully!");
-        getInvoiceList(); // Refresh the invoice list after sending the invoice
+        getInvoiceList();
       } else {
         toast.error("Failed to send invoice!");
       }

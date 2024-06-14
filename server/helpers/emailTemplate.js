@@ -587,9 +587,9 @@ exports.INVOICE_EMAIL = (invoiceData) => `
                                                 <tr>
                                                     <td style="border: 1px solid #ddd; padding: 8px;">${item.name}</td>
                                                     <td style="border: 1px solid #ddd; padding: 8px;">${item.description}</td>
-                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.product_price}</td>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">${item.price}</td>
                                                     <td style="border: 1px solid #ddd; padding: 8px;">${item.quantity}</td>
-                                                    <td style="border: 1px solid #ddd; padding: 8px;">$ ${item.product_price}</td>
+                                                    <td style="border: 1px solid #ddd; padding: 8px;">$ ${item.price}</td>
                                                 </tr>`).join('')}
                                             </tbody>
                                         </table>
