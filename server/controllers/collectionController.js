@@ -31,6 +31,8 @@ const addGallery = async (req, res) => {
     where: { id: req.body.subdomainId }
   });
 
+
+
   try {
     let collectionData = {
       client_id: req.body.client,
@@ -46,6 +48,18 @@ const addGallery = async (req, res) => {
       dropbox_refresh: user.dropbox_refresh,
       image_count: req.body.image_count
     };
+
+    if (!req.body.id) {
+      let baseSlug = createSlug(req.body.gallery_title);
+      let slug = baseSlug;
+      let counter = 1;
+    
+      while (await Collection.findOne({ where: { slug } })) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+      collectionData.slug = slug;
+    }
 
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.banner;
