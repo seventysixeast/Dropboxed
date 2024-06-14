@@ -788,7 +788,7 @@ export const Dashboard = () => {
                                 className="gallery-thumbnail equal-image"
                                 src={
                                   item.banner
-                                    ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
+                                    ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner_sm}`
                                     : "../../../app-assets/images/gallery/9.jpg"
                                 }
                               />

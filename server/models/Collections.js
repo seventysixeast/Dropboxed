@@ -106,6 +106,10 @@ const Collections = sequelize.define('Collections', {
     allowNull: false,
     defaultValue: ''
   },
+  banner_sm: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
   notify_client: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
