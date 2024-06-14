@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Switch from "@mui/material/Switch";
 import moment from "moment";
 import {
@@ -37,6 +37,8 @@ const Clients = () => {
     business_name: "",
     profile_photo: "",
   });
+
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     getAllClientsData();
@@ -139,6 +141,9 @@ const Clients = () => {
       profile_photo: null,
     });
     setPreviewImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -378,6 +383,7 @@ const Clients = () => {
                                 name="profile_photo"
                                 onChange={handlePhotoChange}
                                 accept="image/*"
+                                ref={fileInputRef}
                               />
                               {previewImage && (
                                 <img
@@ -443,9 +449,8 @@ const Clients = () => {
               .map((item) => (
                 <div className="col-xl-3 col-md-6 col-12" key={item.id}>
                   <div
-                    className={`card d-flex flex-column ${
-                      item.status === "Inactive" ? "dull-card" : ""
-                    }`}
+                    className={`card d-flex flex-column ${item.status === "Inactive" ? "dull-card" : ""
+                      }`}
                   >
                     <div className="text-center">
                       <div className="card-body">
@@ -462,16 +467,14 @@ const Clients = () => {
                       <div className="card-body">
                         <h4 className="card-title">{item.name}</h4>
                         <h6
-                          className={`card-subtitle mb-2 ${
-                            item.status === "Active" ? "text-muted" : ""
-                          }`}
+                          className={`card-subtitle mb-2 ${item.status === "Active" ? "text-muted" : ""
+                            }`}
                         >
                           {item.business_name}
                         </h6>
                         <h6
-                          className={`card-subtitle mb-2 ${
-                            item.status === "Active" ? "text-muted" : ""
-                          }`}
+                          className={`card-subtitle mb-2 ${item.status === "Active" ? "text-muted" : ""
+                            }`}
                         >
                           Created On :{" "}
                           {moment(item.created).format("DD-MM-YYYY")}
@@ -481,36 +484,32 @@ const Clients = () => {
                     <div className="text-center mt-auto">
                       <a
                         href={`mailto:${item.email}`}
-                        className={`btn btn-social-icon mb-1 ${
-                          item.status === "Inactive" ? "dull-card" : ""
-                        }`}
+                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
+                          }`}
                         title={item.email}
                       >
                         <span className="icon-envelope"></span>
                       </a>
                       <a
                         href={`tel:${item.phone}`}
-                        className={`btn btn-social-icon mb-1 ${
-                          item.status === "Inactive" ? "dull-card" : ""
-                        }`}
+                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
+                          }`}
                         title={item.phone}
                       >
                         <span className="icon-call-out"></span>
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mb-1 ${
-                          item.status === "Inactive" ? "dull-card" : ""
-                        }`}
+                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
+                          }`}
                         title="View Collection"
                       >
                         <span className="icon-grid"></span>
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mb-1 ${
-                          item.status === "Inactive" ? "dull-card" : ""
-                        }`}
+                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
+                          }`}
                         title="Edit"
                         onClick={() => getClientData(item.id)}
                         data-toggle="modal"
@@ -520,9 +519,8 @@ const Clients = () => {
                       </a>
                       <a
                         href="#"
-                        className={`btn btn-social-icon mb-1 ${
-                          item.status === "Inactive" ? "dull-card" : ""
-                        }`}
+                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
+                          }`}
                         title="Delete"
                         onClick={() => {
                           setShowDeleteModal(true);

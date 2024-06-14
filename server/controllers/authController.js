@@ -108,7 +108,7 @@ exports.login = async (req, res) => {
     if (isFirstLogin) {
       // Send Welcome email
       if (user.role_id === 3) {
-        var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user_subdmain.charAt(0).toUpperCase() + user_subdmain.slice(1), user.email, user.logo, req.body.name, req.body.email, password);
+        var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user_subdmain.charAt(0).toUpperCase() + user_subdmain.slice(1), user.email, user.logo, user.name, user.email, password);
         sendEmail(user.email, `Welcome to ${user_subdmain.charAt(0).toUpperCase() + user_subdmain.slice(1)}!`, SEND_EMAIL);
       } else {
         var SEND_EMAIL = WELCOME_EMAIL();

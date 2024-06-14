@@ -261,7 +261,7 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, c
         <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
             <tr>
                 <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 70%; box-sizing: border-box;">
-                    <h1 style="font-size: 18px; margin-bottom: 10px;">New Booking</h1>
+                    <h1 style="font-size: 18px; margin-bottom: 30px;">New Booking</h1>
                     <p>Hello ${name},</p>
                     <p>Your booking has been confirmed with ${subdomain}</p>
                     <hr>
@@ -271,9 +271,9 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, c
                     <p><b>Team Member:</b> ${teamMember}</p>
                     <p><b>Contact:</b> ${contact}</p>
                     <hr>
-                    <p>Thank you,</p>
-                    <p>${subdomain}</p>
-                    <p>You have received this message due to a recent booking</p>
+                    <p>Thank you,<br>
+                    ${subdomain}</p>
+                    <p style="margin-top: 30px;">You have received this message due to a recent booking</p>
                 </td>
                 <td valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 30%; box-sizing: border-box;">
                     <table style="width: 100%; margin-top: 30%; border-collapse: collapse;">
@@ -319,7 +319,7 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data
         <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
             <tr>
                 <td valign="top" style="padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 70%; box-sizing: border-box;">
-                    <h1 style="font-size: 18px; margin-bottom: 10px;">Update Booking</h1>
+                    <h1 style="font-size: 18px; margin-bottom: 30px;">Update Booking</h1>
                     <p>Hello ${name},</p>
                     <p>Your booking has been confirmed with ${subdomain}</p>
                     <hr>
@@ -329,9 +329,9 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data
                     <p><b>Team Member:</b> ${teamMember}</p>
                     <p><b>Contact:</b> ${contact}</p>
                     <hr>
-                    <p>Thank you,</p>
-                    <p>${subdomain}</p>
-                    <p>You have received this message due to a recent booking</p>
+                    <p>Thank you,<br>
+                    ${subdomain}</p>
+                    <p style="margin-top: 30px;">You have received this message due to a recent booking</p>
                 </td>
                 <td valign="top" style="background-color: #f2f2f2; padding: 20px; font-family: Arial, sans-serif; font-size: 14px; width: 30%; box-sizing: border-box;">
                     <table style="width: 100%; margin-top: 30%; border-collapse: collapse;">
@@ -398,7 +398,7 @@ exports.NEW_COLLECTION = (subdomain, logo, data) => `
                                             <table cellpadding="0" cellspacing="0" border="0">
                                                 <tr>
                                                     <td align="center" style="padding-bottom: 30px; width: 100%;" valign="top">
-                                                        <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>VIEW PROJECT</b></a>
+                                                        <a href="https://${subdomain}.${VERIFY_URL}view-gallery/${data.client_address}" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>VIEW PROJECT</b></a>
                                                         <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
                                                     </td>
                                                 </tr>
