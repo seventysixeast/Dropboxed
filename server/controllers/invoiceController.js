@@ -18,15 +18,43 @@ const {
 const { createQuickBooksCustomer } = require("./collectionController");
 
 const getAllInvoices = async (req, res) => {
+  const { subdomain_id, user_id, role_id } = req.body;
+
   try {
-    const invoices = await CustomInvoiceList.findAll({
-      where: {
-        subdomain_id: req.body.subdomain_id,
-      },
-    });
-    res.status(200).json({ success: true, data: invoices });
+    let invoices;
+
+    if (role_id === 5 || role_id === 2) {
+      invoices = await CustomInvoiceList.findAll({
+        where: {
+          subdomain_id: subdomain_id,
+        },
+      });
+    } else {
+      const orders = await Order.findAll({
+        where: {
+          user_id: user_id,
+        },
+      });
+
+      if (!orders.length) {
+        return res
+          .status(200)
+          .json({ success: false, data: {}, message: "No Invoices found!" });
+      }
+      console.log(orders);
+      const orderNumbers = orders.map((order) => order.id);
+      console.log(orderNumbers);
+      invoices = await CustomInvoiceList.findAll({
+        where: {
+          order_id: orderNumbers,
+        },
+      });
+
+    }
+
+    return res.status(200).json({ success: true, data: invoices });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 

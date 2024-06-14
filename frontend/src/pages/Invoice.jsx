@@ -114,7 +114,81 @@ const Invoice = () => {
 
         return (
           <>
-            <div className="btnsrow">
+            {roleId !== 3 ? (
+              <div className="btnsrow">
+                <ReTooltip title="Edit Invoice" placement="top">
+                  <button
+                    type="button"
+                    className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => handleEdit(id)}
+                    disabled={isDisabled}
+                  >
+                    <i className="feather white icon-edit"></i>
+                  </button>
+                </ReTooltip>
+                <ReTooltip title="Delete Invoice" placement="top">
+                  <button
+                    type="button"
+                    className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => handleDelete(id)}
+                    disabled={isDisabled}
+                  >
+                    <i className="feather white icon-trash"></i>
+                  </button>
+                </ReTooltip>
+                <ReTooltip title="Upload Invoice" placement="top">
+                  <button
+                    type="button"
+                    className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => handleUpload(id)}
+                    disabled={isDisabled}
+                  >
+                    <FaUpload fill="white" />
+                  </button>
+                </ReTooltip>
+
+                {!isPaid && (
+                  <ReTooltip title="Mark as Paid" placement="top">
+                    <button
+                      type="button"
+                      className="btn btn-icon btn-outline-primary mr-1 mb-1 text-white"
+                      style={{ padding: "0.5rem" }}
+                      onClick={() => handlePaid(id)}
+                      disabled={isDisabled}
+                    >
+                      Paid
+                    </button>
+                  </ReTooltip>
+                )}
+                <ReTooltip title="Send Invoice" placement="top">
+                  <button
+                    type="button"
+                    className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => handleSendInvoice(id)}
+                    disabled={isDisabled}
+                  >
+                    <i className="icon-share"></i>
+                  </button>
+                </ReTooltip>
+              </div>
+            ) : (
+              <ReTooltip title="View" placement="top">
+                <button
+                  type="button"
+                  className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                  style={{ padding: "0.5rem" }}
+                  onClick={() => handleView(id)}
+                  disabled={isDisabled}
+                >
+                  <i className="fa icon-eye white"></i>
+                </button>
+              </ReTooltip>
+            )}
+            {/* <div className="btnsrow">
               <ReTooltip title="Edit Invoice" placement="top">
                 <button
                   type="button"
@@ -148,8 +222,7 @@ const Invoice = () => {
                   <FaUpload fill="white" />
                 </button>
               </ReTooltip>
-            {/* </div>
-            <div className="btnsrow"> */}
+ 
               {!isPaid && (
                 <ReTooltip title="Mark as Paid" placement="top">
                   <button
@@ -174,7 +247,7 @@ const Invoice = () => {
                   <i className="icon-share"></i>
                 </button>
               </ReTooltip>
-            </div>
+            </div> */}
           </>
         );
       },
@@ -206,6 +279,7 @@ const Invoice = () => {
       const formData = new FormData();
       formData.append("role_id", roleId);
       formData.append("subdomain_id", subdomainId);
+      formData.append("user_id", user.id);
       const response = await getAllInvoices(formData);
       setInvoiceList(response.data);
     } catch (error) {
@@ -276,6 +350,13 @@ const Invoice = () => {
       setLoading(true);
     }
   }, [modalIsOpen]);
+
+  const handleView = (id) => {
+    setEditMode(true);
+    setInvoiceId(id);
+    setModalIsOpen(true);
+    setLoading(true);
+  };
 
   return (
     <>
