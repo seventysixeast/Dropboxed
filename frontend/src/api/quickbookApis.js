@@ -15,7 +15,7 @@ const getQuickBooksAuthUrl = async () => {
 const handleQuickBooksCallback = async (params) => {
   try {
     console.log("params",params)
-    const response = await API.get('/quickbooks/callback', { params });
+    const response = await API.get('/quickbooks/save-callback', { params });
     if (response.status !== 200) {
       throw new Error('Failed to handle QuickBooks callback');
     }
