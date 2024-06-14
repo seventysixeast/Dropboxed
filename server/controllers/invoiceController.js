@@ -15,6 +15,7 @@ const {
   getQuickBooksAccessToken,
   refreshQuickBooksToken,
 } = require("./quickbooksController");
+const { createQuickBooksCustomer } = require("./collectionController");
 
 const getAllInvoices = async (req, res) => {
   try {

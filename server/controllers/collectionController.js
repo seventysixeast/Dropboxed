@@ -729,4 +729,5 @@ module.exports = {
   updateGalleryNotify,
   getOrderDataForInvoice,
   saveInvoiceToDatabase,
+  createQuickBooksCustomer
 };
