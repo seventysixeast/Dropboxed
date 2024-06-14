@@ -2,7 +2,7 @@ import API from "./baseApi";
 
 const getQuickBooksAuthUrl = async () => {
   try {
-    const response = await API.get('/quickbooks/auth-url');
+    const response = await API.get('/qb/auth-url');
     if (response.status !== 200) {
       throw new Error('Failed to get QuickBooks auth URL');
     }
@@ -15,7 +15,7 @@ const getQuickBooksAuthUrl = async () => {
 const handleQuickBooksCallback = async (params) => {
   try {
     console.log("params",params)
-    const response = await API.get('/quickbooks/callback', { params });
+    const response = await API.get('/qb/callback', { params });
     if (response.status !== 200) {
       throw new Error('Failed to handle QuickBooks callback');
     }

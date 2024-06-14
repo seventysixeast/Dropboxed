@@ -103,7 +103,7 @@ exports.login = async (req, res) => {
       user_subdmain = businessOwner.subdomain;
     }
 
-    const accessToken = generateAccessToken(user.id);
+    const accessToken = generateAccessToken(user.id, user_subdmain);
     const isFirstLogin = user.is_first_login;
     if (isFirstLogin) {
       // Send Welcome email

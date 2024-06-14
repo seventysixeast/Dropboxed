@@ -16,10 +16,12 @@ const generateState = (data) => {
 
 const parseState = (state) => {
   const decoded = Buffer.from(state, 'base64').toString('utf8');
+  console.log("decoded",decoded)
   return JSON.parse(decoded);
 };
 
 exports.getQuickBooksAuthUrl = (req, res) => {
+  console.log("req",req.user)
   const clientId = QUICKBOOKS_CLIENT_ID;
   const redirectUri = QUICKBOOKS_REDIRECT_URI;
   const scope = 'com.intuit.quickbooks.accounting';
@@ -39,6 +41,7 @@ exports.quickBooksCallback = async (req, res) => {
   const { code, state, realmId } = req.query;
   const parsedState = parseState(state);
   const { subdomain, userId } = parsedState;
+  console.log("const { subdomain, userId } = parsedState;",subdomain, userId)
   const authString = Buffer.from(`${QUICKBOOKS_CLIENT_ID}:${QUICKBOOKS_CLIENT_SECRET}`).toString('base64');
 
   try {
