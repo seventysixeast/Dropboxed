@@ -4,6 +4,6 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/authMiddleware');
 
 router.get('/auth-url', authenticateToken, quickbooksController.getQuickBooksAuthUrl);
-router.get('/save-callback', quickbooksController.quickBooksCallback);
+router.get('/callback', quickbooksController.quickBooksCallback);
 
 module.exports = router;
