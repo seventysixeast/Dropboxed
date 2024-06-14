@@ -603,47 +603,7 @@ const saveInvoiceToDatabase = async (req, res) => {
         .json({ success: false, message: "Client user not found" });
     }
 
-    // const user = await User.findOne({ where: { id: userId } });
-    // let quickbooks_invoice_id = "";
-    // if (user.quickbooks_realm_id !== null) {
-    //   const realmId = user.quickbooks_realm_id;
-    //   let accessToken = await getQuickBooksAccessToken(userId);
 
-    //   accessToken = await refreshQuickBooksToken(userId);
-
-    //   const qbo = new QuickBooks(
-    //     process.env.QUICKBOOKS_CLIENT_ID,
-    //     process.env.QUICKBOOKS_CLIENT_SECRET,
-    //     accessToken,
-    //     false,
-    //     realmId,
-    //     true,
-    //     false,
-    //     4, 
-    //     "2.0", 
-    //     process.env.QUICKBOOKS_CLIENT_ID
-    //   );
-    //   let quickbooks_customer_id;
-    //   if (clientUser.quickbooks_customer_id) {
-    //     quickbooks_customer_id = clientUser.quickbooks_customer_id;
-    //   } else {
-    //     quickbooks_customer_id = await createQuickBooksCustomer(
-    //       userId,
-    //       clientUser,
-    //       qbo
-    //     );
-
-    //   }
-
-    //   const { invoice } = await createQuickBooksInvoice(
-    //     userId,
-    //     items,
-    //     total,
-    //     note,
-    //     quickbooks_customer_id
-    //   );
-    //   quickbooks_invoice_id = invoice.Id;
-    // }
 
     const newOrder = await Order.create({
       user_id: clientUser.id,

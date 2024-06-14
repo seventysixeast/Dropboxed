@@ -314,7 +314,7 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
     // });
 
     return {
-      invoice,
+      qb_invoice: invoice,
       // shareLink
     };
   } catch (error) {
