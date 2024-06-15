@@ -20,24 +20,21 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const fileUpload = require('express-fileupload');
+const compression = require('compression');
 
-const secret = crypto.randomBytes(32).toString('hex');
+const secret = process.env.SECRET || crypto.randomBytes(32).toString('hex');
 const app = express();
 const PORT = process.env.PORT || 6977;
 
 app.use(fileUpload());
-
 app.use(cors(/*{
   origin: /^https?:\/\/[^/]+\.example\.com$/,
 }*/));
-
 app.use(bodyParser.json({ limit: '500mb' }));
 app.use(bodyParser.urlencoded({ limit: '500mb', parameterLimit: 100000, extended: true }));
-
+app.use(compression());
 app.use(express.static(path.join(__dirname, "build")));
-
 app.use('/images/clients', express.static(path.join(__dirname, 'public', 'clients')));
-
 app.use('/images/gallery', express.static(path.join(__dirname, 'public', 'gallery')));
 
 const dirs = ['./public/clients', './public/gallery'];
@@ -85,7 +82,6 @@ app.get("/*", (req, res, next) => {
     req.url.includes("/invoice/") ||
     req.url.includes("/orders/") ||
     req.url.includes("/qb/")
-
   )
     return next();
   else

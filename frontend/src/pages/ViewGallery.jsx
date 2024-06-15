@@ -9,10 +9,8 @@ import { getRefreshToken } from "../api/authApis";
 import JSZip from "jszip";
 import LoadingOverlay from "../components/Loader";
 import { toast } from "react-toastify";
-import PhotoswipeUIDefault from "photoswipe/dist/photoswipe-ui-default";
-import { CustomGallery, Item, DefaultLayout } from "react-photoswipe-gallery";
-import "photoswipe/dist/photoswipe.css";
-import "photoswipe/dist/default-skin/default-skin.css";
+import { Gallery, Item } from "react-photoswipe-gallery";
+import "photoswipe/style.css";
 import ReactPlayer from "react-player";
 import TodoModal from "../components/TodoModal";
 import { getAlltasks, createTask } from "../api/todoApis";
@@ -116,8 +114,6 @@ export const ViewGallery = () => {
     );
     closeSharePopup();
   };
-
-  console.log(collection.lock_gallery);
 
   const getTasks = async () => {
     if (authData.user === null) return;
@@ -259,7 +255,7 @@ export const ViewGallery = () => {
       getTasks();
       getClients();
     }
-  }, []);
+  });
 
   const fetchCollection = async () => {
     setRunning(true);
@@ -529,7 +525,7 @@ export const ViewGallery = () => {
           )}`
         );
       } else {
-        const errorData = await copyResponse.json();
+        await copyResponse.json();
         toast.error("Folder already exists.");
       }
     }
@@ -708,12 +704,6 @@ export const ViewGallery = () => {
       setLoading(false);
       setDownloadGalleryPopup(false);
     }
-  };
-
-  const customOptions = {
-    ui: {
-      shareEl: false,
-    },
   };
 
   useEffect(() => {
@@ -954,6 +944,7 @@ export const ViewGallery = () => {
                       objectFit: "cover",
                       imageRendering: "auto",
                     }}
+                    alt="cover"
                   />
                 </div>
               </div>
@@ -1048,7 +1039,7 @@ export const ViewGallery = () => {
             <section id="image-gallery" className="image-gallery">
               <div className="card-content collapse show">
                 <div className="card-body my-gallery">
-                  <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
+                  <Gallery layoutRef={layoutRef}>
                     <div className="row">
                       <Masonry
                         breakpointCols={breakpointColumnsObj}
@@ -1090,35 +1081,31 @@ export const ViewGallery = () => {
                                       <p className="icon-links">
                                         {authData.user !== null && (
                                           <>
-                                            <a>
-                                              <span
-                                                className="feather icon-share-2"
-                                                style={{ marginRight: "8px" }}
-                                                title="Share"
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  openSharePopup();
-                                                }}
-                                              ></span>
-                                            </a>
-                                            <a>
+                                            <span
+                                              className="feather icon-share-2"
+                                              style={{ marginRight: "8px", cursor: "pointer" }}
+                                              title="Share"
+                                              onClick={(event) => {
+                                                event.stopPropagation();
+                                                openSharePopup();
+                                              }}
+
+                                            ></span>
                                               <span
                                                 className="feather icon-edit"
-                                                style={{ marginRight: "8px" }}
+                                                style={{ marginRight: "8px", cursor: "pointer" }}
                                                 onClick={(event) => {
                                                   event.stopPropagation();
                                                   toggleNewTaskModal();
                                                   handleShareImage(image);
                                                 }}
                                               ></span>
-                                            </a>
-                                            <a>
                                               <span
                                                 className="text-right feather icon-download"
+                                                style={{ marginRight: "8px", cursor: "pointer" }}
                                                 title="Download"
                                                 onClick={(event) => {
                                                   event.stopPropagation();
-
                                                   setSelectedImageUrl(
                                                     image.path_display
                                                   );
@@ -1140,7 +1127,6 @@ export const ViewGallery = () => {
                                                   }
                                                 }}
                                               ></span>
-                                            </a>
                                           </>
                                         )}
                                       </p>
@@ -1153,7 +1139,7 @@ export const ViewGallery = () => {
                         ))}
                       </Masonry>
                     </div>
-                  </CustomGallery>
+                  </Gallery>
                   {loader && (
                     <div
                       className="d-flex justify-content-center align-items-center"
@@ -1175,12 +1161,6 @@ export const ViewGallery = () => {
                 </div>
               </div>
             </section>
-            <DefaultLayout
-              shareButton={true}
-              fullscreenButton={false}
-              zoomButton={false}
-              ref={layoutRef}
-            />
             {authData !== null && (
               <>
                 <DownloadGalleryModal

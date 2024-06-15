@@ -16,6 +16,7 @@ import {
 import Select from "react-select";
 import { getClientPhotographers } from "../api/clientApis";
 import _ from "lodash";
+
 import avatar1 from "../assets/images/dummy.png";
 import DeleteModal from "../components/DeleteModal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -40,7 +41,6 @@ const ToDo = () => {
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState(tasks);
   const [activeFilter, setActiveFilter] = useState("All");
-  const [theSortOrder, setTheSortOrder] = useState("");
   const [tags, setTags] = useState([]);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState([]);
@@ -50,8 +50,6 @@ const ToDo = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddTagModal, setShowAddTagModal] = useState(false);
   const modalRef = useRef(null);
-  const [tagId, setTagId] = useState("");
-  const [showDeleteTagModal, setShowDeleteTagModal] = useState(false);
   const [taskData, setTaskData] = useState({
     id: "",
     userId: "",
@@ -400,7 +398,6 @@ const ToDo = () => {
           .slice()
           .sort((a, b) => b.task_title.localeCompare(a.task_title));
       }
-      setTheSortOrder(sortOrder);
     }
     setFilteredTasks(filteredList);
   };
@@ -506,8 +503,7 @@ const ToDo = () => {
                   </div>
                   <div className="sidebar-menu-list">
                     <div className="list-group">
-                      <a
-                        href="#"
+                      <span
                         className={`list-group-item border-0 ${
                           activeFilter === "All" ? "active" : ""
                         }`}
@@ -518,12 +514,11 @@ const ToDo = () => {
                           <i className="feather icon-align-justify"></i>
                         </span>
                         <span> All</span>
-                      </a>
+                      </span>
                     </div>
                     <p className="filter-label mt-2 mb-1 pt-25">Filters</p>
                     <div className="list-group">
-                      <a
-                        href="#"
+                      <span
                         className={`list-group-item border-0 ${
                           activeFilter === "Favorites" ? "active" : ""
                         }`}
@@ -533,9 +528,8 @@ const ToDo = () => {
                           <i className="feather icon-star"></i>
                         </span>
                         <span>Favourites</span>
-                      </a>
-                      <a
-                        href="#"
+                      </span>
+                      <span
                         className={`list-group-item border-0 ${
                           activeFilter === "Done" ? "active" : ""
                         }`}
@@ -545,7 +539,7 @@ const ToDo = () => {
                           <i className="feather icon-check"></i>
                         </span>
                         <span>Done</span>
-                      </a>
+                      </span>
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
                       <p className="filter-label mt-2 mb-1">Labels</p>
@@ -817,6 +811,7 @@ const ToDo = () => {
                               <a
                                 className="ql-preview"
                                 target="_blank"
+                                rel="noreferrer"
                                 href="about:blank"
                               />
                               <input

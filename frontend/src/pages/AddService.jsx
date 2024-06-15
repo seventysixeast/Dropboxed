@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import "react-tabs/style/react-tabs.css";
@@ -29,19 +29,7 @@ const AddService = () => {
     showPrice: true,
   });
 
-  useEffect(() => {
-    if (id !== undefined) {
-      getServiceById();
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id === undefined) {
-      getAllImageTypesData();
-    }
-  }, [id]);
-
-  const getAllImageTypesData = async () => {
+  const getAllImageTypesData = useCallback(async () => {
     try {
       let formData = new FormData();
       formData.append("subdomain_id", subdomainId);
@@ -52,7 +40,8 @@ const AddService = () => {
     } catch (error) {
       console.error("Failed to:", error.message);
     }
-  };
+  }, [subdomainId]);
+  
 
   const handleAddInstance = () => {
     setCloneIndex(cloneIndex + 1);
@@ -174,55 +163,55 @@ const AddService = () => {
     }
   };
 
-  const getServiceById = async () => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("id", id);
-    formData.append("subdomain_id", subdomainId);
-    await getAllImageTypesData();
-    try {
-      let service = await getService(formData);
-      const data = service.data;
+  // const getServiceById = async () => {
+  //   setLoading(true);
+  //   const formData = new FormData();
+  //   formData.append("id", id);
+  //   formData.append("subdomain_id", subdomainId);
+  //   await getAllImageTypesData();
+  //   try {
+  //     let service = await getService(formData);
+  //     const data = service.data;
 
-      data.image_type_details = JSON.parse(data.image_type_details);
-      let typedata = await getAllImageTypes(formData);
-      const updatedImageTypeDetails = data.image_type_details.map((detail) => {
-        const imageType = typedata.data.find(
-          (type) => type.id === parseInt(detail.image_type)
-        );
-        return {
-          type: {
-            value: detail.image_type,
-            label: imageType ? imageType.type : "",
-            price: imageType ? imageType.price : 0,
-            isVideo: imageType ? imageType.gallery_status : false,
-          },
-          label: detail.image_type_label,
-          count: detail.image_type_count,
-        };
-      });
-      if (data.status === "Active") {
-        data.status = "ACTIVE";
-      } else {
-        data.status = "INACTIVE";
-      }
+  //     data.image_type_details = JSON.parse(data.image_type_details);
+  //     let typedata = await getAllImageTypes(formData);
+  //     const updatedImageTypeDetails = data.image_type_details.map((detail) => {
+  //       const imageType = typedata.data.find(
+  //         (type) => type.id === parseInt(detail.image_type)
+  //       );
+  //       return {
+  //         type: {
+  //           value: detail.image_type,
+  //           label: imageType ? imageType.type : "",
+  //           price: imageType ? imageType.price : 0,
+  //           isVideo: imageType ? imageType.gallery_status : false,
+  //         },
+  //         label: detail.image_type_label,
+  //         count: detail.image_type_count,
+  //       };
+  //     });
+  //     if (data.status === "Active") {
+  //       data.status = "ACTIVE";
+  //     } else {
+  //       data.status = "INACTIVE";
+  //     }
 
-      setServiceData({
-        serviceName: data.package_name,
-        imageTypeDetails: updatedImageTypeDetails,
-        status: data.status,
-        totalPrice: data.package_price,
-        subdomainId: data.subdomain_id,
-        showPrice: data.show_price,
-      });
-      setCloneIndex(updatedImageTypeDetails.length);
-    } catch (error) {
-      toast.error("Failed to get service!");
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setServiceData({
+  //       serviceName: data.package_name,
+  //       imageTypeDetails: updatedImageTypeDetails,
+  //       status: data.status,
+  //       totalPrice: data.package_price,
+  //       subdomainId: data.subdomain_id,
+  //       showPrice: data.show_price,
+  //     });
+  //     setCloneIndex(updatedImageTypeDetails.length);
+  //   } catch (error) {
+  //     toast.error("Failed to get service!");
+  //     console.log(error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleImageTypeChange = (index, selectedOption) => {
     const updatedImageTypeDetails = [...serviceData.imageTypeDetails];
@@ -325,6 +314,69 @@ const AddService = () => {
       </div>
     </CustomTooltip>
   );
+
+  useEffect(() => {
+    const getServiceById = async () => {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("id", id);
+      formData.append("subdomain_id", subdomainId);
+      await getAllImageTypesData();
+      try {
+        let service = await getService(formData);
+        const data = service.data;
+  
+        data.image_type_details = JSON.parse(data.image_type_details);
+        let typedata = await getAllImageTypes(formData);
+        const updatedImageTypeDetails = data.image_type_details.map((detail) => {
+          const imageType = typedata.data.find(
+            (type) => type.id === parseInt(detail.image_type)
+          );
+          return {
+            type: {
+              value: detail.image_type,
+              label: imageType ? imageType.type : "",
+              price: imageType ? imageType.price : 0,
+              isVideo: imageType ? imageType.gallery_status : false,
+            },
+            label: detail.image_type_label,
+            count: detail.image_type_count,
+          };
+        });
+        if (data.status === "Active") {
+          data.status = "ACTIVE";
+        } else {
+          data.status = "INACTIVE";
+        }
+  
+        setServiceData({
+          serviceName: data.package_name,
+          imageTypeDetails: updatedImageTypeDetails,
+          status: data.status,
+          totalPrice: data.package_price,
+          subdomainId: data.subdomain_id,
+          showPrice: data.show_price,
+        });
+        setCloneIndex(updatedImageTypeDetails.length);
+      } catch (error) {
+        toast.error("Failed to get service!");
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    if (id !== undefined) {
+      getServiceById();
+    }
+  }, [id, subdomainId, getAllImageTypesData]);
+  
+  
+  useEffect(() => {
+    if (id === undefined) {
+      getAllImageTypesData();
+    }
+  }, [id, getAllImageTypesData]);
 
   return (
     <>
@@ -483,6 +535,7 @@ const AddService = () => {
                             <p className="form-label col-md-2 col-sm-12 d-flex align-items-center">
                               Status
                             </p>
+
                             <Select
                               className="select2 col-md-3 col-sm-6 mr-1 mb-1  p-0"
                               id="status"
@@ -537,7 +590,7 @@ const AddService = () => {
                         </div>
                       </form>
                       <div className="buttons d-flex justify-content-end mr-4">
-                        {roleId != 3 && (
+                        {roleId !== 3 && (
                           <button
                             type="submit"
                             onClick={handleSubmit}

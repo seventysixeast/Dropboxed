@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
 import {
   newBooking,
   updateBooking,
@@ -14,14 +13,11 @@ import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import avatar1 from "../app-assets/images/portrait/small/avatar-s-1.png";
 import Select from "react-select";
 import DeleteModal from "../components/DeleteModal";
 import { toast } from "react-toastify";
 import TableCustom from "../components/Table";
-import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/authContext";
-import API from "../api/baseApi";
 import ConfirmModal from "../components/ConfirmModal";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { Switch } from "@mui/material";
@@ -35,7 +31,6 @@ const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 export const BookingListComponent = () => {
-  const API_URL = process.env.REACT_APP_API_URL;
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
@@ -136,7 +131,7 @@ export const BookingListComponent = () => {
       const formattedDate = `${year}-${month}-${day}`;
       let newbookingstatus = 0;
 
-      if (roleId == 3) {
+      if (roleId === 3) {
         newbookingstatus = 0;
       } else {
         newbookingstatus = notifyCheckbox;
@@ -155,7 +150,7 @@ export const BookingListComponent = () => {
         booking_title: bookingAddress.label,
         subdomain_id: subdomainId,
       };
-      if (roleId == 3) {
+      if (roleId === 3) {
         bookingDataToSend.user_id = userId;
       } else {
         bookingDataToSend.user_id = bookingData.client;
@@ -189,7 +184,7 @@ export const BookingListComponent = () => {
       setSelectedPackagePrice(0);
       setBookingIdToDelete(null);
 
-      if (roleId == 3) {
+      if (roleId === 3) {
         toast.success("Booking request sent. Please await confirmation.");
       } else {
         toast.success("Booking added successfully");
@@ -212,7 +207,7 @@ export const BookingListComponent = () => {
   };
 
   useEffect(() => {
-    if (subdomainId != undefined && roleId != undefined) {
+    if (subdomainId !== undefined && roleId !== undefined) {
       getAllBookingsData(subdomainId);
 
       fetchProviders();
@@ -318,7 +313,7 @@ export const BookingListComponent = () => {
     try {
       let allBookingData = await getAllBookings(datatosend);
       let altData = allBookingData;
-      if (roleId == 3) {
+      if (roleId === 3) {
         allBookingData = {
           data: allBookingData.data.filter(
             (booking) => booking.user_id === userId
@@ -387,6 +382,7 @@ export const BookingListComponent = () => {
           color: color,
           editable: editable,
           status: status,
+          borderColor: borderColor,
         };
       });
       setEvents(events);
@@ -601,14 +597,9 @@ export const BookingListComponent = () => {
 
   const handleEventResize = (arg) => {
     let id = arg.event._def.publicId;
-    // let newDate = new Date(arg.event.start + "Z");
-    // let endDate = new Date(arg.event.end + "Z");
-    // newDate.setDate(newDate.getDate());
 
     let newDate = moment(arg.event.start, "YYYY-MM-DD hh:mm:ss A").toDate();
     let endDate = moment(arg.event.end, "YYYY-MM-DD hh:mm:ss A").toDate();
-
-    const newDateString = moment(newDate).format("YYYY-MM-DD");
 
     let startTime = moment(newDate).format("HH:mm:ss");
     let endTime = moment(endDate).format("HH:mm:ss");
@@ -841,32 +832,33 @@ export const BookingListComponent = () => {
         const isPending = booking_status === 0;
         const notifyButton = (
           <ReTooltip title="Notify Client." placement="top">
-            <a
+            <span
               className="badge"
-              style={{ backgroundColor: "#ff748c" }}
+              style={{ backgroundColor: "#ff748c", cursor: "pointer" }}
               onClick={() => handleNotifyChange(row.original)}
             >
               Notify
-            </a>
+            </span>
           </ReTooltip>
         );
         const newRequest = (
           <ReTooltip title="New Request." placement="top">
-            <p className="badge" style={{ backgroundColor: "#ff748c" }}>
+            <p className="badge" style={{ backgroundColor: "#ff748c", cursor: "pointer" }}>
               New Request
             </p>
           </ReTooltip>
         );
         const pendingRequest = (
           <ReTooltip title="Pending Request." placement="top">
-            <p className="badge" style={{ backgroundColor: "#ff748c" }}>
+            <p className="badge" style={{ backgroundColor: "#ff748c", cursor: "pointer" }}>
               Pending
             </p>
           </ReTooltip>
         );
         const booked = (
           <ReTooltip title="Booking Confirmed." placement="top">
-            <p className="badge" disabled>
+            <p className="badge" style={{ cursor: "pointer" }}>
+              
               Booked
             </p>
           </ReTooltip>
@@ -1148,7 +1140,7 @@ export const BookingListComponent = () => {
                           disabled={calendarSub === 1}
                           href={`${authUrl}`}
                         >
-                          {calendarSub == 1
+                          {calendarSub === 1
                             ? "Subscribed"
                             : "Subscribe to Calendar"}
                         </a>

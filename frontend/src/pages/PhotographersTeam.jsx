@@ -14,6 +14,7 @@ const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 const PhotographersTeam = () => {
   const { authData } = useAuth();
   const user = authData.user;
+  
   const subdomainId = user.subdomain_id;
   const [photographers, setPhotographers] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

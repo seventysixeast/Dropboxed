@@ -22,7 +22,6 @@ import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 import CollectionTable from "../components/CollectionTable";
 import ReTooltip from "../components/Tooltip";
-import LoadingOverlay from "../components/Loader";
 import { getActiveInvoices } from "../api/invoiceApis";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -44,7 +43,6 @@ export const Dashboard = () => {
   const [isGalleryLocked, setIsGalleryLocked] = useState(false);
   const [isNotifyChecked, setIsNotifyChecked] = useState(false);
   const [showAddGalleryModal, setShowAddGalleryModal] = useState(false);
-  const [showAddGalleryModal2, setShowAddGalleryModal2] = useState(false);
   const [collections, setCollections] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
   const currentUrl = window.location.href;
@@ -143,7 +141,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     getClients();
-    if (collections.length == 0) {
+    if (collections.length === 0) {
       getAllCollectionsData();
     }
 
@@ -195,6 +193,7 @@ export const Dashboard = () => {
     } catch (error) {
       console.log(error);
     }
+
   };
 
   const getActiveInvoicesNumber = async () => {
@@ -349,7 +348,7 @@ export const Dashboard = () => {
           }
         );
         let thePath = "";
-        if (sharedData.data.path_lower == undefined) {
+        if (sharedData.data.path_lower === undefined) {
           thePath = "";
         } else {
           thePath = sharedData.data.path_lower;
@@ -669,9 +668,9 @@ export const Dashboard = () => {
             <section id="image-grid" className="app-content card">
               <div className="card-header">
                 <h4 className="card-title">Image gallery</h4>
-                <a className="heading-elements-toggle">
+                <span className="heading-elements-toggle" >
                   <i className="fa fa-ellipsis-v font-medium-3"></i>
-                </a>
+                </span>
                 <div className="heading-elements">
                   <ul className="list-inline mb-0">
                     <li>
@@ -706,9 +705,9 @@ export const Dashboard = () => {
                             <i className="feather icon-list"></i>
                           </button>
                         </ReTooltip>
-                        {user.role_id == 5 && <QuickBooksConnect />}
+                        {user.role_id === 5 && <QuickBooksConnect />}
 
-                        {user.role_id == 5 && (
+                        {user.role_id === 5 && (
                           <>
                             {subdomainDropbox === "" && !itemsLoading && (
                               <a
@@ -753,10 +752,8 @@ export const Dashboard = () => {
                               data-target="#bootstrap"
                               disabled={subdomainDropbox === ""}
                               onClick={() => {
-                                if (galleryView == "grid") {
+                                if (galleryView === "grid") {
                                   setShowAddGalleryModal(true);
-                                } else {
-                                  setShowAddGalleryModal2(true);
                                 }
                               }}
                             >
@@ -791,6 +788,7 @@ export const Dashboard = () => {
                                     ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner_sm}`
                                     : "../../../app-assets/images/gallery/9.jpg"
                                 }
+                                alt="banner"
                               />
                               <figcaption
                                 style={{
@@ -894,7 +892,7 @@ export const Dashboard = () => {
                             </div>
                           ) : (
                             <>
-                              {user.role_id == 5 || user.role_id == 2 ? (
+                              {user.role_id === 5 || user.role_id === 2 ? (
                                 <p>
                                   No Collections found. Click New collection to
                                   add a collection.
