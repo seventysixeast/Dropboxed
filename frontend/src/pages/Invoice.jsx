@@ -6,6 +6,7 @@ import {
   deleteInvoiceById,
   getAllInvoices,
   sendInvoice,
+  updateInvoiceQuickbookLink
 } from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
 import DeleteModal from "../components/DeleteModal";
@@ -15,6 +16,7 @@ import { verifyToken } from "../api/authApis";
 import LoadingOverlay from "../components/Loader";
 import EditInvoiceModal from "../components/EditInvoice";
 import ReTooltip from "../components/Tooltip";
+import UploadInvoiceModal from "../components/UploadInvoiceModal";
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -29,6 +31,8 @@ const Invoice = () => {
   const [itemsLoading, setItemsLoading] = useState(true);
   const [isEditMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false); // New state for upload modal
+  const [quickbookLink, setQuickbookLink] = useState('');
 
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);
@@ -44,6 +48,7 @@ const Invoice = () => {
   const closeModal = () => {
     setModalIsOpen(false);
   };
+  
 
   const columns = [
     {
@@ -102,7 +107,7 @@ const Invoice = () => {
       accessor: "action",
       Cell: ({ row }) => {
         const { original } = row;
-        const { id, paid_status, send_invoice } = original;
+        const { id, paid_status, send_invoice, invoiceLink } = original;
         const isPaid = paid_status === 1;
         const isSent = send_invoice === 1;
 
@@ -142,7 +147,7 @@ const Invoice = () => {
                   type="button"
                   className="btn btn-icon btn-outline-primary mr-1 mb-1"
                   style={{ padding: "0.5rem" }}
-                  onClick={() => handleUpload(id)}
+                  onClick={() => handleUpload(id, invoiceLink)}
                   disabled={isDisabled}
                 >
                   <FaUpload fill="white" />
@@ -171,7 +176,7 @@ const Invoice = () => {
                   onClick={() => handleSendInvoice(id)}
                   disabled={isDisabled}
                 >
-                  <i className="icon-share"></i>
+                  <i className="icon-paper-plane"></i>
                 </button>
               </ReTooltip>
             </div>
@@ -187,6 +192,7 @@ const Invoice = () => {
 
   const handleSendInvoice = async (id) => {
     try {
+      setLoading(true);
       const response = await sendInvoice({ invoiceId: id });
       if (response.success) {
         toast.success("Invoice sent successfully!");
@@ -198,6 +204,7 @@ const Invoice = () => {
       console.error("Error sending invoice:", error);
       toast.error("Failed to send invoice!");
     }
+    setLoading(false);
   };
 
   const getInvoiceList = async () => {
@@ -245,9 +252,17 @@ const Invoice = () => {
     setShowDeleteModal(true);
   };
 
-  const handleUpload = (id) => {
-    console.log("Upload invoice", id);
+  const handleUpload = (id, invoiceLink) => {
+    setInvoiceId(id);
+    setQuickbookLink(invoiceLink);
+    setShowUploadModal(true);
   };
+
+  const closeUploadModal = () => {
+    setShowUploadModal(false);
+    setQuickbookLink('');
+    resetData();
+  }
 
   const handlePaid = (id) => {
     console.log("Paid invoice", id);
@@ -276,6 +291,25 @@ const Invoice = () => {
       setLoading(true);
     }
   }, [modalIsOpen]);
+
+  const handleQbLinkChange = (value) => {
+    setQuickbookLink(value)
+  }
+
+  const handleLinkUpload = async () => {
+    setLoading(true);
+    const response = await updateInvoiceQuickbookLink({invoiceId, invoiceLink: quickbookLink});
+    if (response.success) {
+      toast.success("Link saved successfully");
+      resetData();
+      setQuickbookLink('');
+      setShowUploadModal(false);
+      getInvoiceList();
+    } else {
+      toast.error(response.message)
+    }
+    setLoading(false);
+  }
 
   return (
     <>
@@ -338,6 +372,13 @@ const Invoice = () => {
         handleLoading={handleLoading}
         isEdit={isEditMode}
         collectionId={null}
+      />
+      <UploadInvoiceModal
+        isOpen={showUploadModal}
+        onClose={() => closeUploadModal()}
+        quickbookLink={quickbookLink}
+        handleConfirm={handleLinkUpload}
+        handleQbLinkChange={handleQbLinkChange}
       />
     </>
   );

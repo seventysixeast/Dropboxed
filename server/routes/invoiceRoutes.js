@@ -8,5 +8,6 @@ router.post('/deleteInvoice', invoiceController.deleteInvoice)
 router.post('/updateInvoice', invoiceController.updateInvoice)
 router.post('/send-invoice', invoiceController.sendInvoice);
 router.post('/getActiveInvoices', invoiceController.getActiveInvoiceNumber);
+router.post('/quickbook-link', invoiceController.updateInvoiceQuickBookLink);
 
 module.exports = router;

@@ -80,6 +80,22 @@ const sendInvoice = async (data) => {
     }
 };
 
+const updateInvoiceQuickbookLink = async (data) => {
+    try {
+        const response = await API.post('/invoice/quickbook-link', data, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.status === 200) {
+            throw new Error('Failed to update collection');
+        }
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
 const getActiveInvoices = async (data) => {
     try {
         const response = await API.post('/invoice/getActiveInvoices', data, {
@@ -102,6 +118,7 @@ export {
     getInvoiceData,
     updateInvoice,
     sendInvoice,
-    getActiveInvoices
+    getActiveInvoices,
+    updateInvoiceQuickbookLink
 };
 

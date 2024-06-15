@@ -223,6 +223,32 @@ const updateInvoice = async (req, res) => {
   }
 };
 
+const updateInvoiceQuickBookLink = async (req, res) => {
+    const {
+      invoiceId,
+      invoiceLink
+    } = req.body;
+  
+    try {
+        if(invoiceLink == ''){
+            return res.status(200).json({ success: false, message: "Invoice Link cannot be empty" });
+        }
+      await CustomInvoiceList.update(
+        {
+          invoice_link: invoiceLink
+        },
+        {
+          where: { id: invoiceId },
+        }
+      );
+  
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Error saving invoice:", error);
+      return res.status(200).json({ success: false, message: error.message });
+    }
+  };
+
 const sendInvoice = async (req, res) => {
   try {
     const invoiceId = req.body.invoiceId;
@@ -356,4 +382,5 @@ module.exports = {
   updateInvoice,
   sendInvoice,
   getActiveInvoiceNumber,
+  updateInvoiceQuickBookLink
 };
