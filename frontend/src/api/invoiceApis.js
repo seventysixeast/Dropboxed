@@ -112,6 +112,22 @@ const getActiveInvoices = async (data) => {
     }
 };
 
+const changePaidStatus = async (data) => {
+    try {
+        const response = await API.post('/invoice/changePaidStatus', data, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (response.status !== 200) {
+            throw new Error('Failed to get active invoices');
+        }
+        return response.data;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
 export {
     getAllInvoices,
     deleteInvoiceById,
@@ -119,6 +135,7 @@ export {
     updateInvoice,
     sendInvoice,
     getActiveInvoices,
-    updateInvoiceQuickbookLink
+    updateInvoiceQuickbookLink,
+    changePaidStatus
 };
 

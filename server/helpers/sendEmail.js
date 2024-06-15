@@ -30,8 +30,6 @@ const transporter = nodemailer.createTransport(
 
 // Function to send an email
 exports.sendEmail = function (to, subject, html) {
-    console.log("to", to, "subject", subject, "html", html);
-    // Define email options
     const mailOptions = {
         from: process.env.SMTP_EMAIL_FROM,
         to: to,

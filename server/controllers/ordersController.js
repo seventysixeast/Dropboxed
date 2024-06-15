@@ -8,7 +8,6 @@ const { NEW_COLLECTION } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
 
 const getAllOrders = async (req, res) => {
-    console.log(typeof(req.body.subdomain_id));
     try {
         let orders = await Orders.findAll({
             where: {

@@ -706,7 +706,7 @@ export const Dashboard = () => {
                             <i className="feather icon-list"></i>
                           </button>
                         </ReTooltip>
-                        {user.role_id == 5 && <QuickBooksConnect />}
+                        {user.role_id == 5 && user.connect_quickbooks && <QuickBooksConnect />}
 
                         {user.role_id == 5 && (
                           <>

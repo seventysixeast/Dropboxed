@@ -313,7 +313,6 @@ const getAllCollections = async (req, res) => {
   } catch (error) {
     console.error("Error occurred:", error);
     res.status(500).json({ error: "Failed to list collections" });
-    console.log("error>>>>>>>>>>>>>>>>>>>>>>", error.message);
   }
 };
 
@@ -581,7 +580,6 @@ const saveInvoiceToDatabase = async (req, res) => {
     clientAddress,
     subdomainId,
   } = req.body;
-  console.log(req.body);
   const userId = subdomainId;
 
   try {
@@ -692,9 +690,6 @@ const createQuickBooksCustomer = (userId, clientUser, qbo) => {
             console.error("QuickBooks API Response:", newCustomer); // Log the response from QuickBooks API
             reject(new Error(errorMessage));
           } else {
-            console.log("newCustomer", newCustomer);
-            // Save the new QuickBooks client ID in the database
-            console.log("clientUser", clientUser.id);
             User.update(
               { quickbooks_customer_id: newCustomer.Id },
               { where: { id: clientUser.id } }

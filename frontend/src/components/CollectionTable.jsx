@@ -20,8 +20,7 @@ import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import TableCustom from "../components/Table";
-import Table2 from "../components/Table2";
+import TableCustom from "../components/Table2";
 import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
 import moment from "moment";
@@ -29,6 +28,8 @@ import ReTooltip from "../components/Tooltip";
 import AddInvoiceNodal from "../components/CreateInvoice";
 import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
+import EditInvoiceModal from "../components/EditInvoice";
+import ConfirmModal from "../components/ConfirmModal";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -55,6 +56,8 @@ const CollectionTable = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [subdomainDropbox, setSubdomainDropbox] = useState("");
   const [showNoInvoiceModal, setShowNoInvoiceModal] = useState(false);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [idToNotify, setIdToNotify] = useState(null);
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -70,6 +73,8 @@ const CollectionTable = () => {
   });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState(null);
+  const [isEditMode, setEditMode] = useState(false);
+  const [currentInvoiceId, setCurrentInvoiceId] = useState(null);
 
   useEffect(() => {
     getClients();
@@ -330,6 +335,7 @@ const CollectionTable = () => {
   };
 
   const updateImageCount = async (data) => {
+    setLoading(true);
     try {
       const tokens = await getRefreshToken(data.dropbox_refresh);
       const sharedData = await axios.post(
@@ -396,6 +402,11 @@ const CollectionTable = () => {
   };
 
   const getCollectionData = async (id) => {
+    console.log(id);
+    setFormData({
+      ...formData,
+      id: id,
+    });
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("slug", id);
@@ -420,10 +431,10 @@ const CollectionTable = () => {
       setFormData(initialFormData);
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
-      getAllCollectionsData();
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
+    setLoading(false);
   };
 
   const deleteCollectionData = async () => {
@@ -467,12 +478,11 @@ const CollectionTable = () => {
     }
   };
 
-  const handleGalleryNotify = async (id) => {
+  const handleGalleryNotify = async () => {
     setLoading(true);
     try {
-      console.log("id", id);
       const formDataToSend = new FormData();
-      formDataToSend.append("id", id);
+      formDataToSend.append("id", idToNotify);
       const res = await updateGalleryNotify(formDataToSend);
       if (res && res.success) {
         toast.success(res.message);
@@ -484,21 +494,31 @@ const CollectionTable = () => {
       console.error("Error in handleGalleryNotify:", error);
       toast.error(`An error occurred. Please try again later.`);
     }
+    setShowNotifyModal(false);
+    setLoading(false);
   };
-  const columns = React.useMemo(() => {
-    const allColumns = [
+
+  const columns = React.useMemo(
+    () => [
       { Header: "Id", accessor: "id" },
       {
         Header: "Banner Image",
         Cell: ({ row }) => (
           <img
-            src={row.original.banner && `${IMAGE_URL}/${row.original.banner}`}
+            src={row.original.banner && `${IMAGE_URL}/${row.original.banner_sm}`}
             className="width-100"
             alt="Banner"
           />
         ),
       },
-      { Header: "Address", accessor: "client_address" },
+      {
+        Header: "Address",
+        Cell: ({ row }) => (
+          <div style={{ minWidth: "12rem" }}>
+            <span>{row.original.client_address}</span>
+          </div>
+        ),
+      },
       {
         Header: "Client",
         accessor: "client_name",
@@ -519,13 +539,17 @@ const CollectionTable = () => {
       {
         Header: "Invoice",
         Cell: ({ row }) => (
-          <div className="btnsrow text-center">
+          <div className="text-center">
             {roleId !== 3 && (
               <>
                 {row.original.orderFound ? (
                   <ReTooltip title="Invoice Generated." placement="top">
                     <button className="btn btn-sm btn-primary">
-                      <span>Invoice Generated</span>
+                      <span
+                        style={{ whiteSpace: "nowrap", fontSize: "0.7rem" }}
+                      >
+                        Invoice Generated
+                      </span>
                     </button>
                   </ReTooltip>
                 ) : (
@@ -537,7 +561,11 @@ const CollectionTable = () => {
                         setSelectedCollectionId(row.original.id);
                       }}
                     >
-                      <span>Create Invoice</span>
+                      <span
+                        style={{ whiteSpace: "nowrap", fontSize: "0.7rem" }}
+                      >
+                        Create Invoice
+                      </span>
                     </button>
                   </ReTooltip>
                 )}
@@ -556,7 +584,6 @@ const CollectionTable = () => {
               checked={row.original.lock_gallery}
               onChange={() => handleGalleryLockChange(row.original)}
               inputProps={{ "aria-label": "controlled" }}
-              disabled={roleId === 3}
             />
           </ReTooltip>
         ),
@@ -572,7 +599,8 @@ const CollectionTable = () => {
               }
             } else {
               if (orderFound) {
-                handleGalleryNotify(id);
+                setIdToNotify(id);
+                setShowNotifyModal(true);
               } else {
                 setShowNoInvoiceModal(true);
               }
@@ -611,7 +639,7 @@ const CollectionTable = () => {
       {
         Header: "Image Counts",
         Cell: ({ row }) => (
-          <div className="btnsrow text-center">
+          <div className="text-center">
             <ReTooltip title="Click to update image count." placement="top">
               <div
                 className="badge badge-pill badge-light-primary"
@@ -632,7 +660,7 @@ const CollectionTable = () => {
       {
         Header: "Created On",
         Cell: ({ row }) => (
-          <div className="btnsrow text-center">
+          <div className="text-center">
             <div className="badge badge-pill badge-light-primary">
               {moment(row.original.created).format("DD/MM/YYYY")}
             </div>
@@ -644,41 +672,36 @@ const CollectionTable = () => {
         Header: "Action",
         Cell: ({ row }) => (
           <div className="btnsrow">
-            <ReTooltip title="Click to view the collection." placement="top">
+            <ReTooltip title="Click to edit the collection." placement="top">
               <button
-                className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                style={{ padding: "0.5rem" }}
                 onClick={() => getCollectionData(row.original.slug)}
                 data-toggle="modal"
                 data-target="#bootstrap"
               >
-                <i className="feather white icon-eye"></i>
+                <i className="feather white icon-edit"></i>
               </button>
             </ReTooltip>
-            {roleId !== 3 && (
-              <>
-                <ReTooltip
-                  title="Click to delete the collection."
-                  placement="top"
-                >
-                  <button
-                    className="btn btn-icon btn-outline-danger mr-1 mb-1"
-                    onClick={() => {
-                      setShowDeleteModal(true);
-                      setCollectionIdToDelete(row.original.id);
-                    }}
-                  >
-                    <i className="feather white icon-trash"></i>
-                  </button>
-                </ReTooltip>
-              </>
-            )}
-
+            <ReTooltip title="Click to delete the collection." placement="top">
+              <button
+                className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                style={{ padding: "0.5rem" }}
+                onClick={() => {
+                  setShowDeleteModal(true);
+                  setCollectionIdToDelete(row.original.id);
+                }}
+              >
+                <i className="feather white icon-trash"></i>
+              </button>
+            </ReTooltip>
             <ReTooltip
               title="Click to copy link to the collection."
               placement="top"
             >
               <button
                 className="btn btn-icon btn-outline-warning mr-1 mb-1"
+                style={{ padding: "0.5rem" }}
                 onClick={() => {
                   navigator.clipboard.writeText(
                     `${url2}view-gallery/${row.original.slug}`
@@ -692,16 +715,9 @@ const CollectionTable = () => {
           </div>
         ),
       },
-    ];
-
-    if (roleId === 3) {
-      return allColumns.filter(
-        (col) => !["Client", "Notify"].includes(col.Header)
-      );
-    }
-
-    return allColumns;
-  }, [roleId]);
+    ],
+    []
+  );
 
   const data = React.useMemo(() => collections, [collections]);
 
@@ -726,6 +742,10 @@ const CollectionTable = () => {
 
   const handleLoading = () => {
     setLoading(false);
+  };
+
+  const handleNotifyClose = () => {
+    setShowNotifyModal(false);
   };
 
   useEffect(() => {
@@ -760,7 +780,7 @@ const CollectionTable = () => {
       {itemsLoading === false && (
         <>
           {data.length > 0 ? (
-            <Table2 data={data} columns={columns} />
+            <TableCustom data={data} columns={columns} />
           ) : (
             <div
               className="app-content content content-wrapper d-flex justify-content-center"
@@ -781,12 +801,14 @@ const CollectionTable = () => {
         onConfirm={deleteCollectionData}
         message="Are you sure you want to delete this collection?"
       />
-      <AddInvoiceNodal
+      <EditInvoiceModal
         isOpen={modalIsOpen}
         onClose={closeModal}
-        collectionId={selectedCollectionId}
+        invoiceId={currentInvoiceId}
         handleLoading={handleLoading}
-        handleGalleryNotify={handleGalleryNotify}
+        isEdit={isEditMode}
+        collectionId={selectedCollectionId}
+        getAllCollectionsData={getAllCollectionsData}
       />
       <NoInvoiceModal
         isOpen={showNoInvoiceModal}
@@ -796,6 +818,12 @@ const CollectionTable = () => {
         }}
         onConfirm={handleCreateInvioce}
         message="No invoice found for this collection. Create an invoice first."
+      />
+      <ConfirmModal
+        isOpen={showNotifyModal}
+        onClose={handleNotifyClose}
+        onConfirm={handleGalleryNotify}
+        message="Do you wish to notify the client?"
       />
     </>
   );
