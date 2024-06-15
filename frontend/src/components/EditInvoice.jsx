@@ -46,6 +46,7 @@ const EditInvoiceModal = ({
           setInvoiceData(response.data);
           setPaidAmount(response.data.invoice.paid_amount);
           setNote(response.data.invoice.notes);
+          setInvoiceLink(response.data.invoice.invoice_link)
           const newAddress = response.data.invoice.address;
 
           setInvoiceData((prevData) => ({
@@ -822,6 +823,16 @@ const EditInvoiceModal = ({
                                     {note || ""}
                                   </p>
                                 </div>
+                                {invoiceLink && (
+                                    <div className="regarding-discount form-group d-flex">
+                                        <label className="mr-2 font-weight-bold">
+                                            Quickbook Invoice Link
+                                        </label>
+                                        <a href={invoiceLink} target="_blank" rel="noopener noreferrer">
+                                            {invoiceLink}
+                                        </a>
+                                    </div>
+                                )}
                               </div>
                               <div className="col-12 col-md-6 col-lg-6 col-xl-5 offset-xl-2">
                                 <ul className="list-group cost-list">

@@ -11,11 +11,10 @@ const QuickBooksCallback = () => {
     const code = query.get('code');
     const state = query.get('state');
     const realmId = query.get('realmId');
-console.log("code", code,state,realmId)
+    console.log("code", code,state,realmId)
     if (code && state && realmId) {
       handleQuickBooksCallback({code, state, realmId})
         .then(response => {
-          console.log("response>>>>",response)
           if (response.success) {
             const { subdomain } = response;
             //window.location.href = `http://${subdomain}.localhost:3000/dashboard`;
