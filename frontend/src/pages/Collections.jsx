@@ -505,7 +505,7 @@ const Collections = () => {
         Header: "Banner Image",
         Cell: ({ row }) => (
           <img
-            src={row.original.banner && `${IMAGE_URL}/${row.original.banner}`}
+            src={row.original.banner && `${IMAGE_URL}/${row.original.banner_sm}`}
             className="width-100"
             alt="Banner"
           />
