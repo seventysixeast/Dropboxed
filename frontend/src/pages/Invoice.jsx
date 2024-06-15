@@ -35,8 +35,6 @@ const Invoice = () => {
     resetData();
   };
 
-  console.log(invoiceList);
-
   const resetData = async () => {
     setInvoiceId(null);
   };
