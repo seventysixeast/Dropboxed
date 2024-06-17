@@ -1790,3 +1790,47 @@ a:not([href]) {
   padding: 0 0;
   list-style: none;
 }
+
+table.dataTable thead th,
+table.dataTable thead td {
+  padding: 10px 10px !important;
+}
+
+@media only screen and (max-width: 600px) {
+  .w-25 {
+    width: 65% !important;
+  }
+
+  a.btn.btn-social-icon.mb-1 {
+    margin: 10px !important;
+  }
+
+  .custom-control-label::before {
+    left: -1.5rem !important;
+    top: unset !important;
+  }
+
+  .custom-control.custom-checkbox {
+    font-size: 10px;
+  }
+
+  .custom-control {
+    padding-left: 10px !important;
+  }
+
+  a.card-link {
+    font-size: 10px !important;
+  }
+
+  form .form-group {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .col-sm-6.col-6.float-sm-left.text-center.text-sm-right {
+    margin-top: -5px !important;
+  }
+
+  .float-right {
+    float: unset !important;
+  }
+}
