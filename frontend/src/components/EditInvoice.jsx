@@ -391,6 +391,7 @@ const EditInvoiceModal = ({
                                     className="form-control"
                                     value={invoiceData.client.phone || ""}
                                     placeholder="Client Phone"
+                                    maxLength="10"
                                   />
                                 </div>
                               </div>

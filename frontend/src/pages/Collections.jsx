@@ -858,7 +858,7 @@ const Collections = () => {
           ) : (
             <div
               className="app-content content content-wrapper d-flex justify-content-center"
-              style={{ marginTop: "15rem" }}
+              style={{ marginTop: "15rem", marginLeft: "15px", marginRight: "15px" }}
               role="status"
             >
               <p>

@@ -240,3 +240,13 @@ table.dataTable thead th,
 table.dataTable thead td {
   padding: 10px 10px !important;
 }
+
+@media only screen and (max-width: 600px) {
+  .w-25 {
+    width: 65% !important;
+  }
+
+  a.btn.btn-social-icon.mb-1 {
+    margin: 10px !important;
+  }
+}
