@@ -300,7 +300,7 @@ const Login = () => {
                           </small>
                         </fieldset>
                         <div className="form-group row">
-                          <div className="col-sm-6 col-12 text-center text-sm-left pr-0">
+                          <div className="col-sm-6 col-6 text-center text-sm-left pr-0">
                             <fieldset className="form-group position-relative">
                               <div className="custom-control custom-checkbox">
                                 <input
@@ -320,7 +320,7 @@ const Login = () => {
                               </div>
                             </fieldset>
                           </div>
-                          <div className="col-sm-6 col-12 float-sm-left text-center text-sm-right">
+                          <div className="col-sm-6 col-6 float-sm-left text-center text-sm-right">
                             <Link to="/forgot" className="card-link">
                               Forgot Password?
                             </Link>

@@ -238,11 +238,11 @@ const ManagePhotographerAdmins = () => {
         <div className={`content-overlay ${loading ? "loading-overlay" : ""}`}></div>
         <div className="content-wrapper">
           <div className="content-header row mt-2">
-            <div className="content-header-left col-md-6 col-6 mb-2">
+            <div className="content-header-left col-md-6 col-12 mb-2 text-center text-md-left">
               <h3 className="content-header-title mb-0">Manage Photographer Admins</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
-                  <ol className="breadcrumb">
+                  <ol className="breadcrumb justify-content-center justify-content-md-start">
                     <li className="breadcrumb-item">
                       <a href="/dashboard">Home</a>
                     </li>
@@ -251,125 +251,121 @@ const ManagePhotographerAdmins = () => {
                 </div>
               </div>
             </div>
-            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center mb-2">
-              <ul className="list-inline mb-0">
-                <button
-                  className={`btn ${!showDeleted ? "btn-danger" : "btn-primary"} mb-2`}
-                  onClick={() => setShowDeleted(!showDeleted)}
+            <div className="content-header-right col-md-6 col-12 d-flex justify-content-center justify-content-md-end align-items-center mb-2">
+              <button
+                className={`btn ${!showDeleted ? "btn-danger" : "btn-primary"} mb-2`}
+                onClick={() => setShowDeleted(!showDeleted)}
+              >
+                {showDeleted ? "Show All Accounts" : "Show Deleted Accounts"}
+              </button>
+              <div className="form-group">
+                <div
+                  className="modal fade text-left"
+                  id="bootstrap"
+                  tabIndex="-1"
+                  role="dialog"
+                  aria-labelledby="myModalLabel35"
+                  aria-hidden="true"
+                  style={{ display: "none" }}
                 >
-                  {showDeleted ? "Show All Accounts" : "Show Deleted Accounts"}
-                </button>
-                <li>
-                  <div className="form-group">
-                    <div
-                      className="modal fade text-left"
-                      id="bootstrap"
-                      tabIndex="-1"
-                      role="dialog"
-                      aria-labelledby="myModalLabel35"
-                      aria-hidden="true"
-                      style={{ display: "none" }}
-                    >
-                      <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                          <div className="modal-header">
-                            <h3 className="card-title">Update Photographer</h3>
-                            <button
-                              type="button"
-                              className="close"
-                              data-dismiss="modal"
-                              aria-label="Close"
-                            >
-                              <span aria-hidden="true">×</span>
-                            </button>
-                          </div>
-                          <form onSubmit={handleSubmit}>
-                            <div className="modal-body">
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Name *</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  name="name"
-                                  value={formData.name}
-                                  onChange={handleInputChange}
-                                  required
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Phone *</label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="phone"
-                                  value={formData.phone}
-                                  onChange={handleInputChange}
-                                  maxLength="10"
-                                  required
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Business Name</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  name="business_name"
-                                  value={formData.business_name}
-                                  onChange={handleInputChange}
-                                />
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Status</label>
-                                <select
-                                  className="select2 form-control"
-                                  name="status"
-                                  value={formData.status}
-                                  onChange={handleInputChange}
-                                  required
-                                >
-                                  <option value="Active">Active</option>
-                                  <option value="Inactive">Inactive</option>
-                                </select>
-                              </fieldset>
-                              <fieldset className="form-group floating-label-form-group">
-                                <label>Profile Photo</label>
-                                <input
-                                  type="file"
-                                  className="form-control-file"
-                                  name="profile_photo"
-                                  onChange={handlePhotoChange}
-                                  accept="image/*"
-                                />
-                                {previewImage && (
-                                  <img
-                                    src={previewImage}
-                                    className="rounded-circle height-150 width-150 mt-2"
-                                    alt="Preview"
-                                  />
-                                )}
-                              </fieldset>
-                            </div>
-                            <div className="modal-footer">
-                              <input
-                                id="closeModal"
-                                type="reset"
-                                className="btn btn-secondary"
-                                data-dismiss="modal"
-                                value="Close"
-                              />
-                              <input
-                                type="submit"
-                                className="btn btn-primary btn"
-                                value="Update"
-                              />
-                            </div>
-                          </form>
-                        </div>
+                  <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h3 className="card-title">Update Photographer</h3>
+                        <button
+                          type="button"
+                          className="close"
+                          data-dismiss="modal"
+                          aria-label="Close"
+                        >
+                          <span aria-hidden="true">×</span>
+                        </button>
                       </div>
+                      <form onSubmit={handleSubmit}>
+                        <div className="modal-body">
+                          <fieldset className="form-group floating-label-form-group">
+                            <label>Name *</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="name"
+                              value={formData.name}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </fieldset>
+                          <fieldset className="form-group floating-label-form-group">
+                            <label>Phone *</label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              name="phone"
+                              value={formData.phone}
+                              onChange={handleInputChange}
+                              maxLength="10"
+                              required
+                            />
+                          </fieldset>
+                          <fieldset className="form-group floating-label-form-group">
+                            <label>Business Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="business_name"
+                              value={formData.business_name}
+                              onChange={handleInputChange}
+                            />
+                          </fieldset>
+                          <fieldset className="form-group floating-label-form-group">
+                            <label>Status</label>
+                            <select
+                              className="select2 form-control"
+                              name="status"
+                              value={formData.status}
+                              onChange={handleInputChange}
+                              required
+                            >
+                              <option value="Active">Active</option>
+                              <option value="Inactive">Inactive</option>
+                            </select>
+                          </fieldset>
+                          <fieldset className="form-group floating-label-form-group">
+                            <label>Profile Photo</label>
+                            <input
+                              type="file"
+                              className="form-control-file"
+                              name="profile_photo"
+                              onChange={handlePhotoChange}
+                              accept="image/*"
+                            />
+                            {previewImage && (
+                              <img
+                                src={previewImage}
+                                className="rounded-circle height-150 width-150 mt-2"
+                                alt="Preview"
+                              />
+                            )}
+                          </fieldset>
+                        </div>
+                        <div className="modal-footer">
+                          <input
+                            id="closeModal"
+                            type="reset"
+                            className="btn btn-secondary"
+                            data-dismiss="modal"
+                            value="Close"
+                          />
+                          <input
+                            type="submit"
+                            className="btn btn-primary"
+                            value="Update"
+                          />
+                        </div>
+                      </form>
                     </div>
                   </div>
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>

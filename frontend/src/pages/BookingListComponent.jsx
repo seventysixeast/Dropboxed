@@ -1157,7 +1157,7 @@ export const BookingListComponent = () => {
                         <button
                           ref={buttonRef}
                           type="button"
-                          className="btn btn-outline-primary mb-1"
+                          className="btn btn-outline-primary mb-1 mx-1"
                           data-toggle="modal"
                           data-target="#appointment"
                         >
