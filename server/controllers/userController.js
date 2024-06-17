@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const getUser = async (req, res) => {
   try {
     const userData = await User.findOne({
-      attributes: ['id', 'username', 'name', 'email', 'status', 'business_name', 'profile_photo', 'logo', 'account_email', 'account_name', 'account_number', 'bsb_number', 'abn_acn', 'country', 'address', 'website', 'phone'],
+      attributes: ['id', 'username', 'name', 'email', 'status', 'business_name', 'profile_photo', 'logo', 'account_email', 'account_name', 'account_number', 'bsb_number', 'abn_acn', 'country', 'address', 'website', 'phone', 'postal_code', 'city'],
       where: {
         id: req.body.id
       }
@@ -65,20 +65,21 @@ const updateUser = async (req, res) => {
 };
 
 const changeBankingDetails = async (req, res) => {
-  console.log(req.body);
+  const { id, account_email, account_name, account_number, bsb_number, abn_acn, country, address, city, postal_code, website, phone } = req.body;
+  let data = { account_email: account_email, account_name: account_name, account_number: account_number, bsb_number: bsb_number, abn_acn: abn_acn, country: country, address: address, city: city, postal_code: postal_code, website: website, phone: phone };
   try {
-    const { id, account_email, account_name, account_number, bsb_number, abn_acn, country, address, city, postal_code, website, phone } = req.body;
     const user = await User.findOne({ where: { id } });
 
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    await user.update({ account_email, account_name, account_number, bsb_number, abn_acn, country, address, city, postal_code, website, phone });
+    let updatedUser = await user.update(data);
 
     return res.status(200).json({
       success: true,
-      message: 'Banking details updated successfully.'
+      message: 'Banking details updated successfully.',
+      updatedUser: updatedUser
     });
   } catch (error) {
     console.error('Error changing banking details:', error);

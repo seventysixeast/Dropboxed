@@ -323,7 +323,7 @@ const EditProfile = () => {
             </div>
           </div>
           <div className="content-body">
-            <section className="users-edit">
+            <section id="users-edit">
               <div className="card">
                 <div className="card-content">
                   <div className="card-body">
@@ -446,8 +446,7 @@ const EditProfile = () => {
                 </div>
               </div>
             </section>
-            {/* banking detail section */}
-            <section className="users-edit">
+            <section id="users-edit">
               <div className="card">
                 <div className="card-header">
                   <h4 className="card-title">Banking Details</h4>
@@ -513,7 +512,7 @@ const EditProfile = () => {
                           />
                         </div>
                         <div className="col-md-6 form-group">
-                          <label>Account Email</label>
+                          <label>Country</label>
                           <select
                             name="country"
                             className="select2 form-control"
@@ -601,8 +600,7 @@ const EditProfile = () => {
                 </div>
               </div>
             </section>
-            {/* Bankng Detail section end */}
-            <section className="users-edit">
+            <section id="users-edit">
               <div className="card">
                 <div className="card-header">
                   <h4 className="card-title">Change Password</h4>

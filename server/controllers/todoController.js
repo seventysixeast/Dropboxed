@@ -97,7 +97,6 @@ const getAllTasks = async (req, res) => {
 };
 
 const createTask = async (req, res) => {
-  console.log("req.body", req.body);
   let newTask, newComment;
   try {
     const {

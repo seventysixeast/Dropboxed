@@ -706,7 +706,7 @@ export const Dashboard = () => {
                             <i className="feather icon-list"></i>
                           </button>
                         </ReTooltip>
-                        {user.role_id == 5 && <QuickBooksConnect />}
+                        {user.role_id == 5 && user.connect_quickbooks && <QuickBooksConnect />}
 
                         {user.role_id == 5 && (
                           <>
@@ -788,7 +788,7 @@ export const Dashboard = () => {
                                 className="gallery-thumbnail equal-image"
                                 src={
                                   item.banner
-                                    ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner}`
+                                    ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner_sm}`
                                     : "../../../app-assets/images/gallery/9.jpg"
                                 }
                               />

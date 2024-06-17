@@ -62,7 +62,7 @@ app.use('/photographerAdmin', photographerAdminRoutes);
 app.use('/todo', todoRoutes);
 app.use('/user', userRoutes);
 app.use('/invoice', invoiceRoutes);
-app.use('/quickbooks', quickbooksRoutes);
+app.use('/qb', quickbooksRoutes);
 app.use('/orders', ordersRoutes);
 
 app.get("/protected", authenticateToken, (req, res) => {
@@ -84,7 +84,7 @@ app.get("/*", (req, res, next) => {
     req.url.includes("/user/") ||
     req.url.includes("/invoice/") ||
     req.url.includes("/orders/") ||
-    req.url.includes("/quickbooks/")
+    req.url.includes("/qb/")
 
   )
     return next();

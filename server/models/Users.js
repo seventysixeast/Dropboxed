@@ -120,6 +120,14 @@ const Users = sequelize.define('User', {
     allowNull: true,
     defaultValue: ''
   },
+  postal_code: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+  },
+  city: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+  },
   account_email: {
     type: DataTypes.STRING(255),
     allowNull: true

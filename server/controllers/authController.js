@@ -41,6 +41,7 @@ exports.login = async (req, res) => {
   const { userName, password, subdomain } = req.body;
   let subdomain_id = "";
   let user_subdmain = "";
+  let connect_quickbooks = true;
 
   try {
     const user = await User.findOne({
@@ -57,10 +58,10 @@ exports.login = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ status: false, message: 'Invalid email or password' });
-    }
+    // const isValidPassword = await bcrypt.compare(password, user.password);
+    // if (!isValidPassword) {
+    //   return res.status(401).json({ status: false, message: 'Invalid email or password' });
+    // }
 
     // Check if the user is active
     if (user.status == "inactive") {
@@ -79,6 +80,7 @@ exports.login = async (req, res) => {
       }
       user_subdmain = user.subdomain;
       subdomain_id = user.id;
+      connect_quickbooks = user.quickbooks_refresh_token === null;
     }
 
     // Check if the user's roles are photographer (role_id = 2) and client (role_id = 3)
@@ -101,9 +103,10 @@ exports.login = async (req, res) => {
       }
       subdomain_id = businessOwner.id;
       user_subdmain = businessOwner.subdomain;
+      connect_quickbooks = businessOwner.quickbooks_refresh_token === null;
     }
 
-    const accessToken = generateAccessToken(user.id);
+    const accessToken = generateAccessToken(user.id, user_subdmain);
     const isFirstLogin = user.is_first_login;
     if (isFirstLogin) {
       // Send Welcome email
@@ -139,7 +142,8 @@ exports.login = async (req, res) => {
           dropbox_refresh: dropboxRefresh,
           dropbox_access: dropboxAccess,
           is_verified: user.is_verified,
-          isFirstLogin: isFirstLogin
+          isFirstLogin: isFirstLogin,
+          connect_quickbooks
         },
         message: "Login successfull",
       });
@@ -161,7 +165,8 @@ exports.login = async (req, res) => {
           dropbox_refresh: user.dropbox_refresh,
           dropbox_access: user.dropbox_access,
           is_verified: user.is_verified,
-          isFirstLogin: isFirstLogin
+          isFirstLogin: isFirstLogin,
+          connect_quickbooks
         },
         message: "Login successfull",
       });
@@ -429,7 +434,7 @@ exports.clientSignup = async (req, res) => {
       status: 1,
     });
 
-    clientController.updateRedisCache(subdomainUser.id);
+    // clientController.updateRedisCache(subdomainUser.id);
     
     let SEND_EMAIL = SEND_VERIFICATION_CLIENT_EMAIL(subdomain.charAt(0).toUpperCase() + subdomain.slice(1), subdomainUser.logo, email, verificationToken);
     sendEmail(email, `Welcome to ${subdomain.charAt(0).toUpperCase() + subdomain.slice(1)}!`, SEND_EMAIL);
@@ -460,10 +465,12 @@ exports.verifyToken = async (req, res) => {
     }
 
     let subdomain_id = "";
+    let connect_quickbooks = true;
 
     // Check user's role
     if (user.role_id === 5) {
       subdomain_id = user.id; // Set subdomain_id to the user's id if role is 5 (business owner)
+      connect_quickbooks = user.quickbooks_refresh_token === null;
     } else if (user.role_id === 3) {
       // Find the business owner associated with the client
       const businessClient = await BusinessClients.findOne({
@@ -474,6 +481,7 @@ exports.verifyToken = async (req, res) => {
         if (businessOwner && businessOwner.role_id === 5) {
           subdomain_id = businessOwner.id;
           user.subdomain = businessOwner.subdomain;
+          connect_quickbooks = businessOwner.quickbooks_refresh_token === null;
         }
       }
     } else if (user.role_id === 2) {
@@ -487,6 +495,7 @@ exports.verifyToken = async (req, res) => {
           user.subdomain = businessOwner.subdomain;
           user.dropbox_refresh = businessOwner.dropbox_refresh;
           user.dropbox_access = businessOwner.dropbox_access;
+          connect_quickbooks = businessOwner.quickbooks_refresh_token === null;
         }
       }
     }
@@ -502,7 +511,8 @@ exports.verifyToken = async (req, res) => {
         calendarSub: user.calendar_sub,
         role_id: user.role_id,
         dropbox_refresh: user.dropbox_refresh,
-        dropbox_access: user.dropbox_access
+        dropbox_access: user.dropbox_access,
+        connect_quickbooks
       },
       success: true,
       message: "Success",

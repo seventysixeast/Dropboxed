@@ -29,6 +29,7 @@ import AddInvoiceNodal from "../components/CreateInvoice";
 import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
 import EditInvoiceModal from "../components/EditInvoice";
+import ConfirmModal from "../components/ConfirmModal";
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
@@ -55,6 +56,8 @@ const Collections = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [subdomainDropbox, setSubdomainDropbox] = useState("");
   const [showNoInvoiceModal, setShowNoInvoiceModal] = useState(false);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [idToNotify, setIdToNotify] = useState(null);
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -332,6 +335,7 @@ const Collections = () => {
   };
 
   const updateImageCount = async (data) => {
+    setLoading(true);
     try {
       const tokens = await getRefreshToken(data.dropbox_refresh);
       const sharedData = await axios.post(
@@ -433,7 +437,6 @@ const Collections = () => {
     setLoading(false);
   };
 
-
   const deleteCollectionData = async () => {
     setLoading(true);
     try {
@@ -475,12 +478,11 @@ const Collections = () => {
     }
   };
 
-  const handleGalleryNotify = async (id) => {
+  const handleGalleryNotify = async () => {
     setLoading(true);
     try {
-      console.log("id", id);
       const formDataToSend = new FormData();
-      formDataToSend.append("id", id);
+      formDataToSend.append("id", idToNotify);
       const res = await updateGalleryNotify(formDataToSend);
       if (res && res.success) {
         toast.success(res.message);
@@ -492,6 +494,8 @@ const Collections = () => {
       console.error("Error in handleGalleryNotify:", error);
       toast.error(`An error occurred. Please try again later.`);
     }
+    setShowNotifyModal(false);
+    setLoading(false);
   };
 
   const columns = React.useMemo(
@@ -501,7 +505,7 @@ const Collections = () => {
         Header: "Banner Image",
         Cell: ({ row }) => (
           <img
-            src={row.original.banner && `${IMAGE_URL}/${row.original.banner}`}
+            src={row.original.banner && `${IMAGE_URL}/${row.original.banner_sm}`}
             className="width-100"
             alt="Banner"
           />
@@ -510,13 +514,13 @@ const Collections = () => {
       {
         Header: "Address",
         Cell: ({ row }) => (
-          <div style={{minWidth: '12rem'}}>
+          <div style={{ minWidth: "12rem" }}>
             <span>{row.original.client_address}</span>
           </div>
         ),
       },
       {
-        Header: "Client",                                                                                                                                                                                                                                                                                                                                                                                                                     
+        Header: "Client",
         accessor: "client_name",
         className: roleId === 3 ? "d-none" : "",
       },
@@ -595,7 +599,8 @@ const Collections = () => {
               }
             } else {
               if (orderFound) {
-                handleGalleryNotify(id);
+                setIdToNotify(id);
+                setShowNotifyModal(true);
               } else {
                 setShowNoInvoiceModal(true);
               }
@@ -739,6 +744,10 @@ const Collections = () => {
     setLoading(false);
   };
 
+  const handleNotifyClose = () => {
+    setShowNotifyModal(false);
+  };
+
   useEffect(() => {
     if (modalIsOpen) {
       setLoading(true);
@@ -783,23 +792,37 @@ const Collections = () => {
                       </>
                     )}
                     {user.role_id !== 3 && (
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary"
-                        data-toggle="modal"
-                        data-target="#bootstrap"
+                      <ReTooltip
                         title={
                           subdomainDropbox === ""
                             ? "Dropbox Not Linked"
                             : "Add Collection"
                         }
-                        disabled={subdomainDropbox === ""}
-                        onClick={() => {
-                          setShowAddGalleryModal(true);
-                        }}
+                        placement="top"
                       >
-                        New Collection
-                      </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (subdomainDropbox === "") {
+                              toast.error("Please link your Dropbox first.");
+                            } else {
+                              e.currentTarget.setAttribute(
+                                "data-toggle",
+                                "modal"
+                              );
+                              e.currentTarget.setAttribute(
+                                "data-target",
+                                "#bootstrap"
+                              );
+                              setShowAddGalleryModal(true);
+                            }
+                          }}
+                        >
+                          New Collection
+                        </button>
+                      </ReTooltip>
                     )}
                   </div>
                 </li>
@@ -869,6 +892,12 @@ const Collections = () => {
         }}
         onConfirm={handleCreateInvioce}
         message="No invoice found for this collection. Create an invoice first."
+      />
+      <ConfirmModal
+        isOpen={showNotifyModal}
+        onClose={handleNotifyClose}
+        onConfirm={handleGalleryNotify}
+        message="Do you wish to notify the client?"
       />
     </>
   );
