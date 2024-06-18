@@ -283,9 +283,6 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, c
                             </td>
                         </tr>
                         <tr>
-                            <td align="center" style="font-size: 16px;">Studiio.au</td>
-                        </tr>
-                        <tr>
                             <td align="center" style="font-size: 16px;">${address}</td>
                         </tr>
                         <tr>
@@ -300,7 +297,7 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, c
                 </td>
             </tr>
         </table>
-        <table style="width: 100%; margin: 30px 0 10px 0; border-collapse: collapse; text-align:right">
+        <table style="width: 100%; border-collapse: collapse; text-align:right">
             <tbody>
                 <tr>
                     <td style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
@@ -341,9 +338,6 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data
                             </td>
                         </tr>
                         <tr>
-                            <td align="center" style="font-size: 16px;">Studiio.au</td>
-                        </tr>
-                        <tr>
                             <td align="center" style="font-size: 16px;">${address}</td>
                         </tr>
                         <tr>
@@ -358,7 +352,7 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data
                 </td>
             </tr>
         </table>
-        <table style="width: 100%; margin: 30px 0 10px 0; border-collapse: collapse; text-align:right">
+        <table style="width: 100%; border-collapse: collapse; text-align:right">
             <tbody>
                 <tr>
                     <td style="font-size: 12px; font-weight: normal; line-height: normal; color: #001737;">
