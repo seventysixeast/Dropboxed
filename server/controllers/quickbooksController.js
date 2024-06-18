@@ -249,9 +249,9 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
         throw new Error(`Package with id ${item_id} not found`);
       }
 
-      if (package.quickbooks_item_id) {
-        quickbooksItemId = package.quickbooks_item_id;
-      } else {
+      //if (package.quickbooks_item_id) {
+        //quickbooksItemId = package.quickbooks_item_id;
+     // } else {
         const itemData = {
           name: item.name,
           description: item.description,
@@ -263,7 +263,7 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
         };
         quickbooksItemId = await createQuickBooksItem(qbo, itemData);
         await Package.update({ quickbooks_item_id: quickbooksItemId }, { where: { id: item_id } });
-      }
+      //}
 
       item.id = quickbooksItemId;
     }

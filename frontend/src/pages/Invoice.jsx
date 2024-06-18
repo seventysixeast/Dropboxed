@@ -420,6 +420,7 @@ const Invoice = () => {
         handleLoading={handleLoading}
         isEdit={isEditMode}
         collectionId={null}
+        refreshInvoiceList={getInvoiceList}
       />
       <ConfirmModal
         isOpen={showPaidModal}

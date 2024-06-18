@@ -16,7 +16,7 @@ const EditInvoiceModal = ({
   handleLoading,
   isEdit,
   collectionId,
-  getAllCollectionsData,
+  refreshInvoiceList,
 }) => {
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
@@ -33,6 +33,7 @@ const EditInvoiceModal = ({
   const accesstoken = authData.token;
   const [clientName, setClientName] = useState("");
   const [clientAddress, setClientAddress] = useState("");
+  const [paidStatus, setPaidStatus ] = useState(false);
 
   useEffect(() => {
     if (isOpen && invoiceId) {
@@ -47,15 +48,17 @@ const EditInvoiceModal = ({
           setPaidAmount(response.data.invoice.paid_amount);
           setNote(response.data.invoice.notes);
           setInvoiceLink(response.data.invoice.invoice_link)
-          const newAddress = response.data.invoice.address;
+          const newAddress = response.data.invoice.user_address;
 
-          setInvoiceData((prevData) => ({
-            ...prevData,
-            client: {
-              ...prevData.client,
-              address: newAddress,
-            },
-          }));
+          // setInvoiceData((prevData) => ({
+          //   ...prevData,
+          //   client: {
+          //     ...prevData.client,
+          //     address: newAddress,
+          //   },
+          // }));
+          setClientAddress(newAddress);
+          setPaidStatus(response.data.invoice.paid_status);
         } catch (err) {
           setError(err.message);
         }
@@ -90,7 +93,7 @@ const EditInvoiceModal = ({
 
           setItems(initializedItems);
           setClientName(data.data.client.name || "");
-          setClientAddress(data.data.client.address || "");
+          setClientAddress(data.data.collection.client_address || "");
         } catch (err) {
           setError(err.message);
         }
@@ -151,12 +154,22 @@ const EditInvoiceModal = ({
     return subtotal; //+ taxAmount;
   };
 
+  const handleStatusChange = (event) => {
+    console.log("status",event.target.value)
+    const value = event.target.value === "Paid" ? true : false;
+    setPaidStatus(value);
+    if(value === true){
+      setPaidAmount(total)
+    }
+  };
+
   const resetData = () => {
     setItems([]);
     setTaxRate(10);
     setNote("");
     setInvoiceLink("");
     setPaidAmount(0);
+    setClientAddress("")
   };
 
   const handleSubmit = async (e) => {
@@ -175,9 +188,10 @@ const EditInvoiceModal = ({
       note,
       invoiceLink,
       clientName: invoiceData.client.name,
-      clientAddress: invoiceData.client.address,
+      clientAddress: clientAddress,
       dueAmount: total - paidAmount,
       paidAmount,
+      paidStatus,
       subdomainId,
     };
 
@@ -196,13 +210,14 @@ const EditInvoiceModal = ({
         toast.success(
           `Invoice ${isEdit ? "updated" : "created"} successfully!`
         );
-        getAllCollectionsData();
+        refreshInvoiceList();
         resetData();
         onClose();
       } else {
         toast.error(`Failed to ${isEdit ? "update" : "create"} the invoice.`);
       }
     } catch (error) {
+      console.log(error.message)
       toast.error(
         `An error occurred while ${
           isEdit ? "updating" : "creating"
@@ -301,10 +316,10 @@ const EditInvoiceModal = ({
                                         : new Date()
                                     }
                                     dateFormat="dd/MM/yyyy"
-                                    required
+                                    readOnly={true}
                                   />
                                 </div>
-                                <div className="due-date d-flex align-items-center justify-content-start">
+                                {/*<div className="due-date d-flex align-items-center justify-content-start">
                                   <h6 className="invoice-text mr-1 font-weight-bold">
                                     Date Due
                                   </h6>
@@ -316,7 +331,7 @@ const EditInvoiceModal = ({
                                     dateFormat="dd/MM/yyyy"
                                     required
                                   />
-                                </div>
+                                </div>*/}
                               </div>
                             </div>
                           </div>
@@ -364,15 +379,16 @@ const EditInvoiceModal = ({
                                   <textarea
                                     className="form-control"
                                     rows={3}
-                                    value={invoiceData.client.address || ""}
+                                    value={clientAddress}
                                     onChange={(e) =>
-                                      setInvoiceData({
-                                        ...invoiceData,
-                                        client: {
-                                          ...invoiceData.client,
-                                          address: e.target.value,
-                                        },
-                                      })
+                                      // setInvoiceData({
+                                      //   ...invoiceData,
+                                      //   collection: {
+                                      //     ...invoiceData.collection,
+                                      //     address: e.target.value,
+                                      //   },
+                                      // })
+                                      setClientAddress(e.target.value)
                                     }
                                     placeholder="Address"
                                   />
@@ -394,6 +410,22 @@ const EditInvoiceModal = ({
                                     maxLength="10"
                                   />
                                 </div>
+                              </div>
+                            </div>
+                            <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12 text-center">
+                              <div className="title-text">Bill From</div>
+                              <div className="row">
+                              <div className="col-12 col-xs-12 mb-1">
+                                {invoiceData.admin.name}
+                                <br />
+                                {invoiceData.admin.address}
+                                <br />
+                                {invoiceData.admin.phone}
+                                <br />
+                                {invoiceData.admin.email}
+                                <br />
+                                {invoiceData.admin.abn_acn}
+                              </div>
                               </div>
                             </div>
                           </div>
@@ -488,7 +520,7 @@ const EditInvoiceModal = ({
                                               readOnly
                                             />
                                           </td>
-                                          {/* {roleId !== 3 && (
+                                          {roleId !== 3 && (
                                           <td>
                                             <button
                                               type="button"
@@ -503,14 +535,14 @@ const EditInvoiceModal = ({
                                               Delete
                                             </button>
                                           </td>
-                                        )} */}
+                                        )}
                                         </tr>
                                       ))}
                                     </tbody>
                                   </table>
                                 </div>
                               </div>
-                              {/* roleId !== 3 && (
+                              { roleId !== 3 && (
                               <div className="form-group">
                                 <button
                                   className="btn btn-primary mt-1"
@@ -521,7 +553,7 @@ const EditInvoiceModal = ({
                                   Add Item
                                 </button>
                               </div>
-                            ) */}
+                            ) }
                             </form>
                           </div>
                           <hr />
@@ -533,12 +565,13 @@ const EditInvoiceModal = ({
                                     className="select2 form-control w-50 form-control col-sm-6 col-md-3"
                                     name="fromTime"
                                     id="fromTime"
-                                    value={invoiceData.invoice?.paid_status}
+                                    value={paidStatus ? "Paid" : "Pending"}
+                                    onChange={handleStatusChange}
                                     style={{ cursor: "pointer" }}
                                     required
                                   >
-                                    <option value="0">Pending</option>
-                                    <option value="1">Paid</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Paid">Paid</option>
                                   </select>
                                 </div>
                                 <div className="regarding-discount form-group">
@@ -581,7 +614,7 @@ const EditInvoiceModal = ({
                                   <li className="dropdown-divider" />
                                   <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                                     <span className="cost-title mr-2">
-                                      Invoice Total{" "}
+                                      Invoice Total (Inc. GST){" "}
                                     </span>
                                     <span className="cost-value">
                                       ${total.toFixed(2)}
@@ -683,14 +716,14 @@ const EditInvoiceModal = ({
                                     {formatDate(invoiceData.invoice.updated_at)}
                                   </p>
                                 </div>
-                                <div className="due-date d-flex align-items-center justify-content-start">
+                                {/*<div className="due-date d-flex align-items-center justify-content-start">
                                   <h6 className="invoice-text mr-1 font-weight-bold">
                                     Date Due
                                   </h6>
                                   <p style={{ marginTop: "6px" }}>
                                     {formatDate(new Date())}
                                   </p>
-                                </div>
+                                </div>*/}
                               </div>
                             </div>
                           </div>
@@ -742,6 +775,22 @@ const EditInvoiceModal = ({
                                     {invoiceData.client.phone || ""}
                                   </p>
                                 </div>
+                              </div>
+                            </div>
+                            <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12 text-center">
+                              <div className="title-text">Bill From</div>
+                              <div className="row">
+                              <div className="col-12 col-xs-12 mb-1">
+                                {invoiceData.admin.name}
+                                <br />
+                                {invoiceData.admin.address}
+                                <br />
+                                {invoiceData.admin.phone}
+                                <br />
+                                {invoiceData.admin.email}
+                                <br />
+                                {invoiceData.admin.abn_acn}
+                              </div>
                               </div>
                             </div>
                           </div>
@@ -798,14 +847,14 @@ const EditInvoiceModal = ({
                           <div className="invoice-total">
                             <div className="row justify-content-between">
                               <div className="col-12 col-md-6 col-lg-6 col-xl-5">
-                                <div className="regarding-payment form-group d-flex">
+                              <div className="regarding-payment form-group d-flex">
                                   <label className="mr-2 font-weight-bold">
                                     Status
                                   </label>
                                   <p className="">
-                                    {!invoiceData.invoice?.paid_status
-                                      ? "Pending"
-                                      : "Paid"}
+                                    {paidStatus
+                                      ? "Paid"
+                                      : "Pending"}
                                   </p>
                                 </div>
                                 <div className="regarding-discount form-group d-flex">

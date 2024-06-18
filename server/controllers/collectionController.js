@@ -579,6 +579,7 @@ const saveInvoiceToDatabase = async (req, res) => {
     clientName,
     clientAddress,
     subdomainId,
+    paidStatus
   } = req.body;
   const userId = subdomainId;
 
@@ -612,6 +613,7 @@ const saveInvoiceToDatabase = async (req, res) => {
       invoice_link: invoiceLink,
       invoice_price: total,
       subdomain_id: subdomainId,
+      paid_status: paidStatus
     });
 
     const orderId = newOrder.id;
@@ -630,6 +632,7 @@ const saveInvoiceToDatabase = async (req, res) => {
       paid_status: false,
       invoice_link: invoiceLink,
       subdomain_id: subdomainId,
+      paid_status: paidStatus
     };
     // if (quickbooks_invoice_id !== "") {
     //   invoiceData.quickbooks_invoice_id = quickbooks_invoice_id;
