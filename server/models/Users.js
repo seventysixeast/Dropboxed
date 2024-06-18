@@ -50,6 +50,7 @@ const Users = sequelize.define('User', {
   logo: {
     type: DataTypes.STRING(255),
     allowNull: true,
+    defaultValue: ''
   },
   company: {
     type: DataTypes.STRING(255),
@@ -225,7 +226,7 @@ const Users = sequelize.define('User', {
     type: DataTypes.STRING(255),
     allowNull: true
   },
-    dropbox_id: {
+  dropbox_id: {
     type: DataTypes.STRING(255),
     allowNull: true
   },

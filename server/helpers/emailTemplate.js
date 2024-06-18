@@ -255,7 +255,7 @@ exports.WELCOME_CLIENT_EMAIL = (subdomain, subdomain_email, logo, name, email, p
 </div>
 `;
 
-exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, contact, teamMember) => `
+exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, contact, teamMember, serviceNames) => `
 <div style="display: flex; justify-content: center; align-items: center; padding: 0 10px; box-sizing: border-box;">
     <div style="width: 100%; max-width: 600px; margin: 0.3rem; font-family: Arial, Verdana, sans-serif; box-sizing: border-box;">
         <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
@@ -268,6 +268,7 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, c
                     <p><b>Date:</b> ${data.booking_date}</p>
                     <p><b>Time:</b> ${data.booking_time}</p>
                     <p><b>Project:</b> ${data.booking_title}</p>
+                    <p><b>Services:</b> ${serviceNames}</p>
                     <p><b>Team Member:</b> ${teamMember}</p>
                     <p><b>Contact:</b> ${contact}</p>
                     <hr>
@@ -310,7 +311,7 @@ exports.NEW_BOOKING = (subdomain, logo, subdomainContact, address, name, data, c
 </div>
 `;
 
-exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data, contact, teamMember) => `
+exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data, contact, teamMember, serviceNames) => `
 <div style="display: flex; justify-content: center; align-items: center; padding: 0 10px; box-sizing: border-box;">
     <div style="width: 100%; max-width: 600px; margin: 0.3rem; font-family: Arial, Verdana, sans-serif; box-sizing: border-box;">
         <table style="width: 100%; border: 2px solid black; border-collapse: collapse;">
@@ -323,6 +324,7 @@ exports.UPDATE_BOOKING = (subdomain, logo, subdomainContact, address, name, data
                     <p><b>Date:</b> ${data.booking_date}</p>
                     <p><b>Time:</b> ${data.booking_time}</p>
                     <p><b>Project:</b> ${data.booking_title}</p>
+                    <p><b>Services:</b> ${serviceNames}</p>
                     <p><b>Team Member:</b> ${teamMember}</p>
                     <p><b>Contact:</b> ${contact}</p>
                     <hr>

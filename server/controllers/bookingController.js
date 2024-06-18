@@ -7,6 +7,7 @@ const axios = require("axios");
 const Users = require("../models/Users");
 const BusinessClients = require("../models/BusinessClients");
 const Notifications = require('../models/Notifications');
+const Packages = require('../models/Packages');
 const { Op } = require("sequelize");
 const moment = require("moment");
 const { NEW_BOOKING, UPDATE_BOOKING } = require('../helpers/emailTemplate');
@@ -387,20 +388,32 @@ const createBooking = async (req, res) => {
 
     let booking;
     if (req.body.id) {
-      // Send email if booking_status is true
+      const user = await User.findOne({
+        where: { id: data.photographer_id },
+        attributes: ['phone', 'name']
+      });
+
+      const subdomain_user = await User.findOne({
+        where: { id: subdomainId },
+        attributes: ['subdomain', 'logo', 'phone', 'address']
+      });
+
+      const photographer_team = await User.findOne({
+        where: { id: req.body.photographer_id },
+        attributes: ['email', 'name']
+      });
+
+      const services = await Packages.findAll({
+        where: { id: req.body.package_ids },
+        attributes: ['package_name']
+      });
+
+      const serviceNames = services.map(service => service.package_name).join(', ');
+
+      // Send email to client if booking_status is true
       if (req.body.booking_status === true) {
-        const user = await User.findOne({
-          where: { id: data.photographer_id },
-          attributes: ['phone', 'name']
-        });
-
-        const subdomain_user = await User.findOne({
-          where: { id: subdomainId },
-          attributes: ['subdomain', 'logo', 'phone', 'address']
-        });
-        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, user.phone, user.name);
-        sendEmail(client_email, "New Booking", SEND_EMAIL);
-
+        let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, user.phone, user.name, serviceNames);
+        sendEmail(client_email, "Update Booking", SEND_EMAIL);
         // Create notification
         await Notifications.create({
           notification: `Your appointment has been updated with ${subdomain_user.subdomain}`,
@@ -409,27 +422,43 @@ const createBooking = async (req, res) => {
           date: new Date()
         });
       }
+
+      // For photographer team
+      let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, photographer_team.name, data, user.phone, user.name, serviceNames);
+      sendEmail(photographer_team.email, "Update Booking", SEND_EMAIL);
+
       booking = await Booking.findOne({ where: { id: req.body.id } });
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
       }
       await booking.update(data);
     } else {
-      // Send email if booking_status is true
+      const user = await User.findOne({
+        where: { id: data.photographer_id },
+        attributes: ['phone', 'name']
+      });
+
+      const subdomain_user = await User.findOne({
+        where: { id: subdomainId },
+        attributes: ['subdomain', 'logo', 'phone', 'address']
+      });
+
+      const photographer_team = await User.findOne({
+        where: { id: req.body.photographer_id },
+        attributes: ['email', 'name']
+      });
+
+      const services = await Packages.findAll({
+        where: { id: req.body.package_ids },
+        attributes: ['package_name']
+      });
+
+      const serviceNames = services.map(service => service.package_name).join(', ');
+
+      // Send email to client if booking_status is true
       if (req.body.booking_status === true) {
-        const user = await User.findOne({
-          where: { id: data.photographer_id },
-          attributes: ['phone', 'name']
-        });
-
-        const subdomain_user = await User.findOne({
-          where: { id: subdomainId },
-          attributes: ['subdomain', 'logo', 'phone', 'address']
-        });
-
-        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, user.phone, user.name);
+        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, user.phone, user.name, serviceNames);
         sendEmail(client_email, "New Booking", SEND_EMAIL);
-
         // Create notification
         await Notifications.create({
           notification: `Your appointment has been confirmed with ${subdomain_user.subdomain}`,
@@ -438,17 +467,20 @@ const createBooking = async (req, res) => {
           date: new Date()
         });
       }
+
+      // For photographer team
+      let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, photographer_team.name, data, user.phone, user.name, serviceNames);
+      sendEmail(photographer_team.email, "New Booking", SEND_EMAIL);
+
       data.subdomain_id = subdomainId;
       booking = await Booking.create(data);
     }
-
     try {
       await addevent(booking);
     } catch (error) {
       console.error("Failed to add event:", error.message);
       return res.status(500).json({ error: "Failed to add event" });
     }
-
     res.status(200).json({
       success: true,
       message: req.body.id
@@ -740,7 +772,14 @@ const updateBooking = async (req, res) => {
         attributes: ['id', 'subdomain', 'logo', 'phone', 'address']
       });
 
-      let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, updatedBooking.client_name, updatedBooking, user.phone, user.name);
+      const services = await Packages.findAll({
+        where: { id: updatedBooking.package_ids },
+        attributes: ['package_name']
+      });
+
+      const serviceNames = services.map(service => service.package_name).join(', ');
+
+      let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, updatedBooking.client_name, updatedBooking, user.phone, user.name, serviceNames);
       sendEmail(client_email, "Update Booking", SEND_EMAIL);
 
       // Create notification
