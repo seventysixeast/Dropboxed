@@ -26,7 +26,7 @@ const EditProfile = () => {
     status: "",
     business_name: "",
     profile_photo: null,
-    logo: "",
+    logo: null
   });
   const [errors, setErrors] = useState({ website: "" });
 
@@ -41,7 +41,7 @@ const EditProfile = () => {
     city: "",
     postal_code: "",
     website: "",
-    phone: "",
+    phone: ""
   });
 
   const websiteSchema = yup

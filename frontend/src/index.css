@@ -1829,8 +1829,4 @@ table.dataTable thead td {
   .col-sm-6.col-6.float-sm-left.text-center.text-sm-right {
     margin-top: -5px !important;
   }
-
-  .float-right {
-    float: unset !important;
-  }
 }
