@@ -6,7 +6,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../context/authContext";
 import { getOrderDataForInvoice, saveInvoice } from "../api/collectionApis";
+import { getAllServices } from "../api/serviceApis";
 import Select from "react-select";
+import SelectItemModal from '../components/SelectItemModal';
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const EditInvoiceModal = ({
@@ -21,7 +23,7 @@ const EditInvoiceModal = ({
   const [invoiceData, setInvoiceData] = useState(null);
   const [error, setError] = useState(null);
   const [items, setItems] = useState([]);
-  const [taxRate, setTaxRate] = useState(10);
+  const [taxRate, setTaxRate] = useState(11);
   const [note, setNote] = useState("");
   const [invoiceLink, setInvoiceLink] = useState("");
   const [paidAmount, setPaidAmount] = useState(0);
@@ -34,6 +36,8 @@ const EditInvoiceModal = ({
   const [clientName, setClientName] = useState("");
   const [clientAddress, setClientAddress] = useState("");
   const [paidStatus, setPaidStatus ] = useState(false);
+  const [availableItems, setAvailableItems] = useState([]);
+  const [isItemSelectModalOpen, setIsItemSelectModalOpen] = useState(false); // State for item selection modal
 
   useEffect(() => {
     if (isOpen && invoiceId) {
@@ -65,6 +69,7 @@ const EditInvoiceModal = ({
         handleLoading();
       };
       fetchInvoiceData();
+      getServiceList();
     } else if (isOpen && collectionId) {
       const fetchInvoiceData = async () => {
         try {
@@ -101,6 +106,7 @@ const EditInvoiceModal = ({
       };
 
       fetchInvoiceData();
+      getServiceList();
     } else {
       setInvoiceData({
         invoice: {
@@ -125,11 +131,51 @@ const EditInvoiceModal = ({
       handleLoading();
     }
   }, [isOpen, invoiceId]);
-  const addItem = () => {
+  /*const addItem = () => {
     setItems([
       ...items,
       { id: Date.now(), name: "", description: "", quantity: 1, price: 0 },
     ]);
+  };*/
+
+  const addItem = () => {
+    setIsItemSelectModalOpen(true); // Open the item selection modal
+  };
+
+  const handleSelectItem = (selectedItem) => {
+    // Format data required from selected item
+    selectedItem.details = JSON.parse(selectedItem.image_type_details);
+    selectedItem.details = selectedItem.details
+      .map(
+        (detail) =>
+          `${detail.image_type_count} ${detail.image_type_label}`
+      )
+      .join(", ");
+    const details = selectedItem.details;
+    delete selectedItem.details;
+    selectedItem.description = details;
+
+    // Add selecetd item into items array
+    setItems([
+      ...items,
+      { id: Date.now(), name: selectedItem.package_name, description: selectedItem.description, quantity: 1, price: selectedItem.package_price },
+    ]);
+    setIsItemSelectModalOpen(false); // Close the item selection modal
+  };
+
+  const getServiceList = async () => {
+    //setItemsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("role_id", roleId);
+      formData.append("subdomain_id", subdomainId);
+      formData.append("user_id", user.id);
+      const response = await getAllServices(formData);
+      setAvailableItems(response.data);
+    } catch (error) {
+      console.error("Error fetching Service list:", error);
+    }
+    //setItemsLoading(false);
   };
 
   const deleteItem = (index) => {
@@ -206,7 +252,7 @@ const EditInvoiceModal = ({
         response = await saveInvoice(invoice);
       }
 
-      if (response.success) {
+      if (response && response.success) {
         toast.success(
           `Invoice ${isEdit ? "updated" : "created"} successfully!`
         );
@@ -217,7 +263,7 @@ const EditInvoiceModal = ({
         toast.error(`Failed to ${isEdit ? "update" : "create"} the invoice.`);
       }
     } catch (error) {
-      console.log(error.message)
+      console.log("errorrr",error)
       toast.error(
         `An error occurred while ${
           isEdit ? "updating" : "creating"
@@ -661,6 +707,13 @@ const EditInvoiceModal = ({
               </div>
             </div>
           </div>
+          {/* Select Item Modal */}
+      <SelectItemModal
+        isOpen={isItemSelectModalOpen}
+        onClose={() => setIsItemSelectModalOpen(false)}
+        onSelectItem={handleSelectItem}
+        availableItems={availableItems}
+      />
         </div>
       ) : (
         // view Invoice for client

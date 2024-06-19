@@ -882,7 +882,7 @@ const Collections = () => {
         handleLoading={handleLoading}
         isEdit={isEditMode}
         collectionId={selectedCollectionId}
-        getAllCollectionsData={getAllCollectionsData}
+        refreshInvoiceList={getAllCollectionsData}
       />
       <NoInvoiceModal
         isOpen={showNoInvoiceModal}

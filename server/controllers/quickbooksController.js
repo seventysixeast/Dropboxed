@@ -262,6 +262,7 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
           expenseAccountRef: { value: expenseAccountId, name: 'Cost of Goods Sold Studio' },
         };
         quickbooksItemId = await createQuickBooksItem(qbo, itemData);
+        console.log("quickbooksItemId",quickbooksItemId)
         await Package.update({ quickbooks_item_id: quickbooksItemId }, { where: { id: item_id } });
       //}
 
