@@ -1830,3 +1830,8 @@ table.dataTable thead td {
     margin-top: -5px !important;
   }
 }
+
+#itemSelectModal .modal-body {
+  max-height: 400px; /* Adjust the height as needed */
+  overflow-y: auto;
+}

@@ -42,7 +42,7 @@ const createService = async (req, res) => {
   }
 };
 
-const getAllServices = async (req, res) => {
+/*const getAllServices = async (req, res) => {
   const subdomainId = req.body.subdomain_id;
   const roleId = req.body.role_id;
   try {
@@ -98,7 +98,53 @@ const getAllServices = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Failed to list services" });
   }
+};*/
+const getAllServices = async (req, res) => {
+  const subdomainId = req.body.subdomain_id;
+  const roleId = req.body.role_id;
+  try {
+    // Retrieve collections and bookings for the given subdomain_id
+    const collections = await Collection.findAll({
+      where: { subdomain_id: subdomainId },
+    });
+    const bookings = await Booking.findAll({
+      where: { subdomain_id: subdomainId },
+    });
+
+    // Extract and process package_ids from collections and bookings
+    const collectionPackageIds = collections.map((collection) =>
+      collection.package_ids.split(",")
+    );
+    const bookingPackageIds = bookings.map((booking) =>
+      booking.package_ids.split(", ")
+    );
+    const allPackageIds = [...collectionPackageIds, ...bookingPackageIds];
+    const flattenedPackageIds = allPackageIds.flat();
+    const uniquePackageIds = [...new Set(flattenedPackageIds)];
+
+    // Query parameters object
+    const serviceQuery = {
+      where: {
+        subdomain_id: subdomainId,
+      },
+      order: [["package_name", "ASC"]],
+    };
+
+    // Apply additional filter for active status if roleId is 3
+    if (roleId == 3) {
+      serviceQuery.where.status = "Active";
+    }
+
+    // Retrieve services based on the query parameters
+    const services = await Packages.findAll(serviceQuery);
+
+    // Return the result
+    res.status(200).json({ success: true, data: services, uniquePackageIds: uniquePackageIds });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to list services" });
+  }
 };
+
 
 const getService = async (req, res) => {
   const id = req.body.id;
