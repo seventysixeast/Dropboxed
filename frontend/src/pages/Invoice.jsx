@@ -72,8 +72,8 @@ const Invoice = () => {
       headerStyle: { width: "200px" },
     },
     {
-      Header: "Order #",
-      accessor: "order_id",
+      Header: "Invoice Id",
+      accessor: "id",
     },
     {
       Header: "Client",
@@ -411,7 +411,7 @@ const Invoice = () => {
         isOpen={showDeleteModal}
         onClose={handleDeleteModalClose}
         onConfirm={deleteInvoice}
-        message="Are you sure you want to delete this appointment?"
+        message="Are you sure you want to delete this Invoice?"
       />
       <EditInvoiceModal
         isOpen={modalIsOpen}

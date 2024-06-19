@@ -211,7 +211,7 @@ const EditInvoiceModal = ({
 
   const resetData = () => {
     setItems([]);
-    setTaxRate(10);
+    setTaxRate(11);
     setNote("");
     setInvoiceLink("");
     setPaidAmount(0);
@@ -224,7 +224,7 @@ const EditInvoiceModal = ({
     const subtotal = calculateSubtotal();
     const taxAmount = calculateTaxAmount(subtotal);
     const total = calculateTotal(subtotal, taxAmount);
-
+    const paidAmt = total;
     const invoice = {
       items,
       subtotal,
@@ -235,8 +235,8 @@ const EditInvoiceModal = ({
       invoiceLink,
       clientName: invoiceData.client.name,
       clientAddress: clientAddress,
-      dueAmount: total - paidAmount,
-      paidAmount,
+      dueAmount: total - paidAmt,
+      paidAmount: paidAmt,
       paidStatus,
       subdomainId,
     };
@@ -284,7 +284,10 @@ const EditInvoiceModal = ({
   const subtotal = calculateSubtotal();
   const taxAmount = calculateTaxAmount(subtotal);
   const total = calculateTotal(subtotal, taxAmount);
-  const dueAmount = total - paidAmount;
+  const paidAmt = paidStatus ? total :0;
+  const dueAmount = total - paidAmt;
+  
+  console.log("dueAmount",dueAmount)
   return (
     <div
       className={`modal fade ${isOpen ? "show" : ""}`}
@@ -331,8 +334,10 @@ const EditInvoiceModal = ({
                         <div className="card-body">
                           <div className="card-header">
                             <div className="row">
-                              {isEdit && (
+                              
                                 <div className="col-xl-3 col-md-12 d-flex justify-content-start align-items-center pl-0">
+                                {isEdit && (
+                                  <>
                                   <h6 className="invoice-text mr-1 font-weight-bold">
                                     Invoice#{" "}
                                   </h6>
@@ -343,8 +348,10 @@ const EditInvoiceModal = ({
                                     value={invoiceId}
                                     readOnly
                                   />
+                                  </>
+                                )}
                                 </div>
-                              )}
+                              
                               <div className="col-xl-9 col-md-12 d-flex justify-content-xl-end align-items-lg-start align-items-sm-start align-items-xs-start align-items-center flex-wrap px-0 pt-xl-0 pt-1">
                                 <div className="issue-date d-flex align-items-center justify-content-start mr-2 mb-75 mb-xl-0">
                                   <h6 className="invoice-text mr-1 font-weight-bold">
@@ -391,6 +398,7 @@ const EditInvoiceModal = ({
                                 type="text"
                                 className="form-control"
                                 value={invoiceData.admin.name || ""}
+                                readOnly={true}
                               />
                             </div>
                             <div className="col-sm-6 col-12 order-1 order-sm-1 d-flex justify-content-end align-items-center">
@@ -411,7 +419,7 @@ const EditInvoiceModal = ({
                           <hr />
                           <div className="row">
                             <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12">
-                              <div className="title-text">Bill To</div>
+                              <div className="title-text">Invoice To</div>
                               <div className="row">
                                 <div className="col-12 col-xs-12 mb-1">
                                   <input
@@ -419,6 +427,7 @@ const EditInvoiceModal = ({
                                     className="form-control"
                                     value={invoiceData.client.name || ""}
                                     placeholder="Client Name"
+                                    readOnly={true}
                                   />
                                 </div>
                                 <div className="col-12 col-xs-12 mb-1">
@@ -445,6 +454,7 @@ const EditInvoiceModal = ({
                                     className="form-control"
                                     value={invoiceData.client.email || ""}
                                     placeholder="Client Email"
+                                    readOnly={true}
                                   />
                                 </div>
                                 <div className="col-12 col-xs-12 mb-1">
@@ -454,23 +464,22 @@ const EditInvoiceModal = ({
                                     value={invoiceData.client.phone || ""}
                                     placeholder="Client Phone"
                                     maxLength="10"
+                                    readOnly={true}
                                   />
                                 </div>
                               </div>
                             </div>
-                            <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12 text-center">
-                              <div className="title-text">Bill From</div>
+                            <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12 " style={{"display": "flex", "justifyContent": "center"}}>
                               <div className="row">
                               <div className="col-12 col-xs-12 mb-1">
-                                {invoiceData.admin.name}
+                              <div className="title-text"><h4 className="font-weight-bold">Invoice From</h4></div>
+                                {invoiceData.admin.business_name}
                                 <br />
                                 {invoiceData.admin.address}
                                 <br />
-                                {invoiceData.admin.phone}
-                                <br />
                                 {invoiceData.admin.email}
                                 <br />
-                                {invoiceData.admin.abn_acn}
+                                <span className="font-weight-bold">ABN:</span> {invoiceData.admin.abn_acn}
                               </div>
                               </div>
                             </div>
@@ -643,10 +652,10 @@ const EditInvoiceModal = ({
                                   </li>
                                   <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                                     <span className="cost-title mr-2">
-                                      Tax{" "}
+                                      Tax Included{" "}
                                     </span>
                                     <span className="cost-value">
-                                      {taxRate}%
+                                      10%
                                     </span>
                                   </li>
                                   <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
@@ -671,7 +680,7 @@ const EditInvoiceModal = ({
                                       Amount Paid
                                     </span>
                                     <span className="cost-value">
-                                      -${paidAmount.toFixed(2)}
+                                      -${paidStatus ? paidAmt.toFixed(2) : 0}
                                     </span>
                                   </li>
                                   <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
@@ -806,7 +815,7 @@ const EditInvoiceModal = ({
                           <hr />
                           <div className="row">
                             <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12">
-                              <div className="title-text">Bill To</div>
+                              <div className="title-text">Invoice To</div>
                               <div className="row">
                                 <div className="col-12 col-xs-12 mb-1">
                                   <p className="mt-1">
@@ -830,19 +839,17 @@ const EditInvoiceModal = ({
                                 </div>
                               </div>
                             </div>
-                            <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12 text-center">
-                              <div className="title-text">Bill From</div>
+                            <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12 " style={{"display": "flex", "justifyContent": "center"}}>
                               <div className="row">
                               <div className="col-12 col-xs-12 mb-1">
-                                {invoiceData.admin.name}
-                                <br />
+                              <div className="title-text"><h4 className="font-weight-bold">Invoice From</h4></div>
+                                {invoiceData.admin.business_name}
+                                <br /><br />
                                 {invoiceData.admin.address}
-                                <br />
-                                {invoiceData.admin.phone}
-                                <br />
+                                <br /><br />
                                 {invoiceData.admin.email}
-                                <br />
-                                {invoiceData.admin.abn_acn}
+                                <br /><br />
+                                <span className="font-weight-bold">ABN:</span> {invoiceData.admin.abn_acn}
                               </div>
                               </div>
                             </div>
@@ -949,10 +956,10 @@ const EditInvoiceModal = ({
                                   </li>
                                   <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
                                     <span className="cost-title mr-2">
-                                      Tax{" "}
+                                      Tax Included{" "}
                                     </span>
                                     <span className="cost-value">
-                                      {taxRate}%
+                                      10%
                                     </span>
                                   </li>
                                   <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
@@ -977,7 +984,7 @@ const EditInvoiceModal = ({
                                       Amount Paid
                                     </span>
                                     <span className="cost-value">
-                                      -${paidAmount.toFixed(2)}
+                                      -${paidStatus ? paidAmt.toFixed(2) : 0}
                                     </span>
                                   </li>
                                   <li className="list-group-item each-cost border-0 p-50 d-flex justify-content-between">
