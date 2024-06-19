@@ -268,14 +268,13 @@ export const ViewGallery = () => {
     const formDataToSend = new FormData();
     formDataToSend.append("slug", id);
     let res = await getCollection(formDataToSend);
-    if (res.success) {
-      setCollectionRefresh(res.data.dropbox_refresh);
-      setDropboxLink(res.data.dropbox_link);
-      fetchFileList(res.data.dropbox_refresh, res.data.dropbox_link);
-      setVideoLink(res.data.video_link);
-      setBanner(res.data.banner);
-      setCollection(res.data);
-    } else {
+      if (res.data.dropbox_link.includes("dropbox")) {
+        setCollectionRefresh(res.data.dropbox_refresh);
+        setDropboxLink(res.data.dropbox_link);
+        fetchFileList(res.data.dropbox_refresh, res.data.dropbox_link);
+        setVideoLink(res.data.video_link);
+        setBanner(res.data.banner);
+        setCollection(res.data);
     }
     setRunning(false);
     setLoading(false);
@@ -1176,6 +1175,8 @@ export const ViewGallery = () => {
               </div>
             </section>
             <DefaultLayout
+
+            
               shareButton={true}
               fullscreenButton={false}
               zoomButton={false}

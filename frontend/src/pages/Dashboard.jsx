@@ -935,6 +935,8 @@ export const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
       <AddGalleryModal
