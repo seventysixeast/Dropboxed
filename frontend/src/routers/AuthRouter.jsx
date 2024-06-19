@@ -1,3 +1,4 @@
+
 // AuthRouter.js
 import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
@@ -12,6 +13,7 @@ import DropboxOAuth from "../pages/DropboxAuth";
 import GoogleOAuth from "../pages/GoogleOAuth";
 import { ViewGallery } from "../pages/ViewGallery";
 import QuickBooksCallback from '../components/QuickBooksCallback';
+import GoogleDriveOAuth from "../pages/GoogleDriveOAuth";
 
 const AuthRouter = () => {
   const route = useRoutes([
@@ -24,6 +26,8 @@ const AuthRouter = () => {
     { path: "/", element: <Navigate to="/login" /> },
     { path: "/dropbox", element: <DropboxOAuth /> },
     { path: "/google", element: <GoogleOAuth /> },
+    { path: "/google-drive", element: <GoogleDriveOAuth /> },
+    
     { path: "*", element: <Navigate to="/login" /> },
     { path: "/view-gallery/:id", element: <ViewGallery /> },
     { path: "/quickbooks/callback", element: <QuickBooksCallback /> }

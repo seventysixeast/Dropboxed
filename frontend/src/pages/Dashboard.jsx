@@ -29,6 +29,7 @@ const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
+const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const Dashboard = () => {
   const { authData } = useAuth();
@@ -127,6 +128,10 @@ export const Dashboard = () => {
   );
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
 
+  const googleAuthUrl = `${REACT_APP_BASE_URL}/google-drive?userId=${encodeURIComponent(
+    userId
+  )}&url=${encodeURIComponent(url)}`;
+
   const [formData, setFormData] = useState({
     id: "",
     client: "",
@@ -141,24 +146,7 @@ export const Dashboard = () => {
     notify_client: "",
   });
 
-  useEffect(() => {
-    getClients();
-    if (collections.length == 0) {
-      getAllCollectionsData();
-    }
 
-    getAllBookingsData();
-    getDropboxRefresh();
-    getActiveInvoicesNumber();
-  }, []);
-
-  useEffect(() => {
-    if (formData.client !== "" && formData.booking_title !== "") {
-      getServices(formData.client, formData.booking_title);
-      getPhotographers(formData.client, formData.booking_title);
-      getBookingTitles(formData.client);
-    }
-  }, [formData.client, formData.booking_title]);
 
   const getClients = async () => {
     try {
@@ -211,8 +199,6 @@ export const Dashboard = () => {
       console.log(error);
     }
   };
-
-  console.log(activeInvoices);
 
   const getServices = async (client, booking_title) => {
     try {
@@ -489,6 +475,26 @@ export const Dashboard = () => {
   };
 
   useEffect(() => {
+    getClients();
+    if (collections.length == 0) {
+      getAllCollectionsData();
+    }
+
+    getAllBookingsData();
+    getDropboxRefresh();
+    getActiveInvoicesNumber();
+  }, []);
+
+  useEffect(() => {
+    if (formData.client !== "" && formData.booking_title !== "") {
+      getServices(formData.client, formData.booking_title);
+      getPhotographers(formData.client, formData.booking_title);
+      getBookingTitles(formData.client);
+    }
+  }, [formData.client, formData.booking_title]);
+
+
+  useEffect(() => {
     const fetchData = async () => {
       if (accesstoken !== undefined) {
         let resp = await verifyToken(accesstoken);
@@ -706,7 +712,9 @@ export const Dashboard = () => {
                             <i className="feather icon-list"></i>
                           </button>
                         </ReTooltip>
-                        {user.role_id == 5 && user.connect_quickbooks && <QuickBooksConnect />}
+                        {user.role_id == 5 && user.connect_quickbooks && (
+                          <QuickBooksConnect />
+                        )}
 
                         {user.role_id == 5 && (
                           <>
@@ -721,6 +729,19 @@ export const Dashboard = () => {
                             )}
                           </>
                         )}
+                        {/* {user.role_id == 5 && (
+                          <>
+                            {!itemsLoading && (
+                              <a
+                                href={`${googleAuthUrl}`}
+                                className="btn btn-primary mr-1 mb-1"
+                                style={{ paddingTop: "10px" }}
+                              >
+                                Link Your Google Drive
+                              </a>
+                            )}
+                          </>
+                        )} */}
                         <ReTooltip
                           title="Create a new appointment."
                           placement="top"
@@ -914,6 +935,8 @@ export const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
       <AddGalleryModal
