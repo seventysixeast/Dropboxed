@@ -512,6 +512,7 @@ const getOrderDataForInvoice = async (req, res) => {
         name: adminUser.name,
         company: adminUser.company,
         website: adminUser.website,
+        business_name: adminUser.business_name,
         account_name: adminUser.account_name,
         address: adminUser.address,
         phone: adminUser.phone,
