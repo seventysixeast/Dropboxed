@@ -28,7 +28,6 @@ import QuickBooksConnect from '../components/QuickBooksConnect';
 import QuickBooksCallback from '../components/QuickBooksCallback';
 import CreateInvoice from '../components/CreateInvoice';
 import GoogleDriveOAuth from "../pages/GoogleDriveOAuth";
-import CollectionsUser from "../pages/CollectionsUser";
 
 
 const AdminRouter = () => {
