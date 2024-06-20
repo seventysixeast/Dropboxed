@@ -419,7 +419,7 @@ const EditInvoiceModal = ({
                           <hr />
                           <div className="row">
                             <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12">
-                              <div className="title-text">Invoice To</div>
+                              <div className="title-text">Invoice To:</div>
                               <div className="row">
                                 <div className="col-12 col-xs-12 mb-1">
                                   <input
@@ -471,8 +471,8 @@ const EditInvoiceModal = ({
                             </div>
                             <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12 " style={{"display": "flex", "justifyContent": "center"}}>
                               <div className="row">
-                              <div className="col-12 col-xs-12 mb-1">
-                              <div className="title-text"><h4 className="font-weight-bold">Invoice From</h4></div>
+                              <div className="col-12 col-xs-12 mb-1" style={{"lineHeight": "2"}}>
+                              <div className="title-text font-weight-bold pt-md-5">Invoice From:</div>
                                 {invoiceData.admin.business_name}
                                 <br />
                                 {invoiceData.admin.address}
@@ -824,7 +824,7 @@ const EditInvoiceModal = ({
                                 </div>
                                 <div className="col-12 col-xs-12">
                                   <p className="mt-1">
-                                    {invoiceData.client.address}
+                                    {clientAddress}
                                   </p>
                                 </div>
                                 <div className="col-12 col-xs-12 ">
@@ -842,7 +842,7 @@ const EditInvoiceModal = ({
                             <div className="col-lg-6 col-xl-6 col-xs-12 col-sm-12 " style={{"display": "flex", "justifyContent": "center"}}>
                               <div className="row">
                               <div className="col-12 col-xs-12 mb-1">
-                              <div className="title-text"><h4 className="font-weight-bold">Invoice From</h4></div>
+                              <div className="title-text font-weight-bold pt-md-5">Invoice From:</div>
                                 {invoiceData.admin.business_name}
                                 <br /><br />
                                 {invoiceData.admin.address}

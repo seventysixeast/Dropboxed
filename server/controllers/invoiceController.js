@@ -10,6 +10,7 @@ const { NEW_COLLECTION } = require("../helpers/emailTemplate");
 const { sendEmail } = require("../helpers/sendEmail");
 const phpSerialize = require("php-serialize").serialize;
 const QuickBooks = require("node-quickbooks");
+const sequelize = require('../config/sequelize');
 const {
     createQuickBooksInvoice,
     getQuickBooksAccessToken,
@@ -23,38 +24,40 @@ const getAllInvoices = async (req, res) => {
     try {
         let invoices;
         if (parseInt(role_id) === 5 || parseInt(role_id) === 2) {
-            invoices = await CustomInvoiceList.findAll({
-                where: {
-                    subdomain_id: parseInt(subdomain_id),
-                },
-            });
-            console.log("invoices>>",invoices)
+          // Query for roles 5 and 2
+          invoices = await sequelize.query(
+            `
+            SELECT cil.*, o.collection_id
+            FROM custom_invoice_list cil
+            JOIN orders o ON cil.order_id = o.id
+            WHERE cil.subdomain_id = :subdomain_id
+            `,
+            {
+              replacements: { subdomain_id: parseInt(subdomain_id) },
+              type: sequelize.QueryTypes.SELECT,
+            }
+          );
         } else {
-            // Fetch orders for the given user
-            const orders = await Order.findAll({
-                where: {
-                    user_id: parseInt(user_id),
-                },
-                attributes: ['id'] // We only need the order ids
-            });
-
-            // Extract order IDs
-            const orderIds = orders.map(order => order.id);
-
-            // Fetch invoices for the given orders
-            invoices = await CustomInvoiceList.findAll({
-                where: {
-                    order_id: orderIds
-                }
-            });
+          // Query for other roles
+          invoices = await sequelize.query(
+            `
+            SELECT cil.*, o.collection_id
+            FROM custom_invoice_list cil
+            JOIN orders o ON cil.order_id = o.id
+            WHERE o.user_id = :user_id
+            `,
+            {
+              replacements: { user_id: parseInt(user_id) },
+              type: sequelize.QueryTypes.SELECT,
+            }
+          );
         }
-
-
-
+      
+        console.log("invoices with collection_id>>", invoices);
         return res.status(200).json({ success: true, data: invoices });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
+      } catch (error) {
+        console.error("Error fetching invoices:", error);
+      }
 };
 
 const getInvoiceData = async (req, res) => {
@@ -346,6 +349,14 @@ const sendInvoice = async (req, res) => {
                 );
             }
 
+            const { qb_invoice } = await createQuickBooksInvoice(
+                adminUser.id,
+                items,
+                invoice.total_price,
+                invoice.notes,
+                quickbooks_customer_id
+            );
+            quickbooks_invoice_id = qb_invoice.Id;
             if (quickbooks_invoice_id !== "") {
                 await CustomInvoiceList.update(
                     {
@@ -356,15 +367,6 @@ const sendInvoice = async (req, res) => {
                     }
                 );
             }
-
-            const { qb_invoice } = await createQuickBooksInvoice(
-                adminUser.id,
-                items,
-                invoice.total_price,
-                invoice.notes,
-                quickbooks_customer_id
-            );
-            quickbooks_invoice_id = qb_invoice.Id;
         }
 
         const clientEmail = client.email;

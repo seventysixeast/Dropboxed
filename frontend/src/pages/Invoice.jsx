@@ -76,8 +76,8 @@ const Invoice = () => {
       accessor: "id",
     },
     {
-      Header: "Client",
-      accessor: "user_name",
+      Header: "Collection Id",
+      accessor: "collection_id",
     },
     {
       Header: "Address",
@@ -117,8 +117,8 @@ const Invoice = () => {
       Cell: ({ row }) => {
         const { original } = row;
         const { id, paid_status, send_invoice, invoice_link, quickbooks_invoice_id } = original;
-        const isPaid = paid_status === true;
-        const isSent = send_invoice === true;
+        const isPaid = paid_status;
+        const isSent = send_invoice;
         const isQuickBookInvoiceAdded = quickbooks_invoice_id && quickbooks_invoice_id !== null ? true : false;
 
         const isDisabled =
@@ -208,6 +208,13 @@ const Invoice = () => {
       },
     },
   ];
+  // Check if role ID is not 3(client) to decide whether to include "Client" column
+  if (roleId !== 3) {
+    columns.splice(3, 0, {
+      Header: "Client",
+      accessor: "user_name",
+    });
+  }
 
   useEffect(() => {
     getInvoiceList();
