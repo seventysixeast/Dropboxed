@@ -505,14 +505,14 @@ exports.NEW_COLLECTION = (subdomain, logo, data) => `
                 <tr>
                     <td style="padding-top: 10px; text-align:center;">
                         ${logo && logo !== '' 
-                            ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` 
+                            ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 30%;" alt="Logo"/>` 
                             : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`
                         }
                     </td>
                 </tr>
                 <tr>
                     <td style="text-align: center;">
-                        <img src="${GALLERY_IMAGE_URL}/${data.banner_sm}" alt="Banner Image" style="width: 100%; height: auto; max-height: 300px; object-fit: cover;">
+                        <img src="${GALLERY_IMAGE_URL}/${data.banner}" alt="Banner Image" style="width: 100%; height: auto; max-height: 300px; object-fit: cover;">
                     </td>
                 </tr>
                 <tr>
