@@ -9,8 +9,6 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
-import { Input } from "@mui/base";
-import { TextField } from "@mui/material";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const PhotographersTeam = () => {
@@ -353,7 +351,7 @@ const PhotographersTeam = () => {
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
                                 <label htmlFor="profile_photo">Profile Photo</label>
-                                <TextField
+                                <input
                                   type="file"
                                   className="form-control-file"
                                   name="profile_photo"
