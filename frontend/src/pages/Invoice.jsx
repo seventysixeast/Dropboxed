@@ -92,35 +92,41 @@ const Invoice = () => {
       accessor: (row) => {
         const paidStatus = row.paid_status;
         const sendInvoice = row.send_invoice;
-        if (paidStatus && sendInvoice) {
-          return <p className="badge btn-success">Paid</p>;
-        } else if (paidStatus) {
-          return <p className="badge btn-success">Paid</p>;
-        } else if (sendInvoice) {
-          return <p className="badge btn-primary">Sent</p>;
-        } else {
-          return <p className="badge "
-            style={{
-              backgroundColor: "rgb(255, 116, 140)",
-            }}
-          >Pending</p>;
-        }
+    
+        const paidBadge = paidStatus ? (
+          <p className="badge btn-success">Paid</p>
+        ) : (
+          <p className="badge" style={{ backgroundColor: "rgb(255, 116, 140)" }}>Pending</p>
+        );
+    
+        const invoiceBadge = sendInvoice ? (
+          <p className="badge btn-primary">Sent</p>
+        ) : null;
+    
+        return (
+          <div style={{ display: 'flex', gap: '5px' }} >
+            {paidBadge}
+            {invoiceBadge}
+          </div>
+        );
       },
-    },
+    },    
     {
       Header: "Action",
       accessor: "action",
       Cell: ({ row }) => {
         const { original } = row;
-        const { id, paid_status, send_invoice, invoice_link } = original;
+        const { id, paid_status, send_invoice, invoice_link, quickbooks_invoice_id } = original;
         const isPaid = paid_status === true;
         const isSent = send_invoice === true;
+        const isQuickBookInvoiceAdded = quickbooks_invoice_id && quickbooks_invoice_id !== null ? true : false;
 
         const isDisabled =
           roleId === 3 &&
           new Date(`${original.booking_date}T${original.booking_time}`) -
           new Date() <
           1000 * 60 * 60 * 3;
+        const disabledStyle = { pointerEvents: 'none', opacity: 0.6 };
 
         return (
           <>
@@ -130,7 +136,7 @@ const Invoice = () => {
                   <button
                     type="button"
                     className="btn btn-icon btn-outline-primary mr-1 mb-1"
-                    style={{ padding: "0.5rem" }}
+                    style={{ padding: "0.5rem", ...(isSent ? disabledStyle : {}) }}
                     onClick={() => handleEdit(id)}
                     disabled={isSent}
                   >
@@ -148,33 +154,35 @@ const Invoice = () => {
                     <i className="feather white icon-trash"></i>
                   </button>
                 </ReTooltip>
-                <ReTooltip title="Upload Invoice" placement="top">
-                  <button
-                    type="button"
-                    className="btn btn-icon btn-outline-primary mr-1 mb-1"
-                    style={{ padding: "0.5rem" }}
-                    onClick={() => handleUpload(id, invoice_link)}
-                  >
-                    <FaUpload fill="white" />
-                  </button>
-                </ReTooltip>
-
-                  <ReTooltip title="Mark as Paid" placement="top">
+                { isQuickBookInvoiceAdded && (
+                  <ReTooltip title="Upload Invoice" placement="top">
                     <button
                       type="button"
-                      className="btn btn-icon btn-outline-primary mr-1 mb-1 text-white"
+                      className="btn btn-icon btn-outline-primary mr-1 mb-1"
                       style={{ padding: "0.5rem" }}
-                      onClick={() => handlePaid(id)}
-                      disabled={isPaid}
+                      onClick={() => handleUpload(id, invoice_link)}
                     >
-                      Paid
+                      <FaUpload fill="white" />
                     </button>
                   </ReTooltip>
+                )}
+
+                <ReTooltip title="Mark as Paid" placement="top">
+                  <button
+                    type="button"
+                    className="btn btn-icon btn-outline-primary mr-1 mb-1 text-white"
+                    style={{ padding: "0.5rem", ...(isPaid ? disabledStyle : {}) }}
+                    onClick={() => handlePaid(id)}
+                    disabled={isPaid}
+                  >
+                    Paid
+                  </button>
+                </ReTooltip>
                 <ReTooltip title="Send Invoice" placement="top">
                   <button
                     type="button"
                     className="btn btn-icon btn-outline-primary mr-1 mb-1"
-                    style={{ padding: "0.5rem" }}
+                    style={{ padding: "0.5rem", ...(isSent ? disabledStyle : {}) }}
                     onClick={() => handleSendInvoice(id)}
                     disabled={isSent}
                   >

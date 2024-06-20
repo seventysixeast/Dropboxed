@@ -236,6 +236,7 @@ const updateInvoice = async (req, res) => {
         dueAmount,
         paidAmount,
         subdomainId,
+        paidStatus
     } = req.body;
 
     console.log(items);
@@ -254,7 +255,7 @@ const updateInvoice = async (req, res) => {
                 total_price: total,
                 notes: note,
                 send_invoice: false,
-                paid_status: false,
+                paid_status: paidStatus,
                 invoice_link: invoiceLink,
                 subdomain_id: subdomainId,
             },
