@@ -30,11 +30,14 @@ import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
 import EditInvoiceModal from "../components/EditInvoice";
 import ConfirmModal from "../components/ConfirmModal";
+import { useParams } from "react-router-dom";
+
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 
 const Collections = () => {
+  const { id } = useParams();
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id;
@@ -319,8 +322,14 @@ const Collections = () => {
     try {
       const formData = new FormData();
       formData.append("subdomainId", subdomainId);
-      formData.append("roleId", user.role_id);
-      formData.append("userId", user.id);
+      if (id !== undefined) {
+        formData.append("roleId", 3);
+        formData.append("userId", id);
+      } else {
+        formData.append("roleId", user.role_id);
+        formData.append("userId", user.id);
+      }
+
       let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
@@ -505,7 +514,9 @@ const Collections = () => {
         Header: "Banner Image",
         Cell: ({ row }) => (
           <img
-            src={row.original.banner && `${IMAGE_URL}/${row.original.banner_sm}`}
+            src={
+              row.original.banner && `${IMAGE_URL}/${row.original.banner_sm}`
+            }
             className="width-100"
             alt="Banner"
           />
@@ -858,7 +869,11 @@ const Collections = () => {
           ) : (
             <div
               className="app-content content content-wrapper d-flex justify-content-center"
-              style={{ marginTop: "15rem", marginLeft: "15px", marginRight: "15px" }}
+              style={{
+                marginTop: "15rem",
+                marginLeft: "15px",
+                marginRight: "15px",
+              }}
               role="status"
             >
               <p>

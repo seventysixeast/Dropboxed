@@ -28,6 +28,7 @@ import QuickBooksConnect from '../components/QuickBooksConnect';
 import QuickBooksCallback from '../components/QuickBooksCallback';
 import CreateInvoice from '../components/CreateInvoice';
 import GoogleDriveOAuth from "../pages/GoogleDriveOAuth";
+import CollectionsUser from "../pages/CollectionsUser";
 
 
 const AdminRouter = () => {
@@ -53,10 +54,10 @@ const AdminRouter = () => {
     { path: "/edit-profile", element: <EditProfile /> },
     { path: "/change-password", element: <ChangePassword /> },
     { path: "/collections", element: <Collections /> },
-    
+    // add path to view collection of particulor user
+    { path: "/collections/user/:id", element: <Collections /> },
     { path: "/services/add-service", element: <AddService /> },
     { path: "/services/edit-service/:id", element: <AddService /> },
-    
     { path: "/services/*", element: <AddService /> },
     { path: "/dropbox", element: <DropboxOAuth /> },
     { path: "/google", element: <GoogleOAuth /> },

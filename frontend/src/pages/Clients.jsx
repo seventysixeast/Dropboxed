@@ -498,10 +498,10 @@ const Clients = () => {
                         <span className="icon-call-out"></span>
                       </a>
                       <a
-                        href="#"
+                        href={`/collections/user/${item.id}`}
                         className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
                           }`}
-                        title="View Collection"
+                        title="View Collections"
                       >
                         <span className="icon-grid"></span>
                       </a>
