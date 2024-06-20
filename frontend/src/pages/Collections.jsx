@@ -524,6 +524,7 @@ const Collections = () => {
       },
       {
         Header: "Address",
+        accessor: "client_address",
         Cell: ({ row }) => (
           <div style={{ minWidth: "12rem" }}>
             <span>{row.original.client_address}</span>
@@ -537,6 +538,7 @@ const Collections = () => {
       },
       {
         Header: "Services",
+        accessor: "package_name",
         Cell: ({ row }) => (
           <div>
             {row.original.packages.map((item, index) => (
@@ -549,6 +551,7 @@ const Collections = () => {
       },
       {
         Header: "Invoice",
+        accessor: "orderFound",
         Cell: ({ row }) => (
           <div className="text-center">
             {roleId !== 3 && (
@@ -588,6 +591,7 @@ const Collections = () => {
       { Header: "Photographers", accessor: "photographers_name" },
       {
         Header: "Unlock/Lock",
+        accessor: "lock_gallery",
         Cell: ({ row }) => (
           <ReTooltip title="Click to change lock status." placement="top">
             <Switch
@@ -601,6 +605,7 @@ const Collections = () => {
       },
       {
         Header: "Notify",
+        accessor: "notify_client",
         Cell: ({ row }) => {
           const { notify_client, orderFound, id } = row.original;
           const handleClick = () => {
@@ -649,6 +654,7 @@ const Collections = () => {
       },
       {
         Header: "Image Counts",
+        accessor: "image_count",
         Cell: ({ row }) => (
           <div className="text-center">
             <ReTooltip title="Click to update image count." placement="top">
@@ -670,6 +676,7 @@ const Collections = () => {
       },
       {
         Header: "Created On",
+        accessor: "created",
         Cell: ({ row }) => (
           <div className="text-center">
             <div className="badge badge-pill badge-light-primary">

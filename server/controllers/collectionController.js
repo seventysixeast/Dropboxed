@@ -64,8 +64,8 @@ const addGallery = async (req, res) => {
       let timestamp = Date.now(); 
       let imageName = req.files.banner.name;
       let imageExt = imageName.split('.').pop(); 
-      let originalImageName = timestamp + '_' + imageName; 
-      let smallImageName = `small_${timestamp}_${imageName}`;
+      let originalImageName = timestamp; 
+      let smallImageName = `small_${timestamp}`;
       
       collectionData.banner = originalImageName; 
       collectionData.banner_sm = smallImageName; 
