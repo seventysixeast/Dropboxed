@@ -86,6 +86,8 @@ const PhotographersTeam = () => {
     }
   };
 
+  console.log(previewImage, formData);
+
   const resetFormData = async () => {
     setFormData({
       id: "",
@@ -97,6 +99,11 @@ const PhotographersTeam = () => {
       status: "Active",
     });
     setPreviewImage(null);
+  
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+      fileInput.value = null;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -275,6 +282,7 @@ const PhotographersTeam = () => {
                               className="close outline-none"
                               data-dismiss="modal"
                               aria-label="Close"
+                              onClick={() => resetFormData()}
                             >
                               <i
                                 className="feather icon-x"
@@ -342,7 +350,7 @@ const PhotographersTeam = () => {
                                 </select>
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Profile Photo</label>
+                                <label htmlFor="profile_photo">Profile Photo</label>
                                 <input
                                   type="file"
                                   className="form-control-file"
