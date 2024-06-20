@@ -505,7 +505,9 @@ const CollectionTable = () => {
         Header: "Banner Image",
         Cell: ({ row }) => (
           <img
-            src={row.original.banner && `${IMAGE_URL}/${row.original.banner_sm}`}
+            src={
+              row.original.banner && `${IMAGE_URL}/${row.original.banner_sm}`
+            }
             className="width-100"
             alt="Banner"
           />
@@ -513,6 +515,7 @@ const CollectionTable = () => {
       },
       {
         Header: "Address",
+        accessor: "client_address",
         Cell: ({ row }) => (
           <div style={{ minWidth: "12rem" }}>
             <span>{row.original.client_address}</span>
@@ -526,6 +529,7 @@ const CollectionTable = () => {
       },
       {
         Header: "Services",
+        accessor: "package_name",
         Cell: ({ row }) => (
           <div>
             {row.original.packages.map((item, index) => (
@@ -538,6 +542,7 @@ const CollectionTable = () => {
       },
       {
         Header: "Invoice",
+        accessor: "orderFound",
         Cell: ({ row }) => (
           <div className="text-center">
             {roleId !== 3 && (
@@ -577,6 +582,7 @@ const CollectionTable = () => {
       { Header: "Photographers", accessor: "photographers_name" },
       {
         Header: "Unlock/Lock",
+        accessor: "lock_gallery",
         Cell: ({ row }) => (
           <ReTooltip title="Click to change lock status." placement="top">
             <Switch
@@ -590,6 +596,7 @@ const CollectionTable = () => {
       },
       {
         Header: "Notify",
+        accessor: "notify_client",
         Cell: ({ row }) => {
           const { notify_client, orderFound, id } = row.original;
           const handleClick = () => {
@@ -638,6 +645,7 @@ const CollectionTable = () => {
       },
       {
         Header: "Image Counts",
+        accessor: "image_count",
         Cell: ({ row }) => (
           <div className="text-center">
             <ReTooltip title="Click to update image count." placement="top">
@@ -659,6 +667,7 @@ const CollectionTable = () => {
       },
       {
         Header: "Created On",
+        accessor: "created",
         Cell: ({ row }) => (
           <div className="text-center">
             <div className="badge badge-pill badge-light-primary">

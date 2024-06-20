@@ -601,10 +601,11 @@ export const Dashboard = () => {
                           <div className="card ">
                             <div className="card-content">
                               <div className="media align-items-stretch">
-                                <div className="p-2 text-center bg-primary ">
+                                <div className="p-2 text-center bg-danger">
                                   <i className="icon-picture font-large-2 white"></i>
                                 </div>
-                                <div className="p-2 bg-gradient-x-primary white media-body">
+                                <div className="p-1 bg-gradient-x-danger white media-body">
+
                                   <h5>{jobsInProgress}</h5>
                                   <p className="text-bold-400 mb-0">
                                     Job In Progress
@@ -618,10 +619,12 @@ export const Dashboard = () => {
                           <div className="card">
                             <div className="card-content">
                               <div className="media align-items-stretch">
-                                <div className="p-2 text-center bg-danger">
+                              <div className="p-2 text-center bg-primary ">
+
                                   <i className="icon-cloud-upload font-large-2 white"></i>
                                 </div>
-                                <div className="p-1 bg-gradient-x-danger white media-body">
+                                <div className="p-2 bg-gradient-x-primary white media-body">
+
                                   <h5>{ordersCompleted}</h5>
                                   <p className="text-bold-400 mb-0">
                                     Completed Orders

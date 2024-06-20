@@ -31,6 +31,8 @@ const addGallery = async (req, res) => {
     where: { id: parseInt(req.body.subdomainId) }
   });
 
+  console.log(user);
+
   try {
     let collectionData = {
       client_id: req.body.client,
@@ -64,8 +66,8 @@ const addGallery = async (req, res) => {
       let timestamp = Date.now(); 
       let imageName = req.files.banner.name;
       let imageExt = imageName.split('.').pop(); 
-      let originalImageName = timestamp + '_' + imageName; 
-      let smallImageName = `small_${timestamp}_${imageName}`;
+      let originalImageName = timestamp; 
+      let smallImageName = `small_${timestamp}`;
       
       collectionData.banner = originalImageName; 
       collectionData.banner_sm = smallImageName; 
@@ -89,20 +91,24 @@ const addGallery = async (req, res) => {
         return res.status(404).json({ error: "Collection not found" });
       }
       await collection.update(collectionData);
+      collection = await Collection.findOne({ where: { id: req.body.id } });
     } else {
       collection = await Collection.create(collectionData);
     }
+
+
 
     if (req.body.notify_client === "true") {
       const clientData = await User.findOne({
         where: { id: req.body.client },
         attributes: ["email"],
       });
-
+      collectionData.banner = req.body.banner
+      console.log(collectionData);
       let SEND_EMAIL = NEW_COLLECTION(
         user.subdomain,
         user.logo,
-        collection
+        collectionData
       );
 
       sendEmail(clientData.email, "New Collection", SEND_EMAIL);
