@@ -104,8 +104,9 @@ const addGallery = async (req, res) => {
       let SEND_EMAIL = NEW_COLLECTION(
         user.subdomain,
         user.logo,
-        collectionData
+        collection
       );
+
       sendEmail(clientData.email, "New Collection", SEND_EMAIL);
 
       await Notifications.create({

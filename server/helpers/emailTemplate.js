@@ -527,7 +527,7 @@ exports.NEW_COLLECTION = (subdomain, logo, data) => `
                                             <table cellpadding="0" cellspacing="0" border="0">
                                                 <tr>
                                                     <td align="center" style="padding-bottom: 30px; width: 100%;" valign="top">
-                                                        <a href="https://${subdomain}.${VERIFY_URL}view-gallery/${data.client_address}" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>VIEW PROJECT</b></a>
+                                                        <a href="https://${subdomain}.${VERIFY_URL}view-gallery/${data.slug}" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>VIEW PROJECT</b></a>
                                                         <a href="https://${subdomain}.${VERIFY_URL}dashboard" style="display: inline-block; padding: 11px 15px; color: #fff; background: #00b5b8; text-decoration: none;" rel="noreferrer" target="_blank"><b>DASHBOARD</b></a>
                                                     </td>
                                                 </tr>

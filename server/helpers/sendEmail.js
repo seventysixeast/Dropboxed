@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport(
         port: process.env.SMTP_PORT,
         secureConnection: true, // Use SSL/TLS
         auth: {
-            user: process.env.SMTP_USERNAME,
+            user: process.env.smtp_username,
             pass: process.env.SMTP_PASSWORD,
         },
         tls: {

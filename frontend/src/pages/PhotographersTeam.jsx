@@ -9,6 +9,8 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
+import { Input } from "@mui/base";
+import { TextField } from "@mui/material";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const PhotographersTeam = () => {
@@ -86,6 +88,8 @@ const PhotographersTeam = () => {
     }
   };
 
+  console.log(previewImage, formData);
+
   const resetFormData = async () => {
     setFormData({
       id: "",
@@ -97,6 +101,11 @@ const PhotographersTeam = () => {
       status: "Active",
     });
     setPreviewImage(null);
+  
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+      fileInput.value = null;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -275,6 +284,7 @@ const PhotographersTeam = () => {
                               className="close outline-none"
                               data-dismiss="modal"
                               aria-label="Close"
+                              onClick={() => resetFormData()}
                             >
                               <i
                                 className="feather icon-x"
@@ -342,8 +352,8 @@ const PhotographersTeam = () => {
                                 </select>
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Profile Photo</label>
-                                <input
+                                <label htmlFor="profile_photo">Profile Photo</label>
+                                <TextField
                                   type="file"
                                   className="form-control-file"
                                   name="profile_photo"

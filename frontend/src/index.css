@@ -1796,7 +1796,7 @@ table.dataTable thead td {
   padding: 10px 10px !important;
 }
 
-@media only screen and (max-width: 600px) {
+/* @media only screen and (max-width: 600px) {
   .w-25 {
     width: 65% !important;
   }
@@ -1829,9 +1829,9 @@ table.dataTable thead td {
   .col-sm-6.col-6.float-sm-left.text-center.text-sm-right {
     margin-top: -5px !important;
   }
-}
+} */
 
 #itemSelectModal .modal-body {
-  max-height: 400px; /* Adjust the height as needed */
+  max-height: 400px;
   overflow-y: auto;
 }

@@ -134,7 +134,7 @@ export const BookingListComponent = () => {
       const month = ("0" + (date.getMonth() + 1)).slice(-2);
       const day = ("0" + date.getDate()).slice(-2);
       const formattedDate = `${year}-${month}-${day}`;
-      let newbookingstatus = 0;
+      let newbookingstatus = false;
 
       if (roleId == 3) {
         newbookingstatus = 0;
@@ -143,7 +143,7 @@ export const BookingListComponent = () => {
       }
 
       const bookingDataToSend = {
-        id: bookingIdToDelete,
+        id: parseInt(bookingIdToDelete),
         package_ids: bookingData.services,
         package: 0,
         photographer_id: `${bookingData.provider}`,
@@ -380,7 +380,7 @@ export const BookingListComponent = () => {
         }
 
         return {
-          id: booking.id,
+          id: parseInt(booking.id),
           title: title,
           start: `${booking.booking_date}T${booking.booking_time}`,
           end: `${booking.booking_date}T${booking.booking_time_to}`,
@@ -562,17 +562,19 @@ export const BookingListComponent = () => {
       const booking = bookingsData.find(
         (booking) => booking.id === parseInt(updateData.id)
       );
-      const formDataToSend = new FormData();
-      formDataToSend.append("id", updateData.id);
-      formDataToSend.append("booking_date", booking.booking_date);
-      formDataToSend.append("booking_time", updateData.fromTime);
-      formDataToSend.append("booking_time_to", updateData.toTime);
-      formDataToSend.append("user_id", booking.user_id);
-      formDataToSend.append("package_ids", booking.package_ids);
-      formDataToSend.append("package", booking.package);
-      formDataToSend.append("photographer_id", booking.photographer_id);
-      formDataToSend.append("booking_status", notifyCheckbox);
-      formDataToSend.append("comment", booking.comment);
+      const formDataToSend = {
+        id: parseInt(updateData.id),
+        booking_date: booking.booking_date,
+        booking_time: updateData.fromTime,
+        booking_time_to: updateData.toTime,
+        user_id: booking.user_id,
+        package_ids: booking.package_ids,
+        package: booking.package,
+        photographer_id: booking.photographer_id,
+        booking_status: notifyCheckbox,
+        comment: booking.comment,
+        subdomain_id: subdomainId
+    };
 
       await newBooking(formDataToSend);
       getAllBookingsData();
@@ -601,21 +603,16 @@ export const BookingListComponent = () => {
 
   const handleEventResize = (arg) => {
     let id = arg.event._def.publicId;
-    // let newDate = new Date(arg.event.start + "Z");
-    // let endDate = new Date(arg.event.end + "Z");
-    // newDate.setDate(newDate.getDate());
 
     let newDate = moment(arg.event.start, "YYYY-MM-DD hh:mm:ss A").toDate();
     let endDate = moment(arg.event.end, "YYYY-MM-DD hh:mm:ss A").toDate();
-
-    const newDateString = moment(newDate).format("YYYY-MM-DD");
 
     let startTime = moment(newDate).format("HH:mm:ss");
     let endTime = moment(endDate).format("HH:mm:ss");
     let booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
     setUpdateData({
-      id: id,
+      id: parseInt(id),
       title: booking.booking_title,
       package: booking.package,
       services: booking.package_ids,
@@ -637,17 +634,19 @@ export const BookingListComponent = () => {
       const booking = bookingsData.find(
         (booking) => booking.id === parseInt(updateData.id)
       );
-      const formDataToSend = new FormData();
-      formDataToSend.append("id", updateData.id);
-      formDataToSend.append("booking_date", updateData.prefferedDate);
-      formDataToSend.append("booking_time", updateData.fromTime);
-      formDataToSend.append("booking_time_to", updateData.toTime);
-      formDataToSend.append("user_id", booking.user_id);
-      formDataToSend.append("package_ids", booking.package_ids);
-      formDataToSend.append("package", booking.package);
-      formDataToSend.append("photographer_id", booking.photographer_id);
-      formDataToSend.append("booking_status", notifyCheckbox);
-      formDataToSend.append("comment", booking.comment);
+      const formDataToSend = {
+        id: parseInt(updateData.id),
+        booking_date: updateData.prefferedDate,
+        booking_time: updateData.fromTime,
+        booking_time_to: updateData.toTime,
+        user_id: booking.user_id,
+        package_ids: booking.package_ids,
+        package: booking.package,
+        photographer_id: booking.photographer_id,
+        booking_status: notifyCheckbox,
+        comment: booking.comment,
+        subdomain_id: subdomainId
+      };
 
       await newBooking(formDataToSend);
       getAllBookingsData();
@@ -688,7 +687,7 @@ export const BookingListComponent = () => {
     const booking = bookingsData.find((booking) => booking.id === parseInt(id));
 
     setUpdateData({
-      id: id,
+      id: parseInt(id),
       title: booking.booking_title,
       package: booking.package,
       services: booking.package_ids,
@@ -706,7 +705,7 @@ export const BookingListComponent = () => {
 
   const handleNotifyChange = (data) => {
     setUpdateData({
-      id: data.id,
+      id: parseInt(data.id),
       booking_status: data.booking_status,
     });
 
@@ -734,7 +733,6 @@ export const BookingListComponent = () => {
         provider: "",
       });
       setBookingIdToDelete(null);
-
       setSelectedProvider(null);
       setSelectedService(null);
       setSelectedClient(null);
@@ -1142,7 +1140,7 @@ export const BookingListComponent = () => {
                         placement="top"
                       >
                         <a
-                          className={`btn btn-outline-primary mb-1 mx-1 ${
+                          className={`btn btn-outline-primary mb-1 ml-1 ${
                             calendarSub === 1 ? "d-none" : ""
                           }`}
                           disabled={calendarSub === 1}
