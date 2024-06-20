@@ -309,7 +309,7 @@ const PhotographersTeam = () => {
                               <fieldset className="form-group floating-label-form-group">
                                 <label>Phone *</label>
                                 <input
-                                  type="number"
+                                  type="tel"
                                   className="form-control"
                                   name="phone"
                                   value={formData.phone}

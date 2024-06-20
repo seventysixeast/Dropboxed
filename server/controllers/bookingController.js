@@ -10,7 +10,7 @@ const Notifications = require('../models/Notifications');
 const Packages = require('../models/Packages');
 const { Op } = require("sequelize");
 const moment = require("moment");
-const { NEW_BOOKING, UPDATE_BOOKING } = require('../helpers/emailTemplate');
+const { NEW_CLIENT_BOOKING, UPDATE_CLIENT_BOOKING, NEW_PHOTOGRAPHER_TEAM_BOOKING, UPDATE_PHOTOGRAPHER_TEAM_BOOKING } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
 
 const client_id = process.env.GOOGLE_CLIENT_ID;
@@ -386,78 +386,99 @@ const createBooking = async (req, res) => {
     data.client_name = client_name;
     data.client_email = client_email;
 
+    const subdomain_user = await User.findOne({
+      where: { id: subdomainId },
+      attributes: ['subdomain', 'logo', 'phone', 'address']
+    });
+
+    const photographerIdsString = req.body.photographer_id;
+    const photographerIds = photographerIdsString.split(',').map(id => parseInt(id.trim(), 10)).filter(Number.isInteger);
+    const photographer_team = await User.findAll({
+      where: {
+        id: photographerIds
+      },
+      attributes: ['email', 'name', 'phone']
+    });
+    const teamMembers = photographer_team.map(photographer => photographer.dataValues.name).join(', ');
+    const contacts = photographer_team.map(photographer => photographer.dataValues.phone).join(', ');
+
+    const packageIdsString = req.body.package_ids;
+    const packageIds = packageIdsString.split(',').map(id => parseInt(id.trim(), 10)).filter(Number.isInteger);
+    const services = await Package.findAll({
+      where: {
+        id: packageIds
+      },
+      attributes: ['package_name']
+    });
+    const serviceNames = services.map(service => service.dataValues.package_name).join(', ');
+
     let booking;
     if (req.body.id) {
-      const user = await User.findOne({
-        where: { id: data.photographer_id },
-        attributes: ['phone', 'name']
-      });
-
-      const subdomain_user = await User.findOne({
-        where: { id: subdomainId },
-        attributes: ['subdomain', 'logo', 'phone', 'address']
-      });
-
-      const photographer_team = await User.findOne({
-        where: { id: req.body.photographer_id },
-        attributes: ['email', 'name']
-      });
-
-      const services = await Packages.findAll({
-        where: { id: req.body.package_ids },
-        attributes: ['package_name']
-      });
-
-      const serviceNames = services.map(service => service.package_name).join(', ');
-
-      // Send email to client if booking_status is true
-      if (req.body.booking_status === true) {
-        let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, user.phone, user.name, serviceNames);
-        sendEmail(client_email, "Update Booking", SEND_EMAIL);
-        // Create notification
-        await Notifications.create({
-          notification: `Your appointment has been updated with ${subdomain_user.subdomain}`,
-          client_id: req.body.user_id,
-          subdomain_id: subdomainId,
-          date: new Date()
-        });
-      }
-
-      // For photographer team
-      let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, photographer_team.name, data, user.phone, user.name, serviceNames);
-      sendEmail(photographer_team.email, "Update Booking", SEND_EMAIL);
-
       booking = await Booking.findOne({ where: { id: req.body.id } });
-      if (!booking) {
-        return res.status(404).json({ error: "Booking not found" });
+      if (req.body.booking_status === true || req.body.booking_status === 1) {
+        const isDateTimeChanged = booking.booking_date.toString() !== data.booking_date.toString() || booking.booking_time !== data.booking_time || booking.booking_time_to !== data.booking_time_to;
+        if (isDateTimeChanged) {
+          // For client
+          let SEND_EMAIL = UPDATE_CLIENT_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, contacts, teamMembers, serviceNames);
+          sendEmail(client_email, "Update Booking", SEND_EMAIL);
+          // Create notification
+          await Notifications.create({
+            notification: `Your appointment has been updated with ${subdomain_user.subdomain}`,
+            client_id: req.body.user_id,
+            subdomain_id: subdomainId,
+            date: new Date()
+          });
+
+          // For photographer team
+          photographer_team.forEach(photographer => {
+            const SEND_EMAIL_PHOTOGRAPHER = UPDATE_PHOTOGRAPHER_TEAM_BOOKING(
+              subdomain_user.subdomain,
+              subdomain_user.logo,
+              subdomain_user.phone,
+              subdomain_user.address,
+              photographer.name,
+              data,
+              contacts,
+              teamMembers,
+              serviceNames
+            );
+            sendEmail(photographer.email, "Update Booking", SEND_EMAIL_PHOTOGRAPHER);
+          });
+        } else {
+          // For client
+          let SEND_EMAIL = NEW_CLIENT_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, contacts, teamMembers, serviceNames);
+          sendEmail(client_email, "New Booking", SEND_EMAIL);
+          // Create notification
+          await Notifications.create({
+            notification: `Your appointment has been updated with ${subdomain_user.subdomain}`,
+            client_id: req.body.user_id,
+            subdomain_id: subdomainId,
+            date: new Date()
+          });
+
+          // For photographer team
+          photographer_team.forEach(photographer => {
+            const SEND_EMAIL_PHOTOGRAPHER = NEW_PHOTOGRAPHER_TEAM_BOOKING(
+              subdomain_user.subdomain,
+              subdomain_user.logo,
+              subdomain_user.phone,
+              subdomain_user.address,
+              photographer.name,
+              data,
+              contacts,
+              teamMembers,
+              serviceNames
+            );
+            sendEmail(photographer.email, "New Booking", SEND_EMAIL_PHOTOGRAPHER);
+          });
+        }
       }
       await booking.update(data);
     } else {
-      const user = await User.findOne({
-        where: { id: data.photographer_id },
-        attributes: ['phone', 'name']
-      });
-
-      const subdomain_user = await User.findOne({
-        where: { id: subdomainId },
-        attributes: ['subdomain', 'logo', 'phone', 'address']
-      });
-
-      const photographer_team = await User.findOne({
-        where: { id: req.body.photographer_id },
-        attributes: ['email', 'name']
-      });
-
-      const services = await Packages.findAll({
-        where: { id: req.body.package_ids },
-        attributes: ['package_name']
-      });
-
-      const serviceNames = services.map(service => service.package_name).join(', ');
-
-      // Send email to client if booking_status is true
+      // Send email if booking_status is true
       if (req.body.booking_status === true) {
-        let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, user.phone, user.name, serviceNames);
+        // For client
+        let SEND_EMAIL = NEW_CLIENT_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, client_name, data, contacts, teamMembers, serviceNames);
         sendEmail(client_email, "New Booking", SEND_EMAIL);
         // Create notification
         await Notifications.create({
@@ -466,11 +487,23 @@ const createBooking = async (req, res) => {
           subdomain_id: subdomainId,
           date: new Date()
         });
-      }
 
-      // For photographer team
-      let SEND_EMAIL = NEW_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, photographer_team.name, data, user.phone, user.name, serviceNames);
-      sendEmail(photographer_team.email, "New Booking", SEND_EMAIL);
+        // For photographer team
+        photographer_team.forEach(photographer => {
+          const SEND_EMAIL_PHOTOGRAPHER = NEW_PHOTOGRAPHER_TEAM_BOOKING(
+            subdomain_user.subdomain,
+            subdomain_user.logo,
+            subdomain_user.phone,
+            subdomain_user.address,
+            photographer.name,
+            data,
+            contacts,
+            teamMembers,
+            serviceNames
+          );
+          sendEmail(photographer.email, "New Booking", SEND_EMAIL_PHOTOGRAPHER);
+        });
+      }
 
       data.subdomain_id = subdomainId;
       booking = await Booking.create(data);
@@ -756,31 +789,48 @@ const updateBooking = async (req, res) => {
         where: { id: bookingId },
         include: {
           model: User,
-          attributes: ['id', 'email']
+          attributes: ['id', 'name', 'email']
         }
       });
-      const client_id = updatedBooking.User.id;
-      const client_email = updatedBooking.User.email;
 
-      const user = await User.findOne({
-        where: { id: updatedBooking.photographer_id },
-        attributes: ['phone', 'name']
-      });
+      if (!updatedBooking) {
+        return res.status(404).json({ error: "Booking not found after update" });
+      }
+
+      const client_id = updatedBooking.User.id;
+      const client_name = updatedBooking.User.name;
+      const client_email = updatedBooking.User.email;
 
       const subdomain_user = await User.findOne({
         where: { id: updatedBooking.subdomain_id },
         attributes: ['id', 'subdomain', 'logo', 'phone', 'address']
       });
 
-      const services = await Packages.findAll({
-        where: { id: updatedBooking.package_ids },
+      const photographer_team = await User.findAll({
+        where: {
+          id: updatedBooking.photographer_id.split(',')
+        },
+        attributes: ['email', 'name', 'phone']
+      });
+
+      const teamMembers = photographer_team.map(photographer => photographer.name).join(', ');
+      const contacts = photographer_team.map(photographer => photographer.phone).join(', ');
+
+      const services = await Package.findAll({
+        where: {
+          id: updatedBooking.package_ids.split(',')
+        },
         attributes: ['package_name']
       });
 
       const serviceNames = services.map(service => service.package_name).join(', ');
 
-      let SEND_EMAIL = UPDATE_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, updatedBooking.client_name, updatedBooking, user.phone, user.name, serviceNames);
-      sendEmail(client_email, "Update Booking", SEND_EMAIL);
+      // For client
+      const SEND_EMAIL_CLIENT = NEW_CLIENT_BOOKING(
+        subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address,
+        client_name, updatedBooking, contacts, teamMembers, serviceNames
+      );
+      sendEmail(client_email, "New Booking", SEND_EMAIL_CLIENT);
 
       // Create notification
       await Notifications.create({
@@ -788,6 +838,15 @@ const updateBooking = async (req, res) => {
         client_id: client_id,
         subdomain_id: subdomain_user.id,
         date: new Date()
+      });
+
+      // For photographer team
+      photographer_team.forEach(photographer => {
+        const SEND_EMAIL_PHOTOGRAPHER = NEW_PHOTOGRAPHER_TEAM_BOOKING(
+          subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address,
+          photographer.name, updatedBooking, contacts, teamMembers, serviceNames
+        );
+        sendEmail(photographer.email, "New Booking", SEND_EMAIL_PHOTOGRAPHER);
       });
 
       res.status(200).json({
@@ -798,6 +857,7 @@ const updateBooking = async (req, res) => {
       res.status(404).json({ error: "Booking not found" });
     }
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Failed to update Booking" });
   }
 };

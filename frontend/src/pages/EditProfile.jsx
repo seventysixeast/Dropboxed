@@ -564,7 +564,7 @@ const EditProfile = () => {
                         <div className="col-md-6 form-group">
                           <label>Phone</label>
                           <input
-                            type="text"
+                            type="tel"
                             className="form-control"
                             name="phone"
                             value={bankDetails.phone}

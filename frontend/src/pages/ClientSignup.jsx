@@ -147,7 +147,7 @@ const ClientSignup = () => {
                         </fieldset>
                         <fieldset className="form-group position-relative has-icon-left">
                           <input
-                            type="text"
+                            type="tel"
                             className="form-control"
                             id="user-phone"
                             name="phone"
