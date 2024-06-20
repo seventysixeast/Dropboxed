@@ -287,7 +287,7 @@ exports.NEW_CLIENT_BOOKING = (subdomain, logo, subdomainContact, address, name, 
                         <tr>
                             <td style="padding-top: 10px; text-align:center;">
                                 ${logo && logo !== '' 
-                                    ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 150px;" alt="Logo"/>` 
+                                    ? `<img src="${CLIENTS_IMAGE_URL}/${logo}" style="width: 30%;" alt="Logo"/>` 
                                     : `<h1 style="text-transform: uppercase; color: #00b5b8;">${subdomain}</h1>`
                                 }
                             </td>
