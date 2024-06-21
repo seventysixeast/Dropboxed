@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import toolIcons from "../assets/images/i.png";
-import { Switch, Checkbox, Tooltip, styled, tooltipClasses } from "@mui/material";
+import {
+  Switch,
+  Checkbox,
+  Tooltip,
+  styled,
+  tooltipClasses,
+} from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import { getAllServices } from "../api/serviceApis";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
+import moment from "moment";
 
 const AddGalleryModal = ({
   message,
@@ -31,6 +38,7 @@ const AddGalleryModal = ({
     const file = acceptedFiles[0];
     handleBannerChange(file);
   };
+
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
@@ -116,7 +124,6 @@ const AddGalleryModal = ({
       console.log(services);
 
       if (services.success) {
-        
         setServicesData(services.data);
       }
     } catch (error) {
@@ -193,7 +200,8 @@ const AddGalleryModal = ({
                       <option value="">----Select----</option>
                       {bookingTitles.map((item) => (
                         <option key={item.id} value={item.booking_title}>
-                          {item.booking_title}
+                          {item.booking_title},{" "}
+                          {moment(item.booking_date).format("DD/MM/YYYY")}
                         </option>
                       ))}
                     </select>
@@ -236,9 +244,7 @@ const AddGalleryModal = ({
                           package_price: pkg.package_price,
                           show_price: pkg.show_price,
                         }))
-                        .sort((a, b) =>
-                          a.label < b.label ? -1 : 1
-                        )}
+                        .sort((a, b) => (a.label < b.label ? -1 : 1))}
                       onChange={(selectedOptions) => {
                         handleInputChange({
                           target: {
