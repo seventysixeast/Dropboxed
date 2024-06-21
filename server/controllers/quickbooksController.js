@@ -207,7 +207,7 @@ const ensureQuickBooksAccounts = async (qbo, user) => {
 };
 
 
-exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quickbooks_customer_id) => {
+exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quickbooks_customer_id, isPaid) => {
   try {
     const user = await User.findOne({ where: { id: userId } });
 
@@ -299,6 +299,26 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
         }
       });
     });
+
+    if (isPaid) {
+      const paymentData = {
+        CustomerRef: {
+          value: quickbooks_customer_id.toString()
+        },
+        TotalAmt: total,
+        Line: [
+          {
+            Amount: total,
+            LinkedTxn: [
+              {
+                TxnId: invoice.Id,
+                TxnType: "Invoice"
+              }
+            ]
+          }
+        ]
+      };
+    }
 
     // Generate shareable link
     // const invoiceId = invoice.Id;

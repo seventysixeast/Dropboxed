@@ -17,6 +17,7 @@ const {
     refreshQuickBooksToken,
 } = require("./quickbooksController");
 const { createQuickBooksCustomer } = require("./collectionController");
+const { pipeline } = require("nodemailer/lib/xoauth2");
 
 const getAllInvoices = async (req, res) => {
     const { subdomain_id, user_id, role_id } = req.body;
@@ -348,13 +349,14 @@ const sendInvoice = async (req, res) => {
                     qbo
                 );
             }
-
+            let isPaid = invoice.paid_status;
             const { qb_invoice } = await createQuickBooksInvoice(
                 adminUser.id,
                 items,
                 invoice.total_price,
                 invoice.notes,
-                quickbooks_customer_id
+                quickbooks_customer_id,
+                isPaid
             );
             quickbooks_invoice_id = qb_invoice.Id;
             if (quickbooks_invoice_id !== "") {
@@ -368,17 +370,41 @@ const sendInvoice = async (req, res) => {
                 );
             }
         }
+        const clientInfo = {
+            name: client.name,
+            email: client.email,
+            address: client.address,
+            city:client.city,
+            postalCode: client.postal_code
 
+        }
+        const adminInfo = {
+            name: client.name,
+            email: client.email,
+            phone: client.phone,
+            businessName: adminUser.business_name,
+            abn: adminUser.abn_acn,
+            accountName: adminUser.account_name,
+            accountEmail: adminUser.account_email
+        }
         const clientEmail = client.email;
         const clientName = client.name;
-
+        const taxAmount = invoice.total_price / 11;
+        const subTotal = invoice.total_price - taxAmount;
         const invoiceData = {
             clientName: clientName,
             invoiceNumber: invoice.id,
             invoiceDate: order.created_at,
             dueDate: order.created_at,
+            subTotal,
+            taxAmount,
             amountDue: invoice.total_price,
             items: items,
+            clientEmail,
+            clientCity,
+            clientInfo,
+            adminInfo
+
         };
 
         const emailContent = INVOICE_EMAIL(invoiceData);
