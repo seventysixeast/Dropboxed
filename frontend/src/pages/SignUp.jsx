@@ -188,6 +188,8 @@ const SignUp = () => {
                             <option value="Japan">Japan</option>
                             <option value="Taiwan">Taiwan</option>
                             <option value="Singapore">Singapore</option>
+                            <option value="Australia">Australia</option>
+                            <option value="New Zealand">New Zealand</option>
                           </select>
                           <div className="form-control-position">
                             <i className="fa fa-chevron-down"></i>

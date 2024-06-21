@@ -286,7 +286,7 @@ const Clients = () => {
                 <div className="search-button mr-1 mb-1">
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control form-control-sm"
                     placeholder="Search clients..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}

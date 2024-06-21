@@ -5,6 +5,7 @@ import {
   getAllBookingTitles,
   getAllServices,
   getAllPhotographers,
+  getServicesCollection,
 } from "../api/bookingApis";
 import {
   addGallery,
@@ -73,7 +74,10 @@ const Collections = () => {
     banner: null,
     lock_gallery: false,
     notify_client: "",
+    serviceIds: "",
   });
+
+  console.log(formData);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState(null);
   const [isEditMode, setEditMode] = useState(false);
@@ -98,8 +102,16 @@ const Collections = () => {
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
 
   useEffect(() => {
-    if (formData.client !== "" && formData.booking_title !== "") {
+    if (
+      formData.client !== "" &&
+      formData.booking_title !== "" &&
+      formData.id === ""
+    ) {
       getServices(formData.client, formData.booking_title);
+      getPhotographers(formData.client, formData.booking_title);
+      getBookingTitles(formData.client);
+    } else if (formData.id !== "") {
+      getCollectionServices(formData.serviceIds);
       getPhotographers(formData.client, formData.booking_title);
       getBookingTitles(formData.client);
     }
@@ -181,6 +193,8 @@ const Collections = () => {
       gallery.gallery_title = value;
     } else if (name === "services") {
       gallery.services = value;
+      // setServices as well to have same data as gallery.services
+      setServices(gallery.services);
     } else if (name === "photographers") {
       gallery.photographers = value;
     } else if (name === "gallery_title") {
@@ -411,11 +425,10 @@ const Collections = () => {
   };
 
   const getCollectionData = async (id) => {
-    console.log(id);
-    setFormData({
-      ...formData,
-      id: id,
-    });
+    // setFormData({
+    //   ...formData,
+    //   id: id,
+    // });
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("slug", id);
@@ -426,11 +439,14 @@ const Collections = () => {
       } else {
         setPreviewImage(null);
       }
+
+      console.log(collectionData);
       const initialFormData = {
+        ...formData,
         id: collectionData.data.id,
         client: collectionData.data.client_id,
         booking_title: collectionData.data.client_address,
-        serviceIds: collectionData.data.services,
+        serviceIds: collectionData.data.package_ids,
         photographerIds: collectionData.data.photographers,
         gallery_title: collectionData.data.name,
         dropbox_link: collectionData.data.dropbox_link,
@@ -438,12 +454,30 @@ const Collections = () => {
         banner: collectionData.data.banner,
       };
       setFormData(initialFormData);
+
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
     setLoading(false);
+  };
+
+  const getCollectionServices = async (serviceIds) => {
+    try {
+      let services = await getServicesCollection({
+        serviceIds,
+      });
+      let servicesData =
+        services &&
+        services.data.map((pkg) => ({
+          label: pkg.package_name,
+          value: pkg.id,
+        }));
+      setServices(servicesData);
+    } catch (error) {
+      toast.error(error);
+    }
   };
 
   const deleteCollectionData = async () => {
@@ -538,16 +572,16 @@ const Collections = () => {
       },
       {
         Header: "Services",
-        accessor: "package_name",
-        Cell: ({ row }) => (
-          <div>
-            {row.original.packages.map((item, index) => (
-              <div key={index} className="d-flex">
-                <span className="">{item.package_name}</span>
-              </div>
-            ))}
-          </div>
-        ),
+        accessor: "packages_name",
+        // Cell: ({ row }) => (
+        //   <div>
+        //     {row.original.packages.map((item, index) => (
+        //       <div key={index} className="d-flex">
+        //         <span className="">{item.package_name}</span>
+        //       </div>
+        //     ))}
+        //   </div>
+        // ),
       },
       {
         Header: "Invoice",
@@ -612,6 +646,9 @@ const Collections = () => {
             if (notify_client) {
               if (!orderFound) {
                 console.log("empty");
+              } else {
+                setIdToNotify(id);
+                setShowNotifyModal(true);
               }
             } else {
               if (orderFound) {
@@ -676,11 +713,11 @@ const Collections = () => {
       },
       {
         Header: "Created On",
-        accessor: "created",
+        accessor: "createdAt",
         Cell: ({ row }) => (
           <div className="text-center">
             <div className="badge badge-pill badge-light-primary">
-              {moment(row.original.created).format("DD/MM/YYYY")}
+              {row.original.createdAt}
             </div>
             <div>{moment(row.original.created).format("HH:mm A")}</div>
           </div>
@@ -737,7 +774,14 @@ const Collections = () => {
     []
   );
 
-  const data = React.useMemo(() => collections, [collections]);
+  const data = React.useMemo(() => {
+    return collections.map(collection => {
+      return {
+        ...collection,
+        createdAt: moment(collection.created).format('DD/MM/YYYY')
+      };
+    });
+  }, [collections]);
 
   useEffect(() => {
     const fetchData = async () => {

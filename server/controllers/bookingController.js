@@ -823,6 +823,7 @@ const getAllBookingTitles = async (req, res) => {
       where: { user_id: req.body.clientId },
     });
 
+
     const filteredResults = bookingData.filter((result) => {
       return result.booking_status == 1;
     });
@@ -856,6 +857,25 @@ const getAllServices = async (req, res) => {
     res.status(500).json({ error: "Failed to data of booking" });
   }
 };
+
+const getCollectionServices = async (req, res) => {
+  let services = req.body;
+
+  console.log(services);
+  try {
+    const idsAsIntegers = services.serviceIds
+    .split(",")
+    .map((id) => parseInt(id.trim(), 10));
+    const servicesData = await Package.findAll({
+      where: {
+        id: idsAsIntegers,
+      },
+    });
+    res.status(200).json({ success: true, data: servicesData });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to data of booking" });
+  }
+}
 
 const getAllPhotographers = async (req, res) => {
   try {
@@ -894,5 +914,6 @@ module.exports = {
   getAllBookingTitles,
   getAllServices,
   getAllPhotographers,
-  getCalendarStatus
+  getCalendarStatus,
+  getCollectionServices
 };

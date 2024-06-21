@@ -529,16 +529,16 @@ const CollectionTable = () => {
       },
       {
         Header: "Services",
-        accessor: "package_name",
-        Cell: ({ row }) => (
-          <div>
-            {row.original.packages.map((item, index) => (
-              <div key={index} className="d-flex">
-                <span className="">{item.package_name}</span>
-              </div>
-            ))}
-          </div>
-        ),
+        accessor: "packages_name",
+        // Cell: ({ row }) => (
+        //   <div>
+        //     {row.original.packages.map((item, index) => (
+        //       <div key={index} className="d-flex">
+        //         <span className="">{item.package_name}</span>
+        //       </div>
+        //     ))}
+        //   </div>
+        // ),
       },
       {
         Header: "Invoice",
@@ -603,6 +603,9 @@ const CollectionTable = () => {
             if (notify_client) {
               if (!orderFound) {
                 console.log("empty");
+              } else {
+                setIdToNotify(id);
+                setShowNotifyModal(true);
               }
             } else {
               if (orderFound) {
@@ -667,11 +670,11 @@ const CollectionTable = () => {
       },
       {
         Header: "Created On",
-        accessor: "created",
+        accessor: "createdAt",
         Cell: ({ row }) => (
           <div className="text-center">
             <div className="badge badge-pill badge-light-primary">
-              {moment(row.original.created).format("DD/MM/YYYY")}
+              {row.original.createdAt}
             </div>
             <div>{moment(row.original.created).format("HH:mm A")}</div>
           </div>
@@ -728,7 +731,14 @@ const CollectionTable = () => {
     []
   );
 
-  const data = React.useMemo(() => collections, [collections]);
+  const data = React.useMemo(() => {
+    return collections.map(collection => {
+      return {
+        ...collection,
+        createdAt: moment(collection.created).format('DD/MM/YYYY')
+      };
+    });
+  }, [collections]);
 
   useEffect(() => {
     const fetchData = async () => {

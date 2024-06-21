@@ -754,19 +754,7 @@ export const BookingListComponent = () => {
   const columns = [
     {
       Header: "Booking Date",
-      accessor: "booking_date",
-      Cell: ({ value }) => {
-        const [year, month, day] = value.split("-");
-        const formattedDate = `${day.padStart(2, "0")}/${month.padStart(
-          2,
-          "0"
-        )}/${year}`;
-        return (
-          <div className="badge badge-pill badge-light-primary">
-            {formattedDate}
-          </div>
-        );
-      },
+      accessor: "createdAt",
       headerStyle: { width: "200px" },
     },
     {
@@ -805,31 +793,11 @@ export const BookingListComponent = () => {
     },
     {
       Header: "Services",
-      accessor: "package_ids",
-      Cell: ({ value }) => {
-        const selectedServices = (value?.split(", ") || [])
-          .map((id) => packages.find((pack) => pack.id === parseInt(id)))
-          .filter(Boolean)
-          .map((serv) => serv.package_name)
-          .join(", ");
-        return <span>{selectedServices}</span>;
-      },
+      accessor: "services",
     },
     {
       Header: "Photographer",
-      accessor: "photographer_id",
-      Cell: ({ value }) => {
-        const selectedProviders = (
-          Array.isArray(value) ? value : value?.split(", ") || []
-        )
-          .map((id) =>
-            providers.find((provider) => provider.id === parseInt(id))
-          )
-          .filter(Boolean)
-          .map((prov) => prov.name)
-          .join(", ");
-        return <span>{selectedProviders}</span>;
-      },
+      accessor: "photographers",
     },
     {
       Header: "Status",
@@ -1092,6 +1060,32 @@ export const BookingListComponent = () => {
       </div>
     </CustomTooltip>
   );
+
+  const data = React.useMemo(() => {
+    return bookingsData.map(booking => {
+      const services = (booking.package_ids?.split(", ") || [])
+        .map(id => packages.find(pack => pack.id === parseInt(id)))
+        .filter(Boolean)
+        .map(serv => serv.package_name)
+        .join(", ");
+      
+      const photographers = (
+        Array.isArray(booking.photographer_id) ? booking.photographer_id : booking.photographer_id?.split(", ") || []
+      )
+        .map(id => providers.find(provider => provider.id === parseInt(id)))
+        .filter(Boolean)
+        .map(prov => prov.name)
+        .join(", ");
+
+      return {
+        ...booking,
+        createdAt: moment(booking.booking_date).format('DD/MM/YYYY'),
+        services,
+        photographers,
+      };
+    });
+  }, [bookingsData, packages, providers]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -1920,7 +1914,7 @@ export const BookingListComponent = () => {
       ) : (
         <>
           {bookingsData.length > 0 ? (
-            <TableCustom data={bookingsData} columns={filteredColumns} />
+            <TableCustom data={data} columns={filteredColumns} />
           ) : (
             <div className="app-content content">
               <div className="content-overlay"></div>

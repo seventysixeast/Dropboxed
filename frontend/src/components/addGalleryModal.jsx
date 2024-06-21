@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import toolIcons from "../assets/images/i.png";
-import { Switch, Checkbox } from "@mui/material";
+import { Switch, Checkbox, Tooltip, styled, tooltipClasses } from "@mui/material";
 import { useDropzone } from "react-dropzone";
+import { getAllServices } from "../api/serviceApis";
+import { useAuth } from "../context/authContext";
+import { toast } from "react-toastify";
 
 const AddGalleryModal = ({
   message,
@@ -28,7 +31,12 @@ const AddGalleryModal = ({
     const file = acceptedFiles[0];
     handleBannerChange(file);
   };
+  const { authData } = useAuth();
+  const { user } = authData;
+  const roleId = user.role_id;
+  const subdomainId = user.subdomain_id;
 
+  const [servicesData, setServicesData] = useState([]);
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/*": [],
@@ -36,6 +44,89 @@ const AddGalleryModal = ({
     onDrop,
     multiple: false,
   });
+
+  const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#f5f5f9",
+      color: "rgba(0, 0, 0, 0.87)",
+      maxWidth: 300,
+      fontSize: theme.typography.pxToRem(14),
+      border: "1px solid #dadde9",
+    },
+  }));
+
+  const CustomOption = ({ data, innerRef, innerProps }) => (
+    <CustomTooltip
+      title={data.show_price ? `Price: $${data.package_price}` : ""}
+      arrow
+      placement="left"
+    >
+      <div
+        ref={innerRef}
+        {...innerProps}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          height: "30px",
+          marginTop: "4px",
+          marginBottom: "4px",
+          cursor: "pointer",
+        }}
+        className="customOptionClass"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={16}
+          height={16}
+          fill="currentColor"
+          className="bi bi-eye-fill"
+          style={{
+            marginLeft: "0.3rem",
+            marginRight: "0.3rem",
+          }}
+          viewBox="0 0 16 16"
+        >
+          <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+          <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+        </svg>
+
+        <span
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {data.label}
+        </span>
+      </div>
+    </CustomTooltip>
+  );
+
+  const getServices = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("subdomain_id", subdomainId || user.id);
+      formData.append("role_id", roleId);
+
+      let services = await getAllServices(formData);
+
+      console.log(services);
+
+      if (services.success) {
+        
+        setServicesData(services.data);
+      }
+    } catch (error) {
+      console.error("Error in getServices:", error);
+    }
+  };
+
+  useEffect(() => {
+    getServices();
+  }, []);
 
   return (
     <div className="app-content content">
@@ -129,38 +220,39 @@ const AddGalleryModal = ({
                       className="select2 w-100"
                       name="services"
                       value={services}
-                      onChange={handleInputChange}
-                      options={
-                        services &&
-                        services.map((pkg) => ({
-                          label: pkg.label,
-                          value: pkg.value,
+                      // onChange={handleInputChange}
+
+                      // options={
+                      //   services &&
+                      //   services.map((pkg) => ({
+                      //     label: pkg.label,
+                      //     value: pkg.value,
+                      //   }))
+                      // }
+                      options={servicesData
+                        .map((pkg) => ({
+                          label: pkg.package_name,
+                          value: pkg.id,
+                          package_price: pkg.package_price,
+                          show_price: pkg.show_price,
                         }))
-                      }
-                      isMulti
-                      isDisabled
-                      hideSelectedOptions
-                      components={{
-                        Option: ({ data, innerRef, innerProps }) => (
-                          <div
-                            ref={innerRef}
-                            {...innerProps}
-                            style={{
-                              display: "flex form-select ",
-                              alignItems: "center",
-                            }}
-                          >
-                            <img
-                              src={toolIcons}
-                              className="mr-1 ml-1"
-                              width={"14px"}
-                              height={"14px"}
-                              alt=""
-                            />
-                            <span>{data.label}</span>
-                          </div>
-                        ),
+                        .sort((a, b) =>
+                          a.label < b.label ? -1 : 1
+                        )}
+                      onChange={(selectedOptions) => {
+                        handleInputChange({
+                          target: {
+                            name: "services",
+                            value: selectedOptions,
+                          },
+                        });
                       }}
+                      components={{
+                        Option: CustomOption,
+                      }}
+                      isMulti
+                      // isDisabled
+                      hideSelectedOptions
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
@@ -215,10 +307,10 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <p>Dropbox Link *</p>
+                    <p>Folder Link *</p>
                     <input
                       className="form-control"
-                      placeholder="Enter Dropbox Link"
+                      placeholder="Enter Folder Link"
                       name="dropbox_link"
                       value={formData.dropbox_link}
                       onChange={handleInputChange}
@@ -226,10 +318,10 @@ const AddGalleryModal = ({
                     />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
-                    <p>Vimeo Video Link</p>
+                    <p>Video Link</p>
                     <input
                       className="form-control"
-                      placeholder="Enter Vimeo Video Link"
+                      placeholder="Enter Video Link"
                       name="vimeo_video_link"
                       value={formData.vimeo_video_link}
                       onChange={handleInputChange}

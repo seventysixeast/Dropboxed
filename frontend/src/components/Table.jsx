@@ -6,8 +6,10 @@ import {
   useSortBy,
   usePagination,
 } from "react-table";
+import moment from "moment";
 
 const TableCustom = ({ data, columns }) => {
+  console.log(data);
   const {
     getTableProps,
     getTableBodyProps,
@@ -72,7 +74,6 @@ const TableCustom = ({ data, columns }) => {
                           style={{ marginLeft: "-15px" }}
                         >
                           <span>
-                            {" "}
                             Show{" "}
                             <select
                               value={pageSize}
