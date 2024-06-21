@@ -1,5 +1,8 @@
 const User = require('../models/Users');
 const bcrypt = require('bcrypt');
+const sizeOf = require("image-size");
+const Jimp = require("jimp");
+const fs = require("fs");
 
 const getUser = async (req, res) => {
   try {
@@ -26,27 +29,42 @@ const updateUser = async (req, res) => {
 
     if (req.files && req.files.profile_photo && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
-      let sanitizedFilename = file.name.replace(/\s+/g, '_');
+      let sanitizedDate = new Date().toISOString().replace(/[^\w\s]/gi, ''); // Remove special characters from date
+      let sanitizedFilename = `${sanitizedDate}_profile.jpg`; // Ensure unique filenames with .jpg extension
+
       let fileUrl = `${process.cwd()}/public/clients/` + sanitizedFilename;
-      file.mv(fileUrl, async function (err) {
-        if (err) {
-          console.log("in image move error...", fileUrl, err);
-        }
-      });
+
+      // Resize image using Jimp with quality set to 85 percent
+      let image = await Jimp.read(file.data);
+      image.quality(85); // Set quality to 85 percent
+      let dimensions = sizeOf(file.data);
+      let width = 400;
+      let height = (dimensions.height * width) / dimensions.width;
+      await image.resize(width, height).write(fileUrl);
+
       userData.profile_photo = sanitizedFilename;
     }
 
+    // Similarly handle logo file upload
+
     if (req.files && req.files.logo && Object.keys(req.files).length) {
       let file = req.files.logo;
-      let sanitizedFilename = file.name.replace(/\s+/g, '_');
+      let sanitizedDate = new Date().toISOString().replace(/[^\w\s]/gi, ''); // Remove special characters from date
+      let sanitizedFilename = `${sanitizedDate}_logo.jpg`; // Ensure unique filenames with .jpg extension
+
       let fileUrl = `${process.cwd()}/public/clients/` + sanitizedFilename;
-      file.mv(fileUrl, async function (err) {
-        if (err) {
-          console.log("in image move error...", fileUrl, err);
-        }
-      });
+
+      // Resize image using Jimp with quality set to 85 percent
+      let image = await Jimp.read(file.data);
+      image.quality(85); // Set quality to 85 percent
+      let dimensions = sizeOf(file.data);
+      let width = 400;
+      let height = (dimensions.height * width) / dimensions.width;
+      await image.resize(width, height).write(fileUrl);
+
       userData.logo = sanitizedFilename;
     }
+
 
     let user = await User.update(userData, {
       where: {
@@ -60,9 +78,12 @@ const updateUser = async (req, res) => {
       data: user
     });
   } catch (error) {
+    console.error("Error updating user:", error);
     res.status(500).json({ error: "Failed to update user" });
   }
 };
+
+
 
 const changeBankingDetails = async (req, res) => {
   const { id, account_email, account_name, account_number, bsb_number, abn_acn, country, address, city, postal_code, website, phone } = req.body;

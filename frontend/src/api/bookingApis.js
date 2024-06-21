@@ -136,6 +136,22 @@ const getAllServices = async (data) => {
   }
 };
 
+const getServicesCollection = async (data) => {
+  try {
+    const response = await API.post(`/booking/getCollectionServices`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to services');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 const getAllPhotographers = async (data) => {
   try {
     const response = await API.post(`/booking/getAllPhotographers`, data, {
@@ -152,4 +168,4 @@ const getAllPhotographers = async (data) => {
   }
 };
 
-export { getProviders, newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles, getAllServices, getAllPhotographers, getCalendarStatus };
+export { getProviders, newBooking, createCalendar, getAllBookings, getBooking, deleteBooking, updateBooking, getAllBookingTitles, getAllServices, getAllPhotographers, getCalendarStatus, getServicesCollection };

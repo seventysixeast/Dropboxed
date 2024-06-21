@@ -16,6 +16,7 @@ const {
 const sizeOf = require("image-size");
 const Jimp = require("jimp");
 const fs = require("fs");
+const Booking = require("../models/Booking");
 
 function createSlug(title) {
   return title
@@ -30,8 +31,6 @@ const addGallery = async (req, res) => {
     attributes: ['dropbox_refresh', 'subdomain', 'logo'],
     where: { id: parseInt(req.body.subdomainId) }
   });
-
-  console.log(user);
 
   try {
     let collectionData = {
@@ -53,7 +52,7 @@ const addGallery = async (req, res) => {
       let baseSlug = createSlug(req.body.gallery_title);
       let slug = baseSlug;
       let counter = 1;
-    
+
       while (await Collection.findOne({ where: { slug } })) {
         slug = `${baseSlug}-${counter}`;
         counter++;
@@ -63,14 +62,14 @@ const addGallery = async (req, res) => {
 
     if (req.files && Object.keys(req.files).length) {
       let file = req.files.banner;
-      let timestamp = Date.now(); 
+      let timestamp = Date.now();
       let imageName = req.files.banner.name;
-      let imageExt = imageName.split('.').pop(); 
-      let originalImageName = timestamp; 
+      let imageExt = imageName.split('.').pop();
+      let originalImageName = timestamp;
       let smallImageName = `small_${timestamp}`;
-      
-      collectionData.banner = originalImageName; 
-      collectionData.banner_sm = smallImageName; 
+
+      collectionData.banner = originalImageName;
+      collectionData.banner_sm = smallImageName;
 
       let fileUrl = `${process.cwd()}/public/gallery/` + originalImageName;
 
@@ -96,6 +95,17 @@ const addGallery = async (req, res) => {
       collection = await Collection.create(collectionData);
     }
 
+    // Find booking with collectionData.client_address equal to booking.booking_title
+    const booking = await Booking.findOne({
+      where: { booking_title: collectionData.client_address },
+    });
+
+    if (booking) {
+      // Update booking's package_ids with collectionData.package_ids
+      await booking.update({ package_ids: collectionData.package_ids });
+    } else {
+      console.log("Booking not found");
+    }
 
 
     if (req.body.notify_client === "true") {
@@ -415,12 +425,14 @@ const updateGalleryNotify = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Collection not found" });
     }
+
     const updated = await Collection.update(
-      { notify_client: !collection.notify_client },
+      { notify_client: 1 },
       {
         where: { id: collectionId },
       }
     );
+
     if (updated) {
       const user = await User.findOne({ where: { id: collection.user_id } });
       const clientData = await User.findOne({

@@ -19,6 +19,7 @@ import EditInvoiceModal from "../components/EditInvoice";
 import ReTooltip from "../components/Tooltip";
 import UploadInvoiceModal from "../components/UploadInvoiceModal";
 import ConfirmModal from "../components/ConfirmModal";
+import moment from "moment";
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -50,25 +51,20 @@ const Invoice = () => {
     setModalIsOpen(false);
   };
 
+  const data = React.useMemo(() => {
+    return invoiceList.map(invoice => {
+      const updatedAT = moment(invoice.updated_at).format('DD/MM/YYYY');
+      return {
+        ...invoice,
+        updatedAT,
+      };
+    });
+  }, [invoiceList]);
 
   const columns = [
     {
       Header: "Date",
-      accessor: "updated_at",
-      Cell: ({ value }) => {
-        const date = new Date(value);
-        const formattedDate = date.toLocaleDateString("en-Au", {
-          year: "numeric",
-          month: "numeric",
-          day: "numeric",
-        });
-
-        return (
-          <div className="badge badge-pill badge-light-primary">
-            {formattedDate}
-          </div>
-        );
-      },
+      accessor: "updatedAT",
       headerStyle: { width: "200px" },
     },
     {
@@ -403,7 +399,7 @@ const Invoice = () => {
         </div>
       </div>
       {invoiceList.length > 0 ? (
-        <TableCustom data={invoiceList} columns={columns} />
+        <TableCustom data={data} columns={columns} />
       ) : (
         <>
           <div className="col-12 d-flex justify-content-center ">
