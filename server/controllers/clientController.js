@@ -1,11 +1,12 @@
 const User = require("../models/Users");
 const BusinessClients = require("../models/BusinessClients");
 const Collections = require("../models/Collections");
-// const redis = require("ioredis");
-// const redisClient = new redis();
 const bcrypt = require('bcrypt');
 const { WELCOME_CLIENT_EMAIL } = require('../helpers/emailTemplate');
 const { sendEmail } = require("../helpers/sendEmail");
+const sizeOf = require("image-size");
+const Jimp = require("jimp");
+const fs = require("fs");
 
 const updateRedisCache = async (subdomain_id) => {
   try {
@@ -109,26 +110,32 @@ const createClient = async (req, res) => {
     // Generate random password
     let password = Math.random().toString(36).slice(-8);
     let hashedPassword = await bcrypt.hash(password, 10);
-    let imageName = req.files && req.files.profile_photo.name;
     let clientData = {
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
       business_name: req.body.business_name,
       role_id: req.body.role_id,
-      profile_photo: imageName || req.body.profile_photo,
       password: hashedPassword,
       is_verified: 1
     };
-    if (req.files && Object.keys(req.files).length) {
+
+    if (req.files && req.files.profile_photo && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
-      let fileUrl =
-        `${process.cwd()}/public/clients/` + req.files.profile_photo.name;
-      file.mv(fileUrl, async function (err) {
-        if (err) {
-          console.log("in image move error...", fileUrl, err);
-        }
-      });
+      let sanitizedDate = new Date().toISOString().replace(/[^\w\s]/gi, ''); // Remove special characters from date
+      let sanitizedFilename = `${sanitizedDate}_profile.jpg`; // Ensure unique filenames with .jpg extension
+
+      let fileUrl = `${process.cwd()}/public/clients/` + sanitizedFilename;
+
+      // Resize image using Jimp with quality set to 85 percent
+      let image = await Jimp.read(file.data);
+      image.quality(85); // Set quality to 85 percent
+      let dimensions = sizeOf(file.data);
+      let width = 400;
+      let height = (dimensions.height * width) / dimensions.width;
+      await image.resize(width, height).write(fileUrl);
+
+      clientData.profile_photo = sanitizedFilename;
     }
 
     let client;
@@ -156,12 +163,15 @@ const createClient = async (req, res) => {
         }
       }
       client = await User.create(clientData);
+
+      // Handle business clients
       await BusinessClients.create({
         business_id: req.body.subdomainId,
         client_id: client.id,
         status: 1
       });
 
+      // Fetch user data for email notification
       const user = await User.findOne({
         where: { id: req.body.subdomainId },
         attributes: ['subdomain', 'name', 'email', 'logo']
@@ -171,8 +181,7 @@ const createClient = async (req, res) => {
       var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1), user.email, user.logo, client.name, client.email, password);
       sendEmail(req.body.email, `Welcome to ${user.subdomain.charAt(0).toUpperCase() + user.subdomain.slice(1)}!`, SEND_EMAIL);
     }
-    // Update Redis cache
-    // await updateRedisCache(req.body.subdomainId);
+
     res.status(200).json({
       success: true,
       message: req.body.id
@@ -184,6 +193,7 @@ const createClient = async (req, res) => {
     res.status(500).json({ error: "Failed to add/update client" });
   }
 };
+
 
 const getClient = async (req, res) => {
   try {

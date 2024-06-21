@@ -425,7 +425,7 @@ const updateGalleryNotify = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Collection not found" });
     }
-    
+
     const updated = await Collection.update(
       { notify_client: 1 },
       {
