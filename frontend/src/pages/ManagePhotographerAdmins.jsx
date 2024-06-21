@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
+import { Link } from 'react-router-dom';
 import {
   getAllPhotographerAdmins,
   updatePhotographerAdmin,
@@ -158,19 +159,27 @@ const ManagePhotographerAdmins = () => {
       accessor: "profile_photo",
       Cell: ({ row }) => (
         <span>
-          <img
-            src={
-              row.original.profile_photo
-                ? `${IMAGE_URL}/${row.original.profile_photo}`
-                : "../../../app-assets/images/portrait/medium/dummy.png"
-            }
-            className="rounded-circle width-50 height-50"
-            alt="profile"
-          />
+          <Link to={`/user-profile/${row.original.id}`} className="text-white">
+            <img
+              src={
+                row.original.profile_photo
+                  ? `${IMAGE_URL}/${row.original.profile_photo}`
+                  : "../../../app-assets/images/portrait/medium/dummy.png"
+              }
+              className="rounded-circle width-50 height-50"
+              alt="profile"
+            />
+          </Link>
         </span>
       )
     },
-    { Header: "Name", accessor: "name" },
+    {
+      Header: "Name",
+      accessor: "name",
+      Cell: ({ row }) => (
+        <Link to={`/user-profile/${row.original.id}`} className="text-white">{row.original.name}</Link>
+      ),
+    },
     { Header: "Email", accessor: "email" },
     { Header: "Phone", accessor: "phone" },
     { Header: "Business Name", accessor: "business_name" },

@@ -19,6 +19,7 @@ import Collections from "../pages/Collections";
 import Login from "../pages/Login";
 import ManagePhotographerAdmins from "../pages/ManagePhotographerAdmins";
 import EditProfile from "../pages/EditProfile";
+import UserProfile from "../pages/UserProfile";
 import ChangePassword from "../pages/ChangePassword";
 import { useAuth } from "../context/authContext";
 import AddService from "../pages/AddService";
@@ -51,6 +52,7 @@ const AdminRouter = () => {
     { path: "/notifications-of-booking", element: <NotificationComponent /> },
     { path: "/manage-photographer-admins", element: <ManagePhotographerAdmins /> },
     { path: "/edit-profile", element: <EditProfile /> },
+    { path: "/user-profile/:id", element: <UserProfile /> },
     { path: "/change-password", element: <ChangePassword /> },
     { path: "/collections", element: <Collections /> },
     // add path to view collection of particulor user

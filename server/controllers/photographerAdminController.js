@@ -1,4 +1,7 @@
 const User = require('../models/Users');
+const BusinessClients = require('../models/BusinessClients');
+const Booking = require('../models/Booking');
+const Collections = require('../models/Collections');
 
 const getAllPhotographerAdmins = async (req, res) => {
   try {
@@ -54,7 +57,34 @@ const updatePhotographerAdmin = async (req, res) => {
 const getPhotographerAdmin = async (req, res) => {
   try {
     const data = await User.findOne({ where: { id: req.body.id } });
-    res.status(200).json({ success: true, data: data });
+    const clientsAndPhotographers = await BusinessClients.findAll({
+      where: { business_id: req.body.id },
+      attributes: ['client_id']
+    });
+    const clientAndPhotographerIds = clientsAndPhotographers.map(cp => cp.client_id);
+    const totalClients = await User.count({
+      where: {
+        id: clientAndPhotographerIds,
+        role_id: 3
+      }
+    });
+    const totalPhotographers = await User.count({
+      where: {
+        id: clientAndPhotographerIds,
+        role_id: 2
+      }
+    });
+    const totalBookings = await Booking.count({
+      where: {
+        subdomain_id: req.body.id
+      }
+    });
+    const totalGalleries = await Collections.count({
+      where: {
+        subdomain_id: req.body.id
+      }
+    });
+    res.status(200).json({ success: true, data: data, totalClients, totalPhotographers, totalBookings, totalGalleries });
   } catch (error) {
     res.status(500).json({ error: "Failed to data of photographer admin" });
   }
