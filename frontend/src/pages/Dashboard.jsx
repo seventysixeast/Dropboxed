@@ -58,6 +58,7 @@ export const Dashboard = () => {
   const [galleryView, setGalleryView] = useState("grid");
   const [subdomainDropbox, setSubdomainDropbox] = useState("");
   const [activeInvoices, setActiveInvoices] = useState(0);
+  const [elementVisible, setElementsVisible] = useState(false);
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
@@ -508,6 +509,11 @@ export const Dashboard = () => {
     fetchData();
   }, [accesstoken]);
 
+
+  const handleElementsToggle = () => {
+    setElementsVisible(!elementVisible);
+  }
+
   return (
     <>
       {showPopup && (
@@ -678,10 +684,10 @@ export const Dashboard = () => {
             <section id="image-grid" className="app-content card">
               <div className="card-header">
                 <h4 className="card-title">Image gallery</h4>
-                <a className="heading-elements-toggle">
+                <a className="heading-elements-toggle" onClick={handleElementsToggle}>
                   <i className="fa fa-ellipsis-v font-medium-3"></i>
                 </a>
-                <div className="heading-elements">
+                <div className={`heading-elements ${elementVisible ? 'visible' : ''}`}>
                   <ul className="list-inline mb-0">
                     <li>
                       <div className="form-group d-flex flex-wrap">

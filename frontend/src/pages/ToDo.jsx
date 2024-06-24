@@ -488,8 +488,7 @@ const ToDo = () => {
               <div className="todo-sidebar d-flex">
                 <span
                   className="sidebar-close-icon"
-                  onClick={() => setShow(!show)}
-                  onTouchStart={() => setShow(!show)}
+                  onClick={(event) => {setShow(!show); console.log(event);}}
                 >
                   <i className="feather icon-x"></i>
                 </span>

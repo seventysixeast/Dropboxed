@@ -60,24 +60,9 @@ const Header = () => {
     }
   }, [isMenuExpanded]);
 
-
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setShowSidebar(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [ref]);
-
   return (
     <>
       <nav
-        ref={ref}
         className="header-navbar navbar-expand-lg navbar navbar-with-menu fixed-top navbar-semi-dark navbar-shadow"
       >
         <div className="navbar-wrapper">
@@ -195,6 +180,7 @@ const Header = () => {
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
         isMenuExpanded={isMenuExpanded}
+        handleMenuClick={handleMenuClick}
       />
     </>
   );

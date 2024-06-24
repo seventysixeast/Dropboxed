@@ -1,5 +1,5 @@
 // SideNav.js
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
@@ -9,6 +9,7 @@ const SideNav = ({
   onMouseEnter,
   onMouseLeave,
   isMenuExpanded,
+  handleMenuClick,
 }) => {
   const { authData } = useAuth();
   const { user } = authData;
@@ -79,10 +80,17 @@ const SideNav = ({
   };
 
   const MenuItem = ({ to, icon, title, isActive }) => (
-    <li className={`nav-item ${isActive ? "active" : ""}`}>
-      <Link to={to} className="d-flex ">
-        <i className={`feather icon-${icon}  mb-0 pb-0`}></i>
-        <p className="menu-title mb-0 pb-0" data-i18n={title}>
+    <li
+      className={`nav-item ${isActive ? "active" : ""}`}
+      onClick={handleMenuClick}
+    >
+      <Link to={to} className="" style={{ height: "50px" }}>
+        <i className={`feather icon-${icon} `} style={{ fontSize: "1rem" }}></i>
+        <p
+          className="menu-title mb-0 pb-0"
+          style={{ fontSize: "1rem" }}
+          data-i18n={title}
+        >
           {hovering || isMenuExpanded ? title : null}
         </p>
       </Link>
