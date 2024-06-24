@@ -488,7 +488,10 @@ const ToDo = () => {
               <div className="todo-sidebar d-flex">
                 <span
                   className="sidebar-close-icon"
-                  onClick={(event) => {setShow(!show); console.log(event);}}
+                  onClick={(event) => {
+                    setShow(!show);
+                    console.log(event);
+                  }}
                 >
                   <i className="feather icon-x"></i>
                 </span>
@@ -706,11 +709,14 @@ const ToDo = () => {
                                   .groupBy("role_id")
                                   .map((value, key) => ({
                                     label: getLabelForKey(key),
-                                    options: value.map((client) => ({
-                                      value: client.id,
-                                      label: client.name,
-                                      profile_photo: client.profile_photo,
-                                    })),
+                                    options: _.sortBy(
+                                      value.map((client) => ({
+                                        value: client.id,
+                                        label: client.name,
+                                        profile_photo: client.profile_photo,
+                                      })),
+                                      ["label"]
+                                    ),
                                   }))
                                   .sortBy((group) => {
                                     switch (group.label) {
