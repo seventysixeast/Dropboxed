@@ -415,7 +415,7 @@ const sendInvoice = async (req, res) => {
 
         const emailContent = INVOICE_EMAIL(invoiceData);
 
-        sendEmail("kumarravi32832@gmail.com", "Your Invoice", emailContent);
+        sendEmail(clientEmail, "Your Invoice", emailContent);
 
         await CustomInvoiceList.update(
             { send_invoice: 1 },
