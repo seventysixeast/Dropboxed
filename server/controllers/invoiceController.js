@@ -359,6 +359,7 @@ const sendInvoice = async (req, res) => {
                 isPaid
             );
             quickbooks_invoice_id = qb_invoice.Id;
+            console.log("qb_invoice>>>>>>>>>",qb_invoice)
             if (quickbooks_invoice_id !== "") {
                 await CustomInvoiceList.update(
                     {
@@ -379,18 +380,22 @@ const sendInvoice = async (req, res) => {
 
         }
         const adminInfo = {
-            name: client.name,
-            email: client.email,
-            phone: client.phone,
+            name: adminUser.name,
+            email: adminUser.email,
+            phone: adminUser.phone,
             businessName: adminUser.business_name,
             abn: adminUser.abn_acn,
+            bsb: adminUser.bsb_number,
             accountName: adminUser.account_name,
-            accountEmail: adminUser.account_email
+            accountNumber: adminUser.account_number,
+            accountEmail: adminUser.account_email,
+            address: adminUser.address
         }
         const clientEmail = client.email;
         const clientName = client.name;
         const taxAmount = invoice.total_price / 11;
         const subTotal = invoice.total_price - taxAmount;
+        const notes = invoice.notes;
         const invoiceData = {
             clientName: clientName,
             invoiceNumber: invoice.id,
@@ -401,7 +406,8 @@ const sendInvoice = async (req, res) => {
             amountDue: invoice.total_price,
             items: items,
             clientEmail,
-            clientCity,
+            clientCity:client.city,
+            notes,
             clientInfo,
             adminInfo
 
@@ -409,7 +415,7 @@ const sendInvoice = async (req, res) => {
 
         const emailContent = INVOICE_EMAIL(invoiceData);
 
-        sendEmail(clientEmail, "Your Invoice", emailContent);
+        sendEmail("kumarravi32832@gmail.com", "Your Invoice", emailContent);
 
         await CustomInvoiceList.update(
             { send_invoice: 1 },
