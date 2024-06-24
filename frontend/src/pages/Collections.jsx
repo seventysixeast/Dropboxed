@@ -39,11 +39,11 @@ const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 
 const Collections = () => {
   const { id } = useParams();
-  
+
   const { authData } = useAuth();
 
   const user = authData.user;
-  
+
   const subdomainId = user.subdomain_id;
   const userId = user.id;
   const roleId = user.role_id;
@@ -576,15 +576,6 @@ const Collections = () => {
       {
         Header: "Services",
         accessor: "packages_name",
-        // Cell: ({ row }) => (
-        //   <div>
-        //     {row.original.packages.map((item, index) => (
-        //       <div key={index} className="d-flex">
-        //         <span className="">{item.package_name}</span>
-        //       </div>
-        //     ))}
-        //   </div>
-        // ),
       },
       {
         Header: "Invoice",
@@ -634,7 +625,10 @@ const Collections = () => {
             <Switch
               id="lockGallery"
               checked={row.original.lock_gallery}
-              onChange={() => handleGalleryLockChange(row.original)}
+              onChange={() => {
+                handleGalleryLockChange(row.original);
+              }}
+              disabled={roleId === 3}
               inputProps={{ "aria-label": "controlled" }}
             />
           </ReTooltip>
@@ -730,29 +724,39 @@ const Collections = () => {
         Header: "Action",
         Cell: ({ row }) => (
           <div className="btnsrow">
-            <ReTooltip title="Click to edit the collection." placement="top">
-              <button
-                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
-                style={{ padding: "0.5rem" }}
-                onClick={() => getCollectionData(row.original.slug)}
-                data-toggle="modal"
-                data-target="#bootstrap"
-              >
-                <i className="feather white icon-edit"></i>
-              </button>
-            </ReTooltip>
-            <ReTooltip title="Click to delete the collection." placement="top">
-              <button
-                className="btn btn-icon btn-outline-danger mr-1 mb-1"
-                style={{ padding: "0.5rem" }}
-                onClick={() => {
-                  setShowDeleteModal(true);
-                  setCollectionIdToDelete(row.original.id);
-                }}
-              >
-                <i className="feather white icon-trash"></i>
-              </button>
-            </ReTooltip>
+            {roleId !== 3 && (
+              <>
+                <ReTooltip
+                  title="Click to edit the collection."
+                  placement="top"
+                >
+                  <button
+                    className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => getCollectionData(row.original.slug)}
+                    data-toggle="modal"
+                    data-target="#bootstrap"
+                  >
+                    <i className="feather white icon-edit"></i>
+                  </button>
+                </ReTooltip>
+                <ReTooltip
+                  title="Click to delete the collection."
+                  placement="top"
+                >
+                  <button
+                    className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => {
+                      setShowDeleteModal(true);
+                      setCollectionIdToDelete(row.original.id);
+                    }}
+                  >
+                    <i className="feather white icon-trash"></i>
+                  </button>
+                </ReTooltip>
+              </>
+            )}
             <ReTooltip
               title="Click to copy link to the collection."
               placement="top"
@@ -777,11 +781,22 @@ const Collections = () => {
     []
   );
 
+  const filteredColumns = React.useMemo(() => {
+    if (roleId === 3) {
+      return columns.filter(
+        (column) =>
+          column.accessor !== "notify_client" &&
+          column.accessor !== "orderFound"
+      );
+    }
+    return columns;
+  }, [roleId, columns]);
+
   const data = React.useMemo(() => {
-    return collections.map(collection => {
+    return collections.map((collection) => {
       return {
         ...collection,
-        createdAt: moment(collection.created).format('DD/MM/YYYY')
+        createdAt: moment(collection.created).format("DD/MM/YYYY"),
       };
     });
   }, [collections]);
@@ -821,7 +836,6 @@ const Collections = () => {
 
   return (
     <>
-      <LoadingOverlay loading={loading} />
       <div className="app-content content">
         <div className="content-overlay"></div>
         <div className="content-wrapper">
@@ -916,28 +930,36 @@ const Collections = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      {itemsLoading === false && (
-        <>
-          {data.length > 0 ? (
-            <TableCustom data={data} columns={columns} />
-          ) : (
-            <div
-              className="app-content content content-wrapper d-flex justify-content-center"
-              style={{
-                marginTop: "15rem",
-                marginLeft: "15px",
-                marginRight: "15px",
-              }}
-              role="status"
-            >
+      <>
+        {data.length > 0 ? (
+          <TableCustom data={data} columns={filteredColumns} />
+        ) : (
+          <div
+            className="app-content content content-wrapper d-flex justify-content-center overflow-hidden"
+            style={{
+              marginTop: "15rem",
+              marginLeft: "15px",
+              marginRight: "15px",
+            }}
+            role="status"
+          >
+            {itemsLoading ? (
+              <div
+                className="spinner-border primary overflow-hidden"
+                role="status"
+              >
+                <span className="sr-only"></span>
+              </div>
+            ) : (
               <p>
                 No Collections added yet. Click New Colletion to add new
                 collection for your Clients.
               </p>
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </div>
+        )}
+      </>
+
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
