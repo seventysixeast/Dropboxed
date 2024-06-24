@@ -1,17 +1,102 @@
+// SideNav.js
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
-const SideNav = () => {
+const SideNav = ({
+  showSidebar,
+  hovering,
+  onMouseEnter,
+  onMouseLeave,
+  isMenuExpanded,
+}) => {
   const { authData } = useAuth();
   const { user } = authData;
   const roleId = user.role_id;
   const location = useLocation();
 
+  const menus = {
+    1: [
+      {
+        to: "/manage-photographer-admins",
+        icon: "users",
+        title: "Manage Photographer Admins",
+      },
+      { to: "/change-password", icon: "key", title: "Change Password" },
+    ],
+    2: [
+      { to: "/dashboard", icon: "home", title: "Dashboard" },
+      {
+        to: "/booking-list-calendar",
+        icon: "zap",
+        title: "Booking List/Calendar",
+      },
+      { to: "/todo", icon: "check-square", title: "To Do" },
+      { to: "/collections", icon: "layout", title: "Collections" },
+      { to: "/clients", icon: "users", title: "Clients" },
+      { to: "/invoice", icon: "file-text", title: "Invoice List" },
+      { to: "/services", icon: "file-text", title: "Services" },
+      { to: "/image-types", icon: "file-text", title: "Image Types" },
+    ],
+    3: [
+      { to: "/dashboard", icon: "home", title: "Dashboard" },
+      { to: "/todo", icon: "check-square", title: "To Do" },
+      { to: "/services", icon: "monitor", title: "Services" },
+      { to: "/invoice", icon: "file-text", title: "Invoice List" },
+      {
+        to: "/booking-list-calendar",
+        icon: "zap",
+        title: "Booking List/Calendar",
+      },
+      { to: "/notifications-of-booking", icon: "mail", title: "Notifications" },
+    ],
+    5: [
+      { to: "/dashboard", icon: "home", title: "Dashboard" },
+      {
+        to: "/booking-list-calendar",
+        icon: "zap",
+        title: "Booking List/Calendar",
+      },
+      { to: "/todo", icon: "check-square", title: "To Do" },
+      { to: "/collections", icon: "layout", title: "Collections" },
+      { to: "/clients", icon: "users", title: "Clients" },
+      { to: "/invoice", icon: "book-open", title: "Invoice List" },
+      { to: "/services", icon: "file-text", title: "Services" },
+      { to: "/image-types", icon: "image", title: "Image Types" },
+      {
+        to: "/photographers-team",
+        icon: "camera",
+        title: "Photographers Team",
+      },
+    ],
+  };
+
+  const roles = {
+    1: "Master Admin",
+    2: "Photographer",
+    3: "Client",
+    5: "Photographer Admin",
+  };
+
+  const MenuItem = ({ to, icon, title, isActive }) => (
+    <li className={`nav-item ${isActive ? "active" : ""}`}>
+      <Link to={to} className="d-flex ">
+        <i className={`feather icon-${icon}  mb-0 pb-0`}></i>
+        <p className="menu-title mb-0 pb-0" data-i18n={title}>
+          {hovering || isMenuExpanded ? title : null}
+        </p>
+      </Link>
+    </li>
+  );
+
   return (
     <div
-      className="main-menu menu-fixed menu-dark menu-accordion menu-shadow"
+      className={`main-menu menu-fixed menu-dark menu-accordion menu-shadow ${
+        showSidebar ? "menu-fix" : "menu-fix-close"
+      } ${hovering ? "expanded" : ""}`}
       data-scroll-to-active="true"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <div className="main-menu-content">
         <ul
@@ -19,430 +104,16 @@ const SideNav = () => {
           id="main-menu-navigation"
           data-menu="menu-navigation"
         >
-          {roleId === 5 && (
-            <>
-              <li className="navigation-header">
-                <span>Photographers</span>
-                <i
-                  className="feather icon-minus"
-                  data-toggle="tooltip"
-                  data-placement="right"
-                  data-original-title="Photographers"
-                ></i>
-              </li>
-              <li
-                className={`nav-item  ${
-                  location.pathname === "/dashboard" ? "active" : ""
-                }`}
-              >
-                <Link to="/dashboard">
-                  <i className="feather icon-home"></i>
-                  <span className="menu-title" data-i18n="Dashboard">
-                    Dashboard
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/booking-list-calendar" ? "active" : ""
-                }`}
-              >
-                <Link to="/booking-list-calendar">
-                  <i className="feather icon-zap"></i>
-                  <span className="menu-title" data-i18n="Starter kit">
-                    Booking List/Calendar
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/todo" ? "active" : ""
-                }`}
-              >
-                <Link to="/todo">
-                  <i className="feather icon-check-square"></i>
-                  <span className="menu-title" data-i18n="Todo Application">
-                    To Do
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/collections" ? "active" : ""
-                }`}
-              >
-                <Link to="/collections">
-                  <i className="feather icon-layout"></i>
-                  <span className="menu-title" data-i18n="Layouts">
-                    Collections
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/clients" ? "active" : ""
-                }`}
-              >
-                <Link to="/clients">
-                  <i className="feather icon-users"></i>
-                  <span className="menu-title" data-i18n="Clients">
-                    Clients
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/invoice" ? "active" : ""
-                }`}
-              >
-                <Link to="/invoice">
-                  <i className="feather icon-book-open"></i>
-                  <span className="menu-title" data-i18n="Invoice">
-                    Invoice List
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/services" ? "active" : ""
-                }`}
-              >
-                <Link to="/services">
-                  <i className="feather icon-file-text"></i>
-                  <span className="menu-title" data-i18n="Services">
-                    Services
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/image-types" ? "active" : ""
-                }`}
-              >
-                <Link to="/image-types">
-                  <i className="feather icon-image"></i>
-                  <span className="menu-title" data-i18n="Image Types">
-                    Image Types
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/photographers-team" ? "active" : ""
-                }`}
-              >
-                <Link to="/photographers-team">
-                  <i className="feather icon-camera"></i>
-                  <span className="menu-title" data-i18n="Photographers Team">
-                    Photographers Team
-                  </span>
-                </Link>
-              </li>
-            </>
-          )}
-
-          {roleId === 2 && (
-            <>
-              <li className="navigation-header">
-                <span>Photographers</span>
-                <i
-                  className="feather icon-minus"
-                  data-toggle="tooltip"
-                  data-placement="right"
-                  data-original-title="Photographers"
-                ></i>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/dashboard" ? "active" : ""
-                }`}
-              >
-                <Link to="/dashboard">
-                  <i className="feather icon-home"></i>
-                  <span className="menu-title" data-i18n="Dashboard">
-                    Dashboard
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/booking-list-calendar" ? "active" : ""
-                }`}
-              >
-                <Link to="/booking-list-calendar">
-                  <i className="feather icon-zap"></i>
-                  <span className="menu-title" data-i18n="Starter kit">
-                    Booking List/Calendar
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/todo" ? "active" : ""
-                }`}
-              >
-                <Link to="/todo">
-                  <i className="feather icon-check-square"></i>
-                  <span className="menu-title" data-i18n="Todo Application">
-                    To Do
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/collections" ? "active" : ""
-                }`}
-              >
-                <Link to="/collections">
-                  <i className="feather icon-layout"></i>
-                  <span className="menu-title" data-i18n="Layouts">
-                    Collections
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/clients" ? "active" : ""
-                }`}
-              >
-                <Link to="/clients">
-                  <i className="feather icon-users"></i>
-                  <span className="menu-title" data-i18n="Clients">
-                    Clients
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/invoice" ? "active" : ""
-                }`}
-              >
-                <Link to="/invoice">
-                  <i className="feather icon-file-text"></i>
-                  <span className="menu-title" data-i18n="Invoice">
-                    Invoice List
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/services" ? "active" : ""
-                }`}
-              >
-                <Link to="/services">
-                  <i className="feather icon-file-text"></i>
-                  <span className="menu-title" data-i18n="Services">
-                    Services
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/image-types" ? "active" : ""
-                }`}
-              >
-                <Link to="/image-types">
-                  <i className="feather icon-file-text"></i>
-                  <span className="menu-title" data-i18n="Image Types">
-                    Image Types
-                  </span>
-                </Link>
-              </li>
-            </>
-          )}
-
-          {roleId === 3 && (
-            <>
-              <li className="navigation-header">
-                <span>Clients</span>
-                <i
-                  className="feather icon-minus"
-                  data-toggle="tooltip"
-                  data-placement="right"
-                  data-original-title="Clients"
-                ></i>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/dashboard" ? "active" : ""
-                }`}
-              >
-                <Link to="/dashboard">
-                  <i className="feather icon-home"></i>
-                  <span className="menu-title" data-i18n="Dashboard">
-                    Dashboard
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/todo" ? "active" : ""
-                }`}
-              >
-                <Link to="/todo">
-                  <i className="feather icon-check-square"></i>
-                  <span className="menu-title" data-i18n="Todo Application">
-                    To Do
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/services" ? "active" : ""
-                }`}
-              >
-                <Link to="/services">
-                  <i className="feather icon-monitor"></i>
-                  <span className="menu-title" data-i18n="Templates">
-                    Services
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/invoice" ? "active" : ""
-                }`}
-              >
-                <Link to="/invoice">
-                  <i className="feather icon-file-text"></i>
-                  <span className="menu-title" data-i18n="Invoice">
-                    Invoice List
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/booking-list-calendar" ? "active" : ""
-                }`}
-              >
-                <Link to="/booking-list-calendar">
-                  <i className="feather icon-zap"></i>
-                  <span className="menu-title" data-i18n="Starter kit">
-                    Booking List/Calendar
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/notifications-of-booking"
-                    ? "active"
-                    : ""
-                }`}
-              >
-                <Link to="/notifications-of-booking">
-                  <i className="feather icon-mail"></i>
-                  <span className="menu-title" data-i18n="Email Application">
-                    Notifications
-                  </span>
-                </Link>
-              </li>
-            </>
-          )}
-
-          {roleId === 1 && (
-            <>
-              <li className="navigation-header">
-                <span>Master Admin</span>
-                <i
-                  className="feather icon-minus"
-                  data-toggle="tooltip"
-                  data-placement="right"
-                  data-original-title="Master Admin"
-                ></i>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/manage-photographer-admins"
-                    ? "active"
-                    : ""
-                }`}
-              >
-                <Link to="/manage-photographer-admins">
-                  <i className="feather icon-users"></i>
-                  <span className="menu-title" data-i18n="Layouts">
-                    Manage Photographer Admins
-                  </span>
-                </Link>
-              </li>
-              <li
-                className={`nav-item ${
-                  location.pathname === "/change-password" ? "active" : ""
-                }`}
-              >
-                <Link to="/change-password">
-                  <i className="fa fa-key"></i>
-                  <span className="menu-title" data-i18n="Layouts">
-                    Change Password
-                  </span>
-                </Link>
-              </li>
-            </>
-          )}
-          <>
-            {/* <li className=" navigation-header">
-            <span>Master Admin</span>
-            <i
-              className=" feather icon-minus"
-              data-toggle="tooltip"
-              data-placement="right"
-              data-original-title="Master Admin"
-            ></i>
-          </li> */}
-
-            {/* <li className=" nav-item">
-            <Link to="/Login">
-              <i className="feather icon-layout"></i>
-              <span className="menu-title" data-i18n="Layouts">
-                Login
-              </span>
-            </Link>
-          </li> */}
-
-            {/* <li className=" nav-item">
-            <Link to="/signup">
-              <i className="feather icon-layout"></i>
-              <span className="menu-title" data-i18n="Layouts">
-                Sign Up
-              </span>
-            </Link>
-          </li> */}
-
-            {/* <li className=" nav-item">
-            <Link to="/update-subscription-services-charges">
-              <i className="feather icon-layout"></i>
-              <span className="menu-title" data-i18n="Layouts">
-                Update Subscription Services Charges
-              </span>
-            </Link>
-          </li> */}
-
-            {/* <li className=" nav-item">
-            <Link to="/download">
-              <i className="feather icon-layout"></i>
-              <span className="menu-title" data-i18n="Layouts">
-                Download
-              </span>
-            </Link>
-          </li> */}
-
-            {/* <li className=" nav-item">
-            <Link to="/users">
-              <i className="feather icon-user"></i>
-              <span className="menu-title" data-i18n="Layouts">
-                Users
-              </span>
-            </Link>
-          </li> */}
-
-            {/* <li className=" nav-item">
-            <Link to="/add-collection">
-              <i className="feather icon-mail"></i>
-              <span className="menu-title" data-i18n="Collection Form">
-                Add Collection
-              </span>
-            </Link>
-          </li> */}
-          </>
+          {menus[roleId] &&
+            menus[roleId].map((menu, index) => (
+              <MenuItem
+                key={index}
+                to={menu.to}
+                icon={menu.icon}
+                title={menu.title}
+                isActive={location.pathname === menu.to}
+              />
+            ))}
         </ul>
       </div>
     </div>

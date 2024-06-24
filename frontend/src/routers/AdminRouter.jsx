@@ -73,7 +73,7 @@ const AdminRouter = () => {
   return (
     <div className="wrapper-foot">
       {shouldRenderHeaderAndSideNav && <Header />}
-      {shouldRenderHeaderAndSideNav && <SideNav />}
+      {/* {shouldRenderHeaderAndSideNav && <SideNav />} */}
       <div id="script-warning"></div>
       <div className="content-foot">{route}</div>
       <Footer />
