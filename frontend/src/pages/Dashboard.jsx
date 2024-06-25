@@ -24,6 +24,7 @@ import CollectionTable from "../components/CollectionTable";
 import ReTooltip from "../components/Tooltip";
 import LoadingOverlay from "../components/Loader";
 import { getActiveInvoices } from "../api/invoiceApis";
+import { Link, useNavigate } from "react-router-dom";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -31,7 +32,7 @@ const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
 
-export const Dashboard = () => {
+const Dashboard = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id;
@@ -59,6 +60,7 @@ export const Dashboard = () => {
   const [subdomainDropbox, setSubdomainDropbox] = useState("");
   const [activeInvoices, setActiveInvoices] = useState(0);
   const [elementVisible, setElementsVisible] = useState(false);
+  const navigate = useNavigate();
   const url2 = new URL(currentUrl);
   url2.pathname = url2.pathname.replace("/dashboard", "");
 
@@ -194,7 +196,6 @@ export const Dashboard = () => {
     };
     try {
       let data = await getActiveInvoices(datatosend);
-      console.log(data);
       setActiveInvoices(data.data);
     } catch (error) {
       console.log(error);
@@ -501,7 +502,7 @@ export const Dashboard = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = "/login";
+          navigate('/login');
         }
       }
     };
@@ -589,7 +590,7 @@ export const Dashboard = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
+                      <Link to="/dashboard">Home</Link>
                     </li>
                   </ol>
                 </div>
@@ -728,13 +729,13 @@ export const Dashboard = () => {
                         {user.role_id == 5 && (
                           <>
                             {subdomainDropbox === "" && !itemsLoading && (
-                              <a
-                                href={`${dropboxAuthUrl}`}
+                              <Link
+                                to={`${dropboxAuthUrl}`}
                                 className="btn btn-primary mr-1 mb-1"
                                 style={{ paddingTop: "10px" }}
                               >
                                 Link Your Dropbox
-                              </a>
+                              </Link>
                             )}
                           </>
                         )}
@@ -760,9 +761,7 @@ export const Dashboard = () => {
                             className="btn btn-outline-primary mr-1 mb-1"
                             data-toggle="modal"
                             data-target="#appointment"
-                            onClick={() => {
-                              window.location.href = "/booking-list-calendar";
-                            }}
+                            onClick={() => navigate('/booking-list-calendar')}
                           >
                             New Appointment
                           </button>
@@ -807,8 +806,8 @@ export const Dashboard = () => {
                     {collections && collections.length > 0 ? (
                       collections.map((item) => (
                         <div className="col-md-3 mb-1" key={item.id}>
-                          <a
-                            href={`${url2}view-gallery/${item.slug}`}
+                          <Link
+                            to={`${url2}view-gallery/${item.slug}`}
                             className="gallery-link"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -909,7 +908,7 @@ export const Dashboard = () => {
                                 </p>
                               </figcaption>
                             </figure>
-                          </a>
+                          </Link>
                         </div>
                       ))
                     ) : (
@@ -971,3 +970,5 @@ export const Dashboard = () => {
     </>
   );
 };
+
+export default Dashboard;

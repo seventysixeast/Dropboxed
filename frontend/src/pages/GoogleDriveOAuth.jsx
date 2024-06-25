@@ -27,7 +27,6 @@ const GoogleDriveOAuth = () => {
           }
         )
         .then((response) => {
-            console.log(response);
           window.location.href = redirectUrl.href;
         })
         .catch((error) => {

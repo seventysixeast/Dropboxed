@@ -6,7 +6,7 @@ import { useAuth } from "../context/authContext";
 import { getAllNotifications, deleteNotification } from "../api/notificationApis";
 import { format } from 'date-fns';
 
-export const NotificationComponent = () => {
+const NotificationComponent = () => {
   const { authData } = useAuth();
   const user = authData.user;
   const subdomainId = user.subdomain_id;
@@ -117,3 +117,5 @@ export const NotificationComponent = () => {
     </>
   );
 };
+
+export default NotificationComponent;

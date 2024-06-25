@@ -1,5 +1,3 @@
-// models/Package.js
-
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
@@ -56,7 +54,7 @@ const Package = sequelize.define('Package', {
   }
 }, {
   tableName: 'packages',
-  timestamps: false // Assuming you don't want Sequelize to manage createdAt and updatedAt columns
+  timestamps: false
 });
 
 module.exports = Package;

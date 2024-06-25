@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import { useAuth } from "../context/authContext";
 import { verifyToken } from "../api/authApis";
+import { Link, useNavigate } from "react-router-dom";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const Clients = () => {
@@ -37,6 +38,7 @@ const Clients = () => {
     business_name: "",
     profile_photo: "",
   });
+  const navigate = useNavigate();
 
   const fileInputRef = useRef(null);
 
@@ -236,7 +238,7 @@ const Clients = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = "/login";
+          navigate('/login');
         }
       }
     };
@@ -255,7 +257,7 @@ const Clients = () => {
               <div className="breadcrumb-wrapper col-12">
                 <ol className="breadcrumb">
                   <li className="breadcrumb-item">
-                    <a href="/dashboard">Home</a>
+                    <Link to="/dashboard">Home</Link>
                   </li>
                   <li className="breadcrumb-item">Clients</li>
                 </ol>
@@ -275,7 +277,7 @@ const Clients = () => {
               </li>
               <li>
                 <div className="mr-1 primary">
-                <h6>
+                  <h6>
                     <a onClick={() => setFilterStatus("Inactive")}>
                       Inactive : {inactiveClients ? inactiveClients.length : 0}
                     </a>
@@ -448,8 +450,9 @@ const Clients = () => {
               .map((item) => (
                 <div className="col-xl-3 col-md-6 col-12" key={item.id}>
                   <div
-                    className={`card d-flex flex-column ${item.status === "Inactive" ? "dull-card" : ""
-                      }`}
+                    className={`card d-flex flex-column ${
+                      item.status === "Inactive" ? "dull-card" : ""
+                    }`}
                   >
                     <div className="text-center">
                       <div className="card-body">
@@ -466,14 +469,16 @@ const Clients = () => {
                       <div className="card-body">
                         <h4 className="card-title">{item.name}</h4>
                         <h6
-                          className={`card-subtitle mb-2 ${item.status === "Active" ? "text-muted" : ""
-                            }`}
+                          className={`card-subtitle mb-2 ${
+                            item.status === "Active" ? "text-muted" : ""
+                          }`}
                         >
                           {item.business_name}
                         </h6>
                         <h6
-                          className={`card-subtitle mb-2 ${item.status === "Active" ? "text-muted" : ""
-                            }`}
+                          className={`card-subtitle mb-2 ${
+                            item.status === "Active" ? "text-muted" : ""
+                          }`}
                         >
                           Created On :{" "}
                           {moment(item.created).format("DD-MM-YYYY")}
@@ -483,43 +488,46 @@ const Clients = () => {
                     <div className="text-center mt-auto">
                       <a
                         href={`mailto:${item.email}`}
-                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
-                          }`}
+                        className={`btn btn-social-icon mb-1 ${
+                          item.status === "Inactive" ? "dull-card" : ""
+                        }`}
                         title={item.email}
                       >
                         <span className="icon-envelope"></span>
                       </a>
                       <a
                         href={`tel:${item.phone}`}
-                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
-                          }`}
+                        className={`btn btn-social-icon mb-1 ${
+                          item.status === "Inactive" ? "dull-card" : ""
+                        }`}
                         title={item.phone}
                       >
                         <span className="icon-call-out"></span>
                       </a>
-                      <a
-                        href={`/collections/user/${item.id}`}
-                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
-                          }`}
+                      <Link
+                        to={`/client-collections/${item.id}`}
+                        className={`btn btn-social-icon mb-1 ${
+                          item.status === "Inactive" ? "dull-card" : ""
+                        }`}
                         title="View Collections"
                       >
                         <span className="icon-grid"></span>
-                      </a>
-                      <a
-                        href="#"
-                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
-                          }`}
+                      </Link>
+                      <button
+                        className={`btn btn-social-icon mb-1 ${
+                          item.status === "Inactive" ? "dull-card" : ""
+                        }`}
                         title="Edit"
                         onClick={() => getClientData(item.id)}
                         data-toggle="modal"
                         data-target="#bootstrap"
                       >
                         <span className="icon-note"></span>
-                      </a>
-                      <a
-                        href="#"
-                        className={`btn btn-social-icon mb-1 ${item.status === "Inactive" ? "dull-card" : ""
-                          }`}
+                      </button>
+                      <button
+                        className={`btn btn-social-icon mb-1 ${
+                          item.status === "Inactive" ? "dull-card" : ""
+                        }`}
                         title="Delete"
                         onClick={() => {
                           setShowDeleteModal(true);
@@ -527,7 +535,7 @@ const Clients = () => {
                         }}
                       >
                         <span className="icon-trash"></span>
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>

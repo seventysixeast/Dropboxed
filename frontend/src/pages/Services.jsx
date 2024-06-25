@@ -7,7 +7,7 @@ import {
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DndContext,
   closestCenter,
@@ -40,7 +40,6 @@ const CardsPackages = () => {
   const [itemsLoading, setItemsLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
   useEffect(() => {
     getServices();
   }, []);
@@ -166,7 +165,7 @@ const CardsPackages = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
+                      <Link to="/dashboard">Home</Link>
                     </li>
                     <li className="breadcrumb-item">Services & Prices</li>
                   </ol>
@@ -178,13 +177,13 @@ const CardsPackages = () => {
                 <li>
                   <div className="form-group">
                     {roleId !== 3 && (
-                      <a
+                      <Link
                         type="button"
                         className="btn btn-outline-primary btn-block"
-                        href="/services/add-service"
+                        to="/services/add-service"
                       >
                         Add Service
-                      </a>
+                      </Link>
                     )}
                   </div>
                 </li>

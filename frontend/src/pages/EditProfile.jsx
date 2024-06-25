@@ -88,7 +88,6 @@ const EditProfile = () => {
       } else {
         setPreviewImage(null);
       }
-      console.log(userData.data.logo);
       if (userData.data.logo !== "") {
         let path = `${IMAGE_URL}/${userData.data.logo}`;
         setPreviewLogo(path);

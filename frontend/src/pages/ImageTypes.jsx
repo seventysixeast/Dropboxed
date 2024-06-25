@@ -11,6 +11,7 @@ import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
 import { verifyToken } from "../api/authApis";
 import LoadingOverlay from "../components/Loader";
+import { useNavigate, Link } from "react-router-dom";
 
 const ImageTypes = () => {
   const { authData } = useAuth();
@@ -27,6 +28,7 @@ const ImageTypes = () => {
     status: "Active",
     gallery_status: "Image",
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAllImageTypesData();
@@ -38,7 +40,7 @@ const ImageTypes = () => {
       const resp = await verifyToken(accesstoken);
       if (!resp.success) {
         toast.error("Session expired, please login again.");
-        window.location.href = "/login";
+        navigate('/login');
       }
     }
   };
@@ -186,7 +188,7 @@ const ImageTypes = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
+                      <Link to="/dashboard">Home</Link>
                     </li>
                     <li className="breadcrumb-item active">Image Types</li>
                   </ol>

@@ -21,7 +21,7 @@ import Masonry from "react-masonry-css";
 import { LinearProgress } from "@mui/material";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
-export const ViewGallery = () => {
+const ViewGallery = () => {
   const { authData } = useAuth();
   const [dropboxAccess, setDropboxAccess] = useState("");
   const [collectionRefresh, setCollectionRefresh] = useState("");
@@ -116,8 +116,6 @@ export const ViewGallery = () => {
     );
     closeSharePopup();
   };
-
-  console.log(collection.lock_gallery);
 
   const getTasks = async () => {
     if (authData.user === null) return;
@@ -1207,3 +1205,5 @@ export const ViewGallery = () => {
     </>
   );
 };
+
+export default ViewGallery;

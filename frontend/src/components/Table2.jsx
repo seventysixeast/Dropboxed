@@ -120,12 +120,12 @@ const Table2 = ({ data, columns }) => {
                                       <span>
                                         {column.isSorted ? (
                                           column.isSortedDesc ? (
-                                            <i
+                                            <span
                                               className="fa fa-sort-desc"
                                               style={{ marginLeft: "10px" }}
                                             />
                                           ) : (
-                                            <i
+                                            <span
                                               className="fa fa-sort-asc"
                                               style={{ marginLeft: "10px" }}
                                             />
@@ -178,28 +178,34 @@ const Table2 = ({ data, columns }) => {
                             !canPreviousPage ? "disabled" : ""
                           }`}
                         >
-                          <button
-                            className="page-link"
-                            onClick={() => gotoPage(0)}
-                          >
-                            First
-                          </button>
+                          <span>
+                            <button
+                              className="page-link"
+                              onClick={() => gotoPage(0)}
+                            >
+                              First
+                            </button>
+                          </span>
                         </li>
                         <li
                           className={`paginate_button page-item previous ${
                             !canPreviousPage ? "disabled" : ""
                           }`}
                         >
-                          <button
-                            className="page-link"
-                            onClick={() => previousPage()}
-                          >
-                            Previous
-                          </button>
+                          <span>
+                            <button
+                              className="page-link"
+                              onClick={() => previousPage()}
+                            >
+                              Previous
+                            </button>
+                          </span>
                         </li>
                         {startIndex > 0 && (
                           <li className="paginate_button page-item disabled">
-                            <button className="page-link">...</button>
+                            <span>
+                              <button className="page-link">...</button>
+                            </span>
                           </li>
                         )}
                         {pageOptions
@@ -211,17 +217,21 @@ const Table2 = ({ data, columns }) => {
                                 pageIndex === page ? "active" : ""
                               }`}
                             >
-                              <button
-                                className="page-link"
-                                onClick={() => gotoPage(page)}
-                              >
-                                {page + 1}
-                              </button>
+                              <span>
+                                <button
+                                  className="page-link"
+                                  onClick={() => gotoPage(page)}
+                                >
+                                  {page + 1}
+                                </button>
+                              </span>
                             </li>
                           ))}
                         {startIndex + displayedPages < pageCount && (
                           <li className="paginate_button page-item disabled">
-                            <button className="page-link">...</button>
+                            <span>
+                              <button className="page-link">...</button>
+                            </span>
                           </li>
                         )}
                         <li
@@ -229,24 +239,28 @@ const Table2 = ({ data, columns }) => {
                             !canNextPage ? "disabled" : ""
                           }`}
                         >
-                          <button
-                            className="page-link"
-                            onClick={() => nextPage()}
-                          >
-                            Next
-                          </button>
+                          <span>
+                            <button
+                              className="page-link"
+                              onClick={() => nextPage()}
+                            >
+                              Next
+                            </button>
+                          </span>
                         </li>
                         <li
                           className={`paginate_button page-item last ${
                             !canNextPage ? "disabled" : ""
                           }`}
                         >
-                          <button
-                            className="page-link"
-                            onClick={() => gotoPage(pageCount - 1)}
-                          >
-                            Last
-                          </button>
+                          <span>
+                            <button
+                              className="page-link"
+                              onClick={() => gotoPage(pageCount - 1)}
+                            >
+                              Last
+                            </button>
+                          </span>
                         </li>
                       </ul>
                     </div>
