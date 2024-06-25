@@ -20,12 +20,15 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const fileUpload = require('express-fileupload');
+const compression = require('compression');
+
 
 const secret = crypto.randomBytes(32).toString('hex');
 const app = express();
 const PORT = process.env.PORT || 6977;
 
 app.use(fileUpload());
+app.use(compression());
 
 app.use(cors(/*{
   origin: /^https?:\/\/[^/]+\.example\.com$/,
