@@ -5,6 +5,7 @@ import {
   getAllBookingTitles,
   getAllServices,
   getAllPhotographers,
+  getServicesCollection,
 } from "../api/bookingApis";
 import {
   addGallery,
@@ -20,7 +21,7 @@ import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import TableCustom from "../components/Table2";
+import TableCustom from "../components/Table";
 import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
 import moment from "moment";
@@ -30,13 +31,20 @@ import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
 import EditInvoiceModal from "../components/EditInvoice";
 import ConfirmModal from "../components/ConfirmModal";
+import { useParams } from "react-router-dom";
+import Table2 from "./Table2";
+
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
 const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 
 const CollectionTable = () => {
+  const { id } = useParams();
+
   const { authData } = useAuth();
+
   const user = authData.user;
+
   const subdomainId = user.subdomain_id;
   const userId = user.id;
   const roleId = user.role_id;
@@ -70,7 +78,10 @@ const CollectionTable = () => {
     banner: null,
     lock_gallery: false,
     notify_client: "",
+    serviceIds: "",
   });
+
+  console.log(formData);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState(null);
   const [isEditMode, setEditMode] = useState(false);
@@ -95,8 +106,16 @@ const CollectionTable = () => {
   const dropboxAuthUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${REACT_APP_DROPBOX_CLIENT}&redirect_uri=${REACT_APP_DROPBOX_REDIRECT}&token_access_type=offline&scope=${scopes}&response_type=code&state=${url}`;
 
   useEffect(() => {
-    if (formData.client !== "" && formData.booking_title !== "") {
+    if (
+      formData.client !== "" &&
+      formData.booking_title !== "" &&
+      formData.id === ""
+    ) {
       getServices(formData.client, formData.booking_title);
+      getPhotographers(formData.client, formData.booking_title);
+      getBookingTitles(formData.client);
+    } else if (formData.id !== "") {
+      getCollectionServices(formData.serviceIds);
       getPhotographers(formData.client, formData.booking_title);
       getBookingTitles(formData.client);
     }
@@ -178,6 +197,8 @@ const CollectionTable = () => {
       gallery.gallery_title = value;
     } else if (name === "services") {
       gallery.services = value;
+      // setServices as well to have same data as gallery.services
+      setServices(gallery.services);
     } else if (name === "photographers") {
       gallery.photographers = value;
     } else if (name === "gallery_title") {
@@ -319,8 +340,14 @@ const CollectionTable = () => {
     try {
       const formData = new FormData();
       formData.append("subdomainId", subdomainId);
-      formData.append("roleId", user.role_id);
-      formData.append("userId", user.id);
+      if (id !== undefined) {
+        formData.append("roleId", 3);
+        formData.append("userId", id);
+      } else {
+        formData.append("roleId", user.role_id);
+        formData.append("userId", user.id);
+      }
+
       let allCollections = await getAllCollections(formData);
       if (allCollections && allCollections.success) {
         setCollections(allCollections.data);
@@ -402,11 +429,10 @@ const CollectionTable = () => {
   };
 
   const getCollectionData = async (id) => {
-    console.log(id);
-    setFormData({
-      ...formData,
-      id: id,
-    });
+    // setFormData({
+    //   ...formData,
+    //   id: id,
+    // });
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("slug", id);
@@ -417,11 +443,14 @@ const CollectionTable = () => {
       } else {
         setPreviewImage(null);
       }
+
+      console.log(collectionData);
       const initialFormData = {
+        ...formData,
         id: collectionData.data.id,
         client: collectionData.data.client_id,
         booking_title: collectionData.data.client_address,
-        serviceIds: collectionData.data.services,
+        serviceIds: collectionData.data.package_ids,
         photographerIds: collectionData.data.photographers,
         gallery_title: collectionData.data.name,
         dropbox_link: collectionData.data.dropbox_link,
@@ -429,12 +458,30 @@ const CollectionTable = () => {
         banner: collectionData.data.banner,
       };
       setFormData(initialFormData);
+
       setIsGalleryLocked(collectionData.data.lock_gallery);
       setIsNotifyChecked(collectionData.data.notify_client);
     } catch (error) {
       console.error("Failed to get ImageTypes:", error.message);
     }
     setLoading(false);
+  };
+
+  const getCollectionServices = async (serviceIds) => {
+    try {
+      let services = await getServicesCollection({
+        serviceIds,
+      });
+      let servicesData =
+        services &&
+        services.data.map((pkg) => ({
+          label: pkg.package_name,
+          value: pkg.id,
+        }));
+      setServices(servicesData);
+    } catch (error) {
+      toast.error(error);
+    }
   };
 
   const deleteCollectionData = async () => {
@@ -530,15 +577,6 @@ const CollectionTable = () => {
       {
         Header: "Services",
         accessor: "packages_name",
-        // Cell: ({ row }) => (
-        //   <div>
-        //     {row.original.packages.map((item, index) => (
-        //       <div key={index} className="d-flex">
-        //         <span className="">{item.package_name}</span>
-        //       </div>
-        //     ))}
-        //   </div>
-        // ),
       },
       {
         Header: "Invoice",
@@ -588,7 +626,10 @@ const CollectionTable = () => {
             <Switch
               id="lockGallery"
               checked={row.original.lock_gallery}
-              onChange={() => handleGalleryLockChange(row.original)}
+              onChange={() => {
+                handleGalleryLockChange(row.original);
+              }}
+              disabled={roleId === 3}
               inputProps={{ "aria-label": "controlled" }}
             />
           </ReTooltip>
@@ -684,29 +725,39 @@ const CollectionTable = () => {
         Header: "Action",
         Cell: ({ row }) => (
           <div className="btnsrow">
-            <ReTooltip title="Click to edit the collection." placement="top">
-              <button
-                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
-                style={{ padding: "0.5rem" }}
-                onClick={() => getCollectionData(row.original.slug)}
-                data-toggle="modal"
-                data-target="#bootstrap"
-              >
-                <i className="feather white icon-edit"></i>
-              </button>
-            </ReTooltip>
-            <ReTooltip title="Click to delete the collection." placement="top">
-              <button
-                className="btn btn-icon btn-outline-danger mr-1 mb-1"
-                style={{ padding: "0.5rem" }}
-                onClick={() => {
-                  setShowDeleteModal(true);
-                  setCollectionIdToDelete(row.original.id);
-                }}
-              >
-                <i className="feather white icon-trash"></i>
-              </button>
-            </ReTooltip>
+            {roleId !== 3 && (
+              <>
+                <ReTooltip
+                  title="Click to edit the collection."
+                  placement="top"
+                >
+                  <button
+                    className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => getCollectionData(row.original.slug)}
+                    data-toggle="modal"
+                    data-target="#bootstrap"
+                  >
+                    <i className="feather white icon-edit"></i>
+                  </button>
+                </ReTooltip>
+                <ReTooltip
+                  title="Click to delete the collection."
+                  placement="top"
+                >
+                  <button
+                    className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                    style={{ padding: "0.5rem" }}
+                    onClick={() => {
+                      setShowDeleteModal(true);
+                      setCollectionIdToDelete(row.original.id);
+                    }}
+                  >
+                    <i className="feather white icon-trash"></i>
+                  </button>
+                </ReTooltip>
+              </>
+            )}
             <ReTooltip
               title="Click to copy link to the collection."
               placement="top"
@@ -731,11 +782,22 @@ const CollectionTable = () => {
     []
   );
 
+  const filteredColumns = React.useMemo(() => {
+    if (roleId === 3) {
+      return columns.filter(
+        (column) =>
+          column.accessor !== "notify_client" &&
+          column.accessor !== "orderFound"
+      );
+    }
+    return columns;
+  }, [roleId, columns]);
+
   const data = React.useMemo(() => {
-    return collections.map(collection => {
+    return collections.map((collection) => {
       return {
         ...collection,
-        createdAt: moment(collection.created).format('DD/MM/YYYY')
+        createdAt: moment(collection.created).format("DD/MM/YYYY"),
       };
     });
   }, [collections]);
@@ -775,7 +837,6 @@ const CollectionTable = () => {
 
   return (
     <>
-      <LoadingOverlay loading={loading} />
       <AddGalleryModal
         message={formData.id ? "Update Collection" : "Add Collection"}
         button={formData.id ? "Update" : "Add"}
@@ -796,24 +857,31 @@ const CollectionTable = () => {
         handleSubmit={handleSubmit}
         onClose={resetFormData}
       />
-      {itemsLoading === false && (
-        <>
-          {data.length > 0 ? (
-            <TableCustom data={data} columns={columns} />
-          ) : (
-            <div
-              className="app-content content content-wrapper d-flex justify-content-center"
-              style={{ marginTop: "15rem" }}
-              role="status"
-            >
+      <>
+        {data.length > 0 ? (
+          <Table2 data={data} columns={filteredColumns} />
+        ) : (
+          <div
+            className="d-flex justify-content-center overflow-hidden pb-2"
+            role="status"
+          >
+            {itemsLoading ? (
+              <div
+                className="spinner-border primary overflow-hidden"
+                role="status"
+              >
+                <span className="sr-only"></span>
+              </div>
+            ) : (
               <p>
                 No Collections added yet. Click New Colletion to add new
                 collection for your Clients.
               </p>
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </div>
+        )}
+      </>
+
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

@@ -573,8 +573,8 @@ export const BookingListComponent = () => {
         photographer_id: booking.photographer_id,
         booking_status: notifyCheckbox,
         comment: booking.comment,
-        subdomain_id: subdomainId
-    };
+        subdomain_id: subdomainId,
+      };
 
       await newBooking(formDataToSend);
       getAllBookingsData();
@@ -645,7 +645,7 @@ export const BookingListComponent = () => {
         photographer_id: booking.photographer_id,
         booking_status: notifyCheckbox,
         comment: booking.comment,
-        subdomain_id: subdomainId
+        subdomain_id: subdomainId,
       };
 
       await newBooking(formDataToSend);
@@ -1062,30 +1062,31 @@ export const BookingListComponent = () => {
   );
 
   const data = React.useMemo(() => {
-    return bookingsData.map(booking => {
+    return bookingsData.map((booking) => {
       const services = (booking.package_ids?.split(", ") || [])
-        .map(id => packages.find(pack => pack.id === parseInt(id)))
+        .map((id) => packages.find((pack) => pack.id === parseInt(id)))
         .filter(Boolean)
-        .map(serv => serv.package_name)
+        .map((serv) => serv.package_name)
         .join(", ");
-      
+
       const photographers = (
-        Array.isArray(booking.photographer_id) ? booking.photographer_id : booking.photographer_id?.split(", ") || []
+        Array.isArray(booking.photographer_id)
+          ? booking.photographer_id
+          : booking.photographer_id?.split(", ") || []
       )
-        .map(id => providers.find(provider => provider.id === parseInt(id)))
+        .map((id) => providers.find((provider) => provider.id === parseInt(id)))
         .filter(Boolean)
-        .map(prov => prov.name)
+        .map((prov) => prov.name)
         .join(", ");
 
       return {
         ...booking,
-        createdAt: moment(booking.booking_date).format('DD/MM/YYYY'),
+        createdAt: moment(booking.booking_date).format("DD/MM/YYYY"),
         services,
         photographers,
       };
     });
   }, [bookingsData, packages, providers]);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -1246,13 +1247,15 @@ export const BookingListComponent = () => {
                                             instanceId="provider"
                                             id="provider"
                                             onChange={handleProviderChange}
-                                            options={providers.map(
-                                              (provider) => ({
+                                            options={providers
+                                              .map((provider) => ({
                                                 label: provider.name,
                                                 value: provider.id,
                                                 image: provider.profile_photo,
-                                              })
-                                            )}
+                                              }))
+                                              .sort((a, b) =>
+                                                a.label < b.label ? -1 : 1
+                                              )}
                                             isSearchable
                                             isMulti
                                             components={{
@@ -1657,7 +1660,8 @@ export const BookingListComponent = () => {
                                               value: client.id,
                                               label: client.name,
                                               image: client.profile_photo,
-                                            }))}
+                                            }))
+                                          }
                                           isSearchable
                                           components={{
                                             Option: ({

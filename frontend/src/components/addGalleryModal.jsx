@@ -13,6 +13,7 @@ import { getAllServices } from "../api/serviceApis";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import moment from "moment";
+const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const AddGalleryModal = ({
   message,
@@ -170,7 +171,7 @@ const AddGalleryModal = ({
                 <div className="modal-body">
                   <fieldset className="form-group floating-label-form-group">
                     <p>Client *</p>
-                    <select
+                    {/* <select
                       className="select2 form-control"
                       name="client"
                       value={formData.client}
@@ -184,7 +185,67 @@ const AddGalleryModal = ({
                             {item.name}
                           </option>
                         ))}
-                    </select>
+                    </select> */}
+                    {/* use react-select */}
+                    <Select
+                      className="select2 w-100"
+                      name="client"
+                      value={clients.find(
+                        (option) => option.value === formData.client
+                      )}
+                      options={clients
+                        .map((client) => ({
+                          label: client.name,
+                          value: client.id,
+                          image: client.profile_photo,
+                        }))
+                        .sort((a, b) => (a.label < b.label ? -1 : 1))
+                      }
+                      onChange={(selectedOption) => {
+                        handleInputChange({
+                          target: {
+                            name: "client",
+                            value: selectedOption ? selectedOption.value : "",
+                          },
+                        });
+                      }}
+                      components={{
+                        Option: ({
+                          data,
+                          innerRef,
+                          innerProps,
+                        }) => (
+                          <div
+                            ref={innerRef}
+                            {...innerProps}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              cursor: "pointer",
+                            }}
+                            className="customOptionClass"
+                          >
+                            <img
+                              src={
+                                data.image
+                                  ? `${IMAGE_URL}/${data.image}`
+                                  : "../app-assets/images/portrait/medium/dummy.png"
+                              }
+                              alt="Profile"
+                              style={{
+                                marginRight: "10px",
+                                borderRadius: "50%",
+                                width: "30px",
+                                height: "30px",
+                                margin: "4px",
+                              }}
+                            />
+                            <span>{data.label}</span>
+                          </div>
+                        ),
+                      }}
+                      isDisabled={loading}
+                    />
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
                     <p>Booking Title *</p>
@@ -228,15 +289,6 @@ const AddGalleryModal = ({
                       className="select2 w-100"
                       name="services"
                       value={services}
-                      // onChange={handleInputChange}
-
-                      // options={
-                      //   services &&
-                      //   services.map((pkg) => ({
-                      //     label: pkg.label,
-                      //     value: pkg.value,
-                      //   }))
-                      // }
                       options={servicesData
                         .map((pkg) => ({
                           label: pkg.package_name,
@@ -270,10 +322,12 @@ const AddGalleryModal = ({
                       onChange={handleInputChange}
                       options={
                         photographers &&
-                        photographers.map((photographer) => ({
-                          label: photographer.label,
-                          value: photographer.value,
-                        }))
+                        photographers
+                          .map((photographer) => ({
+                            label: photographer.label,
+                            value: photographer.value,
+                          }))
+                          .sort((a, b) => (a.label < b.label ? -1 : 1))
                       }
                       isMulti
                       isDisabled

@@ -1706,10 +1706,10 @@ a:not([href]) {
   font-size: 8rem;
 }
 
-.css-10wo9uf-option{
+.css-10wo9uf-option {
   font-size: 0.8rem !important;
 }
-.css-d7l1ni-option{
+.css-d7l1ni-option {
   font-size: 0.8rem !important;
 }
 
@@ -1744,7 +1744,7 @@ a:not([href]) {
   padding: 1px 0.5rem !important;
 }
 
-.minColumnWidth{
+.minColumnWidth {
   width: 10rem;
 }
 
@@ -1766,7 +1766,7 @@ a:not([href]) {
   margin-bottom: 0;
 }
 
-.tableHeaderMinWidth{
+.tableHeaderMinWidth {
   min-width: 30rem;
 }
 
@@ -1780,8 +1780,8 @@ a:not([href]) {
   overflow-y: auto !important;
 }
 
-.btn{
-  padding: 0.35rem .525rem !important;
+.btn {
+  padding: 0.35rem 0.525rem !important;
 }
 
 .grid-hover {
@@ -1834,4 +1834,56 @@ table.dataTable thead td {
 #itemSelectModal .modal-body {
   max-height: 400px;
   overflow-y: auto;
+}
+
+/* .vertical-overlay-menu .main-menu,
+.vertical-overlay-menu.menu-hide .main-menu {
+  opacity: 1 !important;
+  transform: translate3d(240px, 0, 0) !important;
+  transition: width 0.25s, opacity 0.25s, transform 0.25s !important;
+} */
+/* 
+.vertical-overlay-menu .main-menu,
+.vertical-overlay-menu.main-menu {
+  opacity: 1 !important;
+  transform: translate3d(240px, 0, 0) !important;
+  transition: width 0.25s, opacity 0.25s, transform 0.25s !important;
+} */
+
+@media (max-width: 991.98px) {
+  .menu-fix {
+    opacity: 1 !important;
+    transform: translate3d(0px, 0, 0) !important;
+    transition: width 0.25s, opacity 0.25s, transform 0.25s !important;
+    width: 240px !important;
+  }
+
+  .menu-fix-close {
+    opacity: 1 !important;
+    transform: translate3d(-240px, 0, 0) !important;
+    transition: width 0.25s, opacity 0.25s, transform 0.25s !important;
+    width: 240px !important;
+    overflow: hidden;
+  }
+
+  body.vertical-layout.vertical-menu-modern.menu-collapsed .content,
+  body.vertical-layout.vertical-menu-modern.menu-collapsed .footer {
+    margin-left: 0px !important;
+  }
+  body.vertical-layout.vertical-menu-modern.menu-expanded .content,
+  body.vertical-layout.vertical-menu-modern.menu-expanded .footer {
+    margin-left: 0px !important;
+  }
+}
+
+.main-menu.menu-dark .navigation > li.active > a {
+  color: #00b5b8;
+  border: none;
+  font-weight: 400;
+  padding-left: 16px;
+}
+
+.nav-head-fix {
+  color: #dcdcdc;
+  padding: 24px 20px 8px 20px;
 }

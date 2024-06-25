@@ -52,6 +52,7 @@ const ToDo = () => {
   const modalRef = useRef(null);
   const [tagId, setTagId] = useState("");
   const [showDeleteTagModal, setShowDeleteTagModal] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(true);
   const [taskData, setTaskData] = useState({
     id: "",
     userId: "",
@@ -85,6 +86,7 @@ const ToDo = () => {
       toast.error("Failed to get tasks!");
     }
     setLoading(false);
+    setItemsLoading(false);
   };
 
   const getClients = async () => {
@@ -480,7 +482,7 @@ const ToDo = () => {
 
   return (
     <>
-      <LoadingOverlay loading={loading} />
+      <LoadingOverlay loading={!itemsLoading && loading} />
       <div className="todo-application">
         <div className="app-content content">
           <div className={`sidebar-left ${show ? "show" : ""}`}>
@@ -488,8 +490,10 @@ const ToDo = () => {
               <div className="todo-sidebar d-flex">
                 <span
                   className="sidebar-close-icon"
-                  onClick={() => setShow(!show)}
-                  onTouchStart={() => setShow(!show)}
+                  onClick={(event) => {
+                    setShow(!show);
+                    console.log(event);
+                  }}
                 >
                   <i className="feather icon-x"></i>
                 </span>
@@ -707,11 +711,14 @@ const ToDo = () => {
                                   .groupBy("role_id")
                                   .map((value, key) => ({
                                     label: getLabelForKey(key),
-                                    options: value.map((client) => ({
-                                      value: client.id,
-                                      label: client.name,
-                                      profile_photo: client.profile_photo,
-                                    })),
+                                    options: _.sortBy(
+                                      value.map((client) => ({
+                                        value: client.id,
+                                        label: client.name,
+                                        profile_photo: client.profile_photo,
+                                      })),
+                                      ["label"]
+                                    ),
                                   }))
                                   .sortBy((group) => {
                                     switch (group.label) {
@@ -1245,212 +1252,234 @@ const ToDo = () => {
                         </div>
                       </div>
                       <div className="todo-task-list list-group">
-                        <DragDropContext onDragEnd={onDragEnd}>
-                          <Droppable droppableId="todo-task-list-drag">
-                            {(provided) => (
-                              <ul
-                                className="todo-task-list-wrapper list-unstyled"
-                                {...provided.droppableProps}
-                                ref={provided.innerRef}
-                              >
-                                {filteredTasks.map((task, index) => (
-                                  <Draggable
-                                    key={task.id.toString()}
-                                    draggableId={task.id.toString()}
-                                    index={index}
-                                  >
-                                    {(provided) => (
-                                      <li
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        className="todo-item item-todo"
-                                        data-name={task.assign_user}
-                                      >
-                                        <div
-                                          className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center`}
+                        {itemsLoading ? (
+                          <div className="d-flex justify-content-center align-items-center mt-5">
+                            <div
+                              className="spinner-border primary"
+                              role="status"
+                            >
+                              <span className="sr-only">Loading...</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <DragDropContext onDragEnd={onDragEnd}>
+                            <Droppable droppableId="todo-task-list-drag">
+                              {(provided) => (
+                                <ul
+                                  className="todo-task-list-wrapper list-unstyled"
+                                  {...provided.droppableProps}
+                                  ref={provided.innerRef}
+                                >
+                                  {filteredTasks.map((task, index) => (
+                                    <Draggable
+                                      key={task.id.toString()}
+                                      draggableId={task.id.toString()}
+                                      index={index}
+                                    >
+                                      {(provided) => (
+                                        <li
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          className="todo-item item-todo"
+                                          data-name={task.assign_user}
                                         >
-                                          <div className="todo-title-area d-flex">
-                                            <i className="feather icon-more-vertical"></i>
+                                          <div
+                                            className={`todo-title-wrapper d-flex justify-content-sm-between justify-content-end align-items-center`}
+                                          >
+                                            <div className="todo-title-area d-flex">
+                                              <i className="feather icon-more-vertical"></i>
 
-                                            <div className="custom-control custom-checkbox">
-                                              <input
-                                                type="checkbox"
-                                                className="custom-control-input"
-                                                id={`checkbox${index}`}
-                                                checked={
-                                                  filteredTasks[index]
-                                                    .status === 1
-                                                }
-                                                onChange={(e) => {
-                                                  e.preventDefault();
-                                                  handleStatusCheckbox(
+                                              <div className="custom-control custom-checkbox">
+                                                <input
+                                                  type="checkbox"
+                                                  className="custom-control-input"
+                                                  id={`checkbox${index}`}
+                                                  checked={
                                                     filteredTasks[index]
-                                                  );
-                                                }}
-                                              />
-
-                                              <label
-                                                className="custom-control-label"
-                                                htmlFor={`checkbox${index}`}
-                                              ></label>
-                                            </div>
-
-                                            <div>
-                                              <p
-                                                className={`todo-title mx-50 m-0 truncate `}
-                                                onClick={() =>
-                                                  handleTaskClick(task)
-                                                }
-                                                style={{
-                                                  textDecoration:
-                                                    task.status === 1
-                                                      ? "line-through"
-                                                      : "none",
-                                                }}
-                                              >
-                                                {task.task_title}
-                                              </p>
-                                            </div>
-                                          </div>
-                                          <div className="todo-item-action d-flex align-items-center">
-                                            <div
-                                              className="task-info"
-                                              style={{ marginRight: "4px" }}
-                                            >
-                                              <small
-                                                className="text-muted border rounded"
-                                                style={{ padding: "6px" }}
-                                              >
-                                                {moment(task.created_at).format(
-                                                  "DD/MM/YYYY, h:mm a"
-                                                )}
-                                              </small>
-                                            </div>
-
-                                            <div className="todo-badge-wrapper d-flex">
-                                              {task.task_tags
-                                                .split(",")
-                                                .map((tagId) => {
-                                                  const tag = tags.find(
-                                                    (tag) =>
-                                                      tag.id === parseInt(tagId)
-                                                  );
-                                                  if (tag) {
-                                                    return (
-                                                      <span
-                                                        key={tag.id}
-                                                        className="badge badge-primary badge-pill todo-truncate-tag"
-                                                        style={{
-                                                          backgroundColor: `${getBulletClass(
-                                                            tag.id
-                                                          )}`,
-                                                          marginRight: "4px",
-                                                          fontSize: "0.7rem",
-                                                        }}
-                                                      >
-                                                        {tag.tasktag_title}
-                                                      </span>
+                                                      .status === 1
+                                                  }
+                                                  onChange={(e) => {
+                                                    e.preventDefault();
+                                                    handleStatusCheckbox(
+                                                      filteredTasks[index]
                                                     );
+                                                  }}
+                                                />
+
+                                                <label
+                                                  className="custom-control-label"
+                                                  htmlFor={`checkbox${index}`}
+                                                ></label>
+                                              </div>
+
+                                              <div>
+                                                <p
+                                                  className={`todo-title mx-50 m-0 truncate `}
+                                                  onClick={() =>
+                                                    handleTaskClick(task)
                                                   }
-                                                  return null;
-                                                })}
-                                            </div>
-                                            <div className="avatar">
-                                              {task.author.id === user.id ? (
-                                                <ReTooltip
-                                                  title={
-                                                    task.assignee &&
-                                                    task.assignee.name
-                                                      ? task.assignee.name
-                                                      : avatar1
-                                                  }
-                                                  placement="top"
+                                                  style={{
+                                                    textDecoration:
+                                                      task.status === 1
+                                                        ? "line-through"
+                                                        : "none",
+                                                  }}
                                                 >
-                                                  <img
-                                                    src={
+                                                  {task.task_title}
+                                                </p>
+                                              </div>
+                                            </div>
+                                            <div className="todo-item-action d-flex align-items-center">
+                                              <div
+                                                className="task-info"
+                                                style={{ marginRight: "4px" }}
+                                              >
+                                                <small
+                                                  className="text-muted border rounded"
+                                                  style={{ padding: "6px" }}
+                                                >
+                                                  {moment(
+                                                    task.created_at
+                                                  ).format(
+                                                    "DD/MM/YYYY, h:mm a"
+                                                  )}
+                                                </small>
+                                              </div>
+                                              <div className="todo-badge-wrapper d-flex">
+                                                {task.task_tags
+                                                  .split(",")
+                                                  .map((tagId) => {
+                                                    const tag = tags.find(
+                                                      (tag) =>
+                                                        tag.id ===
+                                                        parseInt(tagId)
+                                                    );
+                                                    if (tag) {
+                                                      return (
+                                                        <span
+                                                          key={tag.id}
+                                                          className="badge badge-primary badge-pill todo-truncate-tag"
+                                                          style={{
+                                                            backgroundColor: `${getBulletClass(
+                                                              tag.id
+                                                            )}`,
+                                                            marginRight: "4px",
+                                                            fontSize: "0.7rem",
+                                                          }}
+                                                        >
+                                                          {tag.tasktag_title}
+                                                        </span>
+                                                      );
+                                                    }
+                                                    return null;
+                                                  })}
+                                              </div>
+                                              <div className="avatar">
+                                                {task.author.id === user.id ? (
+                                                  <ReTooltip
+                                                    title={
                                                       task.assignee &&
-                                                      task.assignee
-                                                        .profile_photo
-                                                        ? `${IMAGE_URL}/${task.assignee.profile_photo}`
+                                                      task.assignee.name
+                                                        ? task.assignee.name
                                                         : avatar1
                                                     }
-                                                    alt="charlie"
-                                                    className="todo-profile-photo"
-                                                  />
-                                                </ReTooltip>
-                                              ) : (
-                                                <ReTooltip
-                                                  title={
-                                                    task.author &&
-                                                    task.author.name
-                                                      ? task.author.name
-                                                      : avatar1
-                                                  }
-                                                  placement="top"
-                                                >
-                                                  <img
-                                                    src={
+                                                    placement="top"
+                                                  >
+                                                    <img
+                                                      src={
+                                                        task.assignee &&
+                                                        task.assignee
+                                                          .profile_photo
+                                                          ? `${IMAGE_URL}/${task.assignee.profile_photo}`
+                                                          : avatar1
+                                                      }
+                                                      alt="charlie"
+                                                      className="todo-profile-photo"
+                                                    />
+                                                  </ReTooltip>
+                                                ) : (
+                                                  <ReTooltip
+                                                    title={
                                                       task.author &&
-                                                      task.author.profile_photo
-                                                        ? `${IMAGE_URL}/${task.author.profile_photo}`
+                                                      task.author.name
+                                                        ? task.author.name
                                                         : avatar1
                                                     }
-                                                    alt="charlie"
-                                                    className="todo-profile-photo"
-                                                  />
-                                                </ReTooltip>
+                                                    placement="top"
+                                                  >
+                                                    <img
+                                                      src={
+                                                        task.author &&
+                                                        task.author
+                                                          .profile_photo
+                                                          ? `${IMAGE_URL}/${task.author.profile_photo}`
+                                                          : avatar1
+                                                      }
+                                                      alt="charlie"
+                                                      className="todo-profile-photo"
+                                                    />
+                                                  </ReTooltip>
+                                                )}
+                                              </div>
+                                              {roleId !== 3 && (
+                                                <>
+                                                  <a
+                                                    className="todo-item-favorite ml-75"
+                                                    onClick={() =>
+                                                      handleTaskFavorite(
+                                                        filteredTasks[index]
+                                                      )
+                                                    }
+                                                  >
+                                                    {filteredTasks[index]
+                                                      .is_favourite === 0 ? (
+                                                      <i className="feather icon-star "></i>
+                                                    ) : (
+                                                      <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width={16}
+                                                        height={16}
+                                                        viewBox="0 0 24 24"
+                                                        fill="orange"
+                                                        stroke="orange"
+                                                        strokeWidth={2}
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        className="feather feather-star"
+                                                      >
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                                      </svg>
+                                                    )}
+                                                  </a>
+                                                  <a className="todo-item-delete ml-75">
+                                                    <i
+                                                      className="feather icon-trash-2"
+                                                      onClick={(e) => {
+                                                        if (roleId !== 3) {
+                                                          e.preventDefault();
+                                                          setTaskId(task.id);
+                                                          setShowDeleteModal(
+                                                            true
+                                                          );
+                                                        }
+                                                      }}
+                                                    ></i>
+                                                  </a>
+                                                </>
                                               )}
                                             </div>
-                                            <a
-                                              className="todo-item-favorite ml-75"
-                                              onClick={() =>
-                                                handleTaskFavorite(
-                                                  filteredTasks[index]
-                                                )
-                                              }
-                                            >
-                                              {filteredTasks[index]
-                                                .is_favourite === 0 ? (
-                                                <i className="feather icon-star "></i>
-                                              ) : (
-                                                <svg
-                                                  xmlns="http://www.w3.org/2000/svg"
-                                                  width={16}
-                                                  height={16}
-                                                  viewBox="0 0 24 24"
-                                                  fill="orange"
-                                                  stroke="orange"
-                                                  strokeWidth={2}
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                  className="feather feather-star"
-                                                >
-                                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                                                </svg>
-                                              )}
-                                            </a>
-                                            <a className="todo-item-delete ml-75">
-                                              <i
-                                                className="feather icon-trash-2"
-                                                onClick={(e) => {
-                                                  e.preventDefault();
-                                                  setTaskId(task.id);
-                                                  setShowDeleteModal(true);
-                                                }}
-                                              ></i>
-                                            </a>
                                           </div>
-                                        </div>
-                                      </li>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </ul>
-                            )}
-                          </Droppable>
-                        </DragDropContext>
+                                        </li>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                </ul>
+                              )}
+                            </Droppable>
+                          </DragDropContext>
+                        )}
                         <div className="no-results">
                           <h5>No Items Found</h5>
                         </div>

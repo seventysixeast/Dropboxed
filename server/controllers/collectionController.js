@@ -67,6 +67,10 @@ const addGallery = async (req, res) => {
       let imageExt = imageName.split('.').pop();
       let originalImageName = timestamp;
       let smallImageName = `small_${timestamp}`;
+      // add extenstions to image names
+      originalImageName += `.${imageExt}`;
+      smallImageName += `.${imageExt}`;
+
 
       collectionData.banner = originalImageName;
       collectionData.banner_sm = smallImageName;
@@ -113,6 +117,9 @@ const addGallery = async (req, res) => {
         where: { id: req.body.client },
         attributes: ["email"],
       });
+
+      console.log(user.subdomain,
+        user.logo,);
       collectionData.banner = req.body.banner
       console.log(collectionData);
       let SEND_EMAIL = NEW_COLLECTION(
