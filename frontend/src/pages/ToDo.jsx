@@ -27,6 +27,7 @@ import { Tooltip } from "@mui/material";
 import moment from "moment";
 import { verifyToken } from "../api/authApis";
 import LoadingOverlay from "../components/Loader";
+import { Link, useNavigate } from "react-router-dom";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ToDo = () => {
@@ -68,6 +69,7 @@ const ToDo = () => {
   const [comments, setComments] = useState([]);
   const [taskAuthor, setTaskAuthor] = useState({ name: "", profile_photo: "" });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const getTasks = async () => {
     setLoading(true);
@@ -472,7 +474,7 @@ const ToDo = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = "/login";
+          navigate('/login');
         }
       }
     };
@@ -492,7 +494,6 @@ const ToDo = () => {
                   className="sidebar-close-icon"
                   onClick={(event) => {
                     setShow(!show);
-                    console.log(event);
                   }}
                 >
                   <i className="feather icon-x"></i>

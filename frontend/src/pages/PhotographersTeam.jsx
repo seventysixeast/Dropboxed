@@ -9,11 +9,13 @@ import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
+import { Link, useNavigate } from "react-router-dom";
+import { verifyToken } from "../api/authApis";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const PhotographersTeam = () => {
   const { authData } = useAuth();
-  const user = authData.user;
+  const { user, token: accesstoken } = authData;
   const subdomainId = user.subdomain_id;
   const [photographers, setPhotographers] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -28,10 +30,22 @@ const PhotographersTeam = () => {
     profile_photo: "",
     status: "Active",
   });
+  const navigate = useNavigate()
 
   useEffect(() => {
+    verifyTokenOnMount();
     getAllPhotographersData();
   }, []);
+
+  const verifyTokenOnMount = async () => {
+    if (accesstoken) {
+      const resp = await verifyToken(accesstoken);
+      if (!resp.success) {
+        toast.error("Session expired, please login again.");
+        navigate('/login');
+      }
+    }
+  };
 
   const getAllPhotographersData = async () => {
     try {
@@ -85,8 +99,6 @@ const PhotographersTeam = () => {
       });
     }
   };
-
-  console.log(previewImage, formData);
 
   const resetFormData = async () => {
     setFormData({
@@ -242,7 +254,7 @@ const PhotographersTeam = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
+                      <Link to="/dashboard">Home</Link>
                     </li>
                     <li className="breadcrumb-item active">
                       Photographers Team

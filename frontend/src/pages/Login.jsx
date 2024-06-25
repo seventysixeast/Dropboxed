@@ -13,7 +13,6 @@ import { verifyToken } from "../api/authApis";
 const Login = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const subdomain = getSubdomainFromUrl(window.location.href, BASE_URL);
-  console.log("subdomain>>>", subdomain, window.location.href);
   const [userData, setUserData] = useState({
     userName: "",
     password: "",
@@ -57,7 +56,6 @@ const Login = () => {
         const { success, accessToken, user, message } = await verifyToken(
           decryptedToken
         );
-        console.log("success", success);
 
         if (success) {
           // Save user data and access token in localStorage
@@ -127,7 +125,6 @@ const Login = () => {
     try {
       setLoading(true); // Show loader
       await validationSchema.validate(userData, { abortEarly: false });
-      console.log("subdomain1>>>", subdomain);
       const loginData = subdomain ? { ...userData, subdomain } : userData;
       const { success, message, accessToken, user } = await login(loginData);
       //const { success, message, accessToken, user } = await login(userData);
@@ -228,9 +225,9 @@ const Login = () => {
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <a href={BASE_URL}>
+                        <Link to={BASE_URL}>
                           <img src={logoLight} alt="branding logo" />
-                        </a>
+                        </Link>
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
@@ -338,12 +335,12 @@ const Login = () => {
                       <span>New to Studiio.au ?</span>
                     </p>
                     <div className="card-body">
-                      <a
-                        href={subdomain ? "/client-signup" : "/signup"}
+                      <Link
+                        to={subdomain ? "/client-signup" : "/signup"}
                         className="btn btn-outline-danger btn-block"
                       >
                         <i className="feather icon-user" /> Register
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

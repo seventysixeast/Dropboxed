@@ -21,7 +21,6 @@ import { getRefreshToken, verifyToken } from "../api/authApis";
 import { toast } from "react-toastify";
 import AddGalleryModal from "../components/addGalleryModal";
 import { useAuth } from "../context/authContext";
-import TableCustom from "../components/Table";
 import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
 import moment from "moment";
@@ -31,7 +30,7 @@ import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
 import EditInvoiceModal from "../components/EditInvoice";
 import ConfirmModal from "../components/ConfirmModal";
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Table2 from "./Table2";
 
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -80,6 +79,8 @@ const CollectionTable = () => {
     notify_client: "",
     serviceIds: "",
   });
+
+  const navigate = useNavigate();
 
   console.log(formData);
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -808,7 +809,7 @@ const CollectionTable = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = "/login";
+          navigate("/login");
         }
       }
     };
@@ -834,6 +835,7 @@ const CollectionTable = () => {
       setLoading(true);
     }
   }, [modalIsOpen]);
+
 
   return (
     <>

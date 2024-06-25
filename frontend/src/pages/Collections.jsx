@@ -31,7 +31,7 @@ import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
 import EditInvoiceModal from "../components/EditInvoice";
 import ConfirmModal from "../components/ConfirmModal";
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
@@ -80,7 +80,8 @@ const Collections = () => {
     serviceIds: "",
   });
 
-  console.log(formData);
+  const navigate = useNavigate();
+
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState(null);
   const [isEditMode, setEditMode] = useState(false);
@@ -443,7 +444,6 @@ const Collections = () => {
         setPreviewImage(null);
       }
 
-      console.log(collectionData);
       const initialFormData = {
         ...formData,
         id: collectionData.data.id,
@@ -807,7 +807,7 @@ const Collections = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = "/login";
+          navigate("/login");
         }
       }
     };
@@ -846,7 +846,7 @@ const Collections = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
+                      <Link to="/dashboard">Home</Link>
                     </li>
                     <li className="breadcrumb-item">Collection List</li>
                   </ol>
@@ -860,13 +860,13 @@ const Collections = () => {
                     {user.role_id == 5 && (
                       <>
                         {subdomainDropbox === "" && !itemsLoading && (
-                          <a
-                            href={`${dropboxAuthUrl}`}
+                          <Link
+                            to={`${dropboxAuthUrl}`}
                             className="btn btn-primary mr-1"
                             style={{ paddingTop: "10px" }}
                           >
                             Link Your Dropbox
-                          </a>
+                          </Link>
                         )}
                       </>
                     )}

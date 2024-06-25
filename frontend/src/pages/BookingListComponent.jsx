@@ -31,10 +31,11 @@ import { tooltipClasses } from "@mui/material/Tooltip";
 import moment from "moment";
 import ReTooltip from "../components/Tooltip";
 import { verifyToken } from "../api/authApis";
+import { Link, useNavigate } from "react-router-dom";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
-export const BookingListComponent = () => {
+const BookingListComponent = () => {
   const API_URL = process.env.REACT_APP_API_URL;
   const { authData } = useAuth();
   const { user } = authData;
@@ -65,6 +66,7 @@ export const BookingListComponent = () => {
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [notifyCheckbox, setNotifyCheckbox] = useState(false);
   const [notifyDisabled, setNotifyDisabled] = useState(false);
+  const navigate = useNavigate();
 
   const [bookingData, setBookingData] = useState({
     title: "",
@@ -1094,7 +1096,7 @@ export const BookingListComponent = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = "/login";
+          navigate('/login');
         }
       }
     };
@@ -1118,7 +1120,7 @@ export const BookingListComponent = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
+                      <Link to="/dashboard">Home</Link>
                     </li>
                     <li className="breadcrumb-item active">Bookings</li>
                   </ol>
@@ -1134,17 +1136,17 @@ export const BookingListComponent = () => {
                         title="Subscribe for calendar alerts."
                         placement="top"
                       >
-                        <a
+                        <Link
                           className={`btn btn-outline-primary mb-1 ml-1 ${
                             calendarSub === 1 ? "d-none" : ""
                           }`}
                           disabled={calendarSub === 1}
-                          href={`${authUrl}`}
+                          to={`${authUrl}`}
                         >
                           {calendarSub == 1
                             ? "Subscribed"
                             : "Subscribe to Calendar"}
-                        </a>
+                        </Link>
                       </ReTooltip>
                       <ReTooltip title="Add a new appointment." placement="top">
                         <button
@@ -1964,3 +1966,5 @@ export const BookingListComponent = () => {
     </>
   );
 };
+
+export default BookingListComponent;

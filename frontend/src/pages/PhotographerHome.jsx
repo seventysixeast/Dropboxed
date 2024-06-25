@@ -1,6 +1,6 @@
 import React from "react";
 
-export const PhotographerHome = () => {
+const PhotographerHome = () => {
   return (
     <div>
       <section>
@@ -48,3 +48,5 @@ export const PhotographerHome = () => {
     </div>
   );
 };
+
+export default PhotographerHome;

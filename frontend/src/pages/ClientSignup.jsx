@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as Yup from "yup";
 import { clientSignup } from "../api/authApis";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logoLight from "../assets/images/dropboxed-logo.png";
 
 const ClientSignup = () => {
@@ -98,9 +98,9 @@ const ClientSignup = () => {
                   <div className="card-header border-0">
                     <div className="card-title text-center">
                       <div className="p-1 logo black-logo">
-                        <a href={BASE_URL}>
+                        <Link to={BASE_URL}>
                           <img src={logoLight} alt="branding logo" />
-                        </a>
+                        </Link>
                       </div>
                     </div>
                     <h6 className="card-subtitle line-on-side text-muted text-center font-small-3 pt-2">
@@ -251,12 +251,12 @@ const ClientSignup = () => {
                           <i className="feather icon-user" /> Register
                         </button>
                       </form>
-                      <a
-                        href="/login"
+                      <Link
+                        to="/login"
                         className="btn btn-outline-danger btn-block mt-2"
                       >
                         <i className="feather icon-unlock" /> Login
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

@@ -7,7 +7,7 @@ import {
   deleteInvoiceById,
   getAllInvoices,
   sendInvoice,
-  updateInvoiceQuickbookLink
+  updateInvoiceQuickbookLink,
 } from "./../api/invoiceApis";
 import { useAuth } from "../context/authContext";
 import DeleteModal from "../components/DeleteModal";
@@ -20,6 +20,7 @@ import ReTooltip from "../components/Tooltip";
 import UploadInvoiceModal from "../components/UploadInvoiceModal";
 import ConfirmModal from "../components/ConfirmModal";
 import moment from "moment";
+import { Link, useNavigate } from "react-router-dom";
 
 const Invoice = () => {
   const { authData } = useAuth();
@@ -35,9 +36,9 @@ const Invoice = () => {
   const [isEditMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false); // New state for upload modal
-  const [quickbookLink, setQuickbookLink] = useState('');
+  const [quickbookLink, setQuickbookLink] = useState("");
   const [showPaidModal, setShowPaidModal] = useState(false);
-
+  const navigate = useNavigate();
   const handleDeleteModalClose = () => {
     setShowDeleteModal(false);
     resetData();
@@ -52,8 +53,8 @@ const Invoice = () => {
   };
 
   const data = React.useMemo(() => {
-    return invoiceList.map(invoice => {
-      const updatedAT = moment(invoice.updated_at).format('DD/MM/YYYY');
+    return invoiceList.map((invoice) => {
+      const updatedAT = moment(invoice.updated_at).format("DD/MM/YYYY");
       return {
         ...invoice,
         updatedAT,
@@ -88,41 +89,55 @@ const Invoice = () => {
       accessor: (row) => {
         const paidStatus = row.paid_status;
         const sendInvoice = row.send_invoice;
-    
+
         const paidBadge = paidStatus ? (
           <p className="badge btn-success">Paid</p>
         ) : (
-          <p className="badge" style={{ backgroundColor: "rgb(255, 116, 140)" }}>Pending</p>
+          <p
+            className="badge"
+            style={{ backgroundColor: "rgb(255, 116, 140)" }}
+          >
+            Pending
+          </p>
         );
-    
+
         const invoiceBadge = sendInvoice ? (
           <p className="badge btn-primary">Sent</p>
         ) : null;
-    
+
         return (
-          <div style={{ display: 'flex', gap: '5px' }} >
+          <div style={{ display: "flex", gap: "5px" }}>
             {paidBadge}
             {invoiceBadge}
           </div>
         );
       },
-    },    
+    },
     {
       Header: "Action",
       accessor: "action",
       Cell: ({ row }) => {
         const { original } = row;
-        const { id, paid_status, send_invoice, invoice_link, quickbooks_invoice_id } = original;
+        const {
+          id,
+          paid_status,
+          send_invoice,
+          invoice_link,
+          quickbooks_invoice_id,
+        } = original;
         const isPaid = paid_status;
         const isSent = send_invoice;
-        const isQuickBookInvoiceAdded = quickbooks_invoice_id && quickbooks_invoice_id !== null ? true : false;
+        const isQuickBookInvoiceAdded =
+          quickbooks_invoice_id && quickbooks_invoice_id !== null
+            ? true
+            : false;
 
         const isDisabled =
           roleId === 3 &&
           new Date(`${original.booking_date}T${original.booking_time}`) -
-          new Date() <
-          1000 * 60 * 60 * 3;
-        const disabledStyle = { pointerEvents: 'none', opacity: 0.6 };
+            new Date() <
+            1000 * 60 * 60 * 3;
+        const disabledStyle = { pointerEvents: "none", opacity: 0.6 };
 
         return (
           <>
@@ -132,7 +147,10 @@ const Invoice = () => {
                   <button
                     type="button"
                     className="btn btn-icon btn-outline-primary mr-1 mb-1"
-                    style={{ padding: "0.5rem", ...(isSent ? disabledStyle : {}) }}
+                    style={{
+                      padding: "0.5rem",
+                      ...(isSent ? disabledStyle : {}),
+                    }}
                     onClick={() => handleEdit(id)}
                     disabled={isSent}
                   >
@@ -150,7 +168,7 @@ const Invoice = () => {
                     <i className="feather white icon-trash"></i>
                   </button>
                 </ReTooltip>
-                { isQuickBookInvoiceAdded && (
+                {isQuickBookInvoiceAdded && (
                   <ReTooltip title="Upload Invoice" placement="top">
                     <button
                       type="button"
@@ -167,7 +185,10 @@ const Invoice = () => {
                   <button
                     type="button"
                     className="btn btn-icon btn-outline-primary mr-1 mb-1 text-white"
-                    style={{ padding: "0.5rem", ...(isPaid ? disabledStyle : {}) }}
+                    style={{
+                      padding: "0.5rem",
+                      ...(isPaid ? disabledStyle : {}),
+                    }}
                     onClick={() => handlePaid(id)}
                     disabled={isPaid}
                   >
@@ -178,7 +199,10 @@ const Invoice = () => {
                   <button
                     type="button"
                     className="btn btn-icon btn-outline-primary mr-1 mb-1"
-                    style={{ padding: "0.5rem", ...(isSent ? disabledStyle : {}) }}
+                    style={{
+                      padding: "0.5rem",
+                      ...(isSent ? disabledStyle : {}),
+                    }}
                     onClick={() => handleSendInvoice(id)}
                     disabled={isSent}
                   >
@@ -274,7 +298,6 @@ const Invoice = () => {
   };
 
   const handleDelete = (id) => {
-    console.log("Delete invoice", id);
     setInvoiceId(id);
     setShowDeleteModal(true);
   };
@@ -287,9 +310,9 @@ const Invoice = () => {
 
   const closeUploadModal = () => {
     setShowUploadModal(false);
-    setQuickbookLink('');
+    setQuickbookLink("");
     resetData();
-  }
+  };
 
   const handlePaid = (id) => {
     setInvoiceId(id);
@@ -318,8 +341,7 @@ const Invoice = () => {
       console.error("Error updating invoice status:", error);
     }
     setLoading(false);
-
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -327,7 +349,7 @@ const Invoice = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = "/login";
+          navigate("/login");
         }
       }
     };
@@ -346,23 +368,26 @@ const Invoice = () => {
   }, [modalIsOpen]);
 
   const handleQbLinkChange = (value) => {
-    setQuickbookLink(value)
-  }
+    setQuickbookLink(value);
+  };
 
   const handleLinkUpload = async () => {
     setLoading(true);
-    const response = await updateInvoiceQuickbookLink({ invoiceId, invoiceLink: quickbookLink });
+    const response = await updateInvoiceQuickbookLink({
+      invoiceId,
+      invoiceLink: quickbookLink,
+    });
     if (response.success) {
       toast.success("Link saved successfully");
       resetData();
-      setQuickbookLink('');
+      setQuickbookLink("");
       setShowUploadModal(false);
       getInvoiceList();
     } else {
-      toast.error(response.message)
+      toast.error(response.message);
     }
     setLoading(false);
-  }
+  };
   const handleView = (id) => {
     setEditMode(true);
     setInvoiceId(id);
@@ -383,7 +408,7 @@ const Invoice = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
+                      <Link to="/dashboard">Home</Link>
                     </li>
                     <li className="breadcrumb-item">Invoices</li>
                   </ol>
@@ -402,18 +427,21 @@ const Invoice = () => {
         <TableCustom data={data} columns={columns} />
       ) : (
         <>
-          <div className="col-12 d-flex justify-content-center ">
-            {itemsLoading ? (
-              <div
-                className="spinner-border primary"
-                style={{ marginTop: "15rem" }}
-                role="status"
-              >
-                <span className="sr-only"></span>
+          <div className="app-content content">
+            <div className="content-overlay"></div>
+            <div className="content-wrapper">
+              <div className="col-12 d-flex justify-content-center overflow-hidden">
+                {itemsLoading ? (
+                  <div className="spinner-border primary" role="status">
+                    <span className="sr-only"></span>
+                  </div>
+                ) : (
+                  <div className="col-12 text-center">
+                    <p>No Invoices found.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <p>No invoices found. Add invoice by clicking Create Invoice.</p>
-            )}
+            </div>
           </div>
         </>
       )}

@@ -33,7 +33,7 @@ const Header = () => {
       formDataToSend.append("id", user.id);
       let res = await userStatusCheck(formDataToSend);
       if (res.data.status === "Inactive") {
-        logout();
+        await logout();
         navigate("/login");
       }
     } catch (error) {
