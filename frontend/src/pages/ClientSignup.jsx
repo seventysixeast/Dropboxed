@@ -86,7 +86,7 @@ const ClientSignup = () => {
   };
 
   return (
-    <div className="bg-full-screen-image">
+    <div className="">
       <div className="content-overlay"></div>
       <div className="content-wrapper">
         <div className="content-header row"></div>

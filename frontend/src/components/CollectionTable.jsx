@@ -82,7 +82,6 @@ const CollectionTable = () => {
 
   const navigate = useNavigate();
 
-  console.log(formData);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState(null);
   const [isEditMode, setEditMode] = useState(false);
@@ -445,7 +444,6 @@ const CollectionTable = () => {
         setPreviewImage(null);
       }
 
-      console.log(collectionData);
       const initialFormData = {
         ...formData,
         id: collectionData.data.id,
