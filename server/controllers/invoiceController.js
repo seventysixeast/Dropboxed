@@ -11,6 +11,7 @@ const { sendEmail } = require("../helpers/sendEmail");
 const phpSerialize = require("php-serialize").serialize;
 const QuickBooks = require("node-quickbooks");
 const sequelize = require('../config/sequelize');
+const moment = require('moment');
 const {
     createQuickBooksInvoice,
     getQuickBooksAccessToken,
@@ -396,11 +397,13 @@ const sendInvoice = async (req, res) => {
         const taxAmount = invoice.total_price / 11;
         const subTotal = invoice.total_price - taxAmount;
         const notes = invoice.notes;
+        let parsedDate = moment(order.created_at);
+        const formattedDate = parsedDate.format('DD/MM/YYYY');
         const invoiceData = {
             clientName: clientName,
             invoiceNumber: invoice.id,
-            invoiceDate: order.created_at,
-            dueDate: order.created_at,
+            invoiceDate: formattedDate,
+            dueDate: formattedDate,
             subTotal,
             taxAmount,
             amountDue: invoice.total_price,
@@ -415,7 +418,7 @@ const sendInvoice = async (req, res) => {
 
         const emailContent = INVOICE_EMAIL(invoiceData);
 
-        sendEmail(clientEmail, "Your Invoice", emailContent);
+        sendEmail("kumaravi32832@gmail.com", "Your Invoice", emailContent);
 
         await CustomInvoiceList.update(
             { send_invoice: 1 },

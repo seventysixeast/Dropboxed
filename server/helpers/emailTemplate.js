@@ -1048,7 +1048,7 @@ style="
       justify-content: space-between;
     "
   >
-    <div>
+    <div style="width: 50%;">
       <p style="margin: 0; word-wrap: break-word">
         Please make payment to:
       </p>
@@ -1063,7 +1063,7 @@ style="
       </p>
     </div>
     <div
-      style="display: flex; justify-content: flex-end; "
+      style="display: flex; justify-content: flex-end; width: 50%;"
     >
       <ul
         style="
