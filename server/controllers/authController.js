@@ -58,6 +58,12 @@ exports.login = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
+    if (!user.is_verified) {
+      return res
+        .status(200)
+        .json({ success: false, message: "Account verification pending" });
+    }
+
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(200).json({ status: false, message: 'Invalid email or password' });
@@ -106,12 +112,16 @@ exports.login = async (req, res) => {
       connect_quickbooks = businessOwner.quickbooks_refresh_token === null;
     }
 
+    let subdomainData = await User.findOne({
+      where: { id: subdomain_id }
+    });
+
     const accessToken = generateAccessToken(user.id, user_subdmain);
     const isFirstLogin = user.is_first_login;
     if (isFirstLogin) {
       // Send Welcome email
       if (user.role_id === 3) {
-        var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user_subdmain.charAt(0).toUpperCase() + user_subdmain.slice(1), user.email, user.logo, user.name, user.email, password);
+        var SEND_EMAIL = WELCOME_CLIENT_EMAIL(user_subdmain.charAt(0).toUpperCase() + user_subdmain.slice(1), subdomainData.email, subdomainData.logo, user.name, user.email, password);
         sendEmail(user.email, `Welcome to ${user_subdmain.charAt(0).toUpperCase() + user_subdmain.slice(1)}!`, SEND_EMAIL);
       } else {
         var SEND_EMAIL = WELCOME_EMAIL();
@@ -491,7 +501,7 @@ exports.clientSignup = async (req, res) => {
     });
 
     // clientController.updateRedisCache(subdomainUser.id);
-    
+
     let SEND_EMAIL = SEND_VERIFICATION_CLIENT_EMAIL(subdomain.charAt(0).toUpperCase() + subdomain.slice(1), subdomainUser.logo, email, verificationToken);
     sendEmail(email, `Welcome to ${subdomain.charAt(0).toUpperCase() + subdomain.slice(1)}!`, SEND_EMAIL);
 
@@ -672,7 +682,7 @@ exports.dropboxAuth = async (req, res) => {
         message: "User not found",
       });
 
-      
+
     }
 
     await User.update(

@@ -117,7 +117,8 @@ const createClient = async (req, res) => {
       business_name: req.body.business_name,
       role_id: req.body.role_id,
       password: hashedPassword,
-      is_verified: 1
+      is_verified: true,
+      is_first_login: false
     };
 
     if (req.files && req.files.profile_photo && Object.keys(req.files).length) {

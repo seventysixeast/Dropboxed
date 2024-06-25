@@ -39,7 +39,8 @@ const createPhotographer = async (req, res) => {
       role_id: req.body.role_id,
       profile_photo: imageName || req.body.profile_photo,
       password: hashedPassword,
-      is_verified: 1,
+      is_verified: true,
+      is_first_login: false,
       status: req.body.status
     };
     if (req.files && Object.keys(req.files).length) {
