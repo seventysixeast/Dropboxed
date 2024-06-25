@@ -155,10 +155,10 @@ const Login = () => {
       //const redirectToSubdomain = currentSubdomain === DOMAIN_NAME ? `${userSubdomain}.` : "";
       //console.log("redirectToSubdomain",redirectToSubdomain, "<-->",currentSubdomain); return false
       //console.log("redirectToSubdomain",redirectToSubdomain)
-      if (!user.is_verified) {
-        toast.success("Account verification pending");
-        return;
-      }
+      // if (!user.is_verified) {
+      //   toast.success("Account verification pending");
+      //   return;
+      // }
       if (user.role_id === 1) {
         setLoading(false);
         const userDataWithProfilePhoto = {
