@@ -796,7 +796,7 @@ style="
       margin-bottom: 2rem;
     "
   >
-    <div style="margin-bottom: 0.5rem !important; flex: 1">
+    <div style="margin-bottom: 0.5rem !important; flex: 1; width: 33%;">
       <p style="font-weight: 700; margin: 0px; color: #101010">
       ${invoiceData.adminInfo.businessName}
       </p>
@@ -809,7 +809,7 @@ style="
       </p>
       <p style="margin: 0; word-wrap: break-word">ABN ${invoiceData.adminInfo.abn}</p>
     </div>
-    <div style="flex: 1">
+    <div style="flex: 1; width: 33%;">
       <div
         style="
           display: flex;
@@ -830,7 +830,7 @@ style="
         </div>
       </div>
     </div>
-    <div style="flex: 1">
+    <div style="flex: 1; width: 33%;">
       <div
         style="
           display: flex;
@@ -839,11 +839,11 @@ style="
         "
       >
         <div>
-          <img
-            src="${SITE_URL}static/media/dropboxed-logo.2d35e13a620811e2a750.png"
-            alt="company-logo"
-            style="margin: 0; max-width: 300px; height: auto"
-          />
+            ${invoiceData.logo && invoiceData.logo !== '' 
+                ? `<img src="${CLIENTS_IMAGE_URL}/${invoiceData.logo}" alt="company-logo" style="max-width: 300px; height: auto" />` 
+                : `<h1 style="text-transform: uppercase; color: #00b5b8;">${invoiceData.subdomain}</h1>`
+            }
+            
         </div>
       </div>
     </div>
@@ -932,7 +932,7 @@ style="
               text-align: center;
             "
           >
-            A$${invoiceData.amountDue}
+            A$${invoiceData.amountDue.toFixed(2)}
           </p>
         </div>
         <div style="padding: 1.5rem 2.5rem; background-color: #dce9f1">
@@ -944,7 +944,7 @@ style="
               text-align: center;
             "
           >
-             ${invoiceData.dueDate}
+             Due Date
           </p>
           <p
             style="
@@ -954,7 +954,7 @@ style="
               text-align: center;
             "
           >
-            12/06/2024
+            ${invoiceData.dueDate}
           </p>
         </div>
       </div>
@@ -1080,7 +1080,7 @@ style="
           "
         >
           <span style="margin-right: 8px; color: #4f90bb">SUBTOTAL</span>
-          <span>${invoiceData.subTotal}</span>
+          <span>${invoiceData.subTotal.toFixed(2)}</span>
         </li>
         <li
           style="
@@ -1090,7 +1090,7 @@ style="
           "
         >
           <span style="margin-right: 8px; color: #4f90bb">GST TOTAL</span>
-          <span>${invoiceData.taxAmount}</span>
+          <span>${invoiceData.taxAmount.toFixed(2)}</span>
         </li>
         <li
           style="
@@ -1100,7 +1100,7 @@ style="
           "
         >
           <span style="margin-right: 8px; color: #4f90bb">TOTAL</span>
-          <span>${invoiceData.amountDue}</span>
+          <span>${invoiceData.amountDue.toFixed(2)}</span>
         </li>
         <li
           style="

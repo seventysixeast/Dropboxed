@@ -907,9 +907,32 @@ const EditInvoiceModal = ({
                           <div className="invoice-total">
                             <div className="row justify-content-between">
                               <div className="col-12 col-md-6 col-lg-6 col-xl-5">
+                              <div style={{ width: '50%' }}>
+                                <p className="font-style-bold" style={{ margin: 0, wordWrap: 'break-word' }}>
+                                  Pay To:
+                                </p>
+                                <p style={{ margin: 0, wordWrap: 'break-word' }}>
+                                  Name: {invoiceData.admin.account_name}
+                                </p>
+                                <p style={{ margin: 0, wordWrap: 'break-word' }}>
+                                  BSB: {invoiceData.admin.bsb_number}
+                                </p>
+                                <p style={{ margin: 0, wordWrap: 'break-word' }}>
+                                  Account: {invoiceData.admin.account_number}
+                                </p>
+                                <p style={{ margin: 0, wordWrap: 'break-word' }}>
+                                  NOTE: {invoiceData.invoice.notes}
+                                </p>
+                                <p style={{ margin: 0, wordWrap: 'break-word', width: 'calc(50% - 4px)' }}>
+                                </p>
+                              </div>
+
+
+
+
                               <div className="regarding-payment form-group d-flex">
                                   <label className="mr-2 font-weight-bold">
-                                    Status
+                                    Status:
                                   </label>
                                   <p className="">
                                     {paidStatus
@@ -919,7 +942,7 @@ const EditInvoiceModal = ({
                                 </div>
                                 <div className="regarding-discount form-group d-flex">
                                 <label className="mr-2 font-weight-bold">
-                                    Note
+                                    Note:
                                   </label>
                                   {/* <input
                                     type="text"

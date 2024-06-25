@@ -163,6 +163,43 @@ const initQuickBooks = async (userId) => {
   }
 };
 
+const findQuickBooksAccountByName = async (qbo, accountData) => {
+  try {
+    const accounts = await new Promise((resolve, reject) => {
+      qbo.findAccounts({
+        AccountType: accountData.AccountType,
+        Name: accountData.Name,
+        Active: true
+      }, function(err, accounts) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(accounts);
+      });
+    });
+
+    if (accounts && accounts.QueryResponse.Account && accounts.QueryResponse.Account.length > 0) {
+      return accounts.QueryResponse.Account[0].Id;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error finding QuickBooks account: ${error}`);
+    throw error;
+  }
+};
+
+
+const createQuickBooksAccountIfNotExists = async (qbo, accountData) => {
+  const existingAccountId = await findQuickBooksAccountByName(qbo, accountData);
+  if (existingAccountId) {
+    return existingAccountId;
+  } else {
+    const createdAccount = await qbo.createAccount(accountData);
+    return createdAccount.Id;
+  }
+};
+
 const ensureQuickBooksAccounts = async (qbo, user) => {
   let { quickbooks_income_account_id, quickbooks_expense_account_id, quickbooks_asset_account_id } = user;
 
@@ -186,15 +223,15 @@ const ensureQuickBooksAccounts = async (qbo, user) => {
     };
 
     if (!quickbooks_income_account_id) {
-      quickbooks_income_account_id = await createQuickBooksAccount(qbo, incomeAccountData);
+      quickbooks_income_account_id = await createQuickBooksAccountIfNotExists(qbo, incomeAccountData);
       await User.update({ quickbooks_income_account_id }, { where: { id: user.id } });
     }
     if (!quickbooks_expense_account_id) {
-      quickbooks_expense_account_id = await createQuickBooksAccount(qbo, expenseAccountData);
+      quickbooks_expense_account_id = await createQuickBooksAccountIfNotExists(qbo, expenseAccountData);
       await User.update({ quickbooks_expense_account_id }, { where: { id: user.id } });
     }
     if (!quickbooks_asset_account_id) {
-      quickbooks_asset_account_id = await createQuickBooksAccount(qbo, assetAccountData);
+      quickbooks_asset_account_id = await createQuickBooksAccountIfNotExists(qbo, assetAccountData);
       await User.update({ quickbooks_asset_account_id }, { where: { id: user.id } });
     }
   }
@@ -205,6 +242,7 @@ const ensureQuickBooksAccounts = async (qbo, user) => {
     assetAccountId: quickbooks_asset_account_id
   };
 };
+
 
 
 exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quickbooks_customer_id, isPaid) => {
@@ -262,7 +300,6 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
           expenseAccountRef: { value: expenseAccountId, name: 'Cost of Goods Sold Studio' },
         };
         quickbooksItemId = await createQuickBooksItem(qbo, itemData);
-        console.log("quickbooksItemId",quickbooksItemId)
         await Package.update({ quickbooks_item_id: quickbooksItemId }, { where: { id: item_id } });
       }
 
@@ -271,7 +308,7 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
 
     const invoiceData = {
       Line: invoiceItems.map(item => ({
-        Amount: item.price,
+        Amount: item.price * item.quantity,
         DetailType: 'SalesItemLineDetail',
         SalesItemLineDetail: {
           ItemRef: {
@@ -288,7 +325,6 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
       TotalAmt: total,
       PrivateNote: note
     };
-
     const invoice = await new Promise((resolve, reject) => {
       qbo.createInvoice(invoiceData, (error, invoice) => {
         if (error) {
