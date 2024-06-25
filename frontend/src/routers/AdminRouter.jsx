@@ -86,7 +86,7 @@ const AdminRouter = () => {
     { path: "/quickbooks/callback", element: <QuickBooksCallback /> },
     { path: "/create-invoice", element: <CreateInvoice /> },
     { path: "/login", element: <Login /> },
-    { path: "*", element: <Navigate to="/dashboard" replace /> }, // Redirect to dashboard if route not found
+    { path: "*", element: <Navigate to="/dashboard" replace /> },
   ];
 
   const route = useRoutes(routes);
