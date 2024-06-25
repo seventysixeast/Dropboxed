@@ -290,7 +290,7 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
       if (package.quickbooks_item_id) {
         quickbooksItemId = package.quickbooks_item_id;
      } else {
-        const itemData = {
+      const itemData = {
           name: item.name,
           description: item.description,
           taxable: item.taxable,

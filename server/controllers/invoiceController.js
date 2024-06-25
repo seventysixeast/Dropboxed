@@ -22,7 +22,7 @@ const { pipeline } = require("nodemailer/lib/xoauth2");
 
 const getAllInvoices = async (req, res) => {
     const { subdomain_id, user_id, role_id } = req.body;
-    console.log(req.body);
+    //console.log(req.body);
     try {
         let invoices;
         if (parseInt(role_id) === 5 || parseInt(role_id) === 2) {
@@ -55,7 +55,7 @@ const getAllInvoices = async (req, res) => {
           );
         }
       
-        console.log("invoices with collection_id>>", invoices);
+        //console.log("invoices with collection_id>>", invoices);
         return res.status(200).json({ success: true, data: invoices });
       } catch (error) {
         console.error("Error fetching invoices:", error);
