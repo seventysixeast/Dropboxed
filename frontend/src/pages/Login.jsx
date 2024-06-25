@@ -208,7 +208,7 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-full-screen-image">
+    <div className="">
       {loading && (
         <div className="loader-overlay">
           <div className="loader"></div>

@@ -9,7 +9,6 @@ import {
 import moment from "moment";
 
 const TableCustom = ({ data, columns }) => {
-  console.log(data);
   const {
     getTableProps,
     getTableBodyProps,

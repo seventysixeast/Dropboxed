@@ -5,6 +5,7 @@ import logoLight from "../assets/images/dropboxed-logo.png";
 import { signup } from "../api/authApis";
 import TermsOfServiceModal from "../components/TermsOfServiceModal";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -84,7 +85,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="bg-full-screen-image">
+    <div className="">
       <div className="content-overlay"></div>
       <div className="content-wrapper">
         <div className="content-header row"></div>
@@ -279,12 +280,12 @@ const SignUp = () => {
                           <i className="feather icon-user" /> Register
                         </button>
                       </form>
-                      <a
-                        href="/login"
+                      <Link
+                        to="/login"
                         className="btn btn-outline-danger btn-block mt-2"
                       >
                         <i className="feather icon-unlock" /> Login
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
