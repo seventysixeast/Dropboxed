@@ -433,21 +433,18 @@ const updateGalleryNotify = async (req, res) => {
     );
 
     if (updated) {
-      const user = await User.findOne({ where: { id: collection.user_id } });
       const clientData = await User.findOne({
-        where: { id: collection.client_id },
+        where: { id: parseInt(collection.client_id, 10) }
       });
       const admin = await User.findOne({ where: { id: collection.subdomain_id } });
-
-
-      if (user && clientData) {
+      if (clientData && admin) {
         let SEND_EMAIL = NEW_COLLECTION(admin.subdomain, admin.logo, collection);
-        await sendEmail(clientData.email, "New Collection", SEND_EMAIL);
+        sendEmail(clientData.email, "New Collection", SEND_EMAIL);
 
         await Notifications.create({
           notification: `New gallery '${collection.name}' has been created.`,
           client_id: collection.client_id,
-          subdomain_id: user.subdomain_id,
+          subdomain_id: collection.subdomain_id,
           date: new Date(),
         });
       }
