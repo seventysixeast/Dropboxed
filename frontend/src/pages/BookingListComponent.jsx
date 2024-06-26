@@ -310,7 +310,9 @@ const BookingListComponent = () => {
   };
 
   const getAllBookingsData = async () => {
-    setLoading(true);
+    if (bookingsData.length > 0) {
+      setLoading(true);
+    }
     setItemsLoading(true);
     const datatosend = {
       subdomainId: subdomainId,
@@ -1096,7 +1098,7 @@ const BookingListComponent = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          navigate('/login');
+          navigate("/login");
         }
       }
     };
@@ -1127,17 +1129,17 @@ const BookingListComponent = () => {
                 </div>
               </div>
             </div>
-            <div className="content-header-right col-md-6 col-6 d-flex justify-content-end align-items-center ">
+            <div className="content-header-right col-md-6 col-sm-6 col-xs-12 d-flex justify-content-end align-items-center ">
               <ul className="list-inline mb-0">
                 <li>
-                  <div className="form-group">
-                    <div className="">
+                  <div className="form-group ">
+                    <div className="row">
                       <ReTooltip
                         title="Subscribe for calendar alerts."
                         placement="top"
                       >
                         <Link
-                          className={`btn btn-outline-primary mb-1 ml-1 ${
+                          className={`btn btn-outline-primary mb-1 ${
                             calendarSub === 1 ? "d-none" : ""
                           }`}
                           disabled={calendarSub === 1}
@@ -1169,7 +1171,7 @@ const BookingListComponent = () => {
                       aria-hidden="true"
                       style={{ display: "none" }}
                     >
-                      <div className="modal-dialog modal-md " role="document">
+                      <div className="modal-dialog modal-md" role="document">
                         <div className="modal-content">
                           <div
                             className="modal-header"
@@ -1424,177 +1426,182 @@ const BookingListComponent = () => {
                                         <p className="col-sm-12 col-md-4">
                                           Date / Time
                                         </p>
-                                        <DatePicker
-                                          className="form-control custom-datepicker col-8"
-                                          id="datetimepicker4"
-                                          name="prefferedDate"
-                                          selected={bookingData.prefferedDate}
-                                          onChange={(date) =>
-                                            setBookingData((prevData) => ({
-                                              ...prevData,
-                                              prefferedDate: date,
-                                            }))
-                                          }
-                                          dateFormat="dd/MM/yyyy"
-                                          required
-                                        />
+                                        <div className="col-6 col-md-4 m-0">
+                                          <DatePicker
+                                            className="form-control w-100"
+                                            id="datetimepicker4"
+                                            name="prefferedDate"
+                                            selected={bookingData.prefferedDate}
+                                            onChange={(date) =>
+                                              setBookingData((prevData) => ({
+                                                ...prevData,
+                                                prefferedDate: date,
+                                              }))
+                                            }
+                                            dateFormat="dd/MM/yyyy"
+                                            required
+                                          />
+                                        </div>
+                                        <div className="col-6 col-md-4 p-0">
+                                          <select
+                                            className="select2 form-control"
+                                            name="fromTime"
+                                            id="fromTime"
+                                            value={bookingData.fromTime}
+                                            style={{ cursor: "pointer" }}
+                                            onChange={handleChange}
+                                            required
+                                          >
+                                            <option value="0">
+                                              Select Time
+                                            </option>
+                                            <option value="00:00:00">
+                                              12:00 AM
+                                            </option>
 
-                                        <select
-                                          className="select2 form-control w-50 form-control col-sm-6 col-md-3"
-                                          name="fromTime"
-                                          id="fromTime"
-                                          value={bookingData.fromTime}
-                                          style={{ cursor: "pointer" }}
-                                          onChange={handleChange}
-                                          required
-                                        >
-                                          <option value="0">Select Time</option>
-                                          <option value="00:00:00">
-                                            12:00 AM
-                                          </option>
-
-                                          <option value="00:30:00">
-                                            12:30 AM
-                                          </option>
-                                          <option value="01:00:00">
-                                            01:00 AM
-                                          </option>
-                                          <option value="01:30:00">
-                                            01:30 AM
-                                          </option>
-                                          <option value="02:00:00">
-                                            02:00 AM
-                                          </option>
-                                          <option value="02:30:00">
-                                            02:30 AM
-                                          </option>
-                                          <option value="03:00:00">
-                                            03:00 AM
-                                          </option>
-                                          <option value="03:30:00">
-                                            03:30 AM
-                                          </option>
-                                          <option value="04:00:00">
-                                            04:00 AM
-                                          </option>
-                                          <option value="04:30:00">
-                                            04:30 AM
-                                          </option>
-                                          <option value="05:00:00">
-                                            05:00 AM
-                                          </option>
-                                          <option value="05:30:00">
-                                            05:30 AM
-                                          </option>
-                                          <option value="06:00:00">
-                                            06:00 AM
-                                          </option>
-                                          <option value="06:30:00">
-                                            06:30 AM
-                                          </option>
-                                          <option value="07:00:00">
-                                            07:00 AM
-                                          </option>
-                                          <option value="07:30:00">
-                                            07:30 AM
-                                          </option>
-                                          <option value="08:00:00">
-                                            08:00 AM
-                                          </option>
-                                          <option value="08:30:00">
-                                            08:30 AM
-                                          </option>
-                                          <option value="09:00:00">
-                                            09:00 AM
-                                          </option>
-                                          <option value="09:30:00">
-                                            09:30 AM
-                                          </option>
-                                          <option value="10:00:00">
-                                            10:00 AM
-                                          </option>
-                                          <option value="10:30:00">
-                                            10:30 AM
-                                          </option>
-                                          <option value="11:00:00">
-                                            11:00 AM
-                                          </option>
-                                          <option value="11:30:00">
-                                            11:30 AM
-                                          </option>
-                                          <option value="12:00:00">
-                                            12:00 PM
-                                          </option>
-                                          <option value="12:30:00">
-                                            12:30 PM
-                                          </option>
-                                          <option value="13:00:00">
-                                            01:00 PM
-                                          </option>
-                                          <option value="13:30:00">
-                                            01:30 PM
-                                          </option>
-                                          <option value="14:00:00">
-                                            02:00 PM
-                                          </option>
-                                          <option value="14:30:00">
-                                            02:30 PM
-                                          </option>
-                                          <option value="15:00:00">
-                                            03:00 PM
-                                          </option>
-                                          <option value="15:30:00">
-                                            03:30 PM
-                                          </option>
-                                          <option value="16:00:00">
-                                            04:00 PM
-                                          </option>
-                                          <option value="16:30:00">
-                                            04:30 PM
-                                          </option>
-                                          <option value="17:00:00">
-                                            05:00 PM
-                                          </option>
-                                          <option value="17:30:00">
-                                            05:30 PM
-                                          </option>
-                                          <option value="18:00:00">
-                                            06:00 PM
-                                          </option>
-                                          <option value="18:30:00">
-                                            06:30 PM
-                                          </option>
-                                          <option value="19:00:00">
-                                            07:00 PM
-                                          </option>
-                                          <option value="19:30:00">
-                                            07:30 PM
-                                          </option>
-                                          <option value="20:00:00">
-                                            08:00 PM
-                                          </option>
-                                          <option value="20:30:00">
-                                            08:30 PM
-                                          </option>
-                                          <option value="21:00:00">
-                                            09:00 PM
-                                          </option>
-                                          <option value="21:30:00">
-                                            09:30 PM
-                                          </option>
-                                          <option value="22:00:00">
-                                            10:00 PM
-                                          </option>
-                                          <option value="22:30:00">
-                                            10:30 PM
-                                          </option>
-                                          <option value="23:00:00">
-                                            11:00 PM
-                                          </option>
-                                          <option value="23:30:00">
-                                            11:30 PM
-                                          </option>
-                                        </select>
+                                            <option value="00:30:00">
+                                              12:30 AM
+                                            </option>
+                                            <option value="01:00:00">
+                                              01:00 AM
+                                            </option>
+                                            <option value="01:30:00">
+                                              01:30 AM
+                                            </option>
+                                            <option value="02:00:00">
+                                              02:00 AM
+                                            </option>
+                                            <option value="02:30:00">
+                                              02:30 AM
+                                            </option>
+                                            <option value="03:00:00">
+                                              03:00 AM
+                                            </option>
+                                            <option value="03:30:00">
+                                              03:30 AM
+                                            </option>
+                                            <option value="04:00:00">
+                                              04:00 AM
+                                            </option>
+                                            <option value="04:30:00">
+                                              04:30 AM
+                                            </option>
+                                            <option value="05:00:00">
+                                              05:00 AM
+                                            </option>
+                                            <option value="05:30:00">
+                                              05:30 AM
+                                            </option>
+                                            <option value="06:00:00">
+                                              06:00 AM
+                                            </option>
+                                            <option value="06:30:00">
+                                              06:30 AM
+                                            </option>
+                                            <option value="07:00:00">
+                                              07:00 AM
+                                            </option>
+                                            <option value="07:30:00">
+                                              07:30 AM
+                                            </option>
+                                            <option value="08:00:00">
+                                              08:00 AM
+                                            </option>
+                                            <option value="08:30:00">
+                                              08:30 AM
+                                            </option>
+                                            <option value="09:00:00">
+                                              09:00 AM
+                                            </option>
+                                            <option value="09:30:00">
+                                              09:30 AM
+                                            </option>
+                                            <option value="10:00:00">
+                                              10:00 AM
+                                            </option>
+                                            <option value="10:30:00">
+                                              10:30 AM
+                                            </option>
+                                            <option value="11:00:00">
+                                              11:00 AM
+                                            </option>
+                                            <option value="11:30:00">
+                                              11:30 AM
+                                            </option>
+                                            <option value="12:00:00">
+                                              12:00 PM
+                                            </option>
+                                            <option value="12:30:00">
+                                              12:30 PM
+                                            </option>
+                                            <option value="13:00:00">
+                                              01:00 PM
+                                            </option>
+                                            <option value="13:30:00">
+                                              01:30 PM
+                                            </option>
+                                            <option value="14:00:00">
+                                              02:00 PM
+                                            </option>
+                                            <option value="14:30:00">
+                                              02:30 PM
+                                            </option>
+                                            <option value="15:00:00">
+                                              03:00 PM
+                                            </option>
+                                            <option value="15:30:00">
+                                              03:30 PM
+                                            </option>
+                                            <option value="16:00:00">
+                                              04:00 PM
+                                            </option>
+                                            <option value="16:30:00">
+                                              04:30 PM
+                                            </option>
+                                            <option value="17:00:00">
+                                              05:00 PM
+                                            </option>
+                                            <option value="17:30:00">
+                                              05:30 PM
+                                            </option>
+                                            <option value="18:00:00">
+                                              06:00 PM
+                                            </option>
+                                            <option value="18:30:00">
+                                              06:30 PM
+                                            </option>
+                                            <option value="19:00:00">
+                                              07:00 PM
+                                            </option>
+                                            <option value="19:30:00">
+                                              07:30 PM
+                                            </option>
+                                            <option value="20:00:00">
+                                              08:00 PM
+                                            </option>
+                                            <option value="20:30:00">
+                                              08:30 PM
+                                            </option>
+                                            <option value="21:00:00">
+                                              09:00 PM
+                                            </option>
+                                            <option value="21:30:00">
+                                              09:30 PM
+                                            </option>
+                                            <option value="22:00:00">
+                                              10:00 PM
+                                            </option>
+                                            <option value="22:30:00">
+                                              10:30 PM
+                                            </option>
+                                            <option value="23:00:00">
+                                              11:00 PM
+                                            </option>
+                                            <option value="23:30:00">
+                                              11:30 PM
+                                            </option>
+                                          </select>
+                                        </div>
                                       </div>
                                       {roleId !== 3 && (
                                         <div className="modal-body d-flex justify-content-center align-items-center px-4">
@@ -1662,8 +1669,7 @@ const BookingListComponent = () => {
                                               value: client.id,
                                               label: client.name,
                                               image: client.profile_photo,
-                                            }))
-                                          }
+                                            }))}
                                           isSearchable
                                           components={{
                                             Option: ({
