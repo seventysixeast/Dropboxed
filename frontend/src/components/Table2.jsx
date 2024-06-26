@@ -29,7 +29,7 @@ const Table2 = ({ data, columns }) => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 10 }, // Set initial page size here
+      initialState: { pageIndex: 0, pageSize: 10 },
     },
     useFilters,
     useGlobalFilter,
