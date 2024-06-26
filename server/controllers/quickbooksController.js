@@ -278,9 +278,9 @@ exports.createQuickBooksInvoice = async (userId, invoiceItems, total, note, quic
 
     // Check and create items if not already in QuickBooks
     for (const item of invoiceItems) {
+      
       let quickbooksItemId;
       let item_id = item.id;
-
       const package = await Package.findOne({ where: { id: item_id } });
 
       if (!package) {
