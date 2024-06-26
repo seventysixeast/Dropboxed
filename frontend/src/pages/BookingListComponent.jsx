@@ -269,6 +269,7 @@ const BookingListComponent = () => {
 
   const handleSelectedChange = (selectedOptions) => {
     setSelectedService(selectedOptions);
+    console.log(selectedOptions);
     const selectedValues = selectedOptions.map((option) => option.value);
     const selectedValuesString = selectedValues.join(", ");
 
@@ -426,6 +427,7 @@ const BookingListComponent = () => {
       label: serv.package_name,
       value: serv.id,
       package_price: serv.package_price,
+      show_price: serv.show_price,
     }));
 
     const selectedPrices = selectedServices.map((serv) => serv.package_price);

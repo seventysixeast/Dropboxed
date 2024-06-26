@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import * as Yup from "yup";
+import Select from "react-select";
 import { toast } from "react-toastify";
 import logoLight from "../assets/images/dropboxed-logo.png";
 import { signup } from "../api/authApis";
@@ -11,11 +12,12 @@ const SignUp = () => {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const [showTermsOfServiceModal, setShowTermsOfServiceModal] = useState(false);
   const [showPrivacyPolicyModal, setShowPrivacyPolicyModal] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [userData, setUserData] = useState({
     studioName: "",
     email: "",
     password: "",
-    country: "USA",
+    country: { value: "USA", label: "USA" },
     agreedToTerms: false,
   });
 
@@ -39,12 +41,14 @@ const SignUp = () => {
         passwordRegex,
         "Password must be at least 6 characters and contain at least one special character (!@#$%^&*)"
       ),
-    country: Yup.string().required("Country is required"),
+    country: Yup.object().shape({
+      value: Yup.string().required("Country is required"),
+      label: Yup.string().required("Country is required"),
+    }),
     agreedToTerms: Yup.boolean().oneOf([true], "You must agree to the terms"),
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (name, value) => {
     setUserData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -69,7 +73,6 @@ const SignUp = () => {
       } else {
         toast.error(response.message);
       }
-      //window.location.href = `http://${window.location.host}/login`;
     } catch (error) {
       if (error.name === "ValidationError") {
         const validationErrors = {};
@@ -83,6 +86,17 @@ const SignUp = () => {
       }
     }
   };
+
+  const countryOptions = [
+    { value: "USA", label: "USA" },
+    { value: "UK", label: "UK" },
+    { value: "Brazil", label: "Brazil" },
+    { value: "Japan", label: "Japan" },
+    { value: "Taiwan", label: "Taiwan" },
+    { value: "Singapore", label: "Singapore" },
+    { value: "Australia", label: "Australia" },
+    { value: "New Zealand", label: "New Zealand" },
+  ];
 
   return (
     <div className="">
@@ -117,7 +131,9 @@ const SignUp = () => {
                             id="user-name"
                             name="studioName"
                             value={userData.studioName}
-                            onChange={handleChange}
+                            onChange={(e) =>
+                              handleChange(e.target.name, e.target.value)
+                            }
                             placeholder="Studio Name"
                           />
                           <div className="form-control-position">
@@ -134,7 +150,9 @@ const SignUp = () => {
                             id="user-email"
                             name="email"
                             value={userData.email}
-                            onChange={handleChange}
+                            onChange={(e) =>
+                              handleChange(e.target.name, e.target.value)
+                            }
                             placeholder="Your Email Address"
                           />
                           <div className="form-control-position">
@@ -151,7 +169,9 @@ const SignUp = () => {
                             id="user-password"
                             name="password"
                             value={userData.password}
-                            onChange={handleChange}
+                            onChange={(e) =>
+                              handleChange(e.target.name, e.target.value)
+                            }
                             placeholder="Enter Password"
                           />
                           <div className="form-control-position">
@@ -171,32 +191,50 @@ const SignUp = () => {
                             onClick={togglePasswordVisibility}
                           >
                             <i
-                              className={`fa ${isPasswordVisible ? "fa-eye-slash" : "fa-eye"
-                                }`}
+                              className={`fa ${
+                                isPasswordVisible ? "fa-eye-slash" : "fa-eye"
+                              }`}
                             />
                           </div>
                         </fieldset>
                         <fieldset className="form-group position-relative">
-                          <select
-                            name="country"
-                            className="select2 form-control"
-                            value={userData.country}
-                            onChange={handleChange}
-                          >
-                            <option value="USA">USA</option>
-                            <option value="UK">UK</option>
-                            <option value="Brazil">Brazil</option>
-                            <option value="Japan">Japan</option>
-                            <option value="Taiwan">Taiwan</option>
-                            <option value="Singapore">Singapore</option>
-                            <option value="Australia">Australia</option>
-                            <option value="New Zealand">New Zealand</option>
-                          </select>
-                          <div className="form-control-position">
-                            <i className="fa fa-chevron-down"></i>
-                          </div>
+                          <Select
+                            options={countryOptions}
+                            value={selectedCountry}
+                            onChange={(selectedOption) => {
+                              setSelectedCountry(selectedOption);
+                              setUserData((prevData) => ({
+                                ...prevData,
+                                country: selectedOption.label,
+                              }));
+                            }}
+                            placeholder="Select your country"
+                            className="select2"
+                            id="country"
+                            components={{
+                              Option: ({
+                                data,
+                                innerRef,
+                                innerProps,
+                              }) => (
+                                <div
+                                  ref={innerRef}
+                                  {...innerProps}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    cursor: "pointer",
+                                    padding: "5px 10px",
+                                  }}
+                                  className="customOptionClass"
+                                >
+                                  <span>{data.label}</span>
+                                </div>
+                              ),
+                            }}
+                          />
                           <small className="text-danger">
-                            {validationErrors.country}
+                            {validationErrors.country?.label}
                           </small>
                         </fieldset>
                         <fieldset className="form-group position-relative">
@@ -226,7 +264,7 @@ const SignUp = () => {
                                   color: "#009c9f",
                                   textDecoration: "none",
                                   cursor: "pointer",
-                                  transition: "color 0.3s, text-shadow 0.3s", // Smooth transition for hover effects
+                                  transition: "color 0.3s, text-shadow 0.3s",
                                 }}
                                 onMouseEnter={(e) => {
                                   e.target.style.color = "#006f72";
@@ -250,7 +288,7 @@ const SignUp = () => {
                                   color: "#009c9f",
                                   textDecoration: "none",
                                   cursor: "pointer",
-                                  transition: "color 0.3s, text-shadow 0.3s", // Smooth transition for hover effects
+                                  transition: "color 0.3s, text-shadow 0.3s",
                                 }}
                                 onMouseEnter={(e) => {
                                   e.target.style.color = "#006f72";
