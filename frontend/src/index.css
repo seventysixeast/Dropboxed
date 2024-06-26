@@ -1887,3 +1887,8 @@ table.dataTable thead td {
   color: #dcdcdc;
   padding: 24px 20px 8px 20px;
 }
+
+.brand-logo-small {
+  width: 2.5rem !important;
+  padding-left: 0.1rem !important;
+}
