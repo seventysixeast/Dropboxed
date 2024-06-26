@@ -33,19 +33,22 @@ const PhotographersTeam = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    verifyTokenOnMount();
     getAllPhotographersData();
   }, []);
 
-  const verifyTokenOnMount = async () => {
-    if (accesstoken) {
-      const resp = await verifyToken(accesstoken);
-      if (!resp.success) {
-        toast.error("Session expired, please login again.");
-        navigate('/login');
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = '/login';
+        }
       }
-    }
-  };
+    };
+
+    fetchData();
+  }, [accesstoken]);
 
   const getAllPhotographersData = async () => {
     try {

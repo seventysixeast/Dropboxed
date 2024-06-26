@@ -238,7 +238,7 @@ const Clients = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          navigate('/login');
+          window.location.href = '/login';
         }
       }
     };

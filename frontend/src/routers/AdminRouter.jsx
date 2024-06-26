@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from "react";
+import React, { Suspense } from "react";
 import { useLocation, useRoutes, Navigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";

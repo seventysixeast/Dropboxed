@@ -11,7 +11,7 @@ import TableCustom from "../components/Table";
 import { useAuth } from "../context/authContext";
 import { verifyToken } from "../api/authApis";
 import LoadingOverlay from "../components/Loader";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ImageTypes = () => {
   const { authData } = useAuth();
@@ -28,22 +28,24 @@ const ImageTypes = () => {
     status: "Active",
     gallery_status: "Image",
   });
-  const navigate = useNavigate();
 
   useEffect(() => {
     getAllImageTypesData();
-    verifyTokenOnMount();
   }, []);
 
-  const verifyTokenOnMount = async () => {
-    if (accesstoken) {
-      const resp = await verifyToken(accesstoken);
-      if (!resp.success) {
-        toast.error("Session expired, please login again.");
-        navigate('/login');
+  useEffect(() => {
+    const fetchData = async () => {
+      if (accesstoken !== undefined) {
+        let resp = await verifyToken(accesstoken);
+        if (!resp.success) {
+          toast.error("Session expired, please login again.");
+          window.location.href = '/login';
+        }
       }
-    }
-  };
+    };
+
+    fetchData();
+  }, [accesstoken]);
 
   const getAllImageTypesData = async () => {
     setLoading(true);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import "react-tabs/style/react-tabs.css";
@@ -7,7 +7,7 @@ import { getAllImageTypes } from "../api/imageTypeApis";
 import { createService, getService } from "../api/serviceApis";
 import { Tooltip, styled } from "@mui/material";
 import { tooltipClasses } from "@mui/material/Tooltip";
-import { useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import LoadingOverlay from "../components/Loader";
 import { Switch } from "@mui/material";
 
@@ -28,20 +28,11 @@ const AddService = () => {
     subdomainId: user.subdomain_id,
     showPrice: true,
   });
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (id !== undefined) {
-      getServiceById();
-    }
-  }, [id]);
 
-  useEffect(() => {
-    if (id === undefined) {
-      getAllImageTypesData();
-    }
-  }, [id]);
 
-  const getAllImageTypesData = async () => {
+  const getAllImageTypesData = useCallback(async () => {
     try {
       let formData = new FormData();
       formData.append("subdomain_id", subdomainId);
@@ -52,7 +43,57 @@ const AddService = () => {
     } catch (error) {
       console.error("Failed to:", error.message);
     }
-  };
+  }, [subdomainId]);
+  
+  const getServiceById = useCallback(async () => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("subdomain_id", subdomainId);
+    await getAllImageTypesData();
+    try {
+      let service = await getService(formData);
+      const data = service.data;
+  
+      data.image_type_details = JSON.parse(data.image_type_details);
+      let typedata = await getAllImageTypes(formData);
+      const updatedImageTypeDetails = data.image_type_details.map((detail) => {
+        const imageType = typedata.data.find(
+          (type) => type.id === parseInt(detail.image_type)
+        );
+        return {
+          type: {
+            value: detail.image_type,
+            label: imageType ? imageType.type : "",
+            price: imageType ? imageType.price : 0,
+            isVideo: imageType ? imageType.gallery_status : false,
+          },
+          label: detail.image_type_label,
+          count: detail.image_type_count,
+        };
+      });
+      if (data.status === "Active") {
+        data.status = "ACTIVE";
+      } else {
+        data.status = "INACTIVE";
+      }
+  
+      setServiceData({
+        serviceName: data.package_name,
+        imageTypeDetails: updatedImageTypeDetails,
+        status: data.status,
+        totalPrice: data.package_price,
+        subdomainId: data.subdomain_id,
+        showPrice: data.show_price,
+      });
+      setCloneIndex(updatedImageTypeDetails.length);
+    } catch (error) {
+      toast.error("Failed to get service!");
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [id, subdomainId, getAllImageTypesData]);
 
   const handleAddInstance = () => {
     setCloneIndex(cloneIndex + 1);
@@ -164,7 +205,7 @@ const AddService = () => {
           showPrice: true,
         });
         setCloneIndex(1);
-        window.location.href = "/services";
+        navigate("/services");
       } else {
         toast.error("Failed to add service!");
       }
@@ -174,55 +215,7 @@ const AddService = () => {
     }
   };
 
-  const getServiceById = async () => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("id", id);
-    formData.append("subdomain_id", subdomainId);
-    await getAllImageTypesData();
-    try {
-      let service = await getService(formData);
-      const data = service.data;
 
-      data.image_type_details = JSON.parse(data.image_type_details);
-      let typedata = await getAllImageTypes(formData);
-      const updatedImageTypeDetails = data.image_type_details.map((detail) => {
-        const imageType = typedata.data.find(
-          (type) => type.id === parseInt(detail.image_type)
-        );
-        return {
-          type: {
-            value: detail.image_type,
-            label: imageType ? imageType.type : "",
-            price: imageType ? imageType.price : 0,
-            isVideo: imageType ? imageType.gallery_status : false,
-          },
-          label: detail.image_type_label,
-          count: detail.image_type_count,
-        };
-      });
-      if (data.status === "Active") {
-        data.status = "ACTIVE";
-      } else {
-        data.status = "INACTIVE";
-      }
-
-      setServiceData({
-        serviceName: data.package_name,
-        imageTypeDetails: updatedImageTypeDetails,
-        status: data.status,
-        totalPrice: data.package_price,
-        subdomainId: data.subdomain_id,
-        showPrice: data.show_price,
-      });
-      setCloneIndex(updatedImageTypeDetails.length);
-    } catch (error) {
-      toast.error("Failed to get service!");
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleImageTypeChange = (index, selectedOption) => {
     const updatedImageTypeDetails = [...serviceData.imageTypeDetails];
@@ -326,6 +319,18 @@ const AddService = () => {
     </CustomTooltip>
   );
 
+  useEffect(() => {
+    if (id !== undefined) {
+      getServiceById();
+    }
+  }, [id, getServiceById]);
+
+  useEffect(() => {
+    if (id === undefined) {
+      getAllImageTypesData();
+    }
+  }, [id, getAllImageTypesData ]);
+
   return (
     <>
       <LoadingOverlay loading={loading} />
@@ -339,7 +344,7 @@ const AddService = () => {
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="index.html">Home</a>
+                      <Link to="/dashboard">Home</Link>
                     </li>
                     <li className="breadcrumb-item active">Add Service</li>
                   </ol>
@@ -537,7 +542,7 @@ const AddService = () => {
                         </div>
                       </form>
                       <div className="buttons d-flex justify-content-end mr-4">
-                        {roleId != 3 && (
+                        {roleId !== 3 && (
                           <button
                             type="submit"
                             onClick={handleSubmit}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   deleteService,
   getAllServices,
@@ -10,20 +10,16 @@ import DeleteModal from "../components/DeleteModal";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DndContext,
-  closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  rectIntersection,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   rectSortingStrategy,
-  rectSwappingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SortableItem from "../components/SortableItem";
 
@@ -32,19 +28,14 @@ const CardsPackages = () => {
   const { user } = authData;
   const roleId = user.role_id;
   const subdomainId = user.subdomain_id;
-  const accesstoken = authData.token;
   const [servicesData, setServicesData] = useState([]);
   const [serviceId, setServiceId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [usedServices, setUsedServices] = useState(false);
   const [itemsLoading, setItemsLoading] = useState(true);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  useEffect(() => {
-    getServices();
-  }, []);
 
-  const getServices = async () => {
+  const getServices = useCallback(async () => {
     setItemsLoading(true);
     const formData = new FormData();
     if (subdomainId !== "") {
@@ -71,7 +62,11 @@ const CardsPackages = () => {
       toast.error("Failed to get services!");
     }
     setItemsLoading(false);
-  };
+  }, [subdomainId, user.id, roleId]);
+
+  useEffect(() => {
+    getServices();
+  }, [getServices]);
 
   const handleEditService = (service) => {
     navigate(`/services/edit-service/${service.id}`);
@@ -81,10 +76,7 @@ const CardsPackages = () => {
     setServiceId(service.id);
     if (usedServices.includes(service.id)) {
       toast.error("Service is being used in a collection/booking.");
-      const timeoutId = setTimeout(() => {
-        setShowDeleteModal(true);
-      }, 500);
-      return () => clearTimeout(timeoutId);
+      setShowDeleteModal(true);
     } else {
       setShowDeleteModal(true);
     }
@@ -96,7 +88,6 @@ const CardsPackages = () => {
     const response = await deleteService(formData);
     if (response.success) {
       toast.success("Service deleted successfully!");
-      getServices();
     } else {
       toast.error("Failed to delete service!");
     }
@@ -132,7 +123,7 @@ const CardsPackages = () => {
   };
 
   const handleServiceOrder = async (updatedItems) => {
-    setLoading(true);
+    // setLoading(true);
     try {
       const itemIds = updatedItems.map((item) => item.id);
       let newitems = updatedItems.map((item) => item.id);
@@ -150,7 +141,7 @@ const CardsPackages = () => {
     } catch (error) {
       toast.error("Failed to update service order!");
     }
-    setLoading(false);
+    // setLoading(false);
   };
 
   return (

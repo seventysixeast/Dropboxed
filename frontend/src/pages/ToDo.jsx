@@ -474,7 +474,7 @@ const ToDo = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          navigate('/login');
+          window.location.href = "/login";
         }
       }
     };
@@ -568,42 +568,68 @@ const ToDo = () => {
                     </div>
                     <div className="list-group">
                       {tags.map((tag, index) => (
-                        <Tooltip
-                          key={index}
-                          placement="right"
-                          arrow
-                          title={
-                            <React.Fragment>
-                              <button
-                                className="btn btn-sm btn-danger"
-                                onClick={() => {
-                                  handleTagDelete(tag.id);
+                        <>
+                          {roleId !== 3 ? (
+                            <Tooltip
+                              key={index}
+                              placement="right"
+                              arrow
+                              title={
+                                <React.Fragment>
+                                  <button
+                                    className="btn btn-sm btn-danger"
+                                    onClick={() => {
+                                      handleTagDelete(tag.id);
+                                    }}
+                                  >
+                                    Delete
+                                  </button>
+                                </React.Fragment>
+                              }
+                            >
+                              <p
+                                className={`list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer ${
+                                  activeFilter === tag.id ? "active" : ""
+                                }`}
+                                style={{ padding: "0.8rem 1rem" }}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  sortByTag(tag.id);
                                 }}
                               >
-                                Delete
-                              </button>
-                            </React.Fragment>
-                          }
-                        >
-                          <p
-                            className={`list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer ${
-                              activeFilter === tag.id ? "active" : ""
-                            }`}
-                            style={{ padding: "0.8rem 1rem" }}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              sortByTag(tag.id);
-                            }}
-                          >
-                            <span>{tag.tasktag_title}</span>
-                            <span
-                              className={`bullet bullet-sm`}
-                              style={{
-                                backgroundColor: `${getBulletClass(tag.id)}`,
+                                <span>{tag.tasktag_title}</span>
+                                <span
+                                  className={`bullet bullet-sm`}
+                                  style={{
+                                    backgroundColor: `${getBulletClass(
+                                      tag.id
+                                    )}`,
+                                  }}
+                                ></span>
+                              </p>
+                            </Tooltip>
+                          ) : (
+                            <p
+                              key={index}
+                              className={`list-group-item border-0 d-flex align-items-center justify-content-between my-0 cursor-pointer ${
+                                activeFilter === tag.id ? "active" : ""
+                              }`}
+                              style={{ padding: "0.8rem 1rem" }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                sortByTag(tag.id);
                               }}
-                            ></span>
-                          </p>
-                        </Tooltip>
+                            >
+                              <span>{tag.tasktag_title}</span>
+                              <span
+                                className={`bullet bullet-sm`}
+                                style={{
+                                  backgroundColor: `${getBulletClass(tag.id)}`,
+                                }}
+                              ></span>
+                            </p>
+                          )}
+                        </>
                       ))}
                     </div>
                   </div>
