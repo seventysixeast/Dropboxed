@@ -785,7 +785,7 @@ exports.INVOICE_EMAIL = (invoiceData) => `
         </td>
         <td style="width: 33%; text-align: right;">
           ${invoiceData.logo && invoiceData.logo !== '' 
-            ? `<img src="${CLIENTS_IMAGE_URL}/${invoiceData.logo}" alt="company-logo" style="max-width: 300px; height: auto;" />` 
+            ? `<img src="${CLIENTS_IMAGE_URL}/${invoiceData.logo}" alt="company-logo" style="max-width: 60%; height: auto;" />` 
             : `<h1 style="text-transform: uppercase; color: #00b5b8; margin: 0;">${invoiceData.subdomain}</h1>`
           }
         </td>
