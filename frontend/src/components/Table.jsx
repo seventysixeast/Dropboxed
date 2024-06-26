@@ -6,7 +6,6 @@ import {
   useSortBy,
   usePagination,
 } from "react-table";
-import moment from "moment";
 
 const TableCustom = ({ data, columns }) => {
   const {

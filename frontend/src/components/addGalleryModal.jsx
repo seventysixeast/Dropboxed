@@ -122,8 +122,6 @@ const AddGalleryModal = ({
 
       let services = await getAllServices(formData);
 
-      console.log(services);
-
       if (services.success) {
         setServicesData(services.data);
       }
