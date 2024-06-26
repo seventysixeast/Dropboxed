@@ -14,6 +14,11 @@ const Booking = sequelize.define('Booking', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    collection_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null
+    },
     booking_title: {
         type: DataTypes.STRING(100),
         allowNull: false

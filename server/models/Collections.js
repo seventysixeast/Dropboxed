@@ -12,6 +12,11 @@ const Collections = sequelize.define('Collections', {
     allowNull: false,
     defaultValue: 0
   },
+  booking_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: null
+  },
   client_id: {
     type: DataTypes.STRING,
     allowNull: false,
