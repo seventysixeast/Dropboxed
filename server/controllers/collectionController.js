@@ -92,31 +92,27 @@ const addGallery = async (req, res) => {
       let imageExt = imageName.split('.').pop();
       let originalImageName = `${timestamp}.${imageExt}`;
       let smallImageName = `small_${timestamp}.${imageExt}`;
-
+    
       collectionData.banner = originalImageName;
       collectionData.banner_sm = smallImageName;
-
+    
       let fileUrl = `${process.cwd()}/public/gallery/` + originalImageName;
-
+    
       file.mv(fileUrl, async function (err) {
         if (err) {
-          console.log("Error moving image:", err);
+          console.log("in image move error...", fileUrl, err);
         } else {
-          try {
-            // Resize and compress the original image
-            await resizeAndCompressImage(fileUrl, fileUrl, 100 * 1024); // Target size less than 100KB (e.g., 90KB)
-
-            // Resize and compress the small image
-            await Jimp.read(fileUrl)
-              .then(image => image.resize(Jimp.AUTO, 256).quality(80).write(`${process.cwd()}/public/gallery/${smallImageName}`));
-
-            console.log("Image processed successfully");
-          } catch (error) {
-            console.error("Error processing image:", error);
-          }
+          const image = await Jimp.read(fileUrl);
+          
+          // Set the quality of the original image to 25 percent
+          await image.quality(25).write(fileUrl);
+    
+          // Resize and save the small image
+          await image.resize(Jimp.AUTO, 256).quality(80).write(`${process.cwd()}/public/gallery/${smallImageName}`);
         }
       });
     }
+    
 
     let collection;
     if (req.body.id) {
@@ -128,14 +124,14 @@ const addGallery = async (req, res) => {
       collection = await Collection.findOne({ where: { id: req.body.id } });
     } else {
       collection = await Collection.create(collectionData);
-
+      
       // Add collection_id to booking
       const booking = await Booking.findOne({
         where: { booking_title: collectionData.client_address },
       });
 
       if (booking) {
-        await booking.update({
+        await booking.update({ 
           package_ids: collectionData.package_ids,
           collection_id: collection.id // Add collection_id here
         });
