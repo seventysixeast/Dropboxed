@@ -153,7 +153,7 @@ const Login = () => {
       }
 
       const userSubdomain = user.subdomain.toLowerCase().replace(/\s/g, "");
-      const currentSubdomain = window.location.hostname.split(".")[0];
+      // const currentSubdomain = window.location.hostname.split(".")[0];
       //const baseUrl = window.location.protocol + "//" + window.location.hostname;
 
       //const DOMAIN_NAME = process.env.REACT_APP_DOMAIN_NAME
@@ -217,7 +217,7 @@ const Login = () => {
   };
 
   return (
-    <div className="">
+    <div className="" style={{overflowY: 'auto'}}>
       {loading && (
         <div className="loader-overlay">
           <div className="loader"></div>

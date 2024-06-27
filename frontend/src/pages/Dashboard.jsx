@@ -149,8 +149,6 @@ const Dashboard = () => {
     notify_client: "",
   });
 
-
-
   const getClients = async () => {
     try {
       let clients = await getAllClients({ subdomainId: subdomainId });
@@ -495,14 +493,13 @@ const Dashboard = () => {
     }
   }, [formData.client, formData.booking_title]);
 
-
   useEffect(() => {
     const fetchData = async () => {
       if (accesstoken !== undefined) {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = '/login';
+          window.location.href = "/login";
         }
       }
     };
@@ -510,10 +507,9 @@ const Dashboard = () => {
     fetchData();
   }, [accesstoken]);
 
-
   const handleElementsToggle = () => {
     setElementsVisible(!elementVisible);
-  }
+  };
 
   return (
     <>
@@ -612,7 +608,6 @@ const Dashboard = () => {
                                   <i className="icon-picture font-large-2 white"></i>
                                 </div>
                                 <div className="p-1 bg-gradient-x-danger white media-body">
-
                                   <h5>{jobsInProgress}</h5>
                                   <p className="text-bold-400 mb-0">
                                     Job In Progress
@@ -626,12 +621,10 @@ const Dashboard = () => {
                           <div className="card">
                             <div className="card-content">
                               <div className="media align-items-stretch">
-                              <div className="p-2 text-center bg-primary ">
-
+                                <div className="p-2 text-center bg-primary ">
                                   <i className="icon-cloud-upload font-large-2 white"></i>
                                 </div>
                                 <div className="p-2 bg-gradient-x-primary white media-body">
-
                                   <h5>{ordersCompleted}</h5>
                                   <p className="text-bold-400 mb-0">
                                     Completed Orders
@@ -685,10 +678,17 @@ const Dashboard = () => {
             <section id="image-grid" className="app-content card">
               <div className="card-header">
                 <h4 className="card-title">Image gallery</h4>
-                <a className="heading-elements-toggle" onClick={handleElementsToggle}>
+                <a
+                  className="heading-elements-toggle"
+                  onClick={handleElementsToggle}
+                >
                   <i className="fa fa-ellipsis-v font-medium-3"></i>
                 </a>
-                <div className={`heading-elements ${elementVisible ? 'visible' : ''}`}>
+                <div
+                  className={`heading-elements ${
+                    elementVisible ? "visible" : ""
+                  }`}
+                >
                   <ul className="list-inline mb-0">
                     <li>
                       <div className="form-group d-flex flex-wrap">
@@ -761,37 +761,46 @@ const Dashboard = () => {
                             className="btn btn-outline-primary mr-1 mb-1"
                             data-toggle="modal"
                             data-target="#appointment"
-                            onClick={() => navigate('/booking-list-calendar')}
+                            onClick={() => navigate("/booking-list-calendar")}
                           >
                             New Appointment
                           </button>
                         </ReTooltip>
                         {user.role_id !== 3 && (
-                          <ReTooltip
-                            title={
-                              subdomainDropbox === ""
-                                ? "Link your dropbox first!"
-                                : "Add a new collection."
-                            }
-                            placement="top"
-                          >
-                            <button
-                              type="button"
-                              className="btn btn-outline-primary mb-1"
-                              data-toggle="modal"
-                              data-target="#bootstrap"
-                              disabled={subdomainDropbox === ""}
-                              onClick={() => {
-                                if (galleryView == "grid") {
-                                  setShowAddGalleryModal(true);
-                                } else {
-                                  setShowAddGalleryModal2(true);
-                                }
-                              }}
-                            >
-                              New Collection
-                            </button>
-                          </ReTooltip>
+                          <>
+                            {subdomainDropbox === "" ? (
+                              <button
+                                type="button"
+                                className="btn btn-outline-primary mb-1"
+                                data-toggle="modal"
+                                data-target="#bootstrap"
+                                disabled
+                              >
+                                New Collection
+                              </button>
+                            ) : (
+                              <ReTooltip
+                                title="Add a new collection."
+                                placement="top"
+                              >
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-primary mb-1"
+                                  data-toggle="modal"
+                                  data-target="#bootstrap"
+                                  onClick={() => {
+                                    if (galleryView === "grid") {
+                                      setShowAddGalleryModal(true);
+                                    } else {
+                                      setShowAddGalleryModal2(true);
+                                    }
+                                  }}
+                                >
+                                  New Collection
+                                </button>
+                              </ReTooltip>
+                            )}
+                          </>
                         )}
                       </div>
                     </li>
@@ -806,8 +815,8 @@ const Dashboard = () => {
                     {collections && collections.length > 0 ? (
                       collections.map((item) => (
                         <div className="col-md-3 mb-1" key={item.id}>
-                          <Link
-                            to={`${url2}view-gallery/${item.slug}`}
+                          <a
+                            href={`${url2}view-gallery/${item.slug}`}
                             className="gallery-link"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -908,7 +917,7 @@ const Dashboard = () => {
                                 </p>
                               </figcaption>
                             </figure>
-                          </Link>
+                          </a>
                         </div>
                       ))
                     ) : (
@@ -944,7 +953,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
       <AddGalleryModal

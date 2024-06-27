@@ -9,7 +9,7 @@ import ClientSignup from "../pages/ClientSignup";
 import DropboxOAuth from "../pages/DropboxAuth";
 import GoogleOAuth from "../pages/GoogleOAuth";
 import ViewGallery from "../pages/ViewGallery";
-import QuickBooksCallback from '../components/QuickBooksCallback';
+import QuickBooksCallback from "../components/QuickBooksCallback";
 import GoogleDriveOAuth from "../pages/GoogleDriveOAuth";
 
 const AuthRouter = () => {
@@ -26,31 +26,39 @@ const AuthRouter = () => {
     { path: "/google-drive", element: <GoogleDriveOAuth /> },
     { path: "*", element: <Navigate to="/login" /> },
     { path: "/view-gallery/:id", element: <ViewGallery /> },
-    { path: "/quickbooks/callback", element: <QuickBooksCallback /> }
+    { path: "/quickbooks/callback", element: <QuickBooksCallback /> },
   ]);
 
   return (
-    <Suspense fallback={<div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(255, 255, 255, 0.7)',
-      zIndex: 9999,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}>
-      <div style={{
-        border: '8px solid #f3f3f3',
-        borderTop: '8px solid #3498db',
-        borderRadius: '50%',
-        width: '50px',
-        height: '50px',
-        animation: 'spin 2s linear infinite'
-      }}></div>
-    </div>}>
+    <Suspense
+      fallback={
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            zIndex: 9999,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              border: "8px solid #f3f3f3",
+              borderTop: "8px solid #3498db",
+              borderRadius: "50%",
+              width: "50px",
+              height: "50px",
+              animation: "spin 2s linear infinite",
+            }}
+          ></div>
+        </div>
+      }
+    >
       {route}
     </Suspense>
   );
