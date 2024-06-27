@@ -85,10 +85,10 @@ const SideNav = ({
       onClick={handleMenuClick}
     >
       <Link to={to} className="" style={{ height: "50px" }}>
-        <i className={`feather icon-${icon} `} style={{ fontSize: "1rem" }}></i>
+        <i className={`feather icon-${icon} `} style={{ fontSize: "1rem", marginTop: "0.4rem" }}></i>
         <p
           className="menu-title mb-0 pb-0"
-          style={{ fontSize: "1rem" }}
+          style={{ fontSize: "1rem", marginTop: "0.2rem" }}
           data-i18n={title}
         >
           {hovering || isMenuExpanded ? title : null}
