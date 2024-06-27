@@ -335,7 +335,7 @@ const BookingListComponent = () => {
       let events = altData.data.map((booking) => {
         let title = booking.booking_title;
         let color = "#ff748c";
-        // let borderColor = "#ff748c";
+        let borderColor = "#ff748c";
         let editable = true;
         let status = booking.booking_status;
 
@@ -355,24 +355,24 @@ const BookingListComponent = () => {
           if (booking.user_id !== userId) {
             title = "Limited Availability";
             color = "gray";
-            // borderColor = "gray";
+            borderColor = "gray";
             editable = false;
           } else {
             if (status === 0) {
               color = "#ff748c";
-              // borderColor = "#ff748c";
+              borderColor = "#ff748c";
             } else {
               color = "#00b5b8";
-              // borderColor = "#00b5b8";
+              borderColor = "#00b5b8";
             }
           }
         } else {
           if (status === 0) {
             color = "#ff748c";
-            // borderColor = "#ff748c";
+            borderColor = "#ff748c";
           } else {
             color = "#00b5b8";
-            // borderColor = "#00b5b8";
+            borderColor = "#00b5b8";
           }
         }
 
@@ -382,6 +382,7 @@ const BookingListComponent = () => {
           start: `${booking.booking_date}T${booking.booking_time}`,
           end: `${booking.booking_date}T${booking.booking_time_to}`,
           color: color,
+          borderColor: borderColor,
           editable: editable,
           status: status,
         };

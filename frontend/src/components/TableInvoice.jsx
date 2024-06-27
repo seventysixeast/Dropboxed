@@ -75,52 +75,50 @@ const TableCustom = ({ data, columns }) => {
                 <div className="card pb-4">
                   <div className="card-content collapse show">
                     <div className="card-body card-dashboard dataTables_wrapper dt-bootstrap4">
-                    <div
-  className="d-flex flex-wrap justify-content-between mb-2"
-  style={{ marginLeft: "0 !important" }}
->
-<div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
-
-    <select
-      value={pageSize}
-      id="pageSize"
-      onChange={(e) => {
-        setPageSize(Number(e.target.value));
-      }}
-      className="custom-select custom-select-sm form-control form-control-sm"
-    >
-      {[10, 25, 50, 100].map((pageSize) => (
-        <option key={pageSize} value={pageSize}>
-          Show {pageSize} Entries
-        </option>
-      ))}
-    </select>
-  </div>
-  <div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
-
-    <select
-      value={paidFilter}
-      onChange={(e) => setPaidFilter(e.target.value)}
-      className="custom-select custom-select-sm form-control form-control-sm"
-    >
-      <option value="all">-- Select Status</option>
-      <option value="sent">Sent</option>
-      <option value="paid">Paid</option>
-      <option value="pending">Pending</option>
-    </select>
-  </div>
-  <div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
-    <input
-      type="search"
-      className="form-control form-control-sm"
-      name="search"
-      id="search"
-      value={globalFilter || ""}
-      onChange={(e) => setGlobalFilter(e.target.value)}
-      placeholder="Search..."
-    />
-  </div>
-</div>
+                      <div
+                        className="d-flex flex-wrap justify-content-between mb-2"
+                        style={{ marginLeft: "0 !important" }}
+                      >
+                        <div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
+                          <select
+                            value={pageSize}
+                            id="pageSize"
+                            onChange={(e) => {
+                              setPageSize(Number(e.target.value));
+                            }}
+                            className="custom-select custom-select-sm form-control form-control-sm"
+                          >
+                            {[10, 25, 50, 100].map((pageSize) => (
+                              <option key={pageSize} value={pageSize}>
+                                Show {pageSize} Entries
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
+                          <select
+                            value={paidFilter}
+                            onChange={(e) => setPaidFilter(e.target.value)}
+                            className="custom-select custom-select-sm form-control form-control-sm"
+                          >
+                            <option value="all">-- Select Status</option>
+                            <option value="sent">Sent</option>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                          </select>
+                        </div>
+                        <div className="col-12 col-sm-4 col-md-2 m-0 p-0 align-items-center mb-1 mb-md-0">
+                          <input
+                            type="search"
+                            className="form-control form-control-sm"
+                            name="search"
+                            id="search"
+                            value={globalFilter || ""}
+                            onChange={(e) => setGlobalFilter(e.target.value)}
+                            placeholder="Search..."
+                          />
+                        </div>
+                      </div>
 
                       <table
                         {...getTableProps()}

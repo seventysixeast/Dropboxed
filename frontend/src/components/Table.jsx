@@ -60,56 +60,49 @@ const TableCustom = ({ data, columns }) => {
                 <div className="card">
                   <div className="card-content collapse show">
                     <div className="card-body card-dashboard dataTables_wrapper dt-bootstrap4">
-                      <div
-                        className="d-flex justify-content-between"
-                        style={{
-                          marginBottom: "15px",
-                          marginLeft: "0 !important",
-                        }}
-                      >
-                        <div
-                          className="col-sm-12 col-md-5"
-                          style={{ marginLeft: "-15px" }}
+                    <div
+                      className="d-flex justify-content-between"
+                      style={{
+                        marginBottom: "5px",
+                        marginLeft: "0 !important",
+                      }}
+                    >
+                      <div className="col-sm-4 col-md-2 m-0 p-0  align-items-center mr-1">
+                        <select
+                          value={pageSize}
+                          id="pageSize"
+                          onChange={(e) => {
+                            setPageSize(Number(e.target.value));
+                          }}
+                          className="custom-select custom-select-sm form-control form-control-sm"
                         >
-                          <span>
-                            Show{" "}
-                            <select
-                              value={pageSize}
-                              id="pageSize"
-                              onChange={(e) => {
-                                setPageSize(Number(e.target.value));
-                              }}
-                              className="custom-select custom-select-sm form-control form-control-sm w-25"
-                            >
-                              {[10, 25, 50, 100].map((pageSize) => (
-                                <option key={pageSize} value={pageSize}>
-                                  Show {pageSize}
-                                </option>
-                              ))}
-                            </select>{" "}
-                            Entries
-                          </span>
-                        </div>
-                        <div className="col-sm-12 col-md-7">
-                          <input
-                            type="search"
-                            className="form-control form-control-sm float-right w-25"
-                            style={{ marginRight: "-16px" }}
-                            name="search"
-                            id="search"
-                            value={globalFilter || ""}
-                            onChange={(e) => setGlobalFilter(e.target.value)}
-                            placeholder="Search..."
-                          />
-                        </div>
+                          {[10, 25, 50, 100].map((pageSize) => (
+                            <option key={pageSize} value={pageSize}>
+                              Show {pageSize} Entries
+                            </option>
+                          ))}
+                        </select>{" "}
                       </div>
+
+                      <div className="col-sm-4 col-md-2 m-0 p-0  align-items-center ml-1">
+                        <input
+                          type="search"
+                          className="form-control form-control-sm float-right"
+                          name="search"
+                          id="search"
+                          value={globalFilter || ""}
+                          onChange={(e) => setGlobalFilter(e.target.value)}
+                          placeholder="Search..."
+                        />
+                      </div>
+                    </div>
 
                       <div style={{ overflowX: "auto" }}>
                         <table
                           {...getTableProps()}
                           className="tablealt-pagination dataTable table-inverse table-striped"
                         >
-                          <thead>
+                          <thead className="font-weight-bold" style={{fontSize: '1rem'}}>
                             {headerGroups.map(
                               (headerGroup, headerGroupIndex) => (
                                 <tr

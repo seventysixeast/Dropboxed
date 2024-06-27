@@ -197,8 +197,7 @@ const AddGalleryModal = ({
                           value: client.id,
                           image: client.profile_photo,
                         }))
-                        .sort((a, b) => (a.label < b.label ? -1 : 1))
-                      }
+                        .sort((a, b) => (a.label < b.label ? -1 : 1))}
                       onChange={(selectedOption) => {
                         handleInputChange({
                           target: {
@@ -208,11 +207,7 @@ const AddGalleryModal = ({
                         });
                       }}
                       components={{
-                        Option: ({
-                          data,
-                          innerRef,
-                          innerProps,
-                        }) => (
+                        Option: ({ data, innerRef, innerProps }) => (
                           <div
                             ref={innerRef}
                             {...innerProps}
@@ -257,12 +252,17 @@ const AddGalleryModal = ({
                       required
                     >
                       <option value="">----Select----</option>
-                      {bookingTitles.map((item) => (
-                        <option key={item.id} value={item.booking_title}>
-                          {item.booking_title},{" "}
-                          {moment(item.booking_date).format("DD/MM/YYYY")}
-                        </option>
-                      ))}
+                      {bookingTitles
+                        .sort(
+                          (a, b) =>
+                            new Date(b.created_at) - new Date(a.created_at)
+                        )
+                        .map((item) => (
+                          <option key={item.id} value={item.booking_title}>
+                            {item.booking_title},{" "}
+                            {moment(item.booking_date).format("DD/MM/YYYY")}
+                          </option>
+                        ))}
                     </select>
                     {loading && (
                       <div
