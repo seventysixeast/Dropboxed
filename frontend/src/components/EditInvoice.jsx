@@ -158,7 +158,7 @@ const EditInvoiceModal = ({
     // Add selecetd item into items array
     setItems([
       ...items,
-      { id: Date.now(), name: selectedItem.package_name, description: selectedItem.description, quantity: 1, price: selectedItem.package_price },
+      { id: selectedItem.id, name: selectedItem.package_name, description: selectedItem.description, quantity: 1, price: selectedItem.package_price },
     ]);
     setIsItemSelectModalOpen(false); // Close the item selection modal
   };

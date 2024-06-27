@@ -70,7 +70,17 @@ const Invoice = () => {
     },
     {
       Header: "Invoice Id",
-      accessor: "id",
+      accessor: (row) => {
+        return roleId !== 3 ?
+          (
+            <a href="#"
+              onClick={(e) => { e.preventDefault(); 
+              handleView(row.id) }}
+            >
+              {row.id}
+            </a>
+          ) : row.id;
+      },
     },
     {
       Header: "Collection Id",
