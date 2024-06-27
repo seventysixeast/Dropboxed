@@ -122,6 +122,8 @@ const AddGalleryModal = ({
 
       let services = await getAllServices(formData);
 
+      console.log(services);
+
       if (services.success) {
         setServicesData(services.data);
       }
@@ -169,7 +171,7 @@ const AddGalleryModal = ({
                 <div className="modal-body">
                   <fieldset className="form-group floating-label-form-group">
                     <p>Client *</p>
-                    {/* <select
+                    <select
                       className="select2 form-control"
                       name="client"
                       value={formData.client}
@@ -183,21 +185,20 @@ const AddGalleryModal = ({
                             {item.name}
                           </option>
                         ))}
-                    </select> */}
+                    </select>
                     {/* use react-select */}
-                    <Select
+                    {/* <Select
                       className="select2 w-100"
                       name="client"
-                      value={clients.find(
-                        (option) => option.value === formData.client
-                      )}
+                      value={formData.client}
                       options={clients
                         .map((client) => ({
                           label: client.name,
                           value: client.id,
                           image: client.profile_photo,
                         }))
-                        .sort((a, b) => (a.label < b.label ? -1 : 1))}
+                        .sort((a, b) => (a.label < b.label ? -1 : 1))
+                      }
                       onChange={(selectedOption) => {
                         handleInputChange({
                           target: {
@@ -207,7 +208,11 @@ const AddGalleryModal = ({
                         });
                       }}
                       components={{
-                        Option: ({ data, innerRef, innerProps }) => (
+                        Option: ({
+                          data,
+                          innerRef,
+                          innerProps,
+                        }) => (
                           <div
                             ref={innerRef}
                             {...innerProps}
@@ -238,7 +243,7 @@ const AddGalleryModal = ({
                         ),
                       }}
                       isDisabled={loading}
-                    />
+                    /> */}
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
                     <p>Booking Title *</p>
@@ -252,17 +257,12 @@ const AddGalleryModal = ({
                       required
                     >
                       <option value="">----Select----</option>
-                      {bookingTitles
-                        .sort(
-                          (a, b) =>
-                            new Date(b.created_at) - new Date(a.created_at)
-                        )
-                        .map((item) => (
-                          <option key={item.id} value={item.booking_title}>
-                            {item.booking_title},{" "}
-                            {moment(item.booking_date).format("DD/MM/YYYY")}
-                          </option>
-                        ))}
+                      {bookingTitles.map((item) => (
+                        <option key={item.id} value={item.booking_title}>
+                          {item.booking_title},{" "}
+                          {moment(item.booking_date).format("DD/MM/YYYY")}
+                        </option>
+                      ))}
                     </select>
                     {loading && (
                       <div

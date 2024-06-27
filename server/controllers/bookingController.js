@@ -938,14 +938,11 @@ const updateBooking = async (req, res) => {
 
 const getAllBookingTitles = async (req, res) => {
   try {
-    const bookingData = await Booking.findAll({
-      where: { user_id: req.body.clientId, collection_id: null },
+    let bookingData = await Booking.findAll({
+      where: { user_id: req.body.clientId },
     });
 
-    console.log(bookingData);
-
-
-    const filteredResults = bookingData.filter((result) => {
+    let filteredResults = bookingData.filter((result) => {
       return result.booking_status == 1;
     });
 

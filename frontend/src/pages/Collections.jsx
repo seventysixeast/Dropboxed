@@ -26,6 +26,8 @@ import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
 import moment from "moment";
 import ReTooltip from "../components/Tooltip";
+import AddInvoiceNodal from "../components/CreateInvoice";
+import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
 import EditInvoiceModal from "../components/EditInvoice";
 import ConfirmModal from "../components/ConfirmModal";
@@ -621,7 +623,7 @@ const Collections = () => {
         Cell: ({ row }) => (
           <ReTooltip title="Click to change lock status." placement="top">
             <Switch
-              id={`lockGallery_${row.original.id}`}
+              id="lockGallery"
               checked={row.original.lock_gallery}
               onChange={() => {
                 handleGalleryLockChange(row.original);
@@ -805,11 +807,10 @@ const Collections = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = '/login';
+          navigate("/login");
         }
       }
     };
-
     fetchData();
   }, [accesstoken]);
 

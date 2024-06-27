@@ -18,6 +18,31 @@ const Jimp = require("jimp");
 const fs = require("fs");
 const Booking = require("../models/Booking");
 
+async function resizeAndCompressImage(inputFile, outputFile, targetSizeBytes) {
+  const image = await Jimp.read(inputFile);
+
+  // Calculate initial quality setting
+  let quality = 100; // Starting quality
+
+  // Iterate to find the best quality setting that meets the target size
+  do {
+    // Set image quality and write to buffer
+    const buffer = await image.quality(quality).getBufferAsync(Jimp.MIME_JPEG);
+
+    // Check the size of the buffer
+    const currentSize = Buffer.byteLength(buffer);
+
+    // Reduce quality if the current size is larger than target size
+    if (currentSize > targetSizeBytes && quality > 1) {
+      quality--;
+    } else {
+      // Write the buffer to the output file
+      await Jimp.writeAsync(outputFile, buffer);
+      break;
+    }
+  } while (quality > 0);
+}
+
 function createSlug(title) {
   return title
     .toLowerCase()
@@ -75,10 +100,20 @@ const addGallery = async (req, res) => {
 
       file.mv(fileUrl, async function (err) {
         if (err) {
-          console.log("in image move error...", fileUrl, err);
+          console.log("Error moving image:", err);
         } else {
-          const image = await Jimp.read(fileUrl);
-          await image.resize(Jimp.AUTO, 256).quality(80).write(`${process.cwd()}/public/gallery/${smallImageName}`);
+          try {
+            // Resize and compress the original image
+            await resizeAndCompressImage(fileUrl, fileUrl, 100 * 1024); // Target size less than 100KB (e.g., 90KB)
+
+            // Resize and compress the small image
+            await Jimp.read(fileUrl)
+              .then(image => image.resize(Jimp.AUTO, 256).quality(80).write(`${process.cwd()}/public/gallery/${smallImageName}`));
+
+            console.log("Image processed successfully");
+          } catch (error) {
+            console.error("Error processing image:", error);
+          }
         }
       });
     }
@@ -93,14 +128,14 @@ const addGallery = async (req, res) => {
       collection = await Collection.findOne({ where: { id: req.body.id } });
     } else {
       collection = await Collection.create(collectionData);
-      
+
       // Add collection_id to booking
       const booking = await Booking.findOne({
         where: { booking_title: collectionData.client_address },
       });
 
       if (booking) {
-        await booking.update({ 
+        await booking.update({
           package_ids: collectionData.package_ids,
           collection_id: collection.id // Add collection_id here
         });
