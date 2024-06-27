@@ -237,21 +237,21 @@ const ViewGallery = () => {
   };
 
   useEffect(() => {
-    if (fileList.current && fileList.current.length === 0) {
-      if (!running) {
-        fetchCollection();
-      }
-    }
-
     setTimeout(() => {
       document.body.classList.remove(
         "vertical-layout",
         "vertical-menu-modern",
         "2-columns",
         "fixed-navbar",
-        "menu-expanded"
+        "menu-expanded",
+        "menu-collapsed"
       );
-    }, 0);
+    }, 100);
+    if (fileList.current && fileList.current.length === 0) {
+      if (!running) {
+        fetchCollection();
+      }
+    }
 
     if (tasks.length === 0) {
       getTasks();
@@ -266,13 +266,13 @@ const ViewGallery = () => {
     const formDataToSend = new FormData();
     formDataToSend.append("slug", id);
     let res = await getCollection(formDataToSend);
-      if (res.data.dropbox_link.includes("dropbox")) {
-        setCollectionRefresh(res.data.dropbox_refresh);
-        setDropboxLink(res.data.dropbox_link);
-        fetchFileList(res.data.dropbox_refresh, res.data.dropbox_link);
-        setVideoLink(res.data.video_link);
-        setBanner(res.data.banner);
-        setCollection(res.data);
+    if (res.data.dropbox_link.includes("dropbox")) {
+      setCollectionRefresh(res.data.dropbox_refresh);
+      setDropboxLink(res.data.dropbox_link);
+      fetchFileList(res.data.dropbox_refresh, res.data.dropbox_link);
+      setVideoLink(res.data.video_link);
+      setBanner(res.data.banner);
+      setCollection(res.data);
     }
     setRunning(false);
     setLoading(false);
@@ -1173,8 +1173,6 @@ const ViewGallery = () => {
               </div>
             </section>
             <DefaultLayout
-
-            
               shareButton={true}
               fullscreenButton={false}
               zoomButton={false}

@@ -34,7 +34,16 @@ const Login = () => {
   });
 
   useEffect(() => {
-    // check if user is authenticated
+    setTimeout(() => {
+      document.body.classList.remove(
+        "vertical-layout",
+        "vertical-menu-modern",
+        "2-columns",
+        "fixed-navbar",
+        "menu-expanded",
+        "menu-collapsed"
+      );
+    }, 100);
     const accessToken = localStorage.getItem("accessToken");
     const isAuth = localStorage.getItem("isAuth");
     const user = localStorage.getItem("user");

@@ -93,27 +93,28 @@ const addGallery = async (req, res) => {
       collection = await Collection.findOne({ where: { id: req.body.id } });
     } else {
       collection = await Collection.create(collectionData);
+      
+      // Add collection_id to booking
+      const booking = await Booking.findOne({
+        where: { booking_title: collectionData.client_address },
+      });
+
+      if (booking) {
+        await booking.update({ 
+          package_ids: collectionData.package_ids,
+          collection_id: collection.id // Add collection_id here
+        });
+      } else {
+        console.log("Booking not found");
+      }
     }
-
-    // Find booking with collectionData.client_address equal to booking.booking_title
-    const booking = await Booking.findOne({
-      where: { booking_title: collectionData.client_address },
-    });
-
-    if (booking) {
-      // Update booking's package_ids with collectionData.package_ids
-      await booking.update({ package_ids: collectionData.package_ids });
-    } else {
-      console.log("Booking not found");
-    }
-
 
     if (req.body.notify_client === "true") {
       const clientData = await User.findOne({
         where: { id: req.body.client },
         attributes: ["email"],
       });
-      console.log("collectionData",collectionData);
+      console.log("collectionData", collectionData);
       let SEND_EMAIL = NEW_COLLECTION(
         user.subdomain,
         user.logo,
@@ -141,6 +142,7 @@ const addGallery = async (req, res) => {
     res.status(500).json({ error: "Failed to add/update gallery" });
   }
 };
+
 
 const getAllCollections = async (req, res) => {
   try {

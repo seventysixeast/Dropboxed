@@ -106,7 +106,9 @@ const AdminRouter = () => {
   const route = useRoutes(routes);
 
   const shouldRenderHeaderAndSideNav =
-    !location.pathname.startsWith("/view-gallery");
+  !location.pathname.startsWith("/view-gallery") &&
+  !location.pathname.startsWith("/login");
+
 
   return (
     <div className="wrapper-foot">

@@ -621,7 +621,7 @@ const Collections = () => {
         Cell: ({ row }) => (
           <ReTooltip title="Click to change lock status." placement="top">
             <Switch
-              id="lockGallery"
+              id={`lockGallery_${row.original.id}`}
               checked={row.original.lock_gallery}
               onChange={() => {
                 handleGalleryLockChange(row.original);

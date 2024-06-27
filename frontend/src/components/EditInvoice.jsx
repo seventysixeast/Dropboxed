@@ -486,7 +486,7 @@ const EditInvoiceModal = ({
                           </div>
                           <hr />
                           <div className="invoice-product-details">
-                            <form className="repeater-form">
+                            <div className="repeater-form">
                               <div data-repeater-list="group-a">
                                 <div className="table-responsive">
                                   <table className="table table-bordered mt-3">
@@ -609,7 +609,7 @@ const EditInvoiceModal = ({
                                 </button>
                               </div>
                             ) }
-                            </form>
+                            </div>
                           </div>
                           <hr />
                           <div className="invoice-total">
