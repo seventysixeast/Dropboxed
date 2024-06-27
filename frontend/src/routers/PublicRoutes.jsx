@@ -12,7 +12,7 @@ import ViewGallery from "../pages/ViewGallery";
 import QuickBooksCallback from "../components/QuickBooksCallback";
 import GoogleDriveOAuth from "../pages/GoogleDriveOAuth";
 
-const AuthRouter = () => {
+const PublicRoutes = () => {
   const route = useRoutes([
     { path: "/login", element: <Login /> },
     { path: "/forgot", element: <ForgotPassword /> },
@@ -64,4 +64,4 @@ const AuthRouter = () => {
   );
 };
 
-export default AuthRouter;
+export default PublicRoutes;

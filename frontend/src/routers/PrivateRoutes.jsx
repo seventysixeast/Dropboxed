@@ -38,7 +38,7 @@ const CreateInvoice = React.lazy(() => import("../components/CreateInvoice"));
 const GoogleDriveOAuth = React.lazy(() => import("../pages/GoogleDriveOAuth"));
 const Login = React.lazy(() => import("../pages/Login"));
 
-const AdminRouter = () => {
+const PrivateRoutes = () => {
   const { authData } = useAuth();
   const { user } = authData;
   const location = useLocation();
@@ -152,4 +152,4 @@ const AdminRouter = () => {
   );
 };
 
-export default AdminRouter;
+export default PrivateRoutes;

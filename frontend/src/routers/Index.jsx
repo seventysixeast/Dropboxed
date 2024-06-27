@@ -1,14 +1,14 @@
 // IndexRouter.js
 import React from "react";
-import AdminRouter from "./AdminRouter";
-import AuthRouter from "./AuthRouter";
 import { useAuth } from "../context/authContext";
+import PrivateRoutes from "./PrivateRoutes";
+import PublicRoutes from "./PublicRoutes";
 
 const IndexRouter = () => {
   const {authData} = useAuth();
   const { isAuth } = authData;
 
-  return isAuth ? <AdminRouter /> : <AuthRouter />;
+  return isAuth ? <PrivateRoutes /> : <PublicRoutes />;
 };
 
 export default IndexRouter;
