@@ -136,6 +136,10 @@ const AddGalleryModal = ({
     getServices();
   }, []);
 
+  const filteredBookingTitles = formData.id === ""
+  ? bookingTitles.filter(item => item.collection_id === null)
+  : bookingTitles;
+
   return (
     <div className="app-content content">
       <div className="content-overlay"></div>
@@ -257,7 +261,7 @@ const AddGalleryModal = ({
                       required
                     >
                       <option value="">----Select----</option>
-                      {bookingTitles
+                      {filteredBookingTitles
                         .sort(
                           (a, b) =>
                             new Date(b.created_at) - new Date(a.created_at)

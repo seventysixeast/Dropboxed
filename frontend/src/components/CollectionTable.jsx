@@ -39,11 +39,8 @@ const REACT_APP_DROPBOX_REDIRECT = process.env.REACT_APP_DROPBOX_REDIRECT;
 
 const CollectionTable = () => {
   const { id } = useParams();
-
   const { authData } = useAuth();
-
   const user = authData.user;
-
   const subdomainId = user.subdomain_id;
   const userId = user.id;
   const roleId = user.role_id;
