@@ -349,6 +349,20 @@ const ManagePhotographerAdmins = () => {
     []
   );
 
+  const sortedData = useMemo(() => {
+    let filteredData = photographerAdmins;
+    if (showDeleted) {
+      filteredData = filteredData.filter((admin) => admin.status === "Deleted");
+    } else {
+      filteredData = filteredData.filter((admin) => admin.status !== "Deleted");
+    }
+    return filteredData.sort((a, b) => {
+      if (a.status === "Deleted" && b.status !== "Deleted") return 1;
+      if (a.status !== "Deleted" && b.status === "Deleted") return -1;
+      return 0;
+    });
+  }, [photographerAdmins, showDeleted]);
+
   return (
     <>
       {loading && <div className="loading">Loading...</div>}
@@ -356,24 +370,39 @@ const ManagePhotographerAdmins = () => {
         <div className="content-overlay"></div>
         <div className="content-wrapper">
           <div className="content-header row mt-2">
-            <div className="content-header-left col-md-6 col-12 mb-2">
-              <h3 className="content-header-title mb-0">Manage Photographer Admins</h3>
+            <div className="content-header-left col-md-6 col-12">
+              <h3 className="content-header-title mb-0 ml-1">
+                Manage Photographer Admins
+              </h3>
+
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
                   <ol className="breadcrumb">
-                    <li className="breadcrumb-item">
-                      {/* <Link to="/dashboard">Home</Link> */}
-                    </li>
+                    <li className="breadcrumb-item"></li>
                   </ol>
                 </div>
               </div>
             </div>
+            <div className="content-header-right col-md-6 col-12">
+              <div className="btnsrow row mr-1 mt-1" style={{ float: "right" }}>
+                <div className="btnscol ">
+                  <button
+                    className={`btn ${
+                      !showDeleted ? "btn-danger" : "btn-primary"
+                    } mb-2`}
+                    onClick={() => setShowDeleted(!showDeleted)}
+                  >
+                    {showDeleted
+                      ? "Show All Accounts"
+                      : "Show Deleted Accounts"}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-
         </div>
       </div>
-      <TableCustom columns={columns} data={photographerAdmins} />
-
+      <TableCustom columns={columns} data={sortedData} />
       <div
         className="modal fade"
         id="default"
@@ -479,14 +508,12 @@ const ManagePhotographerAdmins = () => {
           </div>
         </div>
       </div>
-
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={deletePhotographerAdminData}
         message="Are you sure you want to delete this photographer admin?"
       />
-
       <ConfirmModal
         isOpen={showUnsubModal}
         onClose={() => setShowUnsubModal(false)}
