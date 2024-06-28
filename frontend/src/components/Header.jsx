@@ -148,7 +148,7 @@ const Header = () => {
                     </div>
                     <span className="user-name">{user.userName}</span>
                   </a>
-                  <div className="dropdown-menu dropdown-menu-right">
+                  <div className="dropdown-menu dropdown-menu-right shadow">
                     {(roleId === 2 ||
                       roleId === 3 ||
                       roleId === 4 ||
