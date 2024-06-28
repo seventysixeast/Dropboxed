@@ -189,64 +189,6 @@ const AddGalleryModal = ({
                           </option>
                         ))}
                     </select>
-                    {/* use react-select */}
-                    {/* <Select
-                      className="select2 w-100"
-                      name="client"
-                      value={formData.client}
-                      options={clients
-                        .map((client) => ({
-                          label: client.name,
-                          value: client.id,
-                          image: client.profile_photo,
-                        }))
-                        .sort((a, b) => (a.label < b.label ? -1 : 1))
-                      }
-                      onChange={(selectedOption) => {
-                        handleInputChange({
-                          target: {
-                            name: "client",
-                            value: selectedOption ? selectedOption.value : "",
-                          },
-                        });
-                      }}
-                      components={{
-                        Option: ({
-                          data,
-                          innerRef,
-                          innerProps,
-                        }) => (
-                          <div
-                            ref={innerRef}
-                            {...innerProps}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              cursor: "pointer",
-                            }}
-                            className="customOptionClass"
-                          >
-                            <img
-                              src={
-                                data.image
-                                  ? `${IMAGE_URL}/${data.image}`
-                                  : "../app-assets/images/portrait/medium/dummy.png"
-                              }
-                              alt="Profile"
-                              style={{
-                                marginRight: "10px",
-                                borderRadius: "50%",
-                                width: "30px",
-                                height: "30px",
-                                margin: "4px",
-                              }}
-                            />
-                            <span>{data.label}</span>
-                          </div>
-                        ),
-                      }}
-                      isDisabled={loading}
-                    /> */}
                   </fieldset>
                   <fieldset className="form-group floating-label-form-group">
                     <p>Booking Title *</p>
@@ -315,7 +257,6 @@ const AddGalleryModal = ({
                         Option: CustomOption,
                       }}
                       isMulti
-                      // isDisabled
                       hideSelectedOptions
                     />
                   </fieldset>
