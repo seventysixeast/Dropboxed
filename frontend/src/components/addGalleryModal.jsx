@@ -122,8 +122,6 @@ const AddGalleryModal = ({
 
       let services = await getAllServices(formData);
 
-      console.log(services);
-
       if (services.success) {
         setServicesData(services.data);
       }
@@ -136,9 +134,10 @@ const AddGalleryModal = ({
     getServices();
   }, []);
 
-  const filteredBookingTitles = formData.id === ""
-  ? bookingTitles.filter(item => item.collection_id === null)
-  : bookingTitles;
+  const filteredBookingTitles =
+    formData.id === ""
+      ? bookingTitles.filter((item) => item.collection_id === null)
+      : bookingTitles;
 
   return (
     <div className="app-content content">

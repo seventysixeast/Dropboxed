@@ -19,7 +19,6 @@ const addGallery = async (galleryData) => {
 const getAllCollections = async (data) => {
   try {
     const response = await API.post('/collection/getAllCollections', data);
-    console.log(response);
     if (response.status !== 200) {
       throw new Error('Failed to get collections');
     }
