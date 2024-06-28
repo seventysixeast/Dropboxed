@@ -29,14 +29,13 @@ const updateUser = async (req, res) => {
 
     if (req.files && req.files.profile_photo && Object.keys(req.files).length) {
       let file = req.files.profile_photo;
-      let sanitizedDate = new Date().toISOString().replace(/[^\w\s]/gi, ''); // Remove special characters from date
+      let sanitizedDate = new Date().toISOString().replace(/[^\w\s]/gi, '');
       let sanitizedFilename = `${sanitizedDate}_profile.jpg`; // Ensure unique filenames with .jpg extension
 
       let fileUrl = `${process.cwd()}/public/clients/` + sanitizedFilename;
 
-      // Resize image using Jimp with quality set to 85 percent
       let image = await Jimp.read(file.data);
-      image.quality(85); // Set quality to 85 percent
+      image.quality(85); 
       let dimensions = sizeOf(file.data);
       let width = 400;
       let height = (dimensions.height * width) / dimensions.width;
@@ -44,8 +43,6 @@ const updateUser = async (req, res) => {
 
       userData.profile_photo = sanitizedFilename;
     }
-
-    // Similarly handle logo file upload
 
     if (req.files && req.files.logo && Object.keys(req.files).length) {
       let file = req.files.logo;

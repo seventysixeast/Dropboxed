@@ -26,7 +26,7 @@ const EditProfile = () => {
     status: "",
     business_name: "",
     profile_photo: null,
-    logo: null
+    logo: null,
   });
   const [errors, setErrors] = useState({ website: "" });
 
@@ -41,15 +41,15 @@ const EditProfile = () => {
     city: "",
     postal_code: "",
     website: "",
-    phone: ""
+    phone: "",
   });
 
   const websiteSchema = yup
-  .string()
-  .matches(
-    /^(https?:\/\/)?((([a-zA-Z0-9-]+)\.)+[a-zA-Z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-zA-Z0-9%_.~+]*)*(\?[;&a-zA-Z0-9%_.~+=-]*)?(#[-a-zA-Z0-9_]*)?$/,
-    'Please enter a valid URL'
-  );
+    .string()
+    .matches(
+      /^(https?:\/\/)?((([a-zA-Z0-9-]+)\.)+[a-zA-Z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-zA-Z0-9%_.~+]*)*(\?[;&a-zA-Z0-9%_.~+=-]*)?(#[-a-zA-Z0-9_]*)?$/,
+      "Please enter a valid URL"
+    );
 
   const [changePasswordData, setChangePasswordData] = useState({
     old_password: "",
@@ -334,7 +334,12 @@ const EditProfile = () => {
                               ? previewImage
                               : "../../../app-assets/images/portrait/medium/dummy.png"
                           }
-                          className="rounded-circle height-100 width-100 mt-2"
+                          className="rounded-circle mt-2"
+                          style={{
+                            height: "100px",
+                            width: "100px",
+                            objectFit: "cover",
+                          }}
                           alt="Preview"
                         />
                         <div className="media-body mt-3 ml-2">
@@ -348,6 +353,7 @@ const EditProfile = () => {
                           />
                         </div>
                       </div>
+
                       <div className="row">
                         <div className="col-12 col-sm-6">
                           <div className="form-group">

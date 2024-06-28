@@ -26,12 +26,11 @@ import DeleteModal from "../components/DeleteModal";
 import axios from "axios";
 import moment from "moment";
 import ReTooltip from "../components/Tooltip";
-import AddInvoiceNodal from "../components/CreateInvoice";
-import LoadingOverlay from "../components/Loader";
 import NoInvoiceModal from "../components/NoInvoiceModal";
 import EditInvoiceModal from "../components/EditInvoice";
 import ConfirmModal from "../components/ConfirmModal";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import imageNotFound from "../assets/imageNotFound.jpg";
 
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const REACT_APP_DROPBOX_CLIENT = process.env.REACT_APP_DROPBOX_CLIENT;
@@ -551,11 +550,13 @@ const Collections = () => {
         Header: "Banner Image",
         Cell: ({ row }) => (
           <img
-            src={
-              row.original.banner && `${IMAGE_URL}/${row.original.banner_sm}`
-            }
             className="width-100"
+            src={`${IMAGE_URL}/${row.original.banner_sm}`}
             alt="Banner"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = imageNotFound;
+            }}
           />
         ),
       },
@@ -807,7 +808,7 @@ const Collections = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = '/login';
+          window.location.href = "/login";
         }
       }
     };

@@ -17,31 +17,8 @@ const sizeOf = require("image-size");
 const Jimp = require("jimp");
 const fs = require("fs");
 const Booking = require("../models/Booking");
+const sharp = require('sharp');
 
-async function resizeAndCompressImage(inputFile, outputFile, targetSizeBytes) {
-  const image = await Jimp.read(inputFile);
-
-  // Calculate initial quality setting
-  let quality = 100; // Starting quality
-
-  // Iterate to find the best quality setting that meets the target size
-  do {
-    // Set image quality and write to buffer
-    const buffer = await image.quality(quality).getBufferAsync(Jimp.MIME_JPEG);
-
-    // Check the size of the buffer
-    const currentSize = Buffer.byteLength(buffer);
-
-    // Reduce quality if the current size is larger than target size
-    if (currentSize > targetSizeBytes && quality > 1) {
-      quality--;
-    } else {
-      // Write the buffer to the output file
-      await Jimp.writeAsync(outputFile, buffer);
-      break;
-    }
-  } while (quality > 0);
-}
 
 function createSlug(title) {
   return title
@@ -91,22 +68,33 @@ const addGallery = async (req, res) => {
       let imageName = req.files.banner.name;
       let imageExt = imageName.split('.').pop();
       let originalImageName = `${timestamp}.${imageExt}`;
-      let smallImageName = `small_${timestamp}.${imageExt}`;
+      
+      let originalWebPName = `${timestamp}.webp`;
+      let smallWebPName = `small_${timestamp}.webp`;
     
-      collectionData.banner = originalImageName;
-      collectionData.banner_sm = smallImageName;
+      collectionData.banner = originalWebPName;
+      collectionData.banner_sm = smallWebPName;
     
       let fileUrl = `${process.cwd()}/public/gallery/` + originalImageName;
     
       file.mv(fileUrl, async function (err) {
         if (err) {
-          console.log("in image move error...", fileUrl, err);
+          console.log("Error moving image:", err);
         } else {
-          const image = await Jimp.read(fileUrl);
-          
-          await image.quality(25).write(fileUrl);
+          try {
+            await sharp(fileUrl)
+              .resize({ width: 1920 }) 
+              .toFormat('webp', { quality: 20 })
+              .toFile(`${process.cwd()}/public/gallery/${originalWebPName}`);
     
-          await image.resize(Jimp.AUTO, 256).quality(80).write(`${process.cwd()}/public/gallery/${smallImageName}`);
+            await sharp(fileUrl)
+              .resize({ width: 256 })
+              .toFormat('webp')
+              .toFile(`${process.cwd()}/public/gallery/${smallWebPName}`);
+    
+          } catch (err) {
+            console.error("Error processing image:", err);
+          }
         }
       });
     }
@@ -122,16 +110,15 @@ const addGallery = async (req, res) => {
       collection = await Collection.findOne({ where: { id: req.body.id } });
     } else {
       collection = await Collection.create(collectionData);
-      
-      // Add collection_id to booking
+
       const booking = await Booking.findOne({
         where: { booking_title: collectionData.client_address },
       });
 
       if (booking) {
-        await booking.update({ 
+        await booking.update({
           package_ids: collectionData.package_ids,
-          collection_id: collection.id // Add collection_id here
+          collection_id: collection.id
         });
       } else {
         console.log("Booking not found");

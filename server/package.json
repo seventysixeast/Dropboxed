@@ -23,7 +23,8 @@
     "nodemon": "^3.1.0",
     "php-serialize": "^4.1.1",
     "redis": "^4.6.13",
-    "sequelize": "^6.37.2"
+    "sequelize": "^6.37.2",
+    "sharp": "^0.33.4"
   },
   "scripts": {
     "start": "nodemon node server.js"

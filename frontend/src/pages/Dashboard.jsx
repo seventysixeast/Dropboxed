@@ -25,7 +25,7 @@ import ReTooltip from "../components/Tooltip";
 import LoadingOverlay from "../components/Loader";
 import { getActiveInvoices } from "../api/invoiceApis";
 import { Link, useNavigate } from "react-router-dom";
-import imageNotFound from "../assets/imageNotFound.jpg"
+import imageNotFound from "../assets/imageNotFound.jpg";
 
 const REACT_APP_GALLERY_IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
 const IMAGE_URL = process.env.REACT_APP_GALLERY_IMAGE_URL;
@@ -825,16 +825,13 @@ const Dashboard = () => {
                             <figure className="effect-zoe">
                               <img
                                 className="gallery-thumbnail equal-image"
-                                src={
-                                  item.banner_sm
-                                    ? `${REACT_APP_GALLERY_IMAGE_URL}/${item.banner_sm}`
-                                    : "../../../app-assets/images/gallery/9.jpg"
-                                }
+                                src={`${REACT_APP_GALLERY_IMAGE_URL}/${item.banner_sm}`}
                                 alt="Gallery Item"
                                 style={{ minHeight: "150px" }}
                                 onError={(e) => {
-                                  e.target.onerror = null; // Reset the error handler to prevent infinite loops
-                                  e.target.src =imageNotFound}}
+                                  e.target.onerror = null;
+                                  e.target.src = imageNotFound;
+                                }}
                               />
 
                               <figcaption
