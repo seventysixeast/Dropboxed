@@ -1892,3 +1892,11 @@ table.dataTable thead td {
   width: 2.5rem !important;
   padding-left: 0.1rem !important;
 }
+
+.sidenav-role-name {
+  font-size: 1rem;
+  margin-top: 0.2rem;
+  padding-top: 1rem;
+  padding-left: 1.2rem;
+  font-size: 1rem;
+}

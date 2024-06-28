@@ -79,22 +79,34 @@ const SideNav = ({
     5: "Photographer Admin",
   };
 
+  const roleInitials = {
+    1: "MA",
+    2: "P",
+    3: "C",
+    5: "PA",
+  };
+
   const MenuItem = ({ to, icon, title, isActive }) => (
-    <li
-      className={`nav-item ${isActive ? "active" : ""}`}
-      onClick={handleMenuClick}
-    >
-      <Link to={to} className="" style={{ height: "50px" }}>
-        <i className={`feather icon-${icon} `} style={{ fontSize: "1rem", marginTop: "0.4rem" }}></i>
-        <p
-          className="menu-title mb-0 pb-0"
-          style={{ fontSize: "1rem", marginTop: "0.2rem" }}
-          data-i18n={title}
-        >
-          {hovering || isMenuExpanded ? title : null}
-        </p>
-      </Link>
-    </li>
+    <>
+      <li
+        className={`nav-item ${isActive ? "active" : ""}`}
+        onClick={handleMenuClick}
+      >
+        <Link to={to} className="" style={{ height: "50px" }}>
+          <i
+            className={`feather icon-${icon} `}
+            style={{ fontSize: "1rem", marginTop: "0.4rem" }}
+          ></i>
+          <p
+            className="menu-title mb-0 pb-0"
+            style={{ fontSize: "1rem", marginTop: "0.2rem" }}
+            data-i18n={title}
+          >
+            {hovering || isMenuExpanded ? title : null}
+          </p>
+        </Link>
+      </li>
+    </>
   );
 
   return (
@@ -112,6 +124,14 @@ const SideNav = ({
           id="main-menu-navigation"
           data-menu="menu-navigation"
         >
+          {/* <li className="nav-item" onClick={handleMenuClick}>
+            <p className="font-weight-bold sidenav-role-name text-center ml-0 pl-0">
+              {hovering || isMenuExpanded
+                ? roles[roleId]
+                : roleInitials[roleId]}
+            </p>
+          </li>
+          <hr className="p-0 mb-0" /> */}
           {menus[roleId] &&
             menus[roleId].map((menu, index) => (
               <MenuItem
