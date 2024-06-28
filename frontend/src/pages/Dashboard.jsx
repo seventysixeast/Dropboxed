@@ -609,7 +609,7 @@ const Dashboard = () => {
                                   <i className="icon-picture font-large-2 white"></i>
                                 </div>
                                 <div className="p-1 bg-gradient-x-danger white media-body">
-                                  <h5>{jobsInProgress}</h5>
+                                <h5 style={{marginTop: '0.5rem'}}>{jobsInProgress}</h5>
                                   <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
                                     Job In Progress
                                   </p>
@@ -625,8 +625,8 @@ const Dashboard = () => {
                                 <div className="p-2 text-center bg-primary ">
                                   <i className="icon-cloud-upload font-large-2 white"></i>
                                 </div>
-                                <div className="p-1 bg-gradient-x-primary white media-body">
-                                  <h5>{ordersCompleted}</h5>
+                                <div className="p-1  bg-gradient-x-primary white media-body">
+                                  <h5 style={{marginTop: '0.5rem'}}>{ordersCompleted}</h5>
                                   <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
                                     Completed Orders
                                   </p>
@@ -643,7 +643,7 @@ const Dashboard = () => {
                                   <i className="icon-calendar font-large-2 white"></i>
                                 </div>
                                 <div className="p-1 bg-gradient-x-warning white media-body">
-                                  <h5>{activeBookings}</h5>
+                                <h5 style={{marginTop: '0.5rem'}}>{activeBookings}</h5>
                                   <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
                                     Active Booking
                                   </p>
@@ -660,7 +660,7 @@ const Dashboard = () => {
                                   <i className="icon-bag font-large-2 white"></i>
                                 </div>
                                 <div className="p-1 bg-gradient-x-success white media-body">
-                                  <h5>{activeInvoices}</h5>
+                                <h5 style={{marginTop: '0.5rem'}}>{activeInvoices}</h5>
                                   <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
                                     Active Invoices
                                   </p>
