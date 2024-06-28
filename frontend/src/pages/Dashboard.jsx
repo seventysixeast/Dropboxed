@@ -598,11 +598,11 @@ const Dashboard = () => {
             {roleId !== 3 && (
               <div className="row grouped-multiple-statistics-card mb-1">
                 <div className="col-12">
-                  <div className="card mb-1">
-                    <div className="card-body">
+                  <div className="card mb-0">
+                    <div className="card-body pb-0">
                       <div className="row">
                         <div className="col-xl-3 col-lg-6 col-12">
-                          <div className="card ">
+                          <div className="card">
                             <div className="card-content">
                               <div className="media align-items-stretch">
                                 <div className="p-2 text-center bg-danger">
@@ -610,7 +610,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="p-1 bg-gradient-x-danger white media-body">
                                   <h5>{jobsInProgress}</h5>
-                                  <p className="text-bold-400 mb-0">
+                                  <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
                                     Job In Progress
                                   </p>
                                 </div>
@@ -625,9 +625,9 @@ const Dashboard = () => {
                                 <div className="p-2 text-center bg-primary ">
                                   <i className="icon-cloud-upload font-large-2 white"></i>
                                 </div>
-                                <div className="p-2 bg-gradient-x-primary white media-body">
+                                <div className="p-1 bg-gradient-x-primary white media-body">
                                   <h5>{ordersCompleted}</h5>
-                                  <p className="text-bold-400 mb-0">
+                                  <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
                                     Completed Orders
                                   </p>
                                 </div>
@@ -642,9 +642,9 @@ const Dashboard = () => {
                                 <div className="p-2 text-center bg-warning bg-darken-2">
                                   <i className="icon-calendar font-large-2 white"></i>
                                 </div>
-                                <div className="p-2 bg-gradient-x-warning white media-body">
+                                <div className="p-1 bg-gradient-x-warning white media-body">
                                   <h5>{activeBookings}</h5>
-                                  <p className="text-bold-400 mb-0">
+                                  <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
                                     Active Booking
                                   </p>
                                 </div>
@@ -659,9 +659,9 @@ const Dashboard = () => {
                                 <div className="p-2 text-center bg-success bg-darken-2">
                                   <i className="icon-bag font-large-2 white"></i>
                                 </div>
-                                <div className="p-2 bg-gradient-x-success white media-body">
+                                <div className="p-1 bg-gradient-x-success white media-body">
                                   <h5>{activeInvoices}</h5>
-                                  <p className="text-bold-400 mb-0">
+                                  <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
                                     Active Invoices
                                   </p>
                                 </div>
