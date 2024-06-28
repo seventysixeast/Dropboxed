@@ -50,6 +50,11 @@ const PrivateRoutes = () => {
         element: <ManagePhotographerAdmins />,
       },
       { path: "/change-password", element: <ChangePassword /> },
+      { path: "/user-profile/:id", element: <UserProfile /> },
+      {
+        path: "*",
+        element: <Navigate to="/manage-photographer-admins" replace />,
+      },
     ],
     2: [
       { path: "/dashboard", element: <Dashboard /> },
@@ -92,7 +97,6 @@ const PrivateRoutes = () => {
     { path: "/view-gallery", element: <ViewGallery /> },
     { path: "/booking-for-photography", element: <AddBooking /> },
     { path: "/edit-profile", element: <EditProfile /> },
-    { path: "/user-profile/:id", element: <UserProfile /> },
     { path: "/client-collections/:id", element: <Collections /> },
     { path: "/dropbox", element: <DropboxOAuth /> },
     { path: "/google", element: <GoogleOAuth /> },
@@ -106,9 +110,8 @@ const PrivateRoutes = () => {
   const route = useRoutes(routes);
 
   const shouldRenderHeaderAndSideNav =
-  !location.pathname.startsWith("/view-gallery") &&
-  !location.pathname.startsWith("/login");
-
+    !location.pathname.startsWith("/view-gallery") &&
+    !location.pathname.startsWith("/login");
 
   return (
     <div className="wrapper-foot">

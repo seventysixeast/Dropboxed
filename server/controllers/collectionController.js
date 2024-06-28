@@ -104,10 +104,8 @@ const addGallery = async (req, res) => {
         } else {
           const image = await Jimp.read(fileUrl);
           
-          // Set the quality of the original image to 25 percent
           await image.quality(25).write(fileUrl);
     
-          // Resize and save the small image
           await image.resize(Jimp.AUTO, 256).quality(80).write(`${process.cwd()}/public/gallery/${smallImageName}`);
         }
       });

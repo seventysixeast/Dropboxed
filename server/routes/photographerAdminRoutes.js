@@ -7,5 +7,9 @@ router.post('/updatePhotographerAdmin', photographerAdminController.updatePhotog
 router.post('/getPhotographerAdmin', photographerAdminController.getPhotographerAdmin);
 router.post('/deletePhotographerAdmin', photographerAdminController.deletePhotographerAdmin);
 router.post('/updateStatusPhotographerAdmin', photographerAdminController.updateStatusPhotographerAdmin);
+router.post('/unsubGoogleCalendar', photographerAdminController.unsubGoogleCalendar)
+router.post('/unsubDropbox', photographerAdminController.unsubDropbox)
+router.post('/unsubQuickbooks', photographerAdminController.unsubQuickbooks)
+
 
 module.exports = router;

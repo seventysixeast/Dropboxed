@@ -2,21 +2,29 @@ import React, { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import DeleteModal from "../components/DeleteModal";
 import TableCustom from "../components/Table";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import {
   getAllPhotographerAdmins,
   updatePhotographerAdmin,
   getPhotographerAdmin,
   deletePhotographerAdmin,
-  updateStatusPhotographerAdmin
+  updateStatusPhotographerAdmin,
+  unsubGoogleCalendar,
+  unsubDropbox,
+  unsubQuickbooks,
 } from "../api/photographerAdminApis";
+import ConfirmModal from "../components/ConfirmModal";
+import ReTooltip from "../components/Tooltip";
 
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const ManagePhotographerAdmins = () => {
   const [photographerAdmins, setPhotographerAdmins] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUnsubModal, setShowUnsubModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
+  const [unsubTypeId, setUnsubTypeId] = useState(null);
+  const [unsubType, setUnsubType] = useState("");
   const [previewImage, setPreviewImage] = useState(null);
   const [formData, setFormData] = useState({
     id: "",
@@ -24,7 +32,7 @@ const ManagePhotographerAdmins = () => {
     phone: "",
     business_name: "",
     profile_photo: "",
-    status: "Active"
+    status: "Active",
   });
   const [loading, setLoading] = useState(false);
   const [showDeleted, setShowDeleted] = useState(false);
@@ -49,7 +57,7 @@ const ManagePhotographerAdmins = () => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -61,7 +69,7 @@ const ManagePhotographerAdmins = () => {
         setPreviewImage(reader.result);
         setFormData((prevFormData) => ({
           ...prevFormData,
-          profile_photo: file
+          profile_photo: file,
         }));
       };
       reader.readAsDataURL(file);
@@ -69,7 +77,7 @@ const ManagePhotographerAdmins = () => {
       setPreviewImage(null);
       setFormData((prevFormData) => ({
         ...prevFormData,
-        profile_photo: ''
+        profile_photo: "",
       }));
     }
   };
@@ -79,13 +87,13 @@ const ManagePhotographerAdmins = () => {
     setLoading(true);
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
+      Object.keys(formData).forEach((key) => {
         formDataToSend.append(key, formData[key]);
       });
       const res = await updatePhotographerAdmin(formDataToSend);
       if (res.success) {
         toast.success(res.message);
-        document.getElementById('closeModal').click();
+        document.getElementById("closeModal").click();
         getAllPhotographerAdminsData();
       } else {
         toast.error(res.message);
@@ -104,7 +112,9 @@ const ManagePhotographerAdmins = () => {
       formDataToSend.append("id", id);
       const res = await getPhotographerAdmin(formDataToSend);
       const data = res.data;
-      setPreviewImage(data.profile_photo ? `${IMAGE_URL}/${data.profile_photo}` : null);
+      setPreviewImage(
+        data.profile_photo ? `${IMAGE_URL}/${data.profile_photo}` : null
+      );
       setFormData(data);
     } catch (error) {
       console.error("Failed to get photographer admin data:", error.message);
@@ -153,241 +163,336 @@ const ManagePhotographerAdmins = () => {
     }
   };
 
-  const columns = useMemo(() => [
-    {
-      Header: "Profile Photo",
-      accessor: "profile_photo",
-      Cell: ({ row }) => (
-        <span>
-          <Link to={`/user-profile/${row.original.id}`} className="text-white">
-            <img
-              src={
-                row.original.profile_photo
-                  ? `${IMAGE_URL}/${row.original.profile_photo}`
-                  : "../../../app-assets/images/portrait/medium/dummy.png"
-              }
-              className="rounded-circle width-50 height-50"
-              alt="profile"
-            />
-          </Link>
-        </span>
-      )
-    },
-    {
-      Header: "Name",
-      accessor: "name",
-      Cell: ({ row }) => (
-        <Link to={`/user-profile/${row.original.id}`} className="text-white">{row.original.name}</Link>
-      ),
-    },
-    { Header: "Email", accessor: "email" },
-    { Header: "Phone", accessor: "phone" },
-    { Header: "Business Name", accessor: "business_name" },
-    { Header: "Subdomain", accessor: "subdomain" },
-    {
-      Header: "Status",
-      accessor: "status",
-      Cell: ({ row }) => (
-        <select
-          value={row.original.status}
-          onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
-          className={`form-control select2 ${row.original.status === "Deleted" ? "text-danger" : ""}`}
-        >
-          <option value="Active" className={row.original.status === "Deleted" ? "text-secondary" : ""}>Active</option>
-          <option value="Inactive" className={row.original.status === "Deleted" ? "text-secondary" : ""}>Inactive</option>
-          <option value="Deleted" style={{ color: "red" }}>Deleted</option>
-        </select>
-      )
-    },
-    {
-      Header: "Action",
-      Cell: ({ row }) => (
-        <div className="btnsrow">
-          <button
-            className="btn btn-icon btn-outline-secondary mr-1 mb-1"
-            title="Edit"
-            onClick={() => getPhotographerAdminData(row.original.id)}
-            data-toggle="modal"
-            data-target="#bootstrap"
-          >
-            <i className="feather white icon-edit"></i>
-          </button>
-          <button
-            className="btn btn-icon btn-outline-danger mr-1 mb-1"
-            title="Delete"
-            onClick={() => {
-              setShowDeleteModal(true);
-              setImageTypeIdToDelete(row.original.id);
-            }}
-          >
-            <i className="feather white icon-trash"></i>
-          </button>
-        </div>
-      ),
-    },
-  ], []);
+  const handleUnsubGoogle = async (id) => {
+    setUnsubTypeId(id);
+    setUnsubType("Google Calendar");
+    setShowUnsubModal(true);
+  };
 
-  const sortedData = useMemo(() => {
-    let filteredData = photographerAdmins;
-    if (showDeleted) {
-      filteredData = filteredData.filter(admin => admin.status === 'Deleted');
-    } else {
-      filteredData = filteredData.filter(admin => admin.status !== 'Deleted');
+  const handleUnsubDropbox = async (id) => {
+    setUnsubTypeId(id);
+    setUnsubType("Dropbox");
+    setShowUnsubModal(true);
+  };
+
+  const handleUnsubQuickbooks = async (id) => {
+    setUnsubTypeId(id);
+    setUnsubType("Quickbooks");
+    setShowUnsubModal(true);
+    console.log(id);
+  };
+
+  const confirmUnsub = async () => {
+    console.log("Here", unsubTypeId);
+    setLoading(true);
+    try {
+      const dataToSend = {
+        id: unsubTypeId,
+      };
+      let res;
+      if (unsubType === "Google Calendar") {
+        res = await unsubGoogleCalendar(dataToSend);
+      } else if (unsubType === "Dropbox") {
+        res = await unsubDropbox(dataToSend);
+      } else if (unsubType === "Quickbooks") {
+        res = await unsubQuickbooks(dataToSend);
+      }
+
+      if (res.success) {
+        toast.success("Status updated successfully");
+        getAllPhotographerAdminsData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error("Failed to update status:", error.message);
+    } finally {
+      setLoading(false);
+      setShowUnsubModal(false);
     }
-    return filteredData.sort((a, b) => {
-      if (a.status === "Deleted" && b.status !== "Deleted") return 1;
-      if (a.status !== "Deleted" && b.status === "Deleted") return -1;
-      return 0;
-    });
-  }, [photographerAdmins, showDeleted]);
+  };
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Profile Photo",
+        accessor: "profile_photo",
+        Cell: ({ row }) => (
+          <span>
+            <Link
+              to={`/user-profile/${row.original.id}`}
+              className="text-white"
+            >
+              <img
+                src={
+                  row.original.profile_photo
+                    ? `${IMAGE_URL}/${row.original.profile_photo}`
+                    : "../../../app-assets/images/portrait/medium/dummy.png"
+                }
+                className="rounded-circle width-50 height-50"
+                alt="profile"
+              />
+            </Link>
+          </span>
+        ),
+      },
+      {
+        Header: "Name",
+        accessor: "name",
+        Cell: ({ row }) => (
+          <Link to={`/user-profile/${row.original.id}`} className="text-white">
+            {row.original.name}
+          </Link>
+        ),
+      },
+      { Header: "Email", accessor: "email" },
+      { Header: "Phone", accessor: "phone" },
+      { Header: "Business Name", accessor: "business_name" },
+      { Header: "Subdomain", accessor: "subdomain" },
+      {
+        Header: "Unsubscribe",
+        Cell: ({ row }) => (
+          <div className="btnsrow">
+            <ReTooltip title="Unsubscribe from Google Calendar" placement="top">
+              <button
+                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                onClick={() => handleUnsubGoogle(row.original.id)}
+              >
+                <i className="feather white icon-calendar"></i>
+              </button>
+            </ReTooltip>
+            <ReTooltip title="Unsubscribe from Dropbox" placement="top">
+              <button
+                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                onClick={() => handleUnsubDropbox(row.original.id)}
+              >
+                <i className="feather white icon-box"></i>
+              </button>
+            </ReTooltip>
+            <ReTooltip title="Unsubscribe from Quickbooks" placement="top">
+              <button
+                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
+                onClick={() => handleUnsubQuickbooks(row.original.id)}
+              >
+                <i className="feather white icon-book-open"></i>
+              </button>
+            </ReTooltip>
+          </div>
+        ),
+      },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ row }) => (
+          <select
+            value={row.original.status}
+            onChange={(e) =>
+              handleStatusChange(row.original.id, e.target.value)
+            }
+            className={`form-control select2 ${
+              row.original.status === "Deleted" ? "text-danger" : ""
+            }`}
+          >
+            <option
+              value="Active"
+              className={
+                row.original.status === "Deleted" ? "text-secondary" : ""
+              }
+            >
+              Active
+            </option>
+            <option
+              value="Inactive"
+              className={
+                row.original.status === "Deleted" ? "text-secondary" : ""
+              }
+            >
+              Inactive
+            </option>
+            <option value="Deleted" style={{ color: "red" }}>
+              Deleted
+            </option>
+          </select>
+        ),
+      },
+      {
+        Header: "Action",
+        Cell: ({ row }) => (
+          <div className="btnsrow">
+            <ReTooltip title="Edit" placement="top">
+              <button
+                type="button"
+                className="btn btn-icon btn-outline-primary mr-1 mb-1"
+                data-toggle="modal"
+                data-target="#default"
+                onClick={() => getPhotographerAdminData(row.original.id)}
+              >
+                <i className="feather icon-edit-2"></i>
+              </button>
+            </ReTooltip>
+            <ReTooltip title="Delete" placement="top">
+              <button
+                type="button"
+                className="btn btn-icon btn-outline-danger mr-1 mb-1"
+                onClick={() => {
+                  setImageTypeIdToDelete(row.original.id);
+                  setShowDeleteModal(true);
+                }}
+              >
+                <i className="feather icon-trash-2"></i>
+              </button>
+            </ReTooltip>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <>
+      {loading && <div className="loading">Loading...</div>}
       <div className="app-content content">
-        <div className={`content-overlay ${loading ? "loading-overlay" : ""}`}></div>
+        <div className="content-overlay"></div>
         <div className="content-wrapper">
           <div className="content-header row mt-2">
-            <div className="content-header-left col-md-6 col-12 mb-2 text-center text-md-left">
+            <div className="content-header-left col-md-6 col-12 mb-2">
               <h3 className="content-header-title mb-0">Manage Photographer Admins</h3>
               <div className="row breadcrumbs-top">
                 <div className="breadcrumb-wrapper col-12">
-                  <ol className="breadcrumb justify-content-center justify-content-md-start">
+                  <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                      <a href="/dashboard">Home</a>
+                      {/* <Link to="/dashboard">Home</Link> */}
                     </li>
-                    <li className="breadcrumb-item active">Manage Photographer Admins</li>
                   </ol>
                 </div>
               </div>
             </div>
-            <div className="content-header-right col-md-6 col-12 d-flex justify-content-center justify-content-md-end align-items-center mb-2">
+          </div>
+
+        </div>
+      </div>
+      <TableCustom columns={columns} data={photographerAdmins} />
+
+      <div
+        className="modal fade"
+        id="default"
+        tabIndex="-1"
+        role="dialog"
+        aria-labelledby="exampleModalLabel1"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title" id="exampleModalLabel1">
+                Edit Photographer Admin
+              </h4>
               <button
-                className={`btn ${!showDeleted ? "btn-danger" : "btn-primary"} mb-2`}
-                onClick={() => setShowDeleted(!showDeleted)}
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                aria-label="Close"
+                id="closeModal"
               >
-                {showDeleted ? "Show All Accounts" : "Show Deleted Accounts"}
+                <span aria-hidden="true">&times;</span>
               </button>
-              <div className="form-group">
-                <div
-                  className="modal fade text-left"
-                  id="bootstrap"
-                  tabIndex="-1"
-                  role="dialog"
-                  aria-labelledby="myModalLabel35"
-                  aria-hidden="true"
-                  style={{ display: "none" }}
-                >
-                  <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h3 className="card-title">Update Photographer</h3>
-                        <button
-                          type="button"
-                          className="close"
-                          data-dismiss="modal"
-                          aria-label="Close"
-                        >
-                          <span aria-hidden="true">×</span>
-                        </button>
-                      </div>
-                      <form onSubmit={handleSubmit}>
-                        <div className="modal-body">
-                          <fieldset className="form-group floating-label-form-group">
-                            <label>Name *</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="name"
-                              value={formData.name}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </fieldset>
-                          <fieldset className="form-group floating-label-form-group">
-                            <label>Phone *</label>
-                            <input
-                              type="tel"
-                              className="form-control"
-                              name="phone"
-                              value={formData.phone}
-                              onChange={handleInputChange}
-                              maxLength="10"
-                              required
-                            />
-                          </fieldset>
-                          <fieldset className="form-group floating-label-form-group">
-                            <label>Business Name</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="business_name"
-                              value={formData.business_name}
-                              onChange={handleInputChange}
-                            />
-                          </fieldset>
-                          <fieldset className="form-group floating-label-form-group">
-                            <label>Status</label>
-                            <select
-                              className="select2 form-control"
-                              name="status"
-                              value={formData.status}
-                              onChange={handleInputChange}
-                              required
-                            >
-                              <option value="Active">Active</option>
-                              <option value="Inactive">Inactive</option>
-                            </select>
-                          </fieldset>
-                          <fieldset className="form-group floating-label-form-group">
-                            <label>Profile Photo</label>
-                            <input
-                              type="file"
-                              className="form-control-file"
-                              name="profile_photo"
-                              onChange={handlePhotoChange}
-                              accept="image/*"
-                            />
-                            {previewImage && (
-                              <img
-                                src={previewImage}
-                                className="rounded-circle height-150 width-150 mt-2"
-                                alt="Preview"
-                              />
-                            )}
-                          </fieldset>
-                        </div>
-                        <div className="modal-footer">
-                          <input
-                            id="closeModal"
-                            type="reset"
-                            className="btn btn-secondary"
-                            data-dismiss="modal"
-                            value="Close"
-                          />
-                          <input
-                            type="submit"
-                            className="btn btn-primary"
-                            value="Update"
-                          />
-                        </div>
-                      </form>
-                    </div>
-                  </div>
+            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Business Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="business_name"
+                    value={formData.business_name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Profile Photo</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    name="profile_photo"
+                    onChange={handlePhotoChange}
+                  />
+                  {previewImage && (
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      className="img-thumbnail mt-2"
+                      width="100"
+                    />
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>Status</label>
+                  <select
+                    className="form-control"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
                 </div>
               </div>
-            </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Save changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
+
       <DeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={deletePhotographerAdminData}
         message="Are you sure you want to delete this photographer admin?"
       />
-      <div className="sidenav-overlay"></div>
-      <div className="drag-target"></div>
-      <TableCustom data={sortedData} columns={columns} />
+
+      <ConfirmModal
+        isOpen={showUnsubModal}
+        onClose={() => setShowUnsubModal(false)}
+        onConfirm={confirmUnsub}
+        message={`Are you sure you want to unsubscribe this user from ${unsubType}?`}
+      />
     </>
   );
 };

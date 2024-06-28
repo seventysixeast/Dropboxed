@@ -2,6 +2,7 @@ const User = require('../models/Users');
 const BusinessClients = require('../models/BusinessClients');
 const Booking = require('../models/Booking');
 const Collections = require('../models/Collections');
+const Package = require('../models/Packages');
 
 const getAllPhotographerAdmins = async (req, res) => {
   try {
@@ -136,4 +137,55 @@ const updateStatusPhotographerAdmin = async (req, res) => {
   }
 };
 
-module.exports = { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin, updateStatusPhotographerAdmin };
+const unsubGoogleCalendar = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.body.id },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    await user.update({ calendar_sub: 0 });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to unsubscribe the user from Google Calendar." });
+  }
+};
+
+const unsubDropbox = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.body.id },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    await user.update({ dropbox_refresh: null, dropbox_access: null, dropbox_id: null });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to unsubscribe the user from Dropbox." });
+  }
+};
+
+const unsubQuickbooks = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.body.id },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    const updatedUser = await user.update({ quickbooks_access_token: null, quickbooks_refresh_token: null, quickbooks_realm_id: null, quickbooks_customer_id: null, quickbooks_income_account_id: null, quickbooks_expense_account_id: null, quickbooks_asset_account_id: null });
+    const items = await Package.findAll({
+      where: { subdomain_id: req.body.id },
+    });
+    const updatedItems = await Promise.all(items.map(async (item) => {
+      return await item.update({ quickbooks_item_id: null });
+    }));
+    res.status(200).json({ success: true, updatedUser: updatedUser, updatedItems: updatedItems });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to unsubscribe the user from Dropbox." });
+  }
+};
+
+module.exports = { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin, updateStatusPhotographerAdmin, unsubGoogleCalendar, unsubDropbox, unsubQuickbooks };

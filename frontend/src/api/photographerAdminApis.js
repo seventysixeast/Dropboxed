@@ -76,4 +76,52 @@ const updateStatusPhotographerAdmin = async (data) => {
   }
 };
 
-export { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin,updateStatusPhotographerAdmin };
+const unsubGoogleCalendar = async (data) => {
+  try {
+    const response = await API.post('/photographerAdmin/unsubGoogleCalendar', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to get photographer admin');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const unsubDropbox = async (data) => {
+  try {
+    const response = await API.post('/photographerAdmin/unsubDropbox', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to get photographer admin');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const unsubQuickbooks = async (data) => {
+  try {
+    const response = await API.post('/photographerAdmin/unsubQuickbooks', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.status === 200) {
+      throw new Error('Failed to get photographer admin');
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export { getAllPhotographerAdmins, updatePhotographerAdmin, getPhotographerAdmin, deletePhotographerAdmin,updateStatusPhotographerAdmin, unsubGoogleCalendar, unsubDropbox, unsubQuickbooks };
