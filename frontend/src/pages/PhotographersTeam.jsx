@@ -66,7 +66,6 @@ const PhotographersTeam = () => {
       console.error("Failed to:", error.message);
     }
     setItemsLoading(false);
-
   };
 
   const handleInputChange = (e) => {
