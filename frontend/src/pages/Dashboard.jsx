@@ -609,8 +609,13 @@ const Dashboard = () => {
                                   <i className="icon-picture font-large-2 white"></i>
                                 </div>
                                 <div className="p-1 bg-gradient-x-danger white media-body">
-                                <h5 style={{marginTop: '0.5rem'}}>{jobsInProgress}</h5>
-                                  <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
+                                  <h5 style={{ marginTop: "0.5rem" }}>
+                                    {jobsInProgress}
+                                  </h5>
+                                  <p
+                                    className="text-bold-400 mb-0"
+                                    style={{ fontSize: "0.8rem" }}
+                                  >
                                     Job In Progress
                                   </p>
                                 </div>
@@ -626,8 +631,13 @@ const Dashboard = () => {
                                   <i className="icon-cloud-upload font-large-2 white"></i>
                                 </div>
                                 <div className="p-1  bg-gradient-x-primary white media-body">
-                                  <h5 style={{marginTop: '0.5rem'}}>{ordersCompleted}</h5>
-                                  <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
+                                  <h5 style={{ marginTop: "0.5rem" }}>
+                                    {ordersCompleted}
+                                  </h5>
+                                  <p
+                                    className="text-bold-400 mb-0"
+                                    style={{ fontSize: "0.8rem" }}
+                                  >
                                     Completed Orders
                                   </p>
                                 </div>
@@ -643,8 +653,13 @@ const Dashboard = () => {
                                   <i className="icon-calendar font-large-2 white"></i>
                                 </div>
                                 <div className="p-1 bg-gradient-x-warning white media-body">
-                                <h5 style={{marginTop: '0.5rem'}}>{activeBookings}</h5>
-                                  <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
+                                  <h5 style={{ marginTop: "0.5rem" }}>
+                                    {activeBookings}
+                                  </h5>
+                                  <p
+                                    className="text-bold-400 mb-0"
+                                    style={{ fontSize: "0.8rem" }}
+                                  >
                                     Active Booking
                                   </p>
                                 </div>
@@ -660,8 +675,13 @@ const Dashboard = () => {
                                   <i className="icon-bag font-large-2 white"></i>
                                 </div>
                                 <div className="p-1 bg-gradient-x-success white media-body">
-                                <h5 style={{marginTop: '0.5rem'}}>{activeInvoices}</h5>
-                                  <p className="text-bold-400 mb-0" style={{fontSize: '0.8rem'}}>
+                                  <h5 style={{ marginTop: "0.5rem" }}>
+                                    {activeInvoices}
+                                  </h5>
+                                  <p
+                                    className="text-bold-400 mb-0"
+                                    style={{ fontSize: "0.8rem" }}
+                                  >
                                     Active Invoices
                                   </p>
                                 </div>
@@ -824,10 +844,10 @@ const Dashboard = () => {
                           >
                             <figure className="effect-zoe">
                               <img
-                                className="gallery-thumbnail equal-image"
+                                className="gallery-thumbnail"
                                 src={`${REACT_APP_GALLERY_IMAGE_URL}/${item.banner_sm}`}
                                 alt="Gallery Item"
-                                style={{ minHeight: "150px" }}
+                                style={{ minHeight: "150px", width: "100%" }}
                                 onError={(e) => {
                                   e.target.onerror = null;
                                   e.target.src = imageNotFound;

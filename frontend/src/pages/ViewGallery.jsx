@@ -52,11 +52,12 @@ const ViewGallery = () => {
   const layoutRef = useRef();
   const [banner, setBanner] = useState("");
   const [videoLink, setVideoLink] = useState("");
-  const [collection, setCollection] = useState([]);
+  const [collection, setCollection] = useState();
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const imageGalleryRef = useRef(null);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [domLoaded, setDomLoaded] = useState(false);
   const modalRef = useRef(null);
   const [taskData, setTaskData] = useState({
     id: "",
@@ -237,16 +238,6 @@ const ViewGallery = () => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      document.body.classList.remove(
-        "vertical-layout",
-        "vertical-menu-modern",
-        "2-columns",
-        "fixed-navbar",
-        "menu-expanded",
-        "menu-collapsed"
-      );
-    }, 100);
     if (fileList.current && fileList.current.length === 0) {
       if (!running) {
         fetchCollection();
@@ -259,9 +250,24 @@ const ViewGallery = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleDOMContentLoaded = () => {
+      document.body.classList.remove(
+        "vertical-layout",
+        "vertical-menu-modern",
+        "2-columns",
+        "fixed-navbar",
+        "menu-expanded",
+        "menu-collapsed"
+      );
+    };
+
+    handleDOMContentLoaded();
+    setDomLoaded(true);
+  }, [collection]);
+
   const fetchCollection = async () => {
     setRunning(true);
-    setLoading(true);
 
     const formDataToSend = new FormData();
     formDataToSend.append("slug", id);
@@ -275,7 +281,6 @@ const ViewGallery = () => {
       setCollection(res.data);
     }
     setRunning(false);
-    setLoading(false);
     setShowAnimation(true);
   };
 
@@ -707,12 +712,6 @@ const ViewGallery = () => {
     }
   };
 
-  const customOptions = {
-    ui: {
-      shareEl: false,
-    },
-  };
-
   useEffect(() => {
     const measureScrollbar = () => {
       const scrollDiv = document.createElement("div");
@@ -739,6 +738,8 @@ const ViewGallery = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  console.log(collection);
 
   const handleScrollToGallery = () => {
     if (imageGalleryRef.current) {
@@ -925,279 +926,292 @@ const ViewGallery = () => {
               />
             </div>
           </div>
-          <div className="" style={{ width: "100%" }}>
-            <div className="content-overlay"></div>
-            <section id="gallery-banner" style={{ position: "relative" }}>
+          {domLoaded === true && collection !== undefined && (
+            <div className="" style={{ width: "100%" }}>
+              <div className="content-overlay"></div>
+              <section id="gallery-banner" style={{ position: "relative" }}>
+                <div
+                  style={{
+                    position: "relative",
+                    maxWidth: `calc(100vw - ${scrollbarWidth}px)`,
+                    objectFit: "cover",
+                    height: "100vh",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div
+                    style={{ position: "relative" }}
+                    className="cover-overlay"
+                  >
+                    <img
+                      className="gallery-cover"
+                      src={
+                        banner !== null && banner !== ""
+                          ? `${REACT_APP_GALLERY_IMAGE_URL}/${banner}`
+                          : ""
+                      }
+                      style={{
+                        width: `calc(100vw - ${scrollbarWidth}px)`,
+                        objectFit: "cover",
+                        imageRendering: "auto",
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="banner-detail">
+                  <h1 className="banner-collection-name mb-1">
+                    {collection.name}
+                  </h1>
+                  <button
+                    onClick={handleScrollToGallery}
+                    className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${
+                      showAnimation ? "slide-down" : ""
+                    }`}
+                    style={{ animationDelay: showAnimation ? "0.5s" : "0s" }}
+                  >
+                    View Gallery
+                  </button>
+                </div>
+              </section>
               <div
+                id="sticky-bar"
+                ref={imageGalleryRef}
+                className="py-2 px-1"
                 style={{
-                  position: "relative",
-                  maxWidth: `calc(100vw - ${scrollbarWidth}px)`,
-                  objectFit: "cover",
-                  height: "100vh",
                   display: "flex",
-                  justifyContent: "center",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  opacity: showAnimation ? 1 : 0,
+                  transition: "opacity 0.5s ease",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 5,
+                  backgroundColor: "white",
                 }}
               >
-                <div style={{ position: "relative" }} className="cover-overlay">
-                  <img
-                    className="gallery-cover"
-                    src={
-                      banner !== null && banner !== ""
-                        ? `${REACT_APP_GALLERY_IMAGE_URL}/${banner}`
-                        : ""
-                    }
-                    style={{
-                      width: `calc(100vw - ${scrollbarWidth}px)`,
-                      objectFit: "cover",
-                      imageRendering: "auto",
-                    }}
-                  />
+                <div className="">
+                  <h1 className="text-class-h1">{collection.name}</h1>
                 </div>
-              </div>
-              <div className="banner-detail">
-                <h1 className="banner-collection-name mb-1">
-                  {collection.name}
-                </h1>
-                <button
-                  onClick={handleScrollToGallery}
-                  className={`collection-cover__scroll-button js-scroll-past-cover button-reset ${
-                    showAnimation ? "slide-down" : ""
-                  }`}
-                  style={{ animationDelay: showAnimation ? "0.5s" : "0s" }}
-                >
-                  View Gallery
-                </button>
-              </div>
-            </section>
-            <div
-              id="sticky-bar"
-              ref={imageGalleryRef}
-              className="py-2 px-1"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                opacity: showAnimation ? 1 : 0,
-                transition: "opacity 0.5s ease",
-                position: "sticky",
-                top: 0,
-                zIndex: 5,
-                backgroundColor: "white",
-              }}
-            >
-              <div className="">
-                <h1 className="text-class-h1">{collection.name}</h1>
-              </div>
-              <div>
-                {authData.user !== null && (
-                  <div className="d-flex">
-                    <p className="text-class-h1 mr-1">
-                      {collection.image_count} Images
-                    </p>
-                    <span
-                      className="text-right feather icon-download black"
-                      style={{ cursor: "pointer" }}
-                      title="Download"
-                      onClick={() => {
-                        if (authData.user.role_id !== 3) {
-                          setDownloadGalleryModal(true);
-                        } else if (
-                          authData.user.role_id === 3 &&
-                          collection.lock_gallery === true
-                        ) {
-                          toast.error(
-                            "Gallery is locked! Please contact admin."
-                          );
-                        } else {
-                          setDownloadGalleryModal(true);
-                        }
-                      }}
-                    ></span>
-                  </div>
-                )}
-              </div>
-            </div>
-            <section id="video-player" style={{ position: "relative" }}>
-              {videoLink !== "" && (
-                <div
-                  className="col-md-12"
-                  style={{ display: "flex", justifyContent: "center" }}
-                >
-                  <ReactPlayer
-                    url={videoLink}
-                    controls
-                    width={`calc(100vw - ${scrollbarWidth}px)`}
-                    height={`calc(70vh - ${scrollbarWidth}px)`}
-                    playing={true}
-                    loop={true}
-                    muted={false}
-                    className="react-player"
-                  />
-                </div>
-              )}
-            </section>
-
-            {isNewTaskModalOpen ? (
-              <div className="app-content-overlay show overlay-working"></div>
-            ) : (
-              <div className="app-content-overlay"></div>
-            )}
-            <section id="image-gallery" className="image-gallery">
-              <div className="card-content collapse show">
-                <div className="card-body my-gallery">
-                  <CustomGallery layoutRef={layoutRef} ui={PhotoswipeUIDefault}>
-                    <div className="row">
-                      <Masonry
-                        breakpointCols={breakpointColumnsObj}
-                        className="my-masonry-grid"
-                        columnClassName="my-masonry-grid_column"
-                      >
-                        {imageUrls.map((image, index) => (
-                          <Item
-                            key={index}
-                            original={image.url}
-                            thumbnail={image.url}
-                            width={image.width}
-                            height={image.height}
-                          >
-                            {({ ref, open }) => (
-                              <figure
-                                ref={ref}
-                                style={{
-                                  marginTop: "4px",
-                                  marginBottom: "4px",
-                                }}
-                                onClick={open}
-                              >
-                                <div
-                                  className="image-container"
-                                  itemProp=""
-                                  onMouseEnter={() => setOverlayVisible(true)}
-                                  onMouseLeave={() => setOverlayVisible(true)}
-                                >
-                                  <img
-                                    className=""
-                                    src={image.url}
-                                    alt=""
-                                    width={"100%"}
-                                    height={"auto"}
-                                  />
-                                  {overlayVisible && (
-                                    <div className="overlay">
-                                      <p className="icon-links">
-                                        {authData.user !== null && (
-                                          <>
-                                            <a>
-                                              <span
-                                                className="feather icon-share-2"
-                                                style={{ marginRight: "8px" }}
-                                                title="Share"
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  openSharePopup();
-                                                }}
-                                              ></span>
-                                            </a>
-                                            <a>
-                                              <span
-                                                className="feather icon-edit"
-                                                style={{ marginRight: "8px" }}
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  toggleNewTaskModal();
-                                                  handleShareImage(image);
-                                                }}
-                                              ></span>
-                                            </a>
-                                            <a>
-                                              <span
-                                                className="text-right feather icon-download"
-                                                title="Download"
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-
-                                                  setSelectedImageUrl(
-                                                    image.path_display
-                                                  );
-                                                  if (
-                                                    authData.user.role_id !== 3
-                                                  ) {
-                                                    setDownloadImageModal(true);
-                                                  } else if (
-                                                    authData.user.role_id ===
-                                                      3 &&
-                                                    collection.lock_gallery ===
-                                                      true
-                                                  ) {
-                                                    toast.error(
-                                                      "Gallery is locked! Please contact admin."
-                                                    );
-                                                  } else {
-                                                    setDownloadImageModal(true);
-                                                  }
-                                                }}
-                                              ></span>
-                                            </a>
-                                          </>
-                                        )}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </figure>
-                            )}
-                          </Item>
-                        ))}
-                      </Masonry>
-                    </div>
-                  </CustomGallery>
-                  {loader && (
-                    <div
-                      className="d-flex justify-content-center align-items-center"
-                      style={{ height: "10rem" }}
-                    >
-                      <div
-                        className="text-center"
-                        style={{
-                          border: "8px solid #f3f3f3",
-                          borderTop: "8px solid #3498db",
-                          borderRadius: "50%",
-                          width: "50px",
-                          height: "50px",
-                          animation: "spin 2s linear infinite",
+                <div>
+                  {authData.user !== null && (
+                    <div className="d-flex">
+                      <p className="text-class-h1 mr-1">
+                        {collection.image_count} Images
+                      </p>
+                      <span
+                        className="text-right feather icon-download black"
+                        style={{ cursor: "pointer" }}
+                        title="Download"
+                        onClick={() => {
+                          if (authData.user.role_id !== 3) {
+                            setDownloadGalleryModal(true);
+                          } else if (
+                            authData.user.role_id === 3 &&
+                            collection.lock_gallery === true
+                          ) {
+                            toast.error(
+                              "Gallery is locked! Please contact admin."
+                            );
+                          } else {
+                            setDownloadGalleryModal(true);
+                          }
                         }}
-                      ></div>
+                      ></span>
                     </div>
                   )}
                 </div>
               </div>
-            </section>
-            <DefaultLayout
-              shareButton={true}
-              fullscreenButton={false}
-              zoomButton={false}
-              ref={layoutRef}
-            />
-            {authData !== null && (
-              <>
-                <DownloadGalleryModal
-                  isOpen={showDownloadGalleryModal}
-                  onClose={() => setDownloadGalleryModal(false)}
-                  onConfirm={handleAllDownload}
-                  downloadOptions={downloadOptions}
-                  setDownloadOptions={setDownloadOptions}
-                />
+              <section id="video-player" style={{ position: "relative" }}>
+                {videoLink !== "" && (
+                  <div
+                    className="col-md-12"
+                    style={{ display: "flex", justifyContent: "center" }}
+                  >
+                    <ReactPlayer
+                      url={videoLink}
+                      controls
+                      width={`calc(100vw - ${scrollbarWidth}px)`}
+                      height={`calc(70vh - ${scrollbarWidth}px)`}
+                      playing={true}
+                      loop={true}
+                      muted={false}
+                      className="react-player"
+                    />
+                  </div>
+                )}
+              </section>
 
-                <DownloadImageModal
-                  isOpen={showDownloadImageModal}
-                  onClose={() => setDownloadImageModal(false)}
-                  onConfirm={handleDownload}
-                  downloadOptions={downloadOptions}
-                  setDownloadOptions={setDownloadOptions}
-                />
-              </>
-            )}
-          </div>
+              {isNewTaskModalOpen ? (
+                <div className="app-content-overlay show overlay-working"></div>
+              ) : (
+                <div className="app-content-overlay"></div>
+              )}
+              <section id="image-gallery" className="image-gallery">
+                <div className="card-content collapse show">
+                  <div className="card-body my-gallery">
+                    <CustomGallery
+                      layoutRef={layoutRef}
+                      ui={PhotoswipeUIDefault}
+                    >
+                      <div className="row">
+                        <Masonry
+                          breakpointCols={breakpointColumnsObj}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
+                          {imageUrls.map((image, index) => (
+                            <Item
+                              key={index}
+                              original={image.url}
+                              thumbnail={image.url}
+                              width={image.width}
+                              height={image.height}
+                            >
+                              {({ ref, open }) => (
+                                <figure
+                                  ref={ref}
+                                  style={{
+                                    marginTop: "4px",
+                                    marginBottom: "4px",
+                                  }}
+                                  onClick={open}
+                                >
+                                  <div
+                                    className="image-container"
+                                    itemProp=""
+                                    onMouseEnter={() => setOverlayVisible(true)}
+                                    onMouseLeave={() => setOverlayVisible(true)}
+                                  >
+                                    <img
+                                      className=""
+                                      src={image.url}
+                                      alt=""
+                                      width={"100%"}
+                                      height={"auto"}
+                                    />
+                                    {overlayVisible && (
+                                      <div className="overlay">
+                                        <p className="icon-links">
+                                          {authData.user !== null && (
+                                            <>
+                                              <a>
+                                                <span
+                                                  className="feather icon-share-2"
+                                                  style={{ marginRight: "8px" }}
+                                                  title="Share"
+                                                  onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    openSharePopup();
+                                                  }}
+                                                ></span>
+                                              </a>
+                                              <a>
+                                                <span
+                                                  className="feather icon-edit"
+                                                  style={{ marginRight: "8px" }}
+                                                  onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    toggleNewTaskModal();
+                                                    handleShareImage(image);
+                                                  }}
+                                                ></span>
+                                              </a>
+                                              <a>
+                                                <span
+                                                  className="text-right feather icon-download"
+                                                  title="Download"
+                                                  onClick={(event) => {
+                                                    event.stopPropagation();
+
+                                                    setSelectedImageUrl(
+                                                      image.path_display
+                                                    );
+                                                    if (
+                                                      authData.user.role_id !==
+                                                      3
+                                                    ) {
+                                                      setDownloadImageModal(
+                                                        true
+                                                      );
+                                                    } else if (
+                                                      authData.user.role_id ===
+                                                        3 &&
+                                                      collection.lock_gallery ===
+                                                        true
+                                                    ) {
+                                                      toast.error(
+                                                        "Gallery is locked! Please contact admin."
+                                                      );
+                                                    } else {
+                                                      setDownloadImageModal(
+                                                        true
+                                                      );
+                                                    }
+                                                  }}
+                                                ></span>
+                                              </a>
+                                            </>
+                                          )}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </figure>
+                              )}
+                            </Item>
+                          ))}
+                        </Masonry>
+                      </div>
+                    </CustomGallery>
+                    {loader && (
+                      <div
+                        className="d-flex justify-content-center align-items-center"
+                        style={{ height: "10rem" }}
+                      >
+                        <div
+                          className="text-center"
+                          style={{
+                            border: "8px solid #f3f3f3",
+                            borderTop: "8px solid #3498db",
+                            borderRadius: "50%",
+                            width: "50px",
+                            height: "50px",
+                            animation: "spin 2s linear infinite",
+                          }}
+                        ></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+              <DefaultLayout
+                shareButton={true}
+                fullscreenButton={false}
+                zoomButton={false}
+                ref={layoutRef}
+              />
+              {authData !== null && (
+                <>
+                  <DownloadGalleryModal
+                    isOpen={showDownloadGalleryModal}
+                    onClose={() => setDownloadGalleryModal(false)}
+                    onConfirm={handleAllDownload}
+                    downloadOptions={downloadOptions}
+                    setDownloadOptions={setDownloadOptions}
+                  />
+
+                  <DownloadImageModal
+                    isOpen={showDownloadImageModal}
+                    onClose={() => setDownloadImageModal(false)}
+                    onConfirm={handleDownload}
+                    downloadOptions={downloadOptions}
+                    setDownloadOptions={setDownloadOptions}
+                  />
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>
