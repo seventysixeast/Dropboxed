@@ -250,37 +250,6 @@ const ManagePhotographerAdmins = () => {
       { Header: "Business Name", accessor: "business_name" },
       { Header: "Subdomain", accessor: "subdomain" },
       {
-        Header: "Unsubscribe",
-        Cell: ({ row }) => (
-          <div className="btnsrow">
-            <ReTooltip title="Unsubscribe from Google Calendar" placement="top">
-              <button
-                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
-                onClick={() => handleUnsubGoogle(row.original.id)}
-              >
-                <i className="feather white icon-calendar"></i>
-              </button>
-            </ReTooltip>
-            <ReTooltip title="Unsubscribe from Dropbox" placement="top">
-              <button
-                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
-                onClick={() => handleUnsubDropbox(row.original.id)}
-              >
-                <i className="feather white icon-box"></i>
-              </button>
-            </ReTooltip>
-            <ReTooltip title="Unsubscribe from Quickbooks" placement="top">
-              <button
-                className="btn btn-icon btn-outline-secondary mr-1 mb-1"
-                onClick={() => handleUnsubQuickbooks(row.original.id)}
-              >
-                <i className="feather white icon-book-open"></i>
-              </button>
-            </ReTooltip>
-          </div>
-        ),
-      },
-      {
         Header: "Status",
         accessor: "status",
         Cell: ({ row }) => (

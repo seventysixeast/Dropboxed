@@ -9,6 +9,14 @@ import {
 import { toast } from "react-toastify";
 import LoadingOverlay from "../components/Loader";
 import * as yup from "yup";
+import {
+  unsubGoogleCalendar,
+  unsubDropbox,
+  unsubQuickbooks,
+} from "../api/photographerAdminApis";
+import ConfirmModal from "../components/ConfirmModal";
+import ReTooltip from "../components/Tooltip";
+
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
 const EditProfile = () => {
@@ -28,6 +36,9 @@ const EditProfile = () => {
     profile_photo: null,
     logo: null,
   });
+  const [showUnsubModal, setShowUnsubModal] = useState(false);
+  const [unsubTypeId, setUnsubTypeId] = useState(null);
+  const [unsubType, setUnsubType] = useState("");
   const [errors, setErrors] = useState({ website: "" });
 
   const [bankDetails, setBankDetails] = useState({
@@ -302,110 +313,206 @@ const EditProfile = () => {
     setLoading(false);
   };
 
+  const handleUnsubGoogle = async (id) => {
+    setUnsubTypeId(id);
+    setUnsubType("Google Calendar");
+    setShowUnsubModal(true);
+  };
+
+  const handleUnsubDropbox = async (id) => {
+    setUnsubTypeId(id);
+    setUnsubType("Dropbox");
+    setShowUnsubModal(true);
+  };
+
+  const handleUnsubQuickbooks = async (id) => {
+    setUnsubTypeId(id);
+    setUnsubType("Quickbooks");
+    setShowUnsubModal(true);
+    console.log(id);
+  };
+
+  const confirmUnsub = async () => {
+    console.log("Here", unsubTypeId);
+    setLoading(true);
+    try {
+      const dataToSend = {
+        id: unsubTypeId,
+      };
+      let res;
+      if (unsubType === "Google Calendar") {
+        res = await unsubGoogleCalendar(dataToSend);
+      } else if (unsubType === "Dropbox") {
+        res = await unsubDropbox(dataToSend);
+      } else if (unsubType === "Quickbooks") {
+        res = await unsubQuickbooks(dataToSend);
+      }
+
+      if (res.success) {
+        toast.success("Status updated successfully");
+        getUserData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error("Failed to update status:", error.message);
+    } finally {
+      setLoading(false);
+      setShowUnsubModal(false);
+    }
+  };
+
   return (
     <>
       <LoadingOverlay loading={loading} />
       <div className="app-content content">
         <div className="content-overlay" />
         <div className="content-wrapper">
-          <div className="content-header-left col-md-6 col-6 mb-2 mt-2">
-            <h3 className="content-header-title mb-0">Edit Profile</h3>
-            <div className="row breadcrumbs-top">
-              <div className="breadcrumb-wrapper col-12">
-                <ol className="breadcrumb">
-                  <li className="breadcrumb-item">
-                    <a href="/dashboard">Home</a>
-                  </li>
-                  <li className="breadcrumb-item">Edit Profile</li>
-                </ol>
+          <div
+            className="content-header row"
+            style={{ paddingBottom: "5px" }}
+          >
+            <div className="content-header-left col-md-6 col-sm-6 col-xs-6 mb-2 mt-2">
+              <h3 className="content-header-title mb-0">Edit Profile</h3>
+              <div className="row breadcrumbs-top">
+                <div className="breadcrumb-wrapper col-12">
+                  <ol className="breadcrumb">
+                    <li className="breadcrumb-item">
+                      <a href="/dashboard">Home</a>
+                    </li>
+                    <li className="breadcrumb-item">Edit Profile</li>
+                  </ol>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="content-body">
-            <section id="users-edit">
-              <div className="card">
-                <div className="card-content">
-                  <div className="card-body">
-                    <form onSubmit={handleSubmit}>
-                      <div className="media mb-2">
-                        <img
-                          src={
-                            previewImage
-                              ? previewImage
-                              : "../../../app-assets/images/portrait/medium/dummy.png"
-                          }
-                          className="rounded-circle mt-2"
-                          style={{
-                            height: "100px",
-                            width: "100px",
-                            objectFit: "cover",
-                          }}
-                          alt="Preview"
-                        />
-                        <div className="media-body mt-3 ml-2">
-                          <h4 className="media-heading">Profile Photo</h4>
-                          <input
-                            type="file"
-                            className="form-control-file"
-                            name="profile_photo"
-                            onChange={handlePhotoChange}
-                            accept="image/*"
+            <div className="content-header-right col-md-6 col-sm-6 col-xs-6 d-flex justify-content-end align-items-center ">
+              <ul className="list-inline mb-0">
+                <li style={{ float: "right" }}>
+                  <div className="form-group">
+                    <div className="btnsrow">
+                      <ReTooltip
+                        title="Unsubscribe from Google Calendar"
+                        placement="top"
+                      >
+                        <button
+                          className="btn btn-icon btn-outline-secondary"
+                          onClick={() => handleUnsubGoogle(userId)}
+                        >
+                          <i className="feather red icon-calendar"></i>
+                        </button>
+                      </ReTooltip>
+                      <ReTooltip
+                        title="Unsubscribe from Dropbox"
+                        placement="top"
+                      >
+                        <button
+                          className="btn btn-icon btn-outline-secondary"
+                          onClick={() => handleUnsubDropbox(userId)}
+                        >
+                          <i className="feather red icon-box"></i>
+                        </button>
+                      </ReTooltip>
+                      <ReTooltip
+                        title="Unsubscribe from Quickbooks"
+                        placement="top"
+                      >
+                        <button
+                          className="btn btn-icon btn-outline-secondary"
+                          onClick={() => handleUnsubQuickbooks(userId)}
+                        >
+                          <i className="feather red icon-book-open"></i>
+                        </button>
+                      </ReTooltip>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div className="content-body">
+              <section id="users-edit">
+                <div className="card">
+                  <div className="card-content">
+                    <div className="card-body">
+                      <form onSubmit={handleSubmit}>
+                        <div className="media mb-2">
+                          <img
+                            src={
+                              previewImage
+                                ? previewImage
+                                : "../../../app-assets/images/portrait/medium/dummy.png"
+                            }
+                            className="rounded-circle mt-2"
+                            style={{
+                              height: "100px",
+                              width: "100px",
+                              objectFit: "cover",
+                            }}
+                            alt="Preview"
                           />
-                        </div>
-                      </div>
-
-                      <div className="row">
-                        <div className="col-12 col-sm-6">
-                          <div className="form-group">
-                            <div className="controls">
-                              <label>Name</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                              />
-                              <div className="help-block" />
-                            </div>
-                          </div>
-                          <div className="form-group">
-                            <div className="controls">
-                              <label>E-mail</label>
-                              <input
-                                type="email"
-                                className="form-control"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                              />
-                              <div className="help-block" />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-12 col-sm-6">
-                          <div className="form-group">
-                            <label>Status</label>
-                            <select
-                              className="form-control"
-                              name="status"
-                              value={formData.status}
-                              onChange={handleInputChange}
-                            >
-                              <option value="Active">Active</option>
-                              <option value="Inactive">Inactive</option>
-                            </select>
-                          </div>
-                          <div className="form-group">
-                            <label>Business Name</label>
+                          <div className="media-body mt-3 ml-2">
+                            <h4 className="media-heading">Profile Photo</h4>
                             <input
-                              className="form-control"
-                              name="business_name"
-                              value={formData.business_name}
-                              onChange={handleInputChange}
+                              type="file"
+                              className="form-control-file"
+                              name="profile_photo"
+                              onChange={handlePhotoChange}
+                              accept="image/*"
                             />
                           </div>
-                          {/* <div className="form-group">
+                        </div>
+
+                        <div className="row">
+                          <div className="col-12 col-sm-6">
+                            <div className="form-group">
+                              <div className="controls">
+                                <label>Name</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="name"
+                                  value={formData.name}
+                                  onChange={handleInputChange}
+                                />
+                                <div className="help-block" />
+                              </div>
+                            </div>
+                            <div className="form-group">
+                              <div className="controls">
+                                <label>E-mail</label>
+                                <input
+                                  type="email"
+                                  className="form-control"
+                                  name="email"
+                                  value={formData.email}
+                                  onChange={handleInputChange}
+                                />
+                                <div className="help-block" />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-12 col-sm-6">
+                            <div className="form-group">
+                              <label>Status</label>
+                              <select
+                                className="form-control"
+                                name="status"
+                                value={formData.status}
+                                onChange={handleInputChange}
+                              >
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                              </select>
+                            </div>
+                            <div className="form-group">
+                              <label>Business Name</label>
+                              <input
+                                className="form-control"
+                                name="business_name"
+                                value={formData.business_name}
+                                onChange={handleInputChange}
+                              />
+                            </div>
+                            {/* <div className="form-group">
                           <label>Subdomain</label>
                           <input
                             className="form-control"
@@ -415,181 +522,28 @@ const EditProfile = () => {
                             disabled
                           />
                         </div> */}
+                          </div>
                         </div>
-                      </div>
-                      <div className="media mb-2">
-                        <img
-                          src={
-                            previewLogo
-                              ? previewLogo
-                              : "../../../app-assets/images/portrait/medium/dummy.png"
-                          }
-                          className="width-100 mt-4"
-                          alt="Preview"
-                        />
-                        <div className="media-body mt-3 ml-2">
-                          <h4 className="media-heading">Logo</h4>
-                          <input
-                            type="file"
-                            className="form-control-file"
-                            name="logo"
-                            onChange={handleLogoChange}
-                            accept="image/*"
+                        <div className="media mb-2">
+                          <img
+                            src={
+                              previewLogo
+                                ? previewLogo
+                                : "../../../app-assets/images/portrait/medium/dummy.png"
+                            }
+                            className="width-100 mt-4"
+                            alt="Preview"
                           />
-                        </div>
-                      </div>
-                      <div className="col-12 d-flex flex-sm-row flex-column justify-content-end mt-1">
-                        <button
-                          type="submit"
-                          className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1"
-                        >
-                          Save Changes
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </section>
-            <section id="users-edit">
-              <div className="card">
-                <div className="card-header">
-                  <h4 className="card-title">Banking Details</h4>
-                </div>
-                <div className="card-content">
-                  <div className="card-body">
-                    <form onSubmit={handleBankDetailsSubmit}>
-                      <div className="row">
-                        <div className="col-md-6 form-group">
-                          <label>Account Name</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="account_name"
-                            value={bankDetails.account_name}
-                            onChange={handleBankInputChange}
-                            required
-                          />
-                        </div>
-
-                        <div className="col-md-6 form-group">
-                          <label>Account Number</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="account_number"
-                            value={bankDetails.account_number}
-                            onChange={handleBankInputChange}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-6 form-group">
-                          <label>ABN/ACN Number</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="abn_acn"
-                            value={bankDetails.abn_acn}
-                            onChange={handleBankInputChange}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-6 form-group">
-                          <label>BSB Number</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="bsb_number"
-                            value={bankDetails.bsb_number}
-                            onChange={handleBankInputChange}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-6 form-group">
-                          <label>Account Email</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="account_email"
-                            value={bankDetails.account_email}
-                            onChange={handleBankInputChange}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-6 form-group">
-                          <label>Country</label>
-                          <select
-                            name="country"
-                            className="select2 form-control"
-                            value={bankDetails.country}
-                            onChange={handleBankInputChange}
-                          >
-                            <option value="USA">USA</option>
-                            <option value="UK">UK</option>
-                            <option value="Brazil">Brazil</option>
-                            <option value="Japan">Japan</option>
-                            <option value="Taiwan">Taiwan</option>
-                            <option value="Singapore">Singapore</option>
-                          </select>
-                        </div>
-
-                        <div className="col-md-6 form-group">
-                          <label>Address</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="address"
-                            value={bankDetails.address}
-                            onChange={handleBankInputChange}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-6 form-group">
-                          <label>City</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="city"
-                            value={bankDetails.city}
-                            onChange={handleBankInputChange}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-6 form-group">
-                          <label>Postal Code</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="postal_code"
-                            value={bankDetails.postal_code}
-                            onChange={handleBankInputChange}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-6 form-group">
-                          <label>Phone</label>
-                          <input
-                            type="tel"
-                            className="form-control"
-                            name="phone"
-                            value={bankDetails.phone}
-                            onChange={handleBankInputChange}
-                            maxLength="10"
-                            required
-                          />
-                        </div>
-                        <div className="col-md-6 form-group">
-                          <label>Website</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="website"
-                            value={bankDetails.website}
-                            onChange={handleBankInputChange}
-                          />
-                          {errors.website && (
-                            <div className="text-danger">{errors.website}</div>
-                          )}
+                          <div className="media-body mt-3 ml-2">
+                            <h4 className="media-heading">Logo</h4>
+                            <input
+                              type="file"
+                              className="form-control-file"
+                              name="logo"
+                              onChange={handleLogoChange}
+                              accept="image/*"
+                            />
+                          </div>
                         </div>
                         <div className="col-12 d-flex flex-sm-row flex-column justify-content-end mt-1">
                           <button
@@ -599,70 +553,232 @@ const EditProfile = () => {
                             Save Changes
                           </button>
                         </div>
-                      </div>
-                    </form>
+                      </form>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
-            <section id="users-edit">
-              <div className="card">
-                <div className="card-header">
-                  <h4 className="card-title">Change Password</h4>
-                </div>
-                <div className="card-content">
-                  <div className="card-body">
-                    <form onSubmit={handlePasswordSubmit}>
-                      <div className="row">
-                        <div className="col-md-3 form-group">
-                          <label>Old Password</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="old_password"
-                            value={changePasswordData.old_password}
-                            onChange={handlePasswordChanges}
-                            required
-                          />
+              </section>
+              <section id="users-edit">
+                <div className="card">
+                  <div className="card-header">
+                    <h4 className="card-title">Banking Details</h4>
+                  </div>
+                  <div className="card-content">
+                    <div className="card-body">
+                      <form onSubmit={handleBankDetailsSubmit}>
+                        <div className="row">
+                          <div className="col-md-6 form-group">
+                            <label>Account Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="account_name"
+                              value={bankDetails.account_name}
+                              onChange={handleBankInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="col-md-6 form-group">
+                            <label>Account Number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="account_number"
+                              value={bankDetails.account_number}
+                              onChange={handleBankInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-6 form-group">
+                            <label>ABN/ACN Number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="abn_acn"
+                              value={bankDetails.abn_acn}
+                              onChange={handleBankInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-6 form-group">
+                            <label>BSB Number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="bsb_number"
+                              value={bankDetails.bsb_number}
+                              onChange={handleBankInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-6 form-group">
+                            <label>Account Email</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="account_email"
+                              value={bankDetails.account_email}
+                              onChange={handleBankInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-6 form-group">
+                            <label>Country</label>
+                            <select
+                              name="country"
+                              className="select2 form-control"
+                              value={bankDetails.country}
+                              onChange={handleBankInputChange}
+                            >
+                              <option value="USA">USA</option>
+                              <option value="UK">UK</option>
+                              <option value="Brazil">Brazil</option>
+                              <option value="Japan">Japan</option>
+                              <option value="Taiwan">Taiwan</option>
+                              <option value="Singapore">Singapore</option>
+                            </select>
+                          </div>
+
+                          <div className="col-md-6 form-group">
+                            <label>Address</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="address"
+                              value={bankDetails.address}
+                              onChange={handleBankInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-6 form-group">
+                            <label>City</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="city"
+                              value={bankDetails.city}
+                              onChange={handleBankInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-6 form-group">
+                            <label>Postal Code</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="postal_code"
+                              value={bankDetails.postal_code}
+                              onChange={handleBankInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-6 form-group">
+                            <label>Phone</label>
+                            <input
+                              type="tel"
+                              className="form-control"
+                              name="phone"
+                              value={bankDetails.phone}
+                              onChange={handleBankInputChange}
+                              maxLength="10"
+                              required
+                            />
+                          </div>
+                          <div className="col-md-6 form-group">
+                            <label>Website</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="website"
+                              value={bankDetails.website}
+                              onChange={handleBankInputChange}
+                            />
+                            {errors.website && (
+                              <div className="text-danger">
+                                {errors.website}
+                              </div>
+                            )}
+                          </div>
+                          <div className="col-12 d-flex flex-sm-row flex-column justify-content-end mt-1">
+                            <button
+                              type="submit"
+                              className="btn btn-primary glow mb-1 mb-sm-0 mr-0 mr-sm-1"
+                            >
+                              Save Changes
+                            </button>
+                          </div>
                         </div>
-                        <div className="col-md-3 form-group">
-                          <label>New Password</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="new_password"
-                            value={changePasswordData.new_password}
-                            onChange={handlePasswordChanges}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-3 form-group">
-                          <label>Confirm Password</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="confirm_password"
-                            value={changePasswordData.confirm_password}
-                            onChange={handlePasswordChanges}
-                            required
-                          />
-                        </div>
-                        <div className="col-md-3 form-group d-flex align-items-end justify-content-end">
-                          <button
-                            type="submit"
-                            className="btn btn-warning glow mb-1 mb-sm-0 mr-0 mr-sm-1"
-                          >
-                            Change Password
-                          </button>
-                        </div>
-                      </div>
-                    </form>
+                      </form>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+              <section id="users-edit">
+                <div className="card">
+                  <div className="card-header">
+                    <h4 className="card-title">Change Password</h4>
+                  </div>
+                  <div className="card-content">
+                    <div className="card-body">
+                      <form onSubmit={handlePasswordSubmit}>
+                        <div className="row">
+                          <div className="col-md-3 form-group">
+                            <label>Old Password</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="old_password"
+                              value={changePasswordData.old_password}
+                              onChange={handlePasswordChanges}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-3 form-group">
+                            <label>New Password</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="new_password"
+                              value={changePasswordData.new_password}
+                              onChange={handlePasswordChanges}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-3 form-group">
+                            <label>Confirm Password</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="confirm_password"
+                              value={changePasswordData.confirm_password}
+                              onChange={handlePasswordChanges}
+                              required
+                            />
+                          </div>
+                          <div className="col-md-3 form-group d-flex align-items-end justify-content-end">
+                            <button
+                              type="submit"
+                              className="btn btn-warning glow mb-1 mb-sm-0 mr-0 mr-sm-1"
+                            >
+                              Change Password
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
           </div>
         </div>
+        <ConfirmModal
+          isOpen={showUnsubModal}
+          onClose={() => setShowUnsubModal(false)}
+          onConfirm={confirmUnsub}
+          message={`Are you sure you want to unsubscribe this user from ${unsubType}?`}
+        />
       </div>
     </>
   );

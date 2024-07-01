@@ -586,7 +586,7 @@ const handleBookingUpdate = async (booking, data, client_email, subdomain_user, 
 const handleNewBooking = async (data, client_email, subdomain_user, photographers, contacts, teamMembers, serviceNames) => {
   const SEND_EMAIL = NEW_CLIENT_BOOKING(subdomain_user.subdomain, subdomain_user.logo, subdomain_user.phone, subdomain_user.address, data.client_name, data, contacts, teamMembers, serviceNames);
   sendEmail(client_email, "New Booking", SEND_EMAIL);
-
+  console.log(SEND_EMAIL);
   await Notifications.create({
     notification: `Your appointment has been confirmed with ${subdomain_user.subdomain}`,
     client_id: data.user_id,
@@ -879,6 +879,8 @@ const updateBooking = async (req, res) => {
         where: { id: updatedBooking.subdomain_id },
         attributes: ['id', 'subdomain', 'logo', 'phone', 'address']
       });
+
+      console.log(subdomain_user);
 
       const photographer_team = await User.findAll({
         where: {

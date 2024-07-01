@@ -30,7 +30,7 @@ function createSlug(title) {
 
 const addGallery = async (req, res) => {
   const user = await User.findOne({
-    attributes: ['dropbox_refresh', 'subdomain', 'logo'],
+    attributes: ['id', 'dropbox_refresh', 'subdomain', 'logo'],
     where: { id: parseInt(req.body.subdomainId) }
   });
 
@@ -136,6 +136,8 @@ const addGallery = async (req, res) => {
         user.logo,
         collectionData
       );
+
+      console.log(SEND_EMAIL);
 
       sendEmail(clientData.email, "New Collection", SEND_EMAIL);
 
