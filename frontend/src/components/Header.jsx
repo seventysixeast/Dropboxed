@@ -1,9 +1,9 @@
 // Header.js
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/authContext";
 import logoLight from "../assets/images/studiio-logo.png";
 import { userStatusCheck } from "../api/clientApis";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SideNav from "./SideNav";
 const IMAGE_URL = process.env.REACT_APP_IMAGE_URL;
 
@@ -15,7 +15,6 @@ const Header = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [isMenuExpanded, setIsMenuExpanded] = useState(true);
   const [hovering, setHovering] = useState(false);
-  const ref = useRef(null);
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -148,15 +147,15 @@ const Header = () => {
                     </div>
                     <span className="user-name">{user.userName}</span>
                   </a>
-                  <div className="dropdown-menu dropdown-menu-right shadow">
+                  <div className="dropdown-menu dropdown-menu-right shadow-lg">
                     {(roleId === 2 ||
                       roleId === 3 ||
                       roleId === 4 ||
                       roleId === 5) && (
                       <>
-                        <a className="dropdown-item" href="/edit-profile">
+                        <Link className="dropdown-item" to="/edit-profile">
                           <i className="feather icon-user"></i> Edit Profile
-                        </a>
+                        </Link>
                         <div className="dropdown-divider"></div>
                       </>
                     )}

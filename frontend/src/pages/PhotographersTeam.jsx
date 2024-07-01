@@ -30,7 +30,7 @@ const PhotographersTeam = () => {
     profile_photo: "",
     status: "Active",
   });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAllPhotographersData();
@@ -42,7 +42,7 @@ const PhotographersTeam = () => {
         let resp = await verifyToken(accesstoken);
         if (!resp.success) {
           toast.error("Session expired, please login again.");
-          window.location.href = '/login';
+          window.location.href = "/login";
         }
       }
     };
@@ -114,7 +114,7 @@ const PhotographersTeam = () => {
       status: "Active",
     });
     setPreviewImage(null);
-  
+
     const fileInput = document.querySelector('input[type="file"]');
     if (fileInput) {
       fileInput.value = null;
@@ -308,53 +308,64 @@ const PhotographersTeam = () => {
                           <form onSubmit={handleSubmit}>
                             <div className="modal-body">
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Name *</label>
+                                <label htmlFor="name">Name *</label>
                                 <input
                                   type="text"
                                   className="form-control"
+                                  id="name"
                                   name="name"
                                   value={formData.name}
                                   onChange={handleInputChange}
                                   required
+                                  autoComplete="name"
                                 />
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Email *</label>
+                                <label htmlFor="email">Email *</label>
                                 <input
                                   type="email"
                                   className="form-control"
+                                  id="email"
                                   name="email"
                                   value={formData.email}
                                   onChange={handleInputChange}
                                   required
+                                  autoComplete="email"
                                 />
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Phone *</label>
+                                <label htmlFor="phone">Phone *</label>
                                 <input
                                   type="tel"
                                   className="form-control"
+                                  id="phone"
                                   name="phone"
                                   value={formData.phone}
                                   onChange={handleInputChange}
                                   maxLength="10"
                                   required
+                                  autoComplete="tel"
                                 />
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Business Name</label>
+                                <label htmlFor="business_name">
+                                  Business Name
+                                </label>
                                 <input
                                   type="text"
                                   className="form-control"
+                                  id="business_name"
                                   name="business_name"
                                   value={formData.business_name}
                                   onChange={handleInputChange}
+                                  autoComplete="organization"
                                 />
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label>Status</label>
+                                <label htmlFor="status">Status</label>
                                 <select
                                   className="select2 form-control"
+                                  id="status"
                                   name="status"
                                   value={formData.status}
                                   onChange={handleInputChange}
@@ -365,10 +376,13 @@ const PhotographersTeam = () => {
                                 </select>
                               </fieldset>
                               <fieldset className="form-group floating-label-form-group">
-                                <label htmlFor="profile_photo">Profile Photo</label>
+                                <label htmlFor="profile_photo">
+                                  Profile Photo
+                                </label>
                                 <input
                                   type="file"
                                   className="form-control-file"
+                                  id="profile_photo"
                                   name="profile_photo"
                                   onChange={handlePhotoChange}
                                   accept="image/*"
