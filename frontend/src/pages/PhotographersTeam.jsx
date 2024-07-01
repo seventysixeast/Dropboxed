@@ -21,6 +21,7 @@ const PhotographersTeam = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [itemsLoading, setItemsLoading] = useState(false)
   const [formData, setFormData] = useState({
     id: "",
     name: "",
@@ -51,6 +52,7 @@ const PhotographersTeam = () => {
   }, [accesstoken]);
 
   const getAllPhotographersData = async () => {
+    setItemsLoading(true);
     try {
       let allPhotographers = await getAllPhotographers({
         subdomainId: user.id,
@@ -63,6 +65,8 @@ const PhotographersTeam = () => {
     } catch (error) {
       console.error("Failed to:", error.message);
     }
+    setItemsLoading(false);
+
   };
 
   const handleInputChange = (e) => {
@@ -430,7 +434,35 @@ const PhotographersTeam = () => {
       />
       <div className="sidenav-overlay"></div>
       <div className="drag-target"></div>
-      <TableCustom data={data} columns={columns} />
+      <>
+        {data.length > 0 ? (
+          <TableCustom data={data} columns={columns} />
+        ) : (
+          <div
+            className="app-content content content-wrapper d-flex justify-content-center overflow-hidden"
+            style={{
+              marginTop: "15rem",
+              marginLeft: "15px",
+              marginRight: "15px",
+            }}
+            role="status"
+          >
+            {itemsLoading ? (
+              <div
+                className="spinner-border primary overflow-hidden"
+                role="status"
+              >
+                <span className="sr-only"></span>
+              </div>
+            ) : (
+              <p>
+                No Team Members added yet. Click Add New button to add a
+                member.
+              </p>
+            )}
+          </div>
+        )}
+      </>
     </>
   );
 };

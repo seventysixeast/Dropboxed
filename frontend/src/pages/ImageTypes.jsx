@@ -21,6 +21,8 @@ const ImageTypes = () => {
   const [imagesTypes, setImageTypes] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [imageTypeIdToDelete, setImageTypeIdToDelete] = useState(null);
+
+  const [itemsLoading, setItemsLoading] = useState(false)
   const [formData, setFormData] = useState({
     id: "",
     type: "",
@@ -48,7 +50,7 @@ const ImageTypes = () => {
   }, [accesstoken]);
 
   const getAllImageTypesData = async () => {
-    setLoading(true);
+    setItemsLoading(true);
     try {
       const formData = new FormData();
       formData.append("subdomain_id", subdomainId);
@@ -57,7 +59,7 @@ const ImageTypes = () => {
     } catch (error) {
       console.error("Failed to get all image types:", error.message);
     }
-    setLoading(false);
+    setItemsLoading(false);
   };
 
   const handleInputChange = (e) => {
@@ -95,7 +97,10 @@ const ImageTypes = () => {
     } catch (error) {
       toast.error(error.message);
     }
+    setLoading(false);
+
     getAllImageTypesData();
+
   };
 
   const getImageTypeData = async (id) => {
@@ -316,7 +321,35 @@ const ImageTypes = () => {
         onConfirm={deleteImageTypeData}
         message="Are you sure you want to delete this image type?"
       />
-      <TableCustom data={data} columns={columns} />
+      <>
+        {data.length > 0 ? (
+          <TableCustom data={data} columns={columns} />
+        ) : (
+          <div
+            className="app-content content content-wrapper d-flex justify-content-center overflow-hidden"
+            style={{
+              marginTop: "15rem",
+              marginLeft: "15px",
+              marginRight: "15px",
+            }}
+            role="status"
+          >
+            {itemsLoading ? (
+              <div
+                className="spinner-border primary overflow-hidden"
+                role="status"
+              >
+                <span className="sr-only"></span>
+              </div>
+            ) : (
+              <p>
+                No Image types added yet. Click Add New button to add a
+                image type.
+              </p>
+            )}
+          </div>
+        )}
+      </>
       <LoadingOverlay loading={loading} />
     </>
   );
